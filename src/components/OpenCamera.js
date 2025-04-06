@@ -1,6 +1,7 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
+import { removeBackground } from "@imgly/background-removal";
 import "../App.css";
 
 function OpenCamera() {
@@ -41,37 +42,14 @@ function OpenCamera() {
   const capture = async () => {
     const screenshot = webRef.current.getScreenshot();
     setLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append(
-        "image_file_b64",
-        screenshot.replace(/^data:image\/\w+;base64,/, "")
-      );
-      formData.append("size", "auto");
-
-      const response = await axios.post(
-        "https://api.remove.bg/v1.0/removebg",
-        formData,
-        {
-          headers: {
-            "X-Api-Key": "fbLpgxEwyRaxsRZ7UeRNTYqB", // ⬅️ Replace this with your actual key
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          responseType: "blob",
-        }
-      );
-
-      const blob = new Blob([response.data], { type: "image/png" });
-      const url = URL.createObjectURL(blob);
-      setImageSrc(url);
-      console.log(`Removed BG: ${imageSrc}`);
-      alert("Captured successfully!");
-    } catch (err) {
-      console.log("Error removing background:", err);
-      alert("Something went wrong. Check your API key or image.");
-    } finally {
-      setLoading(false);
+    if (screenshot) {
+      try {
+        const blob = await removeBackground(screenshot);
+        const url = URL.createObjectURL(blob);
+        setImageSrc(url);
+      } catch (error) {
+        console.error("Error removing background:", error);
+      }
     }
   };
   return (
