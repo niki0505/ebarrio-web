@@ -1,14 +1,14 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import { removeBackground } from "@imgly/background-removal";
-import "../App.css";
+import Styles from "../stylesheets/Styles.css";
 
 function OpenCamera() {
   const webRef = useRef(null);
   const [imageSrc, setImageSrc] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
+  const [flash, setFlash] = useState(false);
 
   const checkCamera = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -40,44 +40,95 @@ function OpenCamera() {
   };
 
   const capture = async () => {
+    // to trigger the flash effect
+    setFlash(true);
+    setTimeout(() => setFlash(false), 200);
+
     const screenshot = webRef.current.getScreenshot();
-    setLoading(true);
     if (screenshot) {
-      try {
-        const blob = await removeBackground(screenshot);
-        const url = URL.createObjectURL(blob);
-        setImageSrc(url);
-      } catch (error) {
-        console.error("Error removing background:", error);
-      }
+      setImageSrc(screenshot); // to show captured image
     }
+    setLoading(true);
+
+    try {
+      const blob = await removeBackground(screenshot);
+      const url = URL.createObjectURL(blob);
+      setImageSrc(url);
+    } catch (error) {
+      console.error("Error removing background:", error);
+    }
+
+    setLoading(false);
   };
+
   return (
-    <div className="floating-camera-container">
-      <div>
-        <h1>ID Picture</h1>
-        {hasCamera ? (
-          imageSrc ? (
-            <img src={imageSrc} />
+    <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
+      <div className="modal-content">
+        <h1 className="modal-title">Baranggay ID Picture</h1>
+        <div className="modal-image-container">
+          {hasCamera ? (
+            imageSrc ? (
+              <img className="modal-image" src={imageSrc} />
+            ) : (
+              !loading && (
+                <Webcam
+                  className="modal-image"
+                  ref={webRef}
+                  screenshotFormat="image/png"
+                />
+              )
+            )
           ) : (
-            <Webcam ref={webRef} screenshotFormat="image/png" />
-          )
-        ) : (
-          <p>
-            No camera detected. Please ensure its connected or installed
-            properly.
-          </p>
+            <p>
+              No camera detected. Please ensure it's connected or installed
+              properly.
+            </p>
+          )}
+        </div>
+
+        {imageSrc && !loading && (
+          <p className="success-message">Baranggay ID Captured Successfully!</p>
         )}
+
+        <div className="btn-container">
+          {imageSrc && !loading ? (
+            <button className="btn-common" onClick={openCamera}>
+              Open Camera
+            </button>
+          ) : loading ? (
+            <button type="button" className="btn-disabled" disabled>
+              <svg
+                className="mr-3 w-5 h-5 animate-spin text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              Processing...
+            </button>
+          ) : (
+            <button className="btn-common" onClick={capture}>
+              Capture
+            </button>
+          )}
+
+          <button className="btn-done">Done</button>
+        </div>
       </div>
-
-      {imageSrc ? (
-        <button onClick={openCamera}>Open Camera</button>
-      ) : (
-        <button onClick={capture}>Capture Photo</button>
-      )}
-
-      <button>Done</button>
     </div>
   );
 }
+
 export default OpenCamera;
