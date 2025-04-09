@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { removeBackground } from "@imgly/background-removal";
 import Styles from "../stylesheets/Styles.css";
 
-function OpenCamera() {
+function OpenCamera({ onDone }) {
   const webRef = useRef(null);
   const [imageSrc, setImageSrc] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,8 +41,8 @@ function OpenCamera() {
 
   const capture = async () => {
     // to trigger the flash effect
-    setFlash(true);
-    setTimeout(() => setFlash(false), 200);
+    // setFlash(true);
+    // setTimeout(() => setFlash(false), 200);
 
     const screenshot = webRef.current.getScreenshot();
     if (screenshot) {
@@ -59,6 +59,12 @@ function OpenCamera() {
     }
 
     setLoading(false);
+  };
+
+  const handleDoneClick = () => {
+    if (imageSrc) {
+      onDone(imageSrc);
+    }
   };
 
   return (
@@ -124,7 +130,9 @@ function OpenCamera() {
             </button>
           )}
 
-          <button className="btn-done">Done</button>
+          <button className="btn-done" onClick={handleDoneClick}>
+            Done
+          </button>
         </div>
       </div>
     </div>
