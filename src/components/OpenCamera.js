@@ -1,7 +1,8 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
 import { removeBackground } from "@imgly/background-removal";
-import Styles from "../stylesheets/Styles.css";
+import "../stylesheets/Styles.css";
+import { IoClose } from "react-icons/io5";
 
 function OpenCamera() {
   const webRef = useRef(null);
@@ -9,6 +10,7 @@ function OpenCamera() {
   const [loading, setLoading] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
   const [flash, setFlash] = useState(false);
+  const [showModal, setShowModal] = useState(true);
 
   const checkCamera = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -20,19 +22,13 @@ function OpenCamera() {
 
   useEffect(() => {
     checkCamera();
-
-    const handleDeviceChange = () => {
-      checkCamera();
-    };
-
+    const handleDeviceChange = () => checkCamera();
     navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
-
-    return () => {
-      return navigator.mediaDevices.removeEventListener(
+    return () =>
+      navigator.mediaDevices.removeEventListener(
         "devicechange",
         handleDeviceChange
       );
-    };
   }, []);
 
   const openCamera = () => {
@@ -40,16 +36,13 @@ function OpenCamera() {
   };
 
   const capture = async () => {
-    // to trigger the flash effect
     setFlash(true);
     setTimeout(() => setFlash(false), 200);
 
     const screenshot = webRef.current.getScreenshot();
-    if (screenshot) {
-      setImageSrc(screenshot); // to show captured image
-    }
-    setLoading(true);
+    if (screenshot) setImageSrc(screenshot);
 
+    setLoading(true);
     try {
       const blob = await removeBackground(screenshot);
       const url = URL.createObjectURL(blob);
@@ -57,77 +50,93 @@ function OpenCamera() {
     } catch (error) {
       console.error("Error removing background:", error);
     }
-
     setLoading(false);
   };
 
   return (
-    <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
-      <div className="modal-content">
-        <h1 className="modal-title">Baranggay ID Picture</h1>
-        <div className="modal-image-container">
-          {hasCamera ? (
-            imageSrc ? (
-              <img className="modal-image" src={imageSrc} />
-            ) : (
-              !loading && (
-                <Webcam
-                  className="modal-image"
-                  ref={webRef}
-                  screenshotFormat="image/png"
-                />
-              )
-            )
-          ) : (
-            <p>
-              No camera detected. Please ensure it's connected or installed
-              properly.
-            </p>
-          )}
-        </div>
-
-        {imageSrc && !loading && (
-          <p className="success-message">Baranggay ID Captured Successfully!</p>
-        )}
-
-        <div className="btn-container">
-          {imageSrc && !loading ? (
-            <button className="btn-common" onClick={openCamera}>
-              Open Camera
-            </button>
-          ) : loading ? (
-            <button type="button" className="btn-disabled" disabled>
-              <svg
-                className="mr-3 w-5 h-5 animate-spin text-white"
-                viewBox="0 0 24 24"
-                fill="none"
+    <>
+      {showModal && (
+        <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
+          <div className="modal-content">
+            <div className="modal-title-bar">
+              <h1 className="modal-title">Barangay ID</h1>
+              <btn
+                className="modal-btn-close"
+                onClick={() => setShowModal(false)}
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                ></path>
-              </svg>
-              Processing...
-            </button>
-          ) : (
-            <button className="btn-common" onClick={capture}>
-              Capture
-            </button>
-          )}
+                <IoClose className="btn-close-icon" />
+              </btn>
+            </div>
 
-          <button className="btn-done">Done</button>
+            <div className="modal-image-container">
+              {hasCamera ? (
+                imageSrc ? (
+                  <img className="modal-image" src={imageSrc} />
+                ) : (
+                  !loading && (
+                    <Webcam
+                      className="modal-image"
+                      ref={webRef}
+                      screenshotFormat="image/png"
+                    />
+                  )
+                )
+              ) : (
+                <p>
+                  No camera detected. Please ensure it's connected or installed
+                  properly.
+                </p>
+              )}
+            </div>
+
+            <div className="message-area">
+              {imageSrc && !loading && (
+                <p className="success-message">
+                  Barangay ID Captured Successfully!
+                </p>
+              )}
+            </div>
+            {hasCamera && (
+              <div className="btn-container">
+                {imageSrc && !loading ? (
+                  <button className="btn-common" onClick={openCamera}>
+                    Open Camera
+                  </button>
+                ) : loading ? (
+                  <button type="button" className="btn-disabled" disabled>
+                    <svg
+                      className="mr-3 w-5 h-5 animate-spin text-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </button>
+                ) : (
+                  <button className="btn-common" onClick={capture}>
+                    Capture
+                  </button>
+                )}
+                <button className="btn-done">Done</button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 
