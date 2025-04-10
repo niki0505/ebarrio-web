@@ -1,0 +1,88 @@
+/* Open Camera Styles */
+.modal-container {
+  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
+}
+
+.modal-content {
+  @apply h-[600px] w-[700px] flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
+}
+.modal-title-bar {
+  @apply absolute top-0 left-0 w-full h-16 bg-blue-custom rounded-t-xl z-0 flex justify-between items-center px-4;
+}
+.modal-title {
+  @apply text-xl text-white font-bold;
+}
+.modal-btn-close {
+  @apply z-10 transition-all  duration-200 hover:bg-red-600 absolute right-0 top-0 bottom-0 w-12 rounded-t-xl flex items-center justify-center;
+}
+.btn-close-icon {
+  @apply text-3xl text-white;
+}
+.modal-image-container {
+  @apply mt-16;
+}
+
+.modal-image {
+  @apply h-[400px] max-w-full rounded-xl;
+}
+
+.success-message {
+  @apply text-green-600 font-semibold;
+}
+
+.message-area {
+  @apply h-[30px] flex justify-center items-center;
+}
+.btn-container {
+  @apply flex justify-center gap-5 flex-wrap;
+}
+
+.btn-common {
+  @apply px-5 py-3 bg-blue-600 text-white rounded hover:bg-blue-700;
+}
+
+.btn-disabled {
+  @apply flex items-center px-5 py-3 bg-blue-600 text-white rounded cursor-not-allowed;
+}
+
+.btn-done {
+  @apply px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400;
+}
+
+/* Flash effect */
+.flash-effect {
+  animation: flash 0.5s ease-in-out;
+}
+
+@keyframes flash {
+  0% {
+    background-color: rgba(255, 255, 255, 0); /* Transparent */
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 1); /* White */
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0); /* Transparent */
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 640px) {
+  .modal-content {
+    @apply p-3;
+  }
+
+  .modal-title {
+    @apply text-xl;
+  }
+
+  .btn-container {
+    @apply flex-col;
+  }
+}
+
+@media (min-width: 768px) {
+  .modal-content {
+    @apply p-5;
+  }
+}

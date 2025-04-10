@@ -1,14 +1,16 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
-import axios from "axios";
 import { removeBackground } from "@imgly/background-removal";
-import "../App.css";
+import "../stylesheets/Styles.css";
+import { IoClose } from "react-icons/io5";
 
-function OpenCamera() {
+function OpenCamera({ onDone, onClose }) {
   const webRef = useRef(null);
   const [imageSrc, setImageSrc] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasCamera, setHasCamera] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const [showModal, setShowModal] = useState(true);
 
   const checkCamera = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -20,19 +22,13 @@ function OpenCamera() {
 
   useEffect(() => {
     checkCamera();
-
-    const handleDeviceChange = () => {
-      checkCamera();
-    };
-
+    const handleDeviceChange = () => checkCamera();
     navigator.mediaDevices.addEventListener("devicechange", handleDeviceChange);
-
-    return () => {
-      return navigator.mediaDevices.removeEventListener(
+    return () =>
+      navigator.mediaDevices.removeEventListener(
         "devicechange",
         handleDeviceChange
       );
-    };
   }, []);
 
   const openCamera = () => {
@@ -41,43 +37,119 @@ function OpenCamera() {
 
   const capture = async () => {
     const screenshot = webRef.current.getScreenshot();
+    if (screenshot) setImageSrc(screenshot);
+
     setLoading(true);
-    if (screenshot) {
-      try {
-        const blob = await removeBackground(screenshot);
-        const url = URL.createObjectURL(blob);
-        setImageSrc(url);
-      } catch (error) {
-        console.error("Error removing background:", error);
-      }
+    try {
+      const blob = await removeBackground(screenshot);
+      const url = URL.createObjectURL(blob);
+      setImageSrc(url);
+    } catch (error) {
+      console.error("Error removing background:", error);
+    }
+    setLoading(false);
+  };
+
+  const handleDoneClick = () => {
+    if (imageSrc) {
+      onDone(imageSrc);
     }
   };
+
   return (
-    <div className="floating-camera-container">
-      <div>
-        <h1>ID Picture</h1>
-        {hasCamera ? (
-          imageSrc ? (
-            <img src={imageSrc} />
-          ) : (
-            <Webcam ref={webRef} screenshotFormat="image/png" />
-          )
-        ) : (
-          <p>
-            No camera detected. Please ensure its connected or installed
-            properly.
-          </p>
-        )}
-      </div>
+    <>
+      {showModal && (
+        <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
+          <div className="modal-content">
+            <div className="modal-title-bar">
+              <h1 className="modal-title">Picture</h1>
+              <btn className="modal-btn-close" onClick={onClose}>
+                <IoClose className="btn-close-icon" />
+              </btn>
+            </div>
 
-      {imageSrc ? (
-        <button onClick={openCamera}>Open Camera</button>
-      ) : (
-        <button onClick={capture}>Capture Photo</button>
+            <div className="modal-image-container">
+              {hasCamera ? (
+                imageSrc ? (
+                  <img className="modal-image" src={imageSrc} />
+                ) : (
+                  !loading && (
+                    <Webcam
+                      className="modal-image"
+                      ref={webRef}
+                      screenshotFormat="image/png"
+                    />
+                  )
+                )
+              ) : (
+                <p>
+                  No camera detected. Please ensure it's connected or installed
+                  properly.
+                </p>
+              )}
+            </div>
+
+            {imageSrc && !loading && (
+              <p className="success-message">
+                The picture has been captured successfully!
+              </p>
+            )}
+
+            <div className="btn-container">
+              {imageSrc && !loading ? (
+                <button className="btn-common" onClick={openCamera}>
+                  Open Camera
+                </button>
+              ) : loading ? (
+                <button type="button" className="btn-disabled" disabled>
+                  <svg
+                    className="mr-3 w-5 h-5 animate-spin text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </button>
+              ) : (
+                <button
+                  className={
+                    hasCamera ? "btn-common" : "btn-common cursor-not-allowed"
+                  }
+                  onClick={capture}
+                  disabled={!hasCamera}
+                >
+                  Capture
+                </button>
+              )}
+
+              <button
+                className={
+                  imageSrc ? "btn-done" : "btn-done cursor-not-allowed"
+                }
+                onClick={handleDoneClick}
+                disabled={!imageSrc}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-
-      <button>Done</button>
-    </div>
+    </>
   );
 }
+
 export default OpenCamera;
