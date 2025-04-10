@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 function CreateResident() {
+  ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState(null);
   const [signature, setSignature] = useState(null);
@@ -486,6 +487,8 @@ function CreateResident() {
       }
     }
   };
+
+  ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
 
   return (
     <div>
