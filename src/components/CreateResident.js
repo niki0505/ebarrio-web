@@ -969,6 +969,7 @@ function CreateResident() {
             placeholder="Enter number of siblings"
           />
         </div>
+        {renderSiblingsDropdown()}
         <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
           <label>Children</label>
           <input
@@ -978,7 +979,6 @@ function CreateResident() {
             placeholder="Enter number of siblings"
           />
         </div>
-        {renderSiblingsDropdown()}
         {renderChildrenDropdown()}
         {/* Address Information */}
         <h3>Address Information</h3>
