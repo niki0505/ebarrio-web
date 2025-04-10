@@ -4,7 +4,7 @@ import { removeBackground } from "@imgly/background-removal";
 import "../stylesheets/Styles.css";
 import { IoClose } from "react-icons/io5";
 
-function OpenCamera({ onDone }) {
+function OpenCamera({ onDone, onClose }) {
   const webRef = useRef(null);
   const [imageSrc, setImageSrc] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -36,10 +36,6 @@ function OpenCamera({ onDone }) {
   };
 
   const capture = async () => {
-    // to trigger the flash effect
-    setFlash(true);
-    setTimeout(() => setFlash(false), 200);
-
     const screenshot = webRef.current.getScreenshot();
     if (screenshot) setImageSrc(screenshot);
 
@@ -66,11 +62,8 @@ function OpenCamera({ onDone }) {
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
           <div className="modal-content">
             <div className="modal-title-bar">
-              <h1 className="modal-title">Barangay ID</h1>
-              <btn
-                className="modal-btn-close"
-                onClick={() => setShowModal(false)}
-              >
+              <h1 className="modal-title">Picture</h1>
+              <btn className="modal-btn-close" onClick={onClose}>
                 <IoClose className="btn-close-icon" />
               </btn>
             </div>
@@ -96,50 +89,67 @@ function OpenCamera({ onDone }) {
               )}
             </div>
 
-        {imageSrc && !loading && (
-          <p className="success-message">Baranggay ID Captured Successfully!</p>
-        )}
+            {imageSrc && !loading && (
+              <p className="success-message">
+                The picture has been captured successfully!
+              </p>
+            )}
 
-        <div className="btn-container">
-          {imageSrc && !loading ? (
-            <button className="btn-common" onClick={openCamera}>
-              Open Camera
-            </button>
-          ) : loading ? (
-            <button type="button" className="btn-disabled" disabled>
-              <svg
-                className="mr-3 w-5 h-5 animate-spin text-white"
-                viewBox="0 0 24 24"
-                fill="none"
+            <div className="btn-container">
+              {imageSrc && !loading ? (
+                <button className="btn-common" onClick={openCamera}>
+                  Open Camera
+                </button>
+              ) : loading ? (
+                <button type="button" className="btn-disabled" disabled>
+                  <svg
+                    className="mr-3 w-5 h-5 animate-spin text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </button>
+              ) : (
+                <button
+                  className={
+                    hasCamera ? "btn-common" : "btn-common cursor-not-allowed"
+                  }
+                  onClick={capture}
+                  disabled={!hasCamera}
+                >
+                  Capture
+                </button>
+              )}
+
+              <button
+                className={
+                  imageSrc ? "btn-done" : "btn-done cursor-not-allowed"
+                }
+                onClick={handleDoneClick}
+                disabled={!imageSrc}
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                ></path>
-              </svg>
-              Processing...
-            </button>
-          ) : (
-            <button className="btn-common" onClick={capture}>
-              Capture
-            </button>
-          )}
-
-          <button className="btn-done">Done</button>
+                Done
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
-
 
 export default OpenCamera;

@@ -42,7 +42,7 @@
 }
 
 .btn-disabled {
-  @apply flex items-center px-5 py-2 bg-blue-600 text-white rounded cursor-not-allowed;
+  @apply flex items-center px-5 py-3 bg-blue-600 text-white rounded cursor-not-allowed;
 }
 
 .btn-done {

@@ -427,6 +427,9 @@ function CreateResident() {
     setId(url);
   };
 
+  const handleClose = () => {
+    setIsCameraOpen(false);
+  };
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileName = `id_images/${Date.now()}_${randomString}.png`;
@@ -1111,7 +1114,7 @@ function CreateResident() {
 
         <button type="submit">Submit</button>
       </form>
-      {isCameraOpen && <OpenCamera onDone={handleDone} />}
+      {isCameraOpen && <OpenCamera onDone={handleDone} onClose={handleClose} />}
     </div>
   );
 }
