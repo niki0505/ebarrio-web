@@ -1,0 +1,88 @@
+.page-grid {
+  @apply relative font-title;
+}
+
+.page-grid.collapsed .navbar {
+  @apply left-[theme('spacing.sidebar-collapsed')];
+  width: calc(100% - theme("spacing.sidebar-collapsed"));
+}
+.navbar {
+  @apply shadow-[0px_0px_4px_0px_rgba(0,0,0,0.5)] 
+    fixed 
+    bg-[#fff] 
+    transition-[left,width] 
+    duration-300 
+    top-0 
+    z-20 
+    h-[theme('spacing.navbar-height')];
+  width: calc(100% - theme("spacing.sidebar"));
+}
+.navbar-right {
+  @apply flex 
+    flex-wrap sm:flex-nowrap
+    justify-end 
+    items-center 
+    gap-3 
+    mt-1
+    mr-2;
+}
+.navbar-icon {
+  @apply text-2xl sm:text-3xl 
+    mr-3 
+    cursor-pointer;
+}
+.navbar-user-info {
+  @apply flex 
+    flex-col 
+    items-end 
+    text-sm 
+    sm:text-base;
+}
+.navbar-profile-img {
+  @apply w-8 h-8 sm:w-10 sm:h-10 
+    cursor-pointer 
+    rounded-full;
+}
+.navbar-dropdown {
+  @apply absolute 
+    right-0 
+    mt-2 
+    bg-white 
+    shadow-md 
+    rounded-md 
+    w-40;
+}
+.navbar-dropdown-item {
+  @apply inline-flex 
+    py-2 
+    cursor-pointer 
+    hover:bg-gray-100
+    w-full 
+    items-center;
+}
+.signout-icon {
+  @apply text-red-500 text-xl ml-3;
+}
+.account-icon {
+  @apply text-text-blue text-xl ml-3;
+}
+.account-text {
+  @apply text-text-blue font-bold px-4 py-2;
+}
+.signout-text {
+  @apply text-red-500 font-bold px-4 py-2;
+}
+
+/*RESPONSIVE*/
+@media (max-width: 640px) {
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    @apply left-[theme('spacing.sidebar-collapsed')];
+    width: calc(100% - theme("spacing.sidebar-collapsed"));
+  }
+}
+
+@media (max-width: 1024) {
+}
