@@ -4,6 +4,7 @@
 .page-grid.collapsed .sidebar {
   @apply w-[theme('spacing.sidebar-collapsed')];
 }
+
 .sidebar {
   @apply fixed 
     bg-[#04384e] 
