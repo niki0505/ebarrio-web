@@ -1,0 +1,45 @@
+/*EMPLOYEES LIST*/
+
+.table-container {
+  @apply p-5 overflow-y-auto;
+}
+.table-inner-container {
+  @apply h-auto overflow-y-auto;
+}
+table {
+  @apply min-w-full table-auto border-separate border-spacing-0  border border-[#BDBCBC] shadow-md;
+}
+thead {
+  @apply bg-[#DCDCDC] border border-b-2;
+}
+th {
+  @apply text-center font-[750px] text-base p-3;
+}
+td {
+  @apply text-center border border-[#C1C0C0] text-sm font-medium;
+}
+.function-btn {
+  @apply px-4 py-1.5 rounded-[8px] items-center text-white font-bold shadow-box-shadow;
+}
+.profile-container {
+  @apply text-start p-5 flex flex-row;
+}
+.profile-img {
+  @apply h-[150px] w-[150px] bg-white shadow-lg bg-white rounded-xl;
+}
+.btn-container {
+  @apply p-5 flex justify-end gap-4 mt-[-48px];
+}
+
+/*CREATE EMPLOYEES*/
+
+.employees-modal-content {
+  @apply h-[18rem] w-[20rem] flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
+}
+
+.employee-form-container {
+  @apply flex flex-col items-center justify-center w-full gap-[15px] mt-[50px];
+}
+.employee-form-group {
+  @apply flex flex-col items-start w-full;
+}

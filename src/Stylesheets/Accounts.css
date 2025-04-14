@@ -5,13 +5,13 @@
 
 .main {
   @apply p-[1.25rem] 
-  bg-main-color
-  transition-all 
-  duration-300 
-  text-navy-blue
-  min-h-screen
-  h-auto
-  mt-[theme('spacing.navbar-height')];
+    bg-main-color
+    transition-all 
+    duration-300 
+    text-navy-blue
+    min-h-screen
+    h-auto
+    mt-[theme('spacing.navbar-height')];
 }
 .header-text {
   @apply text-[24px] font-bold;
@@ -32,13 +32,13 @@
 
 .main {
   @apply p-[1.25rem] 
-  bg-main-color
-  transition-all 
-  duration-300 
-  text-navy-blue
-  min-h-screen
-  h-auto
-  mt-[theme('spacing.navbar-height')];
+    bg-main-color
+    transition-all 
+    duration-300 
+    text-navy-blue
+    min-h-screen
+    h-auto
+    mt-[theme('spacing.navbar-height')];
 }
 .header-text {
   /*HEADER TITLE*/

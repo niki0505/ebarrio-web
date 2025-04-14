@@ -5,13 +5,13 @@
 
 .main {
   @apply p-[1.25rem] 
-  bg-main-color
-  transition-all 
-  duration-300 
-  text-navy-blue
-  min-h-screen
-  h-auto
-  mt-[theme('spacing.navbar-height')];
+    bg-main-color
+    transition-all 
+    duration-300 
+    text-navy-blue
+    min-h-screen
+    h-auto
+    mt-[theme('spacing.navbar-height')];
 }
 .header-text {
   @apply text-[24px] font-bold;
@@ -53,7 +53,7 @@
 .form-label {
   @apply text-[12px] font-[650] block;
 }
-.form-grid {
+.form-gridd {
   @apply mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
 }
 .form-group {

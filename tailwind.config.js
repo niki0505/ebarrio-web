@@ -9,6 +9,7 @@ module.exports = {
         "light-white": "rgba(255, 255, 255,0.18)",
         "main-color": "#F0F4F7",
         "btn-color-blue": "#0E94D3",
+        "btn-color-red": "#F63131",
         "text-blue": "#04384E",
         "btn-color-gray": "#C1C0C0",
       },
@@ -19,6 +20,9 @@ module.exports = {
       },
       fontFamily: {
         title: ["Inter", "sans-serif"],
+      },
+      boxShadow: {
+        "box-shadow": "0 4px 4px 0 rgba(0, 0, 0, 0.25)",
       },
     },
   },

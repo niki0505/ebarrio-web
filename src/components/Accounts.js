@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
+import "../Stylesheets/Accounts.css";
 import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
@@ -88,6 +88,11 @@ function Accounts({ isCollapsed }) {
         <div className="header-text">Users</div>
 
         <SearchBar />
+        <button className="add-btn" onClick={handleAdd}>
+          <MdPersonAddAlt1 className=" text-xl" />
+          <span className="font-bold">Add new user</span>
+        </button>
+
         <div style={{ padding: "20px", overflowY: "auto" }}>
           <div style={{ height: "300px", overflowY: "auto" }}>
             <table
@@ -218,10 +223,6 @@ function Accounts({ isCollapsed }) {
             </table>
           </div>
           {isCreateClicked && <CreateAccount />}
-          <button className="resident-add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new user</span>
-          </button>
         </div>
       </main>
     </>

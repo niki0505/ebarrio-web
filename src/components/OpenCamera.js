@@ -64,9 +64,9 @@ function OpenCamera({ onDone, onClose }) {
           <div className="modal-content">
             <div className="modal-title-bar">
               <h1 className="modal-title">Picture</h1>
-              <btn className="modal-btn-close" onClick={onClose}>
+              <button className="modal-btn-close" onClick={onClose}>
                 <IoClose className="btn-close-icon" />
-              </btn>
+              </button>
             </div>
 
             <div className="modal-image-container">

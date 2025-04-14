@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
 import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
@@ -9,6 +8,7 @@ import Indigency from "./certificates/Indigency";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
+import "../Stylesheets/Employees.css";
 
 function Employees({ isCollapsed }) {
   const navigation = useNavigate();
@@ -95,59 +95,26 @@ function Employees({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div style={{ padding: "20px", overflowY: "auto" }}>
-          <div style={{ height: "300px", overflowY: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                border: "1px solid black",
-              }}
-            >
+        <button className="add-btn" onClick={handleAdd}>
+          <MdPersonAddAlt1 className=" text-xl" />
+          <span className="font-bold">Add new employee</span>
+        </button>
+
+        <div className="table-container">
+          <div className="table-inner-container">
+            <table>
               <thead>
                 <tr>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Name
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Mobile No.
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Address
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Position
-                  </th>
+                  <th>Name</th>
+                  <th>Mobile No.</th>
+                  <th>Address</th>
+                  <th>Position</th>
                 </tr>
               </thead>
 
               <tbody>
                 {filteredEmployees.length === 0 ? (
-                  <tr>
+                  <tr className="bg-white">
                     <td colSpan={4}>No results found</td>
                   </tr>
                 ) : (
@@ -167,131 +134,93 @@ function Employees({ isCollapsed }) {
                         }}
                       >
                         {expandedRow === emp._id ? (
-                          <td
-                            colSpan={4}
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid black",
-                            }}
-                          >
+                          <td colSpan={4}>
                             {/* Additional Information for the resident */}
-                            <div style={{ flexDirection: "row" }}>
-                              <img src={emp.resID.picture} width={150} />
-                              <p>
-                                <strong>Name: </strong>
-                                {emp.resID.middlename
-                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                              </p>
-                              <p>
-                                <strong>Age:</strong> {emp.resID.age}
-                              </p>
-                              <p>
-                                <strong>Sex:</strong> {emp.resID.sex}
-                              </p>
-                              <p>
-                                <strong>Civil Status: </strong>{" "}
-                                {emp.resID.civilstatus}
-                              </p>
-                              <p>
-                                <strong>Mobile Number: </strong>{" "}
-                                {emp.resID.mobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong> {emp.resID.address}
-                              </p>
-                              <p>
-                                <strong>Position: </strong> {emp.position}
-                              </p>
-                              <p>
-                                <strong>Emergency Contact:</strong>
-                              </p>
-                              <p>
-                                <strong>Name: </strong>
-                                {emp.resID.emergencyname}
-                              </p>
-                              <p>
-                                <strong>Mobile: </strong>
-                                {emp.resID.emergencymobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong>
-                                {emp.resID.emergencyaddress}
-                              </p>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  gap: "10px",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <button
-                                  style={{
-                                    backgroundColor: "red",
-                                  }}
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, emp._id)}
-                                >
-                                  ARCHIVE
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  // onClick={(e) => buttonClick(e, emp._id)}
-                                >
-                                  EMPLOYEE ID
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  // onClick={() => editBtn(emp._id)}
-                                >
-                                  EDIT
-                                </button>
+                            <div className="profile-container">
+                              <img
+                                src={emp.resID.picture}
+                                className="profile-img"
+                              />
+                              <div className="ml-5 text-sm">
+                                <p>
+                                  <strong>Name: </strong>
+                                  {emp.resID.middlename
+                                    ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                    : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                </p>
+                                <p>
+                                  <strong>Age:</strong> {emp.resID.age}
+                                </p>
+                                <p>
+                                  <strong>Sex:</strong> {emp.resID.sex}
+                                </p>
+                                <p>
+                                  <strong>Civil Status: </strong>{" "}
+                                  {emp.resID.civilstatus}
+                                </p>
+                                <p>
+                                  <strong>Mobile Number: </strong>{" "}
+                                  {emp.resID.mobilenumber}
+                                </p>
+                                <p>
+                                  <strong>Address: </strong> {emp.resID.address}
+                                </p>
+                                <p>
+                                  <strong>Position: </strong> {emp.position}
+                                </p>
                               </div>
+                              <div className="ml-5 text-sm">
+                                <p>
+                                  <strong>Emergency Contact:</strong>
+                                </p>
+                                <p>
+                                  <strong>Name: </strong>
+                                  {emp.resID.emergencyname}
+                                </p>
+                                <p>
+                                  <strong>Mobile: </strong>
+                                  {emp.resID.emergencymobilenumber}
+                                </p>
+                                <p>
+                                  <strong>Address: </strong>
+                                  {emp.resID.emergencyaddress}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="btn-container">
+                              <button
+                                className="function-btn bg-btn-color-red"
+                                type="submit"
+                                onClick={(e) => archiveBtn(e, emp._id)}
+                              >
+                                ARCHIVE
+                              </button>
+                              <button
+                                className="function-btn bg-btn-color-blue"
+                                type="submit"
+                                // onClick={(e) => buttonClick(e, emp._id)}
+                              >
+                                EMPLOYEE ID
+                              </button>
+                              <button
+                                className="function-btn bg-btn-color-blue"
+                                type="submit"
+                                // onClick={() => editBtn(emp._id)}
+                              >
+                                EDIT
+                              </button>
                             </div>
                           </td>
                         ) : (
                           <>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
+                            <td>
                               {emp.resID.middlename
                                 ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
                                 : `${emp.resID.lastname} ${emp.resID.firstname}`}
                             </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.resID.mobilenumber}
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.resID.address}
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.position}
-                            </td>
+                            <td>{emp.resID.mobilenumber}</td>
+                            <td>{emp.resID.address}</td>
+                            <td>{emp.position}</td>
                           </>
                         )}
                       </tr>
@@ -302,11 +231,9 @@ function Employees({ isCollapsed }) {
             </table>
           </div>
           {isCertClicked && <Indigency resID={selectedResID} />}
-          {isCreateClicked && <CreateEmployee />}
-          <button className="resident-add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new employee</span>
-          </button>
+          {isCreateClicked && (
+            <CreateEmployee onClose={() => setCreateClicked(false)} />
+          )}
         </div>
       </main>
     </>

@@ -94,50 +94,25 @@ function Residents({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div style={{ padding: "20px", overflowY: "auto" }}>
-          <div style={{ height: "300px", overflowY: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                border: "1px solid black",
-              }}
-            >
+        <button className="add-btn" onClick={handleAdd}>
+          <MdPersonAddAlt1 className=" text-xl" />
+          <span className="font-bold">Add new resident</span>
+        </button>
+
+        <div className="table-container">
+          <div className="table-inner-container">
+            <table>
               <thead>
                 <tr>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Name
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Mobile No.
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Address
-                  </th>
+                  <th>Name</th>
+                  <th>Mobile No.</th>
+                  <th>Address</th>
                 </tr>
               </thead>
 
               <tbody>
                 {filteredResidents.length === 0 ? (
-                  <tr>
+                  <tr className="bg-white">
                     <td colSpan={3}>No results found</td>
                   </tr>
                 ) : (
@@ -157,129 +132,96 @@ function Residents({ isCollapsed }) {
                         }}
                       >
                         {expandedRow === res._id ? (
-                          <td
-                            colSpan={3}
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid black",
-                            }}
-                          >
+                          <td colSpan={3}>
                             {/* Additional Information for the resident */}
-                            <div style={{ flexDirection: "row" }}>
-                              <img src={res.picture} width={150} />
-                              <p>
-                                <strong>Name: </strong>
-                                {res.middlename
-                                  ? `${res.firstname} ${res.middlename} ${res.lastname}`
-                                  : `${res.firstname} ${res.lastname}`}
-                              </p>
-                              <p>
-                                <strong>Age:</strong> {res.age}
-                              </p>
-                              <p>
-                                <strong>Sex:</strong> {res.sex}
-                              </p>
-                              <p>
-                                <strong>Civil Status: </strong>{" "}
-                                {res.civilstatus}
-                              </p>
-                              <p>
-                                <strong>Mobile Number: </strong>{" "}
-                                {res.mobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong> {res.address}
-                              </p>
-                              <p>
-                                <strong>Emergency Contact:</strong>
-                              </p>
-                              <p>
-                                <strong>Name: </strong>
-                                {res.emergencyname}
-                              </p>
-                              <p>
-                                <strong>Mobile: </strong>
-                                {res.emergencymobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong>
-                                {res.emergencyaddress}
-                              </p>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  gap: "10px",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <button
-                                  style={{
-                                    backgroundColor: "red",
-                                  }}
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, res._id)}
-                                >
-                                  ARCHIVE
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  onClick={(e) => buttonClick(e, res._id)}
-                                >
-                                  BRGY ID
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  CERTIFICATE
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  onClick={() => editBtn(res._id)}
-                                >
-                                  EDIT
-                                </button>
+                            <div className="profile-container">
+                              <img
+                                src={res.picture}
+                                className="profile-img"
+                              />
+                              <div className="ml-5 text-sm">
+                                <p>
+                                  <strong>Name: </strong>
+                                  {res.middlename
+                                    ? `${res.firstname} ${res.middlename} ${res.lastname}`
+                                    : `${res.firstname} ${res.lastname}`}
+                                </p>
+                                <p>
+                                  <strong>Age:</strong> {res.age}
+                                </p>
+                                <p>
+                                  <strong>Sex:</strong> {res.sex}
+                                </p>
+                                <p>
+                                  <strong>Civil Status: </strong>{" "}
+                                  {res.civilstatus}
+                                </p>
+                                <p>
+                                  <strong>Mobile Number: </strong>{" "}
+                                  {res.mobilenumber}
+                                </p>
+                                <p>
+                                  <strong>Address: </strong> {res.address}
+                                </p>
                               </div>
+                              <div className="ml-5 text-sm">
+                                <p>
+                                  <strong>Emergency Contact:</strong>
+                                </p>
+                                <p>
+                                  <strong>Name: </strong>
+                                  {res.emergencyname}
+                                </p>
+                                <p>
+                                  <strong>Mobile: </strong>
+                                  {res.emergencymobilenumber}
+                                </p>
+                                <p>
+                                  <strong>Address: </strong>
+                                  {res.emergencyaddress}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="btn-container">
+                              <button
+                                className="function-btn bg-btn-color-red"
+                                type="submit"
+                                onClick={(e) => archiveBtn(e, res._id)}
+                              >
+                                ARCHIVE
+                              </button>
+                              <button
+                                className="function-btn bg-btn-color-blue"
+                                type="submit"
+                                onClick={(e) => buttonClick(e, res._id)}
+                              >
+                                BRGY ID
+                              </button>
+                              <button
+                                className="function-btn bg-btn-color-blue"
+                                type="submit"
+                                onClick={(e) => certBtn(e, res._id)}
+                              >
+                                CERTIFICATE
+                              </button>
+                              <button
+                                className="function-btn bg-btn-color-blue"
+                                type="submit"
+                                onClick={() => editBtn(res._id)}
+                              >
+                                EDIT
+                              </button>
                             </div>
                           </td>
                         ) : (
                           <>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
+                            <td className="text-sm">
                               {res.middlename
                                 ? `${res.lastname} ${res.middlename} ${res.firstname}`
                                 : `${res.lastname} ${res.firstname}`}
                             </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {res.mobilenumber}
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {res.address}
-                            </td>
+                            <td className="text-sm">{res.mobilenumber}</td>
+                            <td className="text-sm">{res.address}</td>
                           </>
                         )}
                       </tr>
@@ -289,10 +231,6 @@ function Residents({ isCollapsed }) {
               </tbody>
             </table>
           </div>
-          <button className="resident-add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new resident</span>
-          </button>
         </div>
       </main>
       {isCertClicked && <Indigency resID={selectedResID} />}
