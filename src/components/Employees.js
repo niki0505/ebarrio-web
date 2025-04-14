@@ -184,7 +184,7 @@ function Employees({ isCollapsed }) {
                                   : `${emp.resID.firstname} ${emp.resID.lastname}`}
                               </p>
                               <p>
-                                <strong>Age:</strong> 20
+                                <strong>Age:</strong> {emp.resID.age}
                               </p>
                               <p>
                                 <strong>Sex:</strong> {emp.resID.sex}
