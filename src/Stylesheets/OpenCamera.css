@@ -1,13 +1,17 @@
-/* Open Camera Styles */
+/*COMMON*/
+.page-grid {
+  @apply relative font-title;
+}
+
 .modal-container {
   @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
 }
 
 .modal-content {
-  @apply h-[600px] w-[700px] flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
+  @apply h-[38rem] w-[45rem] flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
 }
 .modal-title-bar {
-  @apply absolute top-0 left-0 w-full h-16 bg-blue-custom rounded-t-xl z-0 flex justify-between items-center px-4;
+  @apply absolute top-0 left-0 w-full h-16 bg-navy-blue rounded-t-xl z-0 flex justify-between items-center px-4;
 }
 .modal-title {
   @apply text-xl text-white font-bold;
@@ -42,14 +46,13 @@
 }
 
 .btn-disabled {
-  @apply flex items-center px-5 py-3 bg-blue-600 text-white rounded cursor-not-allowed;
+  @apply flex items-center text-white cursor-not-allowed;
 }
 
-.btn-done {
-  @apply px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400;
+.function-btn {
+  @apply px-6 py-1.5 rounded-[10px]  items-center text-white font-bold;
 }
 
-/* Flash effect */
 .flash-effect {
   animation: flash 0.5s ease-in-out;
 }
@@ -66,23 +69,67 @@
   }
 }
 
-/* Responsive Styles */
-@media (max-width: 640px) {
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
   .modal-content {
-    @apply p-3;
+    @apply w-[75%] h-[30rem];
   }
 
-  .modal-title {
-    @apply text-xl;
+  .modal-title-bar {
+    @apply h-14 px-3;
   }
 
-  .btn-container {
-    @apply flex-col;
+  .modal-image {
+    @apply h-[16rem];
+  }
+
+  .btn-common,
+  .btn-done,
+  .btn-disabled {
+    @apply px-4 py-2 text-sm;
   }
 }
 
-@media (min-width: 768px) {
-  .modal-content {
-    @apply p-5;
+@media (max-width: 1024px) {
+}
+
+@media (max-width: 640px) {
+  .modal-title-bar {
+    @apply h-12 px-2;
+  }
+
+  .modal-title {
+    @apply text-base;
+  }
+
+  .modal-btn-close {
+    @apply w-10;
+  }
+
+  .btn-close-icon {
+    @apply text-2xl;
+  }
+
+  .modal-image-container {
+    @apply mt-12;
+  }
+
+  .modal-image {
+    @apply h-[200px];
+  }
+
+  .btn-container {
+    @apply flex-col gap-3;
+  }
+
+  .btn-common,
+  .btn-done,
+  .btn-disabled {
+    @apply w-full text-sm;
+  }
+
+  .message-area {
+    @apply text-sm;
   }
 }

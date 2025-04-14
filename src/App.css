@@ -1,4 +1,4 @@
-.floating-camera-container {
+.floating-container {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -8,11 +8,23 @@
   border-radius: 10px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  width: 800px;
+  width: 500px;
+  height: 500px;
 
   text-align: center;
 }
 
-button {
-  margin-top: 10px;
+.floating-document-container {
+  position: fixed; /* Fixes the container on the screen */
+  top: 50%; /* Centers vertically */
+  left: 50%; /* Centers horizontally */
+  transform: translate(-50%, -50%); /* Adjusts the position to truly center */
+  width: 5.5in; /* Fixed width (8.5 inches) */
+  height: 6.8in; /* Fixed height (11 inches) */
+  background-color: white; /* Semi-transparent background */
+  color: white; /* White text */
+  padding: 15px; /* Padding inside the container */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  font-size: 16px; /* Default font size */
 }

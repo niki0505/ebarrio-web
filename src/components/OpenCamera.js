@@ -1,7 +1,8 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
 import { removeBackground } from "@imgly/background-removal";
-import "../stylesheets/Styles.css";
+import "../Stylesheets/OpenCamera.css";
+
 import { IoClose } from "react-icons/io5";
 
 function OpenCamera({ onDone, onClose }) {
@@ -97,11 +98,18 @@ function OpenCamera({ onDone, onClose }) {
 
             <div className="btn-container">
               {imageSrc && !loading ? (
-                <button className="btn-common" onClick={openCamera}>
+                <button
+                  className="function-btn bg-btn-color-blue"
+                  onClick={openCamera}
+                >
                   Open Camera
                 </button>
               ) : loading ? (
-                <button type="button" className="btn-disabled" disabled>
+                <button
+                  type="button"
+                  className="btn-disabled function-btn bg-btn-color-blue"
+                  disabled
+                >
                   <svg
                     className="mr-3 w-5 h-5 animate-spin text-white"
                     viewBox="0 0 24 24"
@@ -126,7 +134,9 @@ function OpenCamera({ onDone, onClose }) {
               ) : (
                 <button
                   className={
-                    hasCamera ? "btn-common" : "btn-common cursor-not-allowed"
+                    hasCamera
+                      ? "function-btn bg-btn-color-blue"
+                      : "function-btn bg-btn-color-blue cursor-not-allowed"
                   }
                   onClick={capture}
                   disabled={!hasCamera}
@@ -137,7 +147,9 @@ function OpenCamera({ onDone, onClose }) {
 
               <button
                 className={
-                  imageSrc ? "btn-done" : "btn-done cursor-not-allowed"
+                  imageSrc
+                    ? "function-btn bg-btn-color-gray hover:bg-gray-400"
+                    : "function-btn bg-btn-color-gray cursor-not-allowed"
                 }
                 onClick={handleDoneClick}
                 disabled={!imageSrc}
