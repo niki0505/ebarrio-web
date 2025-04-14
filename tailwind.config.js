@@ -5,10 +5,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        blue: {
-          ...defaultTheme.colors.blue,
-          custom: "#04384E",
-        },
+        "navy-blue": "#04384E",
+        "light-white": "rgba(255, 255, 255,0.18)",
+        "main-color": "#F0F4F7",
+        "btn-color-blue": "#0E94D3",
+        "text-blue": "#04384E",
+        "btn-color-gray": "#C1C0C0",
+      },
+      spacing: {
+        sidebar: "18rem",
+        "sidebar-collapsed": "5rem",
+        "navbar-height": "3.5rem",
+      },
+      fontFamily: {
+        title: ["Inter", "sans-serif"],
       },
     },
   },

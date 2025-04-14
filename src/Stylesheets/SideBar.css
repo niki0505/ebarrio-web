@@ -1,0 +1,90 @@
+.page-grid {
+  @apply relative font-title;
+}
+.page-grid.collapsed .sidebar {
+  @apply w-[theme('spacing.sidebar-collapsed')];
+}
+
+.sidebar {
+  @apply fixed 
+    bg-[#04384e] 
+    text-white 
+    p-4 
+    transition-all 
+    duration-300 
+    overflow-hidden 
+    top-0 
+    left-0 
+    z-40 
+    h-full
+    w-[theme('spacing.sidebar')];
+}
+.sidebar-toggle-btn {
+  @apply text-white 
+    text-2xl 
+    top-5 
+    cursor-pointer;
+}
+.sidebar-logo-container {
+  @apply flex 
+    items-center  
+    duration-300;
+}
+.sidebar-logo-img {
+  @apply w-20 
+    rounded 
+    block 
+    transition-transform 
+    duration-300;
+}
+.sidebar-logo-text {
+  @apply items-start 
+    ml-1
+    text-white 
+    font-bold 
+    text-2xl;
+}
+.sidebar-menu {
+  @apply h-[40px]
+    mt-5;
+}
+.sidebar-menu-item {
+  @apply flex 
+    items-center 
+    w-full 
+    rounded-lg 
+    h-full
+    text-white 
+    cursor-pointer;
+}
+.sidebar-menu-item-icon {
+  @apply text-2xl 
+    text-white 
+    ml-2;
+}
+.sidebar-menu-item-title {
+  @apply text-base 
+   
+    font-medium
+    ml-3;
+}
+
+/*RESPONSIVE*/
+@media (max-width: 640px) {
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    @apply w-[theme('spacing.sidebar-collapsed')];
+  }
+  .sidebar-logo-text,
+  .sidebar-menu-item-title {
+    @apply hidden;
+  }
+  .sidebar-toggle-btn {
+    @apply rotate-[180deg] ml-3 mb-2;
+  }
+}
+
+@media (max-width: 1024) {
+}

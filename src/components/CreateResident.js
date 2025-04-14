@@ -6,8 +6,11 @@ import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import mongoose from "mongoose";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { FiCamera } from "react-icons/fi";
+import { FiUpload } from "react-icons/fi";
+import "../Stylesheets/CreateResident.css";
 
-function CreateResident() {
+function CreateResident({ isCollapsed }) {
   ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState(null);
@@ -80,16 +83,15 @@ function CreateResident() {
     const siblingsDropdowns = [];
     for (let i = 0; i < numberOfSiblings; i++) {
       siblingsDropdowns.push(
-        <div
-          style={{ display: "flex", flexDirection: "row", gap: "10px" }}
-          key={i}
-        >
-          <label htmlFor={`sibling-${i}`}>Sibling</label>
+        <div key={i} className="form-group">
+          <label htmlFor={`sibling-${i}`} className="form-label">
+            Sibling
+          </label>
           <select
             id={`sibling-${i}`}
             name={`sibling-${i}`}
-            style={{ width: "150px" }}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -114,16 +116,15 @@ function CreateResident() {
     const childrenDropdowns = [];
     for (let i = 0; i < numberOfChildren; i++) {
       childrenDropdowns.push(
-        <div
-          style={{ display: "flex", flexDirection: "row", gap: "10px" }}
-          key={i}
-        >
-          <label htmlFor={`child-${i}`}>Child</label>
+        <div key={i} className="form-group">
+          <label htmlFor={`child-${i}`} className="form-label">
+            Child
+          </label>
           <select
             id={`child-${i}`}
             name={`child-${i}`}
-            style={{ width: "150px" }}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -491,633 +492,745 @@ function CreateResident() {
   ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
 
   return (
-    <div>
-      <h1>Create Resident</h1>
+    <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+      <h1 className="header-text">Create Resident</h1>
 
-      {/* Personal Information */}
-      <h3>Personal Information</h3>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          gap: "50px",
-        }}
-      >
-        <div style={{ border: "1px solid black", width: "400px" }}>
-          <h3>
-            Picture<label style={{ color: "red" }}>*</label>
-          </h3>
-          <input
-            onChange={handleChangeID}
-            type="file"
-            style={{ display: "none" }}
-            ref={hiddenInputRef1}
-          />
-          <div>
-            <div>
-              {id ? <img src={id} width={150} /> : <p>No Picture Attached</p>}
-              <button onClick={toggleCamera}>Open Camera</button>
-              <button onClick={handleUploadID}>Upload a Photo</button>
+      <div className="resident-info-container">
+        <h3 className="section-title">Personal Information</h3>
+        <hr class="section-divider" />
+        <div className="upload-container">
+          <div className="picture-upload-wrapper">
+            <h3 className="form-label">
+              Picture<label className="text-red-600">*</label>
+            </h3>
+            <div className="upload-box">
+              <input
+                onChange={handleChangeID}
+                type="file"
+                style={{ display: "none" }}
+                ref={hiddenInputRef1}
+              />
+
+              <div className="upload-content">
+                <div className="preview-container">
+                  {id ? (
+                    <img src={id} className="w-[150px] sm:w-[100px]" />
+                  ) : (
+                    <p>No Picture Attached</p>
+                  )}
+                </div>
+
+                <div className="upload-picture-btn">
+                  <button onClick={toggleCamera} className="upload-btn">
+                    <FiCamera />
+                  </button>
+                  <button onClick={handleUploadID} className="upload-btn">
+                    <FiUpload />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="picture-upload-wrapper">
+            <h3 className="form-label">
+              Signature<label className="text-red-600">*</label>
+            </h3>
+            <div className="upload-box">
+              <input
+                onChange={handleChangeSig}
+                type="file"
+                style={{ display: "none" }}
+                ref={hiddenInputRef2}
+              />
+              <div className="upload-content">
+                <div className="preview-container">
+                  {signature ? (
+                    <img src={signature} className="w-[150px] sm:w-[100px]" />
+                  ) : (
+                    <p>No Picture Attached</p>
+                  )}
+                </div>
+
+                <div className="upload-signature-btn">
+                  <button onClick={handleUploadSig} className="upload-btn">
+                    <FiUpload />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div style={{ border: "1px solid black", width: "400px" }}>
-          <h3>
-            Signature<label style={{ color: "red" }}>*</label>
-          </h3>
-          <input
-            onChange={handleChangeSig}
-            type="file"
-            style={{ display: "none" }}
-            ref={hiddenInputRef2}
-          />
-          {signature ? (
-            <img src={signature} width={150} />
-          ) : (
-            <p>No Picture Attached</p>
-          )}
-          <div>
-            <button onClick={handleUploadSig}>Upload a Signature</button>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">
+                First Name<label className="text-red-600">*</label>
+              </label>
+              <input
+                type="text"
+                name="firstname"
+                value={residentForm.firstname}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter first name"
+                required
+                className="form-input input-box"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Middle Name</label>
+              <input
+                name="middlename"
+                value={residentForm.middlename}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter middle name"
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">
+                Last Name<label className="text-red-600">*</label>
+              </label>
+              <input
+                name="lastname"
+                value={residentForm.lastname}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter last name"
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label for="suffix" className="form-label">
+                Suffix
+              </label>
+              <select
+                id="suffix"
+                name="suffix"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                {suffixList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Alias</label>
+              <input
+                name="alias"
+                value={residentForm.alias}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter alias"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label for="salutation" className="form-label">
+                Salutation
+              </label>
+              <select
+                id="salutation"
+                name="salutation"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                {salutationList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="sex" className="form-label">
+                Sex<label className="text-red-600">*</label>
+              </label>
+              <select
+                id="sex"
+                name="sex"
+                onChange={handleDropdownChange}
+                required
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {sexList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="gender" className="form-label">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {genderList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Birthdate<label className="text-red-600">*</label>
+              </label>
+              <input
+                type="date"
+                name="birthdate"
+                onChange={(e) => {
+                  const { name, value } = e.target;
+                  setResidentForm((prev) => ({
+                    ...prev,
+                    [name]: value,
+                  }));
+                }}
+                value={residentForm.birthdate}
+                placeholder="Enter birthdate"
+                min="1900-01-01"
+                required
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Birthplace</label>
+              <input
+                name="birthplace"
+                value={residentForm.birthplace}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter birthplace"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label for="civilstatus" className="form-label">
+                Civil Status<label className="text-red-600">*</label>
+              </label>
+              <select
+                id="civilstatus"
+                name="civilstatus"
+                onChange={handleDropdownChange}
+                required
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {civilstatusList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="bloodtype" className="form-label">
+                Blood Type
+              </label>
+              <select
+                id="bloodtype"
+                name="bloodtype"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {bloodtypeList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="religion" className="form-label">
+                Religion
+              </label>
+              <select
+                id="religion"
+                name="religion"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {religionList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="nationality" className="form-label">
+                Nationality<label className="text-red-600">*</label>
+              </label>
+              <select
+                id="nationality"
+                name="nationality"
+                onChange={handleDropdownChange}
+                required
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {nationalityList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group space-x-5">
+              <label className="form-label ">Registered Voter</label>
+              <label>
+                <input
+                  type="radio"
+                  name="voter"
+                  onChange={handleRadioChange}
+                  value="Yes"
+                  checked={residentForm.voter === "Yes"}
+                />
+                Yes
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="voter"
+                  onChange={handleRadioChange}
+                  value="No"
+                  checked={residentForm.voter === "No"}
+                />
+                No
+              </label>
+            </div>
+
+            <div className="form-group space-x-5">
+              <label className="form-label">Deceased</label>
+              <label>
+                <input
+                  type="radio"
+                  name="deceased"
+                  onChange={handleRadioChange}
+                  value="Yes"
+                  checked={residentForm.deceased === "Yes"}
+                />
+                Yes
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="deceased"
+                  onChange={handleRadioChange}
+                  value="No"
+                  checked={residentForm.deceased === "No"}
+                />
+                No
+              </label>
+            </div>
           </div>
-        </div>
+
+          {/* Contact Information */}
+          <h3 className="section-title mt-8">Contact Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="col-span-1">
+              <label className="form-label">Email</label>
+              <input
+                name="email"
+                value={residentForm.email}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter email"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Mobile Number<label className="text-red-600">*</label>
+              </label>
+              <input
+                name="mobilenumber"
+                value={residentForm.mobilenumber}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter mobile number"
+                required
+                maxLength={11}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Telephone</label>
+              <input
+                name="telephone"
+                value={residentForm.telephone}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter telephone"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Facebook</label>
+              <input
+                name="facebook"
+                value={residentForm.facebook}
+                onChange={stringsAndNoSpaceOnly}
+                placeholder="Enter facebook"
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          {/* In Case Of Emergency Situation */}
+          <h3 className="section-title mt-8">In Case Of Emergency Situation</h3>
+          <hr class="section-divider" />
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">
+                Name<label className="text-red-600">*</label>
+              </label>
+              <input
+                name="emergencyname"
+                value={residentForm.emergencyname}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter name"
+                required
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Mobile Number<label className="text-red-600">*</label>
+              </label>
+              <input
+                name="emergencymobilenumber"
+                value={residentForm.emergencymobilenumber}
+                onChange={numbersAndNoSpaceOnly}
+                placeholder="Enter mobile number"
+                required
+                maxLength={11}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Address<label className="text-red-600">*</label>
+              </label>
+              <input
+                name="emergencyaddress"
+                value={residentForm.emergencyaddress}
+                onChange={lettersNumbersAndSpaceOnly}
+                placeholder="Enter address"
+                required
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          {/* Family Information */}
+          <h3 className="section-title mt-8">Family Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label for="mother" className="form-label">
+                Mother
+              </label>
+              <select
+                id="mother"
+                name="mother"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {residents.map((element) => (
+                  <option value={element._id}>
+                    {element.middlename
+                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                      : `${element.firstname} ${element.lastname}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="father" className="form-label">
+                Father
+              </label>
+              <select
+                id="father"
+                name="father"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {residents.map((element) => (
+                  <option value={element._id}>
+                    {element.middlename
+                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                      : `${element.firstname} ${element.lastname}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label for="spouse" className="form-label">
+                Spouse
+              </label>
+              <select
+                id="spouse"
+                name="spouse"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {residents.map((element) => (
+                  <option value={element._id}>
+                    {element.middlename
+                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                      : `${element.firstname} ${element.lastname}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">Siblings</label>
+              <input
+                name="numberofsiblings"
+                value={residentForm.numberofsiblings}
+                onChange={numbersAndNoSpaceOnly}
+                placeholder="Enter number of siblings"
+                className="form-input"
+              />
+            </div>
+          </div>
+          <div className="form-grid">{renderSiblingsDropdown()}</div>
+
+          <div className="form-grid">
+            <div className="form-group mt-[-20px]">
+              <label className="form-label">Children</label>
+              <input
+                name="numberofchildren"
+                value={residentForm.numberofchildren}
+                onChange={numbersAndNoSpaceOnly}
+                placeholder="Enter number of children"
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          <div className="form-grid">{renderChildrenDropdown()}</div>
+
+          {/* Address Information */}
+          <h3 className="section-title mt-3">Address Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">House Number</label>
+              <input
+                name="housenumber"
+                value={residentForm.housenumber}
+                onChange={numbersAndNoSpaceOnly}
+                placeholder="Enter house number"
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label for="street" className="form-label">
+                Street<label className="text-red-600">*</label>
+              </label>
+              <select
+                id="street"
+                name="street"
+                onChange={handleDropdownChange}
+                required
+                className="form-input"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {streetList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label for="HOAname" className="form-label">
+                HOA Name
+              </label>
+              <select
+                id="HOAname"
+                name="HOAname"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                <option value="Bermuda Town Homes">Bermuda Town Homes</option>
+                <option value="None">None</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Employment Information */}
+          <h3 className="section-title mt-8">Employment Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label for="employmentstatus" className="form-label">
+                Employment Status
+              </label>
+              <select
+                id="employmentstatus"
+                name="employmentstatus"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                {employmentstatusList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Occupation</label>
+              <input
+                name="occupation"
+                value={residentForm.occupation}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter occupation"
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label for="monthlyincome" className="form-label">
+                Monthly Income
+              </label>
+              <select
+                id="monthlyincome"
+                name="monthlyincome"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                {monthlyincomeList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Educational Information */}
+          <h3 className="section-title mt-8">Educational Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label for="educationalattainment" className="form-label">
+                Highest Educational Attainment
+              </label>
+              <select
+                id="educationalattainment"
+                name="educationalattainment"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                {educationalattainmentList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label for="typeofschool" className="form-label">
+                Type of School
+              </label>
+              <select
+                id="typeofschool"
+                name="typeofschool"
+                onChange={handleDropdownChange}
+                className="form-input"
+              >
+                <option value="Select" disabled selected hidden>
+                  Select
+                </option>
+                <option value="Public">Public</option>
+                <option value="Private">Private</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Course</label>
+              <input
+                name="course"
+                value={residentForm.course}
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter course"
+                className="form-input"
+              />
+            </div>
+          </div>
+
+          <div className="function-btn-container">
+            <button type="button" className="function-btn bg-btn-color-gray">
+              Clear
+            </button>
+            <button type="submit" className="function-btn bg-btn-color-blue">
+              Submit
+            </button>
+          </div>
+        </form>
+
+        {isCameraOpen && (
+          <OpenCamera onDone={handleDone} onClose={handleClose} />
+        )}
       </div>
-
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          width: "400px",
-          marginTop: "20px",
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            First Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            type="text"
-            name="firstname"
-            value={residentForm.firstname}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter first name"
-            required
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Middle Name</label>
-          <input
-            name="middlename"
-            value={residentForm.middlename}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter middle name"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Last Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            name="lastname"
-            value={residentForm.lastname}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter last name"
-            required
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="suffix">Suffix</label>
-          <select
-            id="suffix"
-            name="suffix"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            {suffixList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Alias</label>
-          <input
-            name="alias"
-            value={residentForm.alias}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter alias"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="salutation">Salutation:</label>
-          <select
-            id="salutation"
-            name="salutation"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            {salutationList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="sex">
-            Sex:<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="sex"
-            name="sex"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-            required
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {sexList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="gender">Gender</label>
-          <select
-            id="gender"
-            name="gender"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {genderList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Birthdate<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            type="date"
-            name="birthdate"
-            onChange={(e) => {
-              const { name, value } = e.target;
-              setResidentForm((prev) => ({
-                ...prev,
-                [name]: value,
-              }));
-            }}
-            value={residentForm.birthdate}
-            placeholder="Enter birthdate"
-            min="1900-01-01"
-            required
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Birthplace</label>
-          <input
-            name="birthplace"
-            value={residentForm.birthplace}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter birthplace"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="civilstatus">
-            Civil Status<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="civilstatus"
-            name="civilstatus"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-            required
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {civilstatusList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="bloodtype">Blood Type</label>
-          <select
-            id="bloodtype"
-            name="bloodtype"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {bloodtypeList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="religion">Religion</label>
-          <select
-            id="religion"
-            name="religion"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {religionList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="nationality">
-            Nationality<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="nationality"
-            name="nationality"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-            required
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {nationalityList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label>Registered Voter:</label>
-          <label>
-            <input
-              type="radio"
-              name="voter"
-              onChange={handleRadioChange}
-              value="Yes"
-              checked={residentForm.voter === "Yes"}
-            />
-            Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="voter"
-              onChange={handleRadioChange}
-              value="No"
-              checked={residentForm.voter === "No"}
-            />
-            No
-          </label>
-        </div>
-
-        <div>
-          <label>Deceased:</label>
-          <label>
-            <input
-              type="radio"
-              name="deceased"
-              onChange={handleRadioChange}
-              value="Yes"
-              checked={residentForm.deceased === "Yes"}
-            />
-            Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="deceased"
-              onChange={handleRadioChange}
-              value="No"
-              checked={residentForm.deceased === "No"}
-            />
-            No
-          </label>
-        </div>
-
-        {/* Contact Information */}
-        <h3>Contact Information</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Email</label>
-          <input
-            name="email"
-            value={residentForm.email}
-            onChange={stringsAndNoSpaceOnly}
-            placeholder="Enter email"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Mobile Number<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            name="mobilenumber"
-            value={residentForm.mobilenumber}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter mobile number"
-            required
-            maxLength={11}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Telephone</label>
-          <input
-            name="telephone"
-            value={residentForm.telephone}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter telephone"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Facebook</label>
-          <input
-            name="facebook"
-            value={residentForm.facebook}
-            onChange={stringsAndNoSpaceOnly}
-            placeholder="Enter facebook"
-          />
-        </div>
-        {/* In Case Of Emergency Situation */}
-        <h3>In Case Of Emergency Situation</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            name="emergencyname"
-            value={residentForm.emergencyname}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter name"
-            required
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Mobile Number<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            name="emergencymobilenumber"
-            value={residentForm.emergencymobilenumber}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter mobile number"
-            required
-            maxLength={11}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Address<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            name="emergencyaddress"
-            value={residentForm.emergencyaddress}
-            onChange={lettersNumbersAndSpaceOnly}
-            placeholder="Enter address"
-            required
-          />
-        </div>
-
-        {/* Family Information */}
-        <h3>Family Information</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="mother">Mother</label>
-          <select
-            id="mother"
-            name="mother"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="father">Father</label>
-          <select
-            id="father"
-            name="father"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="spouse">Spouse</label>
-          <select
-            id="spouse"
-            name="spouse"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Siblings</label>
-          <input
-            name="numberofsiblings"
-            value={residentForm.numberofsiblings}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter number of siblings"
-          />
-        </div>
-        {renderSiblingsDropdown()}
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Children</label>
-          <input
-            name="numberofchildren"
-            value={residentForm.numberofchildren}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter number of siblings"
-          />
-        </div>
-        {renderChildrenDropdown()}
-        {/* Address Information */}
-        <h3>Address Information</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>House Number</label>
-          <input
-            name="housenumber"
-            value={residentForm.housenumber}
-            onChange={numbersAndNoSpaceOnly}
-            placeholder="Enter house number"
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="street">
-            Street<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="street"
-            name="street"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-            required
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {streetList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="HOAname">HOA Name</label>
-          <select
-            id="HOAname"
-            name="HOAname"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-            <option value="None">None</option>
-          </select>
-        </div>
-        {/* Employment Information */}
-        <h3>Employment Information</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="employmentstatus">Employment Status</label>
-          <select
-            id="employmentstatus"
-            name="employmentstatus"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            {employmentstatusList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Occupation</label>
-          <input
-            name="occupation"
-            value={residentForm.occupation}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter occupation"
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="monthlyincome">Monthly Income</label>
-          <select
-            id="monthlyincome"
-            name="monthlyincome"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            {monthlyincomeList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        {/* Educational Information */}
-        <h3>Educational Information</h3>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="educationalattainment">
-            Highest Educational Attainment
-          </label>
-          <select
-            id="educationalattainment"
-            name="educationalattainment"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            {educationalattainmentList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="typeofschool">Type of School</label>
-          <select
-            id="typeofschool"
-            name="typeofschool"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="Select" disabled selected hidden>
-              Select
-            </option>
-            <option value="Public">Public</option>
-            <option value="Private">Private</option>
-          </select>
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>Course</label>
-          <input
-            name="course"
-            value={residentForm.course}
-            onChange={lettersAndSpaceOnly}
-            placeholder="Enter course"
-          />
-        </div>
-
-        <button type="submit">Submit</button>
-      </form>
-      {isCameraOpen && <OpenCamera onDone={handleDone} onClose={handleClose} />}
     </div>
   );
 }
