@@ -135,10 +135,7 @@ function Residents({ isCollapsed }) {
                           <td colSpan={3}>
                             {/* Additional Information for the resident */}
                             <div className="profile-container">
-                              <img
-                                src={res.picture}
-                                className="profile-img"
-                              />
+                              <img src={res.picture} className="profile-img" />
                               <div className="ml-5 text-sm">
                                 <p>
                                   <strong>Name: </strong>
