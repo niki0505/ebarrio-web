@@ -470,6 +470,7 @@ function CreateResident({ isCollapsed }) {
           }
         );
         console.log(updatedResidentForm);
+        alert("Resident successfully created!");
       }
     } catch (error) {
       console.log("Error", error);
@@ -591,7 +592,6 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.middlename}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
-                required
                 className="form-input"
               />
             </div>
@@ -865,7 +865,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="email"
                 value={residentForm.email}
-                onChange={lettersAndSpaceOnly}
+                onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
                 className="form-input"
               />
@@ -878,7 +878,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="mobilenumber"
                 value={residentForm.mobilenumber}
-                onChange={lettersAndSpaceOnly}
+                onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter mobile number"
                 required
                 maxLength={11}
@@ -890,7 +890,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="telephone"
                 value={residentForm.telephone}
-                onChange={lettersAndSpaceOnly}
+                onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter telephone"
                 className="form-input"
               />

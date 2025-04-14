@@ -13,7 +13,6 @@ import { HiOutlineDocumentSearch, HiOutlineDocumentText } from "react-icons/hi";
 import { BiCommentDetail, BiMenuAltLeft, BiCctv } from "react-icons/bi";
 import "../Stylesheets/SideBar.css";
 
-
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const Menus = [
     {
@@ -74,7 +73,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     {
       title: "Account Management",
       icon: <IoSettingsOutline />,
-      path: "/account",
+      path: "/accounts",
     },
   ];
 

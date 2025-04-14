@@ -5,55 +5,54 @@ import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
+import Indigency from "./certificates/Indigency";
+import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
-import Indigency from "./certificates/Indigency";
 
-function Residents({ isCollapsed }) {
+function Employees({ isCollapsed }) {
   const navigation = useNavigate();
-  const { residents, setResidents } = useContext(InfoContext);
-  const [filteredResidents, setFilteredResidents] = useState([]);
+  const { employees, setEmployees } = useContext(InfoContext);
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
+  const [isCreateClicked, setCreateClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
-
-  const handleAdd = () => {
-    navigation("/create-resident");
-  };
 
   const handleRowClick = (residentId) => {
     setExpandedRow(expandedRow === residentId ? null : residentId);
   };
 
   useEffect(() => {
-    setFilteredResidents(residents);
-  }, [residents]);
-  useEffect(() => {
-    console.log(residents);
-  }, [residents]);
+    setFilteredEmployees(employees);
+  }, [employees]);
 
-  const buttonClick = (e, resID) => {
-    e.stopPropagation();
-    alert(`Clicked ${resID}`);
+  const handleAdd = () => {
+    setCreateClicked(true);
   };
 
-  const editBtn = (resID) => {
-    navigation("/edit-resident", { state: { resID } });
-  };
+  //   const buttonClick = (e, resID) => {
+  //     e.stopPropagation();
+  //     alert(`Clicked ${resID}`);
+  //   };
 
-  const certBtn = (e, resID) => {
-    e.stopPropagation();
-    setSelectedResID(resID);
-    setCertClicked(true);
-  };
+  //   const editBtn = (resID) => {
+  //     navigation("/editresident", { state: { resID } });
+  //   };
 
-  const archiveBtn = async (e, resID) => {
+  //   const certBtn = (e, resID) => {
+  //     e.stopPropagation();
+  //     setSelectedResID(resID);
+  //     setCertClicked(true);
+  //   };
+
+  const archiveBtn = async (e, empID) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/archiveresident/${resID}`
+        `http://localhost:5000/api/archiveemployee/${empID}`
       );
-      alert("Resident successfully archived");
+      alert("Employee successfully archived");
       window.location.reload();
     } catch (error) {
       console.log("Error", error);
@@ -68,29 +67,31 @@ function Residents({ isCollapsed }) {
       .join(" ");
     setSearch(capitalizeFirstLetter);
     if (capitalizeFirstLetter) {
-      const filtered = residents.filter((resident) => {
-        const first = resident.firstname || "";
-        const middle = resident.middlename || "";
-        const last = resident.lastname || "";
+      const filtered = employees.filter((employees) => {
+        const first = employees.resID.firstname || "";
+        const middle = employees.resID.middlename || "";
+        const last = employees.resID.lastname || "";
+        const position = employees.position || "";
 
         return (
           first.includes(capitalizeFirstLetter) ||
           middle.includes(capitalizeFirstLetter) ||
           last.includes(capitalizeFirstLetter) ||
           `${first} ${last}`.includes(capitalizeFirstLetter) ||
-          `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
+          `${first} ${middle} ${last}`.includes(capitalizeFirstLetter) ||
+          position.includes(capitalizeFirstLetter)
         );
       });
-      setFilteredResidents(filtered);
+      setFilteredEmployees(filtered);
     } else {
-      setFilteredResidents(residents);
+      setFilteredEmployees(employees);
     }
   };
 
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Residents</div>
+        <div className="header-text">Employees</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
@@ -132,19 +133,28 @@ function Residents({ isCollapsed }) {
                   >
                     Address
                   </th>
+                  <th
+                    style={{
+                      textAlign: "center",
+                      border: "1px solid black",
+                      padding: "10px",
+                    }}
+                  >
+                    Position
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredResidents.length === 0 ? (
+                {filteredEmployees.length === 0 ? (
                   <tr>
-                    <td colSpan={3}>No results found</td>
+                    <td colSpan={4}>No results found</td>
                   </tr>
                 ) : (
-                  filteredResidents.map((res) => (
-                    <React.Fragment key={res._id}>
+                  filteredEmployees.map((emp) => (
+                    <React.Fragment key={emp._id}>
                       <tr
-                        onClick={() => handleRowClick(res._id)}
+                        onClick={() => handleRowClick(emp._id)}
                         style={{
                           cursor: "pointer",
                           transition: "background-color 0.3s ease",
@@ -156,9 +166,9 @@ function Residents({ isCollapsed }) {
                           e.currentTarget.style.backgroundColor = "";
                         }}
                       >
-                        {expandedRow === res._id ? (
+                        {expandedRow === emp._id ? (
                           <td
-                            colSpan={3}
+                            colSpan={4}
                             style={{
                               textAlign: "center",
                               border: "1px solid black",
@@ -166,44 +176,47 @@ function Residents({ isCollapsed }) {
                           >
                             {/* Additional Information for the resident */}
                             <div style={{ flexDirection: "row" }}>
-                              <img src={res.picture} width={150} />
+                              <img src={emp.resID.picture} width={150} />
                               <p>
                                 <strong>Name: </strong>
-                                {res.middlename
-                                  ? `${res.firstname} ${res.middlename} ${res.lastname}`
-                                  : `${res.firstname} ${res.lastname}`}
+                                {emp.resID.middlename
+                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
                               </p>
                               <p>
-                                <strong>Age:</strong> {res.age}
+                                <strong>Age:</strong> 20
                               </p>
                               <p>
-                                <strong>Sex:</strong> {res.sex}
+                                <strong>Sex:</strong> {emp.resID.sex}
                               </p>
                               <p>
                                 <strong>Civil Status: </strong>{" "}
-                                {res.civilstatus}
+                                {emp.resID.civilstatus}
                               </p>
                               <p>
                                 <strong>Mobile Number: </strong>{" "}
-                                {res.mobilenumber}
+                                {emp.resID.mobilenumber}
                               </p>
                               <p>
-                                <strong>Address: </strong> {res.address}
+                                <strong>Address: </strong> {emp.resID.address}
+                              </p>
+                              <p>
+                                <strong>Position: </strong> {emp.position}
                               </p>
                               <p>
                                 <strong>Emergency Contact:</strong>
                               </p>
                               <p>
                                 <strong>Name: </strong>
-                                {res.emergencyname}
+                                {emp.resID.emergencyname}
                               </p>
                               <p>
                                 <strong>Mobile: </strong>
-                                {res.emergencymobilenumber}
+                                {emp.resID.emergencymobilenumber}
                               </p>
                               <p>
                                 <strong>Address: </strong>
-                                {res.emergencyaddress}
+                                {emp.resID.emergencyaddress}
                               </p>
                               <div
                                 style={{
@@ -218,7 +231,7 @@ function Residents({ isCollapsed }) {
                                     backgroundColor: "red",
                                   }}
                                   type="submit"
-                                  onClick={(e) => archiveBtn(e, res._id)}
+                                  onClick={(e) => archiveBtn(e, emp._id)}
                                 >
                                   ARCHIVE
                                 </button>
@@ -227,25 +240,16 @@ function Residents({ isCollapsed }) {
                                     backgroundColor: "lightblue",
                                   }}
                                   type="submit"
-                                  onClick={(e) => buttonClick(e, res._id)}
+                                  // onClick={(e) => buttonClick(e, emp._id)}
                                 >
-                                  BRGY ID
+                                  EMPLOYEE ID
                                 </button>
                                 <button
                                   style={{
                                     backgroundColor: "lightblue",
                                   }}
                                   type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  CERTIFICATE
-                                </button>
-                                <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
-                                  type="submit"
-                                  onClick={() => editBtn(res._id)}
+                                  // onClick={() => editBtn(emp._id)}
                                 >
                                   EDIT
                                 </button>
@@ -260,9 +264,9 @@ function Residents({ isCollapsed }) {
                                 border: "1px solid black",
                               }}
                             >
-                              {res.middlename
-                                ? `${res.lastname} ${res.middlename} ${res.firstname}`
-                                : `${res.lastname} ${res.firstname}`}
+                              {emp.resID.middlename
+                                ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                                : `${emp.resID.lastname} ${emp.resID.firstname}`}
                             </td>
                             <td
                               style={{
@@ -270,7 +274,7 @@ function Residents({ isCollapsed }) {
                                 border: "1px solid black",
                               }}
                             >
-                              {res.mobilenumber}
+                              {emp.resID.mobilenumber}
                             </td>
                             <td
                               style={{
@@ -278,7 +282,15 @@ function Residents({ isCollapsed }) {
                                 border: "1px solid black",
                               }}
                             >
-                              {res.address}
+                              {emp.resID.address}
+                            </td>
+                            <td
+                              style={{
+                                textAlign: "center",
+                                border: "1px solid black",
+                              }}
+                            >
+                              {emp.position}
                             </td>
                           </>
                         )}
@@ -289,15 +301,16 @@ function Residents({ isCollapsed }) {
               </tbody>
             </table>
           </div>
+          {isCertClicked && <Indigency resID={selectedResID} />}
+          {isCreateClicked && <CreateEmployee />}
           <button className="resident-add-btn" onClick={handleAdd}>
             <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new resident</span>
+            <span className="font-bold">Add new employee</span>
           </button>
         </div>
       </main>
-      {isCertClicked && <Indigency resID={selectedResID} />}
     </>
   );
 }
 
-export default Residents;
+export default Employees;
