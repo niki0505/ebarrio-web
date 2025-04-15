@@ -61,7 +61,7 @@ function OpenCamera({ onDone, onClose }) {
     <>
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
-          <div className="modal-content">
+          <div className="modal-content w-[45rem]">
             <div className="modal-title-bar">
               <h1 className="modal-title">Picture</h1>
               <button className="modal-btn-close" onClick={onClose}>
@@ -99,7 +99,7 @@ function OpenCamera({ onDone, onClose }) {
             <div className="btn-container">
               {imageSrc && !loading ? (
                 <button
-                  className="function-btn bg-btn-color-blue"
+                  className="actions-btn bg-btn-color-blue"
                   onClick={openCamera}
                 >
                   Open Camera
@@ -107,7 +107,7 @@ function OpenCamera({ onDone, onClose }) {
               ) : loading ? (
                 <button
                   type="button"
-                  className="btn-disabled function-btn bg-btn-color-blue"
+                  className="btn-disabled actions-btn bg-btn-color-blue"
                   disabled
                 >
                   <svg
@@ -135,8 +135,8 @@ function OpenCamera({ onDone, onClose }) {
                 <button
                   className={
                     hasCamera
-                      ? "function-btn bg-btn-color-blue"
-                      : "function-btn bg-btn-color-blue cursor-not-allowed"
+                      ? "actions-btn bg-btn-color-blue"
+                      : "actions-btn bg-btn-color-blue cursor-not-allowed mt-5"
                   }
                   onClick={capture}
                   disabled={!hasCamera}
@@ -148,8 +148,8 @@ function OpenCamera({ onDone, onClose }) {
               <button
                 className={
                   imageSrc
-                    ? "function-btn bg-btn-color-gray hover:bg-gray-400"
-                    : "function-btn bg-btn-color-gray cursor-not-allowed"
+                    ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
+                    : "actions-btn bg-btn-color-gray cursor-not-allowed mt-5"
                 }
                 onClick={handleDoneClick}
                 disabled={!imageSrc}

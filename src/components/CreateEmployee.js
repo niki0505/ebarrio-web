@@ -5,13 +5,13 @@ import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
 
 function CreateEmployee({ onClose }) {
-  const [showModal, setShowModal] = useState(true);
   const { residents, setResidents } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
   });
+  const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
     console.log("Employee Form", employeeForm);
@@ -76,7 +76,7 @@ function CreateEmployee({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="employees-modal-content">
+          <div className="modal-content w-[20rem] h-[20rem] ">
             <div className="modal-title-bar">
               <h1 className="modal-title">Add New Employee</h1>
               <button className="modal-btn-close">
@@ -93,7 +93,7 @@ function CreateEmployee({ onClose }) {
             >
               <div className="employee-form-group">
                 <label for="resID" className="form-label">
-                  Name<label style={{ color: "red" }}>*</label>
+                  Name<label className="text-red-600">*</label>
                 </label>
                 <select
                   id="resID"
@@ -116,7 +116,7 @@ function CreateEmployee({ onClose }) {
 
               <div className="employee-form-group">
                 <label for="position" className="form-label">
-                  Position<label style={{ color: "red" }}>*</label>
+                  Position<label className="text-red-600">*</label>
                 </label>
                 <select
                   id="position"
@@ -132,7 +132,7 @@ function CreateEmployee({ onClose }) {
                   ))}
                 </select>
               </div>
-              <button type="submit" className="function-btn bg-btn-color-blue">
+              <button type="submit" className="actions-btn bg-btn-color-blue">
                 Submit
               </button>
             </form>

@@ -134,6 +134,7 @@ function EditResident({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             value={residentForm.siblings[i]}
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -581,7 +582,7 @@ function EditResident({ isCollapsed }) {
       <h1 className="header-text">Edit Resident</h1>
 
       {/* Personal Information */}
-      <div className="resident-info-container">
+      <div className="white-bg-container">
         <h3 className="section-title">Personal Information</h3>
         <hr class="section-divider" />
         <div className="upload-container">
@@ -596,56 +597,62 @@ function EditResident({ isCollapsed }) {
                 style={{ display: "none" }}
                 ref={hiddenInputRef1}
               />
-
               <div className="upload-content">
-                <div className="preview-container">
+                <div className="preview-container ">
                   {isIDProcessing ? (
                     <p>Processing...</p>
                   ) : id ? (
-                    <img src={id} className="w-full h-full bg-white" />
+                    <img
+                      src={id}
+                      className="w-full h-full object-contain bg-white"
+                    />
                   ) : (
                     <p>No Picture Attached</p>
                   )}
-                  <div className="upload-picture-btn">
-                    <button onClick={toggleCamera} className="upload-btn">
-                      <FiCamera />
-                    </button>
-                    <button onClick={handleUploadID} className="upload-btn">
-                      <FiUpload />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="picture-upload-wrapper">
-              <h3 className="form-label">
-                Signature<label className="text-red-600">*</label>
-              </h3>
-              <div className="upload-box">
-                <input
-                  onChange={handleChangeSig}
-                  type="file"
-                  style={{ display: "none" }}
-                  ref={hiddenInputRef2}
-                />
-                <div className="upload-content">
-                  <div className="preview-container">
-                    {isSignProcessing ? (
-                      <p>Processing...</p>
-                    ) : signature ? (
-                      <img src={signature} className="w-full h-full bg-white" />
-                    ) : (
-                      <p>No Picture Attached</p>
-                    )}
-                  </div>
                 </div>
 
-                <div className="upload-signature-btn">
-                  <button onClick={handleUploadSig} className="upload-btn">
+                <div className="upload-picture-btn">
+                  <button onClick={toggleCamera} className="upload-btn">
+                    <FiCamera />
+                  </button>
+                  <button onClick={handleUploadID} className="upload-btn">
                     <FiUpload />
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="picture-upload-wrapper">
+            <h3 className="form-label">
+              Signature<label className="text-red-600">*</label>
+            </h3>
+            <div className="upload-box">
+              <input
+                onChange={handleChangeSig}
+                type="file"
+                style={{ display: "none" }}
+                ref={hiddenInputRef2}
+              />
+              <div className="upload-content">
+                <div className="preview-container">
+                  {isSignProcessing ? (
+                    <p>Processing...</p>
+                  ) : signature ? (
+                    <img
+                      src={signature}
+                      className="w-full h-full object-contain bg-white"
+                    />
+                  ) : (
+                    <p>No Picture Attached</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="upload-signature-btn">
+                <button onClick={handleUploadSig} className="upload-btn">
+                  <FiUpload className="upload-btn-img" />
+                </button>
               </div>
             </div>
           </div>
@@ -1119,23 +1126,23 @@ function EditResident({ isCollapsed }) {
           </div>
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Siblings</label>
+              <label className="form-label mt-4">Siblings</label>
               <input
                 name="numberofsiblings"
                 value={residentForm.numberofsiblings}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
-                className="form-input"
+                className="form-input "
               />
             </div>
           </div>
           {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-            <div className="form-grid mb-5">{renderSiblingsDropdown()}</div>
+            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
           )}
 
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Children</label>
+              <label className="form-label mt-4 ">Children</label>
               <input
                 name="numberofchildren"
                 value={residentForm.numberofchildren}
@@ -1147,7 +1154,7 @@ function EditResident({ isCollapsed }) {
           </div>
 
           {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mb-10">{renderChildrenDropdown()}</div>
+            <div className="form-grid mt-4 ">{renderChildrenDropdown()}</div>
           )}
 
           {/* Address Information */}
@@ -1317,7 +1324,10 @@ function EditResident({ isCollapsed }) {
           </div>
 
           <div className="function-btn-container">
-            <button type="submit" className="function-btn bg-btn-color-blue">
+            <button
+              type="submit"
+              className="actions-btn bg-btn-color-blue mt-4"
+            >
               Submit
             </button>
           </div>

@@ -7,7 +7,6 @@ import { storage } from "../firebase";
 import mongoose from "mongoose";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { FiCamera, FiUpload } from "react-icons/fi";
-import "../Stylesheets/CreateResident.css";
 
 function CreateResident({ isCollapsed }) {
   ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
@@ -508,7 +507,7 @@ function CreateResident({ isCollapsed }) {
       <h1 className="header-text">Create Resident</h1>
 
       {/* Personal Information */}
-      <div className="resident-info-container">
+      <div className="white-bg-container">
         <h3 className="section-title">Personal Information</h3>
         <hr class="section-divider" />
         <div className="upload-container">
@@ -529,7 +528,7 @@ function CreateResident({ isCollapsed }) {
                   {isIDProcessing ? (
                     <p>Processing...</p>
                   ) : id ? (
-                    <img src={id} className="w-full h-full bg-white" />
+                    <img src={id} className="upload-img" />
                   ) : (
                     <p>No Picture Attached</p>
                   )}
@@ -563,7 +562,10 @@ function CreateResident({ isCollapsed }) {
                   {isSignProcessing ? (
                     <p>Processing...</p>
                   ) : signature ? (
-                    <img src={signature} className="w-full h-full bg-white" />
+                    <img
+                      src={signature}
+                      className="w-full h-full object-contain bg-white"
+                    />
                   ) : (
                     <p>No Picture Attached</p>
                   )}
@@ -1048,7 +1050,7 @@ function CreateResident({ isCollapsed }) {
 
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Siblings</label>
+              <label className="form-label mt-4">Siblings</label>
               <input
                 name="numberofsiblings"
                 value={residentForm.numberofsiblings}
@@ -1059,12 +1061,12 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
           {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-            <div className="form-grid mb-5">{renderSiblingsDropdown()}</div>
+            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
           )}
 
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Children</label>
+              <label className="form-label mt-4 ">Children</label>
               <input
                 name="numberofchildren"
                 value={residentForm.numberofchildren}
@@ -1075,7 +1077,7 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
           {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mb-10">{renderChildrenDropdown()}</div>
+            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
           )}
 
           {/* Address Information */}
@@ -1236,11 +1238,11 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="function-btn-container">
-            <button type="button" className="function-btn bg-btn-color-gray">
+          <div className="function-btn-container mt-4">
+            <button type="button" className="actions-btn  bg-btn-color-gray">
               Clear
             </button>
-            <button type="submit" className="function-btn bg-btn-color-blue">
+            <button type="submit" className="actions-btn  bg-btn-color-blue ">
               Submit
             </button>
           </div>
