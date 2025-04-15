@@ -8,6 +8,11 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import Indigency from "./certificates/Indigency";
+import BrgyID from "./certificates/BrgyID";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
+import BrgyIDImage from "../assets/brgyid.jpg";
+import ReactDOM from "react-dom/client";
 
 function Residents({ isCollapsed }) {
   const navigation = useNavigate();
@@ -15,11 +20,137 @@ function Residents({ isCollapsed }) {
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
+  const [isBrgyIDClicked, setBrgyIDClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
 
   const handleAdd = () => {
     navigation("/create-resident");
+  };
+
+  async function uploadToFirebase(url) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_qrcode/${Date.now()}_${randomString}.png`;
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: blob.type });
+    const storageRef = ref(storage, fileName);
+    await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
+  const handleBRGYID = async (e, resID) => {
+    e.stopPropagation();
+    const printContent = (
+      <div id="printContent">
+        <div className="id-page">
+          <p style={{ position: "absolute", top: "20px" }}>Hello</p>
+          <img className="id-img" src={BrgyIDImage} />
+        </div>
+        <div className="id-page">
+          <img className="id-img" src={BrgyIDImage} />
+        </div>
+      </div>
+    );
+
+    const printDiv = document.createElement("div");
+    document.body.appendChild(printDiv);
+
+    const root = ReactDOM.createRoot(printDiv);
+    root.render(printContent);
+
+    const printStyle = document.createElement("style");
+    printStyle.innerHTML = `
+      @page {
+        size: 86mm 54mm;
+        margin: 0;
+      }
+    
+      @media print {
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 86mm !important;
+          height: 54mm !important;
+          overflow: hidden !important;
+        }
+    
+        body * {
+          visibility: hidden;
+        }
+    
+        #printContent, #printContent * {
+          visibility: visible;
+        }
+    
+        #printContent {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 86mm;
+          height: 54mm;
+        }
+    
+        .id-page {
+          width: 86mm;
+          height: 54mm;
+          overflow: hidden;
+          margin: 0;
+          padding: 0;
+          page-break-after: avoid; 
+        }
+
+        .id-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+    
+    
+      @media screen {
+        #printContent {
+          display: none;
+        }
+      }
+    `;
+
+    document.head.appendChild(printStyle);
+
+    setTimeout(() => {
+      window.print();
+      window.onafterprint = () => {
+        document.body.removeChild(printDiv);
+        document.head.removeChild(printStyle);
+      };
+    }, 500);
+
+    // e.stopPropagation();
+    // try {
+    //   const response = await axios.post(
+    //     `http://localhost:5000/api/generatebrgyID/${resID}`
+    //   );
+    //   console.log(response.data);
+    //   const qrCode = await uploadToFirebase(response.data.qrCode);
+    //   try {
+    //     const response2 = await axios.put(
+    //       `http://localhost:5000/api/savebrgyID/${resID}`,
+    //       {
+    //         idNumber: response.data.idNumber,
+    //         expirationDate: response.data.expirationDate,
+    //         qrCode,
+    //         qrToken: response.data.qrToken,
+    //       }
+    //     );
+    //     alert("Barangay ID is successfully generated");
+    //   } catch (error) {
+    //     console.log("Error saving barangay ID", error);
+    //   }
+    // } catch (error) {
+    //   console.log("Error generating barangay ID", error);
+    // }
   };
 
   const handleRowClick = (residentId) => {
@@ -194,7 +325,7 @@ function Residents({ isCollapsed }) {
                                 <button
                                   className="actions-btn bg-btn-color-blue"
                                   type="submit"
-                                  onClick={(e) => buttonClick(e, res._id)}
+                                  onClick={(e) => handleBRGYID(e, res._id)}
                                 >
                                   BRGY ID
                                 </button>
@@ -235,7 +366,6 @@ function Residents({ isCollapsed }) {
           </div>
         </div>
       </main>
-      {isCertClicked && <Indigency resID={selectedResID} />}
     </>
   );
 }

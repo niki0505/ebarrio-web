@@ -9,6 +9,8 @@ import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import "../Stylesheets/Employees.css";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
 
 function Employees({ isCollapsed }) {
   const navigation = useNavigate();
@@ -24,6 +26,47 @@ function Employees({ isCollapsed }) {
     setExpandedRow(expandedRow === residentId ? null : residentId);
   };
 
+  async function uploadToFirebase(url) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_qrcode/${Date.now()}_${randomString}.png`;
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: blob.type });
+    const storageRef = ref(storage, fileName);
+    await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
+  const handleEmployeeID = async (e, empID) => {
+    e.stopPropagation();
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/generateemployeeID/${empID}`
+      );
+      console.log(response.data);
+      const qrCode = await uploadToFirebase(response.data.qrCode);
+
+      try {
+        const response2 = await axios.put(
+          `http://localhost:5000/api/saveemployeeID/${empID}`,
+          {
+            idNumber: response.data.idNumber,
+            expirationDate: response.data.expirationDate,
+            qrCode,
+            qrToken: response.data.qrToken,
+          }
+        );
+        alert("Employee ID is successfully generated");
+      } catch (error) {
+        console.log("Error saving employee ID", error);
+      }
+    } catch (error) {
+      console.log("Error generating employee ID", error);
+    }
+  };
+
   useEffect(() => {
     setFilteredEmployees(employees);
   }, [employees]);
@@ -32,10 +75,10 @@ function Employees({ isCollapsed }) {
     setCreateClicked(true);
   };
 
-  //   const buttonClick = (e, resID) => {
-  //     e.stopPropagation();
-  //     alert(`Clicked ${resID}`);
-  //   };
+  const buttonClicks = (e, resID) => {
+    e.stopPropagation();
+    alert(`Clicked ${resID}`);
+  };
 
   //   const editBtn = (resID) => {
   //     navigation("/editresident", { state: { resID } });
@@ -200,7 +243,7 @@ function Employees({ isCollapsed }) {
                                 <button
                                   className="actions-btn bg-btn-color-blue"
                                   type="submit"
-                                  // onClick={(e) => buttonClick(e, emp._id)}
+                                  onClick={(e) => handleEmployeeID(e, emp._id)}
                                 >
                                   EMPLOYEE ID
                                 </button>

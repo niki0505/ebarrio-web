@@ -28,3 +28,68 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
   font-size: 16px; /* Default font size */
 }
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .page {
+    width: 3.375in; /* CR80 width */
+    height: 2.125in; /* CR80 height */
+    margin: 0;
+    padding: 0;
+    page-break-after: always;
+  }
+
+  .content {
+    padding: 10px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    text-align: center;
+  }
+
+  .content p {
+    margin: 0;
+  }
+}
+
+/* Print-specific styles */
+/* @page {
+  size: 85.6mm 53.98mm;
+  margin: 0;
+}
+
+@media print {
+  .hide-on-print {
+    display: none !important;
+  }
+
+  #printContent {
+    display: block !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  html,
+  body {
+    height: auto;
+    width: auto;
+  }
+} */
+
+/* Hide printContent on screen */
+/* @media screen {
+  #printContent {
+    display: none;
+  }
+} */

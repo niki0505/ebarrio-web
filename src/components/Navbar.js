@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings } from "react-icons/io";
 import "../Stylesheets/NavBar.css";
-
+import { AuthContext } from "../context/AuthContext";
 
 const Navbar = ({ isCollapsed }) => {
   const [profileDropdown, setprofileDropdown] = useState(false);
+  const { logout, user } = useContext(AuthContext);
+  if (!user) return null;
 
   const toggleProfileDropdown = () => {
     setprofileDropdown(!profileDropdown);
@@ -18,19 +20,19 @@ const Navbar = ({ isCollapsed }) => {
         className={`navbar ${isCollapsed ? "left-[5rem]" : "left-[18rem]"}`}
       >
         <div className="navbar-right">
-          {/* Notification Icon */} 
+          {/* Notification Icon */}
           <IoNotificationsOutline className="navbar-icon" />
 
           {/* User Information */}
           <div className="navbar-user-info">
-            <h2 className="text-blue font-bold text-base">Juan Dela Cruz</h2>
-            <h2 className="text-gray-500 text-sm">Secretary</h2>
+            <h2 className="text-blue font-bold text-base">{user.name}</h2>
+            <h2 className="text-gray-500 text-sm">{user.role}</h2>
           </div>
 
           {/* Profile Image and Dropdown */}
           <div className="relative">
             <img
-              src={require("../assets/profileimg.png")}
+              src={user.picture}
               alt="Profile"
               onClick={toggleProfileDropdown}
               className="navbar-profile-img"
@@ -44,7 +46,9 @@ const Navbar = ({ isCollapsed }) => {
                   </div>
                   <div className="navbar-dropdown-item ">
                     <PiSignOutBold className="signout-icon" />
-                    <li className="signout-text">Sign Out</li>
+                    <li className="signout-text" onClick={logout}>
+                      Sign Out
+                    </li>
                   </div>
                 </ul>
               </div>

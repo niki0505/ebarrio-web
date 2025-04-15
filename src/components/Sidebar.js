@@ -12,13 +12,18 @@ import {
 import { HiOutlineDocumentSearch, HiOutlineDocumentText } from "react-icons/hi";
 import { BiCommentDetail, BiMenuAltLeft, BiCctv } from "react-icons/bi";
 import "../Stylesheets/SideBar.css";
+import { AuthContext } from "../context/AuthContext";
+import { useContext, useEffect } from "react";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+  const { user } = useContext(AuthContext);
+  if (!user) return null;
+
   const Menus = [
     {
       title: "Dashboard",
       icon: <MdOutlineDashboard />,
-      path: "/",
+      path: "/dashboard",
     },
     {
       title: "Employees",
@@ -70,12 +75,12 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <RiContactsBook3Line />,
       path: "/contacts",
     },
-    {
+    user.role === "Secretary" && {
       title: "Account Management",
       icon: <IoSettingsOutline />,
       path: "/accounts",
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>

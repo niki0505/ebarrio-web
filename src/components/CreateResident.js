@@ -564,7 +564,7 @@ function CreateResident({ isCollapsed }) {
                   ) : signature ? (
                     <img
                       src={signature}
-                      className="w-full h-full object-contain bg-white"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <p>No Picture Attached</p>

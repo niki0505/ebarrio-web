@@ -30,7 +30,7 @@
   @apply bg-btn-color-blue text-white px-4 py-2 rounded;
 }
 .upload-img {
-  @apply w-full h-full object-contain bg-white;
+  @apply w-full h-full object-contain;
 }
 .form-label {
   @apply text-[12px] font-[650] block;
