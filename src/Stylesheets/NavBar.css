@@ -1,7 +1,3 @@
-.page-grid {
-  @apply relative font-title;
-}
-
 .page-grid.collapsed .navbar {
   @apply left-[theme('spacing.sidebar-collapsed')];
   width: calc(100% - theme("spacing.sidebar-collapsed"));
@@ -9,7 +5,7 @@
 .navbar {
   @apply shadow-[0px_0px_4px_0px_rgba(0,0,0,0.5)] 
     fixed 
-    bg-[#fff] 
+    bg-[#FDFBEE] 
     transition-[left,width] 
     duration-300 
     top-0 

@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
 import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
@@ -9,6 +8,7 @@ import Indigency from "./certificates/Indigency";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
+import "../Stylesheets/Employees.css";
 
 function Employees({ isCollapsed }) {
   const navigation = useNavigate();
@@ -95,218 +95,148 @@ function Employees({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div style={{ padding: "20px", overflowY: "auto" }}>
-          <div style={{ height: "300px", overflowY: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                border: "1px solid black",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Name
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Mobile No.
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Address
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Position
-                  </th>
-                </tr>
-              </thead>
+        <button className="add-btn" onClick={handleAdd}>
+          <MdPersonAddAlt1 className=" text-xl" />
+          <span className="font-bold">Add new employee</span>
+        </button>
 
-              <tbody>
-                {filteredEmployees.length === 0 ? (
+        <div className="white-bg-container">
+          <div className="table-container">
+            <div className="table-inner-container">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={4}>No results found</td>
+                    <th>Name</th>
+                    <th>Mobile No.</th>
+                    <th>Address</th>
+                    <th>Position</th>
                   </tr>
-                ) : (
-                  filteredEmployees.map((emp) => (
-                    <React.Fragment key={emp._id}>
-                      <tr
-                        onClick={() => handleRowClick(emp._id)}
-                        style={{
-                          cursor: "pointer",
-                          transition: "background-color 0.3s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "#f0f0f0";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "";
-                        }}
-                      >
-                        {expandedRow === emp._id ? (
-                          <td
-                            colSpan={4}
-                            style={{
-                              textAlign: "center",
-                              border: "1px solid black",
-                            }}
-                          >
-                            {/* Additional Information for the resident */}
-                            <div style={{ flexDirection: "row" }}>
-                              <img src={emp.resID.picture} width={150} />
-                              <p>
-                                <strong>Name: </strong>
-                                {emp.resID.middlename
-                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                              </p>
-                              <p>
-                                <strong>Age:</strong> {emp.resID.age}
-                              </p>
-                              <p>
-                                <strong>Sex:</strong> {emp.resID.sex}
-                              </p>
-                              <p>
-                                <strong>Civil Status: </strong>{" "}
-                                {emp.resID.civilstatus}
-                              </p>
-                              <p>
-                                <strong>Mobile Number: </strong>{" "}
-                                {emp.resID.mobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong> {emp.resID.address}
-                              </p>
-                              <p>
-                                <strong>Position: </strong> {emp.position}
-                              </p>
-                              <p>
-                                <strong>Emergency Contact:</strong>
-                              </p>
-                              <p>
-                                <strong>Name: </strong>
-                                {emp.resID.emergencyname}
-                              </p>
-                              <p>
-                                <strong>Mobile: </strong>
-                                {emp.resID.emergencymobilenumber}
-                              </p>
-                              <p>
-                                <strong>Address: </strong>
-                                {emp.resID.emergencyaddress}
-                              </p>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  gap: "10px",
-                                  justifyContent: "center",
-                                }}
-                              >
+                </thead>
+
+                <tbody>
+                  {filteredEmployees.length === 0 ? (
+                    <tr className="bg-white">
+                      <td colSpan={4}>No results found</td>
+                    </tr>
+                  ) : (
+                    filteredEmployees.map((emp) => (
+                      <React.Fragment key={emp._id}>
+                        <tr
+                          onClick={() => handleRowClick(emp._id)}
+                          style={{
+                            cursor: "pointer",
+                            transition: "background-color 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#f0f0f0";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "";
+                          }}
+                        >
+                          {expandedRow === emp._id ? (
+                            <td colSpan={4}>
+                              {/* Additional Information for the resident */}
+                              <div className="profile-container">
+                                <img
+                                  src={emp.resID.picture}
+                                  className="profile-img"
+                                />
+                                <div className="ml-5 text-sm">
+                                  <p>
+                                    <strong>Name: </strong>
+                                    {emp.resID.middlename
+                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                  </p>
+                                  <p>
+                                    <strong>Age:</strong> {emp.resID.age}
+                                  </p>
+                                  <p>
+                                    <strong>Sex:</strong> {emp.resID.sex}
+                                  </p>
+                                  <p>
+                                    <strong>Civil Status: </strong>{" "}
+                                    {emp.resID.civilstatus}
+                                  </p>
+                                  <p>
+                                    <strong>Mobile Number: </strong>{" "}
+                                    {emp.resID.mobilenumber}
+                                  </p>
+                                  <p>
+                                    <strong>Address: </strong>{" "}
+                                    {emp.resID.address}
+                                  </p>
+                                  <p>
+                                    <strong>Position: </strong> {emp.position}
+                                  </p>
+                                </div>
+                                <div className="ml-5 text-sm">
+                                  <p>
+                                    <strong>Emergency Contact:</strong>
+                                  </p>
+                                  <p>
+                                    <strong>Name: </strong>
+                                    {emp.resID.emergencyname}
+                                  </p>
+                                  <p>
+                                    <strong>Mobile: </strong>
+                                    {emp.resID.emergencymobilenumber}
+                                  </p>
+                                  <p>
+                                    <strong>Address: </strong>
+                                    {emp.resID.emergencyaddress}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="btn-container">
                                 <button
-                                  style={{
-                                    backgroundColor: "red",
-                                  }}
+                                  className="actions-btn bg-btn-color-red"
                                   type="submit"
                                   onClick={(e) => archiveBtn(e, emp._id)}
                                 >
                                   ARCHIVE
                                 </button>
                                 <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
+                                  className="actions-btn bg-btn-color-blue"
                                   type="submit"
                                   // onClick={(e) => buttonClick(e, emp._id)}
                                 >
                                   EMPLOYEE ID
                                 </button>
                                 <button
-                                  style={{
-                                    backgroundColor: "lightblue",
-                                  }}
+                                  className="actions-btn bg-btn-color-blue"
                                   type="submit"
                                   // onClick={() => editBtn(emp._id)}
                                 >
                                   EDIT
                                 </button>
                               </div>
-                            </div>
-                          </td>
-                        ) : (
-                          <>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.resID.middlename
-                                ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                                : `${emp.resID.lastname} ${emp.resID.firstname}`}
                             </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.resID.mobilenumber}
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.resID.address}
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "center",
-                                border: "1px solid black",
-                              }}
-                            >
-                              {emp.position}
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    </React.Fragment>
-                  ))
-                )}
-              </tbody>
-            </table>
+                          ) : (
+                            <>
+                              <td>
+                                {emp.resID.middlename
+                                  ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                                  : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                              </td>
+                              <td>{emp.resID.mobilenumber}</td>
+                              <td>{emp.resID.address}</td>
+                              <td>{emp.position}</td>
+                            </>
+                          )}
+                        </tr>
+                      </React.Fragment>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {isCertClicked && <Indigency resID={selectedResID} />}
+            {isCreateClicked && (
+              <CreateEmployee onClose={() => setCreateClicked(false)} />
+            )}
           </div>
-          {isCertClicked && <Indigency resID={selectedResID} />}
-          {isCreateClicked && <CreateEmployee />}
-          <button className="resident-add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new employee</span>
-          </button>
         </div>
       </main>
     </>

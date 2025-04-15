@@ -2,8 +2,10 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
+import { IoClose } from "react-icons/io5";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function CreateAccount() {
+function CreateAccount({ onClose }) {
   const { residents, setResidents } = useContext(InfoContext);
   const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
@@ -14,6 +16,8 @@ function CreateAccount() {
     resID: "",
     role: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
     console.log("User Form", userForm);
@@ -114,7 +118,10 @@ function CreateAccount() {
       console.log("Error creating user");
     }
   };
-
+  const handleClose = () => {
+    setShowModal(false);
+    onClose();
+  };
   //   useEffect(() => {
   //     const fetchAvailableRole = async () => {
   //       try {
@@ -136,100 +143,129 @@ function CreateAccount() {
   //   }, []);
 
   return (
-    <div className="floating-container">
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          width: "400px",
-          marginTop: "20px",
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="resID">
-            Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="resID"
-            name="resID"
-            style={{ width: "150px" }}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
+    <>
+      {setShowModal && (
+        <div className="modal-container">
+          <div className="modal-content w-[20rem] h-[30rem] ">
+            <div className="modal-title-bar">
+              <h1 className="modal-title">Add New Employee</h1>
+              <button className="modal-btn-close">
+                <IoClose className="btn-close-icon" onClick={handleClose} />
+              </button>
+            </div>
+
+            <form
+              className="employee-form-container"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
+              <div className="employee-form-group">
+                <label for="resID" className="form-label">
+                  Name<label className="text-red-600">*</label>
+                </label>
+                <select
+                  id="resID"
+                  name="resID"
+                  onChange={handleInputChange}
+                  required
+                  className="form-input"
+                >
+                  <option value="" disabled selected hidden>
+                    Select
+                  </option>
+                  {residents.map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="employee-form-group">
+                <label className="form-label">
+                  Role<label className="text-red-600">*</label>
+                </label>
+                <input
+                  type="text"
+                  id="role"
+                  name="role"
+                  value={userForm.role}
+                  onChange={handleInputChange}
+                  readOnly
+                  className="form-input"
+                />
+              </div>
+
+              <div className="employee-form-group">
+                <label className="form-label">
+                  Username <label className="text-red-600">*</label>
+                </label>
+                <div className="text-start">
+                  {usernameErrors.length > 0 && (
+                    <ul className="text-[12px] text-red-600 m-0">
+                      {usernameErrors.map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  onChange={usernameValidation}
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              <div className="employee-form-group">
+                <label className="form-label">
+                  Password<label className="text-red-600">*</label>
+                </label>
+                <div className="text-start">
+                  {passwordErrors.length > 0 && (
+                    <ul className="text-[12px] text-red-600 m-0">
+                      {passwordErrors.map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="relative w-full h-[30px]">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    onChange={passwordValidation}
+                    required
+                    className="form-input"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="text-gray-500" />
+                    ) : (
+                      <FaEye className="text-gray-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" className="actions-btn bg-btn-color-blue">
+                Submit
+              </button>
+            </form>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Role<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            type="text"
-            id="role"
-            name="role"
-            value={userForm.role}
-            onChange={handleInputChange}
-            readOnly
-            style={{ border: "1px solid black" }}
-          />
-        </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Username<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            onChange={usernameValidation}
-            style={{ border: "1px solid black" }}
-            required
-          />
-        </div>
-        {usernameErrors.length > 0 && (
-          <ul style={{ color: "red", fontSize: "12px", margin: 0 }}>
-            {usernameErrors.map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-        )}
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label>
-            Password<label style={{ color: "red" }}>*</label>
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            onChange={passwordValidation}
-            style={{ border: "1px solid black" }}
-            required
-          />
-        </div>
-        {passwordErrors.length > 0 && (
-          <ul style={{ color: "red", fontSize: "12px", margin: 0 }}>
-            {passwordErrors.map((err, idx) => (
-              <li key={idx}>{err}</li>
-            ))}
-          </ul>
-        )}
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+      )}
+    </>
   );
 }
 

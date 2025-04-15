@@ -2,14 +2,16 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
+import { IoClose } from "react-icons/io5";
 
-function CreateEmployee() {
+function CreateEmployee({ onClose }) {
   const { residents, setResidents } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
   });
+  const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
     console.log("Employee Form", employeeForm);
@@ -65,64 +67,79 @@ function CreateEmployee() {
     fetchAvailablePositions();
   }, []);
 
+  const handleClose = () => {
+    setShowModal(false);
+    onClose();
+  };
+
   return (
-    <div className="floating-container">
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          width: "400px",
-          marginTop: "20px",
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="resID">
-            Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="resID"
-            name="resID"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
+    <>
+      {setShowModal && (
+        <div className="modal-container">
+          <div className="modal-content w-[20rem] h-[20rem] ">
+            <div className="modal-title-bar">
+              <h1 className="modal-title">Add New Employee</h1>
+              <button className="modal-btn-close">
+                <IoClose className="btn-close-icon" onClick={handleClose} />
+              </button>
+            </div>
+
+            <form
+              className="employee-form-container"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
+              <div className="employee-form-group">
+                <label for="resID" className="form-label">
+                  Name<label className="text-red-600">*</label>
+                </label>
+                <select
+                  id="resID"
+                  name="resID"
+                  onChange={handleDropdownChange}
+                  className="form-input"
+                >
+                  <option value="" disabled selected hidden>
+                    Select
+                  </option>
+                  {residents.map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="employee-form-group">
+                <label for="position" className="form-label">
+                  Position<label className="text-red-600">*</label>
+                </label>
+                <select
+                  id="position"
+                  name="position"
+                  onChange={handleDropdownChange}
+                  className="form-input"
+                >
+                  <option value="" disabled selected hidden>
+                    Select
+                  </option>
+                  {availablePositions.map((element) => (
+                    <option value={element}>{element}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="actions-btn bg-btn-color-blue">
+                Submit
+              </button>
+            </form>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="position">
-            Position<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="position"
-            name="position"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {availablePositions.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+      )}
+    </>
   );
 }
 
