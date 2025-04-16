@@ -35,41 +35,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // const token = localStorage.getItem("token");
-    // if (token) {
-    //   try {
-    //     const decodedToken = jwtDecode(token);
-    //     const currentTime = Date.now() / 1000;
-    //     if (decodedToken.exp < currentTime) {
-    //       console.log("⚠️ Token expired. Logging out.");
-    //       logout();
-    //     } else {
-    //       setUser(decodedToken);
-    //       setIsAuthenticated(true);
-    //     }
-    //   } catch (error) {
-    //     console.error("Invalid token:", error);
-    //     logout();
-    //   }
-    // } else {
-    //   setIsAuthenticated(false);
-    // }
-    checkTokenValidity();
-    const interval = setInterval(checkTokenValidity, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [location.pathname]);
+    axios
+      .get("http://localhost:5000/api/checkrefreshtoken", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        console.log("You have a token");
+        setUser(response.data.decoded);
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        console.log("You don't have a token");
+        setIsAuthenticated(false);
+      });
+  }, [navigation]);
 
   const logout = async () => {
-    // localStorage.removeItem("token");
-    // setUser(null);
-    // setIsAuthenticated(false);
-    // navigation("/login");
     try {
-      const res = await axios.post("http://localhost:5000/api/logout", {
-        userID: user.userID,
-      });
-      localStorage.removeItem("token");
-      setUser(null);
+      const res = await axios.post(
+        "http://localhost:5000/api/logout",
+        {
+          userID: user.userID,
+        },
+        { withCredentials: true }
+      );
       setIsAuthenticated(false);
       navigation("/login");
     } catch (error) {

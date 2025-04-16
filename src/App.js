@@ -22,6 +22,7 @@ import OTP from "./components/OTP";
 import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+import { ConfirmProvider } from "./context/ConfirmContext";
 
 function App() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -44,54 +45,56 @@ function App() {
     <Router>
       <AuthProvider>
         <OtpProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/otp" element={<OTP />} />
+          <ConfirmProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/otp" element={<OTP />} />
 
-            <Route
-              path="/"
-              element={
-                <AppLayout
-                  isCollapsed={isCollapsed}
-                  setIsCollapsed={setIsCollapsed}
+              <Route
+                path="/"
+                element={
+                  <AppLayout
+                    isCollapsed={isCollapsed}
+                    setIsCollapsed={setIsCollapsed}
+                  />
+                }
+              >
+                <Route
+                  path="residents"
+                  element={
+                    <PrivateRoute
+                      element={<Residents isCollapsed={isCollapsed} />}
+                    />
+                  }
                 />
-              }
-            >
-              <Route
-                path="residents"
-                element={
-                  <PrivateRoute
-                    element={<Residents isCollapsed={isCollapsed} />}
-                  />
-                }
-              />
-              <Route
-                path="create-resident"
-                element={
-                  <PrivateRoute
-                    element={<CreateResident isCollapsed={isCollapsed} />}
-                  />
-                }
-              />
-              <Route
-                path="edit-resident"
-                element={
-                  <PrivateRoute
-                    element={<EditResident isCollapsed={isCollapsed} />}
-                  />
-                }
-              />
-              <Route
-                path="employees"
-                element={<PrivateRoute element={<Employees />} />}
-              />
-              <Route
-                path="accounts"
-                element={<PrivateRoute element={<Accounts />} />}
-              />
-            </Route>
-          </Routes>
+                <Route
+                  path="create-resident"
+                  element={
+                    <PrivateRoute
+                      element={<CreateResident isCollapsed={isCollapsed} />}
+                    />
+                  }
+                />
+                <Route
+                  path="edit-resident"
+                  element={
+                    <PrivateRoute
+                      element={<EditResident isCollapsed={isCollapsed} />}
+                    />
+                  }
+                />
+                <Route
+                  path="employees"
+                  element={<PrivateRoute element={<Employees />} />}
+                />
+                <Route
+                  path="accounts"
+                  element={<PrivateRoute element={<Accounts />} />}
+                />
+              </Route>
+            </Routes>
+          </ConfirmProvider>
         </OtpProvider>
       </AuthProvider>
     </Router>

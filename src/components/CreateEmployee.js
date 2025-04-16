@@ -3,15 +3,31 @@ import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
+import { storage } from "../firebase";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 function CreateEmployee({ onClose }) {
-  const { residents, setResidents } = useContext(InfoContext);
+  const { fetchResidents } = useContext(InfoContext);
+  const [residents, setResidents] = useState([]);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
   });
   const [showModal, setShowModal] = useState(true);
+
+  useEffect(() => {
+    const loadResidents = async () => {
+      try {
+        const data = await fetchResidents();
+        setResidents(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadResidents();
+  }, [fetchResidents]);
 
   useEffect(() => {
     console.log("Employee Form", employeeForm);
@@ -25,13 +41,48 @@ function CreateEmployee({ onClose }) {
     }));
   };
 
+  async function uploadToFirebase(url) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_images/${Date.now()}_${randomString}.png`;
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: blob.type });
+    const storageRef = ref(storage, fileName);
+    await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/createemployee",
         employeeForm
       );
-      alert("Employee successfully created!");
+      try {
+        const response2 = await axios.post(
+          `http://localhost:5000/api/generateemployeeID/${response.data.empID}`
+        );
+        const qrCode = await uploadToFirebase(response2.data.qrCode);
+
+        try {
+          const response3 = await axios.put(
+            `http://localhost:5000/api/saveemployeeID/${response.data.empID}`,
+            {
+              idNumber: response2.data.idNumber,
+              expirationDate: response2.data.expirationDate,
+              qrCode,
+              qrToken: response2.data.qrToken,
+            }
+          );
+          alert("Employee ID is successfully generated");
+        } catch (error) {
+          console.log("Error saving employee ID", error);
+        }
+      } catch (error) {
+        console.log("Error generating employee ID", error);
+      }
     } catch (error) {
       console.log("Error creating employee");
     }

@@ -6,7 +6,8 @@ import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function CreateAccount({ onClose }) {
-  const { residents, setResidents } = useContext(InfoContext);
+  const { fetchResidents } = useContext(InfoContext);
+  const [residents, setResidents] = useState([]);
   const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
@@ -18,6 +19,19 @@ function CreateAccount({ onClose }) {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(true);
+
+  useEffect(() => {
+    const loadResidents = async () => {
+      try {
+        const data = await fetchResidents();
+        setResidents(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadResidents();
+  }, [fetchResidents]);
 
   useEffect(() => {
     console.log("User Form", userForm);

@@ -4,7 +4,6 @@ import axios from "axios";
 import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
-import mongoose from "mongoose";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { FiCamera, FiUpload } from "react-icons/fi";
 
@@ -476,8 +475,30 @@ function CreateResident({ isCollapsed }) {
             ...updatedResidentForm,
           }
         );
-        console.log(updatedResidentForm);
         alert("Resident successfully created!");
+        console.log("Create resident response:", response.data);
+        try {
+          const response2 = await axios.post(
+            `http://localhost:5000/api/generatebrgyID/${response.data.resID}`
+          );
+          console.log(response2.data);
+          const qrCode = await uploadToFirebase(response2.data.qrCode);
+          try {
+            const response3 = await axios.put(
+              `http://localhost:5000/api/savebrgyID/${response.data.resID}`,
+              {
+                idNumber: response2.data.idNumber,
+                expirationDate: response2.data.expirationDate,
+                qrCode,
+                qrToken: response2.data.qrToken,
+              }
+            );
+          } catch (error) {
+            console.log("Error saving barangay ID", error);
+          }
+        } catch (error) {
+          console.log("Error generating barangay ID", error);
+        }
       }
     } catch (error) {
       console.log("Error", error);

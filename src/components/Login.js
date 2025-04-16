@@ -12,10 +12,14 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
-        username,
-        password,
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/login",
+        {
+          username,
+          password,
+        },
+        { withCredentials: true }
+      );
       if (!res.data.exists) {
         console.log(`❌ Account not found`);
         alert("Account not found. Please register.");
@@ -30,11 +34,9 @@ function Login() {
         setPassword("");
       } else {
         console.log(`✅ Correct Password`);
-        console.log("Access Token", res.data.accessToken);
-        localStorage.setItem("token", res.data.accessToken);
-        const decoded = jwtDecode(res.data.accessToken);
-        setUser(decoded);
-        setIsAuthenticated(true);
+        // const decoded = jwtDecode(res.data.accessToken);
+        // setUser(decoded);
+        // setIsAuthenticated(true);
         alert("Login Successful.");
         navigation("/");
       }

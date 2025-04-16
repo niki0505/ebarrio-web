@@ -15,7 +15,8 @@ function EditResident({ isCollapsed }) {
   const location = useLocation();
   const { resID } = location.state;
   const [residentInfo, setResidentInfo] = useState([]);
-  const { residents, setResidents } = useContext(InfoContext);
+  const [residents, setResidents] = useState([]);
+  const { fetchResidents } = useContext(InfoContext);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -65,6 +66,18 @@ function EditResident({ isCollapsed }) {
     course: "",
   });
 
+  useEffect(() => {
+    const loadResidents = async () => {
+      try {
+        const data = await fetchResidents();
+        setResidents(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadResidents();
+  }, [fetchResidents]);
   useEffect(() => {
     console.log(residentForm);
   }, [residentForm, residentInfo]);

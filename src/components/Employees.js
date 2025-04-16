@@ -11,10 +11,16 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 import "../Stylesheets/Employees.css";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
+import EmployeeIDFront from "../assets/employeeidfront.png";
+import EmployeeIDBack from "../assets/employeeidback.png";
+import ReactDOM from "react-dom/client";
+import { useConfirm } from "../context/ConfirmContext";
 
 function Employees({ isCollapsed }) {
+  const confirm = useConfirm();
   const navigation = useNavigate();
-  const { employees, setEmployees } = useContext(InfoContext);
+  const { fetchEmployees } = useContext(InfoContext);
+  const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -41,35 +47,451 @@ function Employees({ isCollapsed }) {
 
   const handleEmployeeID = async (e, empID) => {
     e.stopPropagation();
-    try {
-      const response = await axios.post(
-        `http://localhost:5000/api/generateemployeeID/${empID}`
-      );
-      console.log(response.data);
-      const qrCode = await uploadToFirebase(response.data.qrCode);
+    const isConfirmed = await confirm(
+      "Do you want to print the current employee ID or generate a new one?",
+      "id"
+    );
 
+    if (isConfirmed) {
       try {
-        const response2 = await axios.put(
-          `http://localhost:5000/api/saveemployeeID/${empID}`,
-          {
-            idNumber: response.data.idNumber,
-            expirationDate: response.data.expirationDate,
-            qrCode,
-            qrToken: response.data.qrToken,
-          }
+        const response = await axios.post(
+          `http://localhost:5000/api/generateemployeeID/${empID}`
         );
-        alert("Employee ID is successfully generated");
+        const qrCode = await uploadToFirebase(response.data.qrCode);
+
+        try {
+          const response2 = await axios.put(
+            `http://localhost:5000/api/saveemployeeID/${empID}`,
+            {
+              idNumber: response.data.idNumber,
+              expirationDate: response.data.expirationDate,
+              qrCode,
+              qrToken: response.data.qrToken,
+            }
+          );
+          try {
+            const response = await axios.get(
+              `http://localhost:5000/api/getemployee/${empID}`
+            );
+            const response2 = await axios.get(
+              `http://localhost:5000/api/getcaptain/`
+            );
+            const printContent = (
+              <div id="printContent">
+                <div className="id-page">
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "65px",
+                      left: "60px",
+                      width: "80px",
+                      height: "75px",
+                    }}
+                  >
+                    <img
+                      style={{ width: "100%", height: "100%" }}
+                      src={response.data.resID.picture}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "150px",
+                      left: "28px",
+                      width: "150px",
+                      height: "40px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {response.data.resID.middlename
+                        ? `${
+                            response.data.resID.firstname
+                          } ${response.data.resID.middlename.substring(
+                            0,
+                            1
+                          )}. ${response.data.resID.lastname}`
+                        : `${response.data.resID.firstname} ${response.data.resID.lastname}`}
+                    </p>
+                    <p style={{ fontSize: "11px", textAlign: "center" }}>
+                      {response.data.position}
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "220px",
+                      left: "41px",
+                      width: "40px",
+                      height: "40px",
+                    }}
+                  >
+                    <img
+                      style={{ width: "100%", height: "100%" }}
+                      src={response.data.employeeID[0]?.qrCode}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "266px",
+                      left: "41px",
+                      width: "70px",
+                      height: "10px",
+                    }}
+                  >
+                    <p style={{ fontSize: "8px" }}>
+                      {response.data.resID.brgyID[0]?.idNumber}
+                    </p>
+                  </div>
+                  <img className="id-img" src={EmployeeIDFront} />
+                </div>
+                <div className="id-page">
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "467px",
+                      left: "30px",
+                      width: "150px",
+                      height: "70px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <img
+                      style={{
+                        position: "absolute",
+                        width: "80px",
+                        height: "80px",
+                      }}
+                      src={response2.data.resID.signature}
+                    />
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      {response2.data.resID.firstname}{" "}
+                      {response2.data.resID.lastname}
+                    </p>
+                  </div>
+                  <img className="id-img" src={EmployeeIDBack} />
+                </div>
+              </div>
+            );
+
+            const printDiv = document.createElement("div");
+            document.body.appendChild(printDiv);
+
+            const root = ReactDOM.createRoot(printDiv);
+            root.render(printContent);
+
+            const printStyle = document.createElement("style");
+            printStyle.innerHTML = `
+                  @page {
+                    size: 54mm 86mm;
+                    margin: 0;
+                  }
+            
+                 @media screen {
+                  #printContent, #printContent * {
+                    display: none;
+                  }
+                }
+                  @media print {
+                    html, body {
+                      margin: 0 !important;
+                      padding: 0 !important;
+                      width: 54mm !important;
+                      height: 86mm !important;
+                      overflow: hidden !important;
+                    }
+            
+                    body * {
+                      visibility: hidden;
+                    }
+            
+                    #printContent, #printContent * {
+                      visibility: visible;
+                    }
+            
+                    #printContent {
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 54mm;
+                      height: 86mm;
+                    }
+            
+                    .id-page {
+                      width: 54mm;
+                      height: 86mm;
+                      overflow: hidden;
+                      margin: 0;
+                      padding: 0;
+                      page-break-after: avoid;
+                    }
+            
+                    .id-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                  }
+            
+                `;
+
+            document.head.appendChild(printStyle);
+
+            window.onbeforeprint = () => {
+              console.log("Barangay ID is generated.");
+            };
+            window.onafterprint = () => {
+              console.log("Barangay ID is issued.");
+              document.body.removeChild(printDiv);
+              document.head.removeChild(printStyle);
+            };
+
+            setTimeout(() => {
+              window.print();
+            }, 500);
+          } catch (error) {
+            console.log("Error viewing current employee ID", error);
+          }
+        } catch (error) {
+          console.log("Error saving employee ID", error);
+        }
       } catch (error) {
-        console.log("Error saving employee ID", error);
+        console.log("Error generating employee ID", error);
       }
-    } catch (error) {
-      console.log("Error generating employee ID", error);
+    } else {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/getemployee/${empID}`
+        );
+        const response2 = await axios.get(
+          `http://localhost:5000/api/getcaptain/`
+        );
+        const printContent = (
+          <div id="printContent">
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "65px",
+                  left: "60px",
+                  width: "80px",
+                  height: "75px",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.resID.picture}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "150px",
+                  left: "28px",
+                  width: "150px",
+                  height: "40px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "11px",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {response.data.resID.middlename
+                    ? `${
+                        response.data.resID.firstname
+                      } ${response.data.resID.middlename.substring(0, 1)}. ${
+                        response.data.resID.lastname
+                      }`
+                    : `${response.data.resID.firstname} ${response.data.resID.lastname}`}
+                </p>
+                <p style={{ fontSize: "11px", textAlign: "center" }}>
+                  {response.data.position}
+                </p>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "220px",
+                  left: "41px",
+                  width: "40px",
+                  height: "40px",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.employeeID[0]?.qrCode}
+                />
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "266px",
+                  left: "41px",
+                  width: "70px",
+                  height: "10px",
+                }}
+              >
+                <p style={{ fontSize: "8px" }}>
+                  {response.data.resID.brgyID[0]?.idNumber}
+                </p>
+              </div>
+              <img className="id-img" src={EmployeeIDFront} />
+            </div>
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "467px",
+                  left: "30px",
+                  width: "150px",
+                  height: "70px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  flexDirection: "column",
+                }}
+              >
+                <img
+                  style={{
+                    position: "absolute",
+                    width: "80px",
+                    height: "80px",
+                  }}
+                  src={response2.data.resID.signature}
+                />
+                <p
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {response2.data.resID.firstname}{" "}
+                  {response2.data.resID.lastname}
+                </p>
+              </div>
+              <img className="id-img" src={EmployeeIDBack} />
+            </div>
+          </div>
+        );
+
+        const printDiv = document.createElement("div");
+        document.body.appendChild(printDiv);
+
+        const root = ReactDOM.createRoot(printDiv);
+        root.render(printContent);
+
+        const printStyle = document.createElement("style");
+        printStyle.innerHTML = `
+              @page {
+                size: 54mm 86mm;
+                margin: 0;
+              }
+        
+             @media screen {
+              #printContent, #printContent * {
+                display: none;
+              }
+            }
+              @media print {
+                html, body {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  width: 54mm !important;
+                  height: 86mm !important;
+                  overflow: hidden !important;
+                }
+        
+                body * {
+                  visibility: hidden;
+                }
+        
+                #printContent, #printContent * {
+                  visibility: visible;
+                }
+        
+                #printContent {
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 54mm;
+                  height: 86mm;
+                }
+        
+                .id-page {
+                  width: 54mm;
+                  height: 86mm;
+                  overflow: hidden;
+                  margin: 0;
+                  padding: 0;
+                  page-break-after: avoid;
+                }
+        
+                .id-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+              }
+        
+            `;
+
+        document.head.appendChild(printStyle);
+
+        window.onbeforeprint = () => {
+          console.log("Barangay ID is generated.");
+        };
+        window.onafterprint = () => {
+          console.log("Barangay ID is issued.");
+          document.body.removeChild(printDiv);
+          document.head.removeChild(printStyle);
+        };
+
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      } catch (error) {
+        console.log("Error viewing current employee ID", error);
+      }
     }
   };
 
   useEffect(() => {
     setFilteredEmployees(employees);
   }, [employees]);
+
+  useEffect(() => {
+    const loadEmployees = async () => {
+      try {
+        const data = await fetchEmployees();
+        setEmployees(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadEmployees();
+  }, [fetchEmployees]);
 
   const handleAdd = () => {
     setCreateClicked(true);
@@ -91,14 +513,21 @@ function Employees({ isCollapsed }) {
   //   };
 
   const archiveBtn = async (e, empID) => {
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/archiveemployee/${empID}`
-      );
-      alert("Employee successfully archived");
-      window.location.reload();
-    } catch (error) {
-      console.log("Error", error);
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to archive this employee?",
+      "confirm"
+    );
+    if (isConfirmed) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/api/archiveemployee/${empID}`
+        );
+        alert("Employee successfully archived");
+        window.location.reload();
+      } catch (error) {
+        console.log("Error", error);
+      }
     }
   };
 

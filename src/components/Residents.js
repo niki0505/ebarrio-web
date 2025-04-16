@@ -11,12 +11,17 @@ import Indigency from "./certificates/Indigency";
 import BrgyID from "./certificates/BrgyID";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIDImage from "../assets/brgyid.jpg";
+import BrgyIDImage from "../assets/brgyid.png";
+import BrgyIDBack from "../assets/brgyidback.png";
+import BrgyIDFront from "../assets/brgyidfront.png";
 import ReactDOM from "react-dom/client";
+import { useConfirm } from "../context/ConfirmContext";
 
 function Residents({ isCollapsed }) {
+  const confirm = useConfirm();
   const navigation = useNavigate();
-  const { residents, setResidents } = useContext(InfoContext);
+  const { fetchResidents } = useContext(InfoContext);
+  const [residents, setResidents] = useState([]);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -43,114 +48,772 @@ function Residents({ isCollapsed }) {
 
   const handleBRGYID = async (e, resID) => {
     e.stopPropagation();
-    const printContent = (
-      <div id="printContent">
-        <div className="id-page">
-          <p style={{ position: "absolute", top: "20px" }}>Hello</p>
-          <img className="id-img" src={BrgyIDImage} />
-        </div>
-        <div className="id-page">
-          <img className="id-img" src={BrgyIDImage} />
-        </div>
-      </div>
+    const isConfirmed = await confirm(
+      "Do you want to print the current barangay ID or generate a new one?",
+      "id"
     );
 
-    const printDiv = document.createElement("div");
-    document.body.appendChild(printDiv);
-
-    const root = ReactDOM.createRoot(printDiv);
-    root.render(printContent);
-
-    const printStyle = document.createElement("style");
-    printStyle.innerHTML = `
-      @page {
-        size: 86mm 54mm;
-        margin: 0;
+    if (isConfirmed) {
+      try {
+        const response = await axios.post(
+          `http://localhost:5000/api/generatebrgyID/${resID}`
+        );
+        console.log(response.data);
+        const qrCode = await uploadToFirebase(response.data.qrCode);
+        try {
+          const response2 = await axios.put(
+            `http://localhost:5000/api/savebrgyID/${resID}`,
+            {
+              idNumber: response.data.idNumber,
+              expirationDate: response.data.expirationDate,
+              qrCode,
+              qrToken: response.data.qrToken,
+            }
+          );
+        } catch (error) {
+          console.log("Error saving barangay ID", error);
+        }
+      } catch (error) {
+        console.log("Error generating barangay ID", error);
       }
-    
-      @media print {
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 86mm !important;
-          height: 54mm !important;
-          overflow: hidden !important;
-        }
-    
-        body * {
-          visibility: hidden;
-        }
-    
-        #printContent, #printContent * {
-          visibility: visible;
-        }
-    
-        #printContent {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 86mm;
-          height: 54mm;
-        }
-    
-        .id-page {
-          width: 86mm;
-          height: 54mm;
-          overflow: hidden;
-          margin: 0;
-          padding: 0;
-          page-break-after: avoid; 
-        }
 
-        .id-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/getresident/${resID}`
+        );
+        const response2 = await axios.get(
+          `http://localhost:5000/api/getcaptain/`
+        );
+        const printContent = (
+          <div id="printContent">
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "52px",
+                  left: "32px",
+                  width: "95px",
+                  height: "10px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.brgyID[0]?.idNumber}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "75px",
+                  left: "10px",
+                  width: "91px",
+                  height: "85px",
+                  border: "1px solid black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.picture}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "165px",
+                  left: "287px",
+                  width: "35px",
+                  height: "36px",
+                  border: "1px solid black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.brgyID[0]?.qrCode}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "82px",
+                  left: "118px",
+                  width: "190px",
+                  height: "18px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "9px",
+                  }}
+                >
+                  {response.data.emergencyname}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "105px",
+                  left: "118px",
+                  width: "60px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.birthdate}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "105px",
+                  left: "198px",
+                  width: "60px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.sex}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "118px",
+                  width: "70px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.civilstatus}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "198px",
+                  width: "68px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.nationality}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "268px",
+                  width: "40px",
+                  height: "13px",
+                }}
+              >
+                {/* <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.nationality}
+                </p> */}
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "148px",
+                  left: "118px",
+                  width: "190px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.address}
+                </p>
+              </div>
+
+              <img className="id-img" src={BrgyIDFront} />
+            </div>
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "240px",
+                  left: "10px",
+                  width: "158px",
+                  height: "70px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencyname}
+                </p>
+                <p
+                  style={{
+                    fontSize: "10px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencyaddress}
+                </p>
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencymobilenumber}
+                </p>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "320px",
+                  width: "158px",
+                  left: "10px",
+                  height: "55px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  flexDirection: "column",
+                }}
+              >
+                <img
+                  style={{
+                    position: "absolute",
+                    width: "50px",
+                    height: "50px",
+                  }}
+                  src={response2.data.resID.signature}
+                />
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response2.data.resID.firstname}{" "}
+                  {response2.data.resID.lastname}
+                </p>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "388px",
+                  width: "70px",
+                  left: "214px",
+                  display: "flex",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response2.data.resID.brgyID[0]?.expirationDate}
+                </p>
+              </div>
+
+              <img className="id-img" src={BrgyIDBack} />
+            </div>
+          </div>
+        );
+
+        const printDiv = document.createElement("div");
+        document.body.appendChild(printDiv);
+
+        const root = ReactDOM.createRoot(printDiv);
+        root.render(printContent);
+
+        const printStyle = document.createElement("style");
+        printStyle.innerHTML = `
+          @page {
+            size: 86mm 54mm;
+            margin: 0;
+          }
+    
+         @media screen {
+          #printContent, #printContent * {
+            display: none;
+          }
+        }
+          @media print {
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 86mm !important;
+              height: 54mm !important;
+              overflow: hidden !important;
+            }
+    
+            body * {
+              visibility: hidden;
+            }
+    
+            #printContent, #printContent * {
+              visibility: visible;
+            }
+    
+            #printContent {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 86mm;
+              height: 54mm;
+            }
+    
+            .id-page {
+              width: 86mm;
+              height: 54mm;
+              overflow: hidden;
+              margin: 0;
+              padding: 0;
+              page-break-after: avoid;
+            }
+    
+            .id-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+    
+        `;
+
+        document.head.appendChild(printStyle);
+
+        window.onbeforeprint = () => {
+          console.log("Barangay ID is generated.");
+        };
+        window.onafterprint = () => {
+          console.log("Barangay ID is issued.");
+          document.body.removeChild(printDiv);
+          document.head.removeChild(printStyle);
+        };
+
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      } catch (error) {
+        console.log("Error generating barangay ID", error);
       }
+    } else {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/getresident/${resID}`
+        );
+        const response2 = await axios.get(
+          `http://localhost:5000/api/getcaptain/`
+        );
+        const printContent = (
+          <div id="printContent">
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "52px",
+                  left: "32px",
+                  width: "95px",
+                  height: "10px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.brgyID[0]?.idNumber}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "75px",
+                  left: "10px",
+                  width: "91px",
+                  height: "85px",
+                  border: "1px solid black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.picture}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "165px",
+                  left: "287px",
+                  width: "35px",
+                  height: "36px",
+                  border: "1px solid black",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src={response.data.brgyID[0]?.qrCode}
+                />
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "82px",
+                  left: "118px",
+                  width: "190px",
+                  height: "18px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "9px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {response.data.middlename
+                    ? `${response.data.lastname}, ${
+                        response.data.firstname
+                      }, ${response.data.middlename.substring(0, 1)}.`
+                    : `${response.data.firstname}, ${response.data.lastname}`}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "105px",
+                  left: "118px",
+                  width: "60px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.birthdate}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "105px",
+                  left: "198px",
+                  width: "60px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.sex}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "118px",
+                  width: "70px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.civilstatus}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "198px",
+                  width: "68px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.nationality}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "125px",
+                  left: "268px",
+                  width: "40px",
+                  height: "13px",
+                }}
+              >
+                {/* <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.nationality}
+                </p> */}
+              </div>
+
+              <div
+                style={{
+                  position: "absolute",
+                  top: "148px",
+                  left: "118px",
+                  width: "190px",
+                  height: "13px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response.data.address}
+                </p>
+              </div>
+
+              <img className="id-img" src={BrgyIDFront} />
+            </div>
+            <div className="id-page">
+              <div
+                style={{
+                  position: "absolute",
+                  top: "240px",
+                  left: "10px",
+                  width: "158px",
+                  height: "70px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencyname}
+                </p>
+                <p
+                  style={{
+                    fontSize: "10px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencyaddress}
+                </p>
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response.data.emergencymobilenumber}
+                </p>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "320px",
+                  width: "158px",
+                  left: "10px",
+                  height: "55px",
+                  paddingLeft: "5px",
+                  paddingRight: "5px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-end",
+                  flexDirection: "column",
+                }}
+              >
+                <img
+                  style={{
+                    position: "absolute",
+                    width: "50px",
+                    height: "50px",
+                  }}
+                  src={response2.data.resID.signature}
+                />
+                <p
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "center",
+                  }}
+                >
+                  {response2.data.resID.firstname}{" "}
+                  {response2.data.resID.lastname}
+                </p>
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  top: "388px",
+                  width: "70px",
+                  left: "214px",
+                  display: "flex",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: "8px",
+                  }}
+                >
+                  {response2.data.resID.brgyID[0]?.expirationDate}
+                </p>
+              </div>
+
+              <img className="id-img" src={BrgyIDBack} />
+            </div>
+          </div>
+        );
+
+        const printDiv = document.createElement("div");
+        document.body.appendChild(printDiv);
+
+        const root = ReactDOM.createRoot(printDiv);
+        root.render(printContent);
+
+        const printStyle = document.createElement("style");
+        printStyle.innerHTML = `
+          @page {
+            size: 86mm 54mm;
+            margin: 0;
+          }
     
-    
-      @media screen {
-        #printContent {
-          display: none;
+         @media screen {
+          #printContent, #printContent * {
+            display: none;
+          }
         }
+          @media print {
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 86mm !important;
+              height: 54mm !important;
+              overflow: hidden !important;
+            }
+    
+            body * {
+              visibility: hidden;
+            }
+    
+            #printContent, #printContent * {
+              visibility: visible;
+            }
+    
+            #printContent {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 86mm;
+              height: 54mm;
+            }
+    
+            .id-page {
+              width: 86mm;
+              height: 54mm;
+              overflow: hidden;
+              margin: 0;
+              padding: 0;
+              page-break-after: avoid;
+            }
+    
+            .id-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+    
+        `;
+
+        document.head.appendChild(printStyle);
+
+        window.onbeforeprint = () => {
+          console.log("Current barangay ID is printed.");
+        };
+        window.onafterprint = () => {
+          console.log("Current barangay ID is issued.");
+          document.body.removeChild(printDiv);
+          document.head.removeChild(printStyle);
+        };
+
+        setTimeout(() => {
+          window.print();
+        }, 500);
+      } catch (error) {
+        console.log("Error viewing current barangay ID", error);
       }
-    `;
-
-    document.head.appendChild(printStyle);
-
-    setTimeout(() => {
-      window.print();
-      window.onafterprint = () => {
-        document.body.removeChild(printDiv);
-        document.head.removeChild(printStyle);
-      };
-    }, 500);
-
-    // e.stopPropagation();
-    // try {
-    //   const response = await axios.post(
-    //     `http://localhost:5000/api/generatebrgyID/${resID}`
-    //   );
-    //   console.log(response.data);
-    //   const qrCode = await uploadToFirebase(response.data.qrCode);
-    //   try {
-    //     const response2 = await axios.put(
-    //       `http://localhost:5000/api/savebrgyID/${resID}`,
-    //       {
-    //         idNumber: response.data.idNumber,
-    //         expirationDate: response.data.expirationDate,
-    //         qrCode,
-    //         qrToken: response.data.qrToken,
-    //       }
-    //     );
-    //     alert("Barangay ID is successfully generated");
-    //   } catch (error) {
-    //     console.log("Error saving barangay ID", error);
-    //   }
-    // } catch (error) {
-    //   console.log("Error generating barangay ID", error);
-    // }
+    }
   };
 
   const handleRowClick = (residentId) => {
@@ -160,9 +823,19 @@ function Residents({ isCollapsed }) {
   useEffect(() => {
     setFilteredResidents(residents);
   }, [residents]);
+
   useEffect(() => {
-    console.log(residents);
-  }, [residents]);
+    const loadResidents = async () => {
+      try {
+        const data = await fetchResidents();
+        setResidents(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadResidents();
+  }, [fetchResidents]);
 
   const buttonClick = (e, resID) => {
     e.stopPropagation();
@@ -180,14 +853,21 @@ function Residents({ isCollapsed }) {
   };
 
   const archiveBtn = async (e, resID) => {
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/archiveresident/${resID}`
-      );
-      alert("Resident successfully archived");
-      window.location.reload();
-    } catch (error) {
-      console.log("Error", error);
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to archive this resident?",
+      "confirm"
+    );
+    if (isConfirmed) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:5000/api/archiveresident/${resID}`
+        );
+        alert("Resident successfully archived");
+        window.location.reload();
+      } catch (error) {
+        console.log("Error", error);
+      }
     }
   };
 
@@ -243,7 +923,7 @@ function Residents({ isCollapsed }) {
                 </thead>
 
                 <tbody>
-                  {filteredResidents.length === 0 ? (
+                  {filteredResidents === 0 ? (
                     <tr className="bg-white">
                       <td colSpan={3}>No results found</td>
                     </tr>
