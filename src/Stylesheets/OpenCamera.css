@@ -1,29 +1,5 @@
-/*COMMON*/
-.page-grid {
-  @apply relative font-title;
-}
-
-.modal-container {
-  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
-}
-
-.modal-content {
-  @apply h-[38rem] w-[45rem] flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
-}
-.modal-title-bar {
-  @apply absolute top-0 left-0 w-full h-16 bg-navy-blue rounded-t-xl z-0 flex justify-between items-center px-4;
-}
-.modal-title {
-  @apply text-xl text-white font-bold;
-}
-.modal-btn-close {
-  @apply z-10 transition-all  duration-200 hover:bg-red-600 absolute right-0 top-0 bottom-0 w-12 rounded-t-xl flex items-center justify-center;
-}
-.btn-close-icon {
-  @apply text-3xl text-white;
-}
 .modal-image-container {
-  @apply mt-16;
+  @apply mt-16 mb-5;
 }
 
 .modal-image {

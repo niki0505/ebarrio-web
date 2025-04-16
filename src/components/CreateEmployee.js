@@ -2,14 +2,32 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
+import { IoClose } from "react-icons/io5";
+import { storage } from "../firebase";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
-function CreateEmployee() {
-  const { residents, setResidents } = useContext(InfoContext);
+function CreateEmployee({ onClose }) {
+  const { fetchResidents } = useContext(InfoContext);
+  const [residents, setResidents] = useState([]);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
   });
+  const [showModal, setShowModal] = useState(true);
+
+  useEffect(() => {
+    const loadResidents = async () => {
+      try {
+        const data = await fetchResidents();
+        setResidents(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadResidents();
+  }, [fetchResidents]);
 
   useEffect(() => {
     console.log("Employee Form", employeeForm);
@@ -23,13 +41,48 @@ function CreateEmployee() {
     }));
   };
 
+  async function uploadToFirebase(url) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_images/${Date.now()}_${randomString}.png`;
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: blob.type });
+    const storageRef = ref(storage, fileName);
+    await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/createemployee",
         employeeForm
       );
-      alert("Employee successfully created!");
+      try {
+        const response2 = await axios.post(
+          `http://localhost:5000/api/generateemployeeID/${response.data.empID}`
+        );
+        const qrCode = await uploadToFirebase(response2.data.qrCode);
+
+        try {
+          const response3 = await axios.put(
+            `http://localhost:5000/api/saveemployeeID/${response.data.empID}`,
+            {
+              idNumber: response2.data.idNumber,
+              expirationDate: response2.data.expirationDate,
+              qrCode,
+              qrToken: response2.data.qrToken,
+            }
+          );
+          alert("Employee ID is successfully generated");
+        } catch (error) {
+          console.log("Error saving employee ID", error);
+        }
+      } catch (error) {
+        console.log("Error generating employee ID", error);
+      }
     } catch (error) {
       console.log("Error creating employee");
     }
@@ -65,64 +118,79 @@ function CreateEmployee() {
     fetchAvailablePositions();
   }, []);
 
+  const handleClose = () => {
+    setShowModal(false);
+    onClose();
+  };
+
   return (
-    <div className="floating-container">
-      <form
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          width: "400px",
-          marginTop: "20px",
-        }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="resID">
-            Name<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="resID"
-            name="resID"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
+    <>
+      {setShowModal && (
+        <div className="modal-container">
+          <div className="modal-content w-[20rem] h-[20rem] ">
+            <div className="modal-title-bar">
+              <h1 className="modal-title">Add New Employee</h1>
+              <button className="modal-btn-close">
+                <IoClose className="btn-close-icon" onClick={handleClose} />
+              </button>
+            </div>
+
+            <form
+              className="employee-form-container"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+            >
+              <div className="employee-form-group">
+                <label for="resID" className="form-label">
+                  Name<label className="text-red-600">*</label>
+                </label>
+                <select
+                  id="resID"
+                  name="resID"
+                  onChange={handleDropdownChange}
+                  className="form-input"
+                >
+                  <option value="" disabled selected hidden>
+                    Select
+                  </option>
+                  {residents.map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="employee-form-group">
+                <label for="position" className="form-label">
+                  Position<label className="text-red-600">*</label>
+                </label>
+                <select
+                  id="position"
+                  name="position"
+                  onChange={handleDropdownChange}
+                  className="form-input"
+                >
+                  <option value="" disabled selected hidden>
+                    Select
+                  </option>
+                  {availablePositions.map((element) => (
+                    <option value={element}>{element}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="actions-btn bg-btn-color-blue">
+                Submit
+              </button>
+            </form>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
-          <label for="position">
-            Position<label style={{ color: "red" }}>*</label>
-          </label>
-          <select
-            id="position"
-            name="position"
-            style={{ width: "150px" }}
-            onChange={handleDropdownChange}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {availablePositions.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+      )}
+    </>
   );
 }
 

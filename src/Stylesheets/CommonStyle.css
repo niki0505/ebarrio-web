@@ -1,0 +1,100 @@
+/*PAGE GRID*/
+.page-grid {
+  @apply relative font-title;
+}
+.page-grid.collapsed .main {
+  @apply ml-[theme('spacing.sidebar-collapsed')];
+  width: calc(100% - theme("spacing.sidebar-collapsed"));
+}
+.page-grid {
+  @apply relative font-title;
+}
+
+/*MAIN CONTENT*/
+.main {
+  @apply p-[1.25rem] 
+      bg-main-color
+      transition-all 
+      duration-300 
+      text-navy-blue
+      min-h-screen
+      h-auto
+      mt-[theme('spacing.navbar-height')];
+}
+.header-text {
+  @apply text-[24px] font-bold;
+}
+.white-bg-container {
+  @apply bg-white rounded-[10px] p-5 mt-5 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
+}
+
+/*BUTTONS*/
+.add-btn {
+  @apply flex items-center w-full justify-end space-x-2 mt-5 cursor-pointer text-btn-color-blue;
+}
+.btn-container {
+  @apply p-5 flex justify-end gap-4 mt-[-30px];
+}
+.actions-btn {
+  @apply px-4 py-1.5 rounded-[8px] items-center text-white font-bold shadow-box-shadow;
+}
+
+/*TABLE*/
+.table-container {
+  @apply overflow-y-auto;
+}
+.table-inner-container {
+  @apply h-auto overflow-y-auto;
+}
+table {
+  @apply min-w-full table-auto border-separate border-spacing-0  border border-[#BDBCBC] shadow-md;
+}
+thead {
+  @apply bg-[#DCDCDC] border border-b-2;
+}
+th {
+  @apply text-center font-[750px] text-base p-3;
+}
+td {
+  @apply text-center border border-[#C1C0C0] text-sm font-medium p-2;
+}
+.profile-container {
+  @apply text-start p-5 flex flex-row;
+}
+.profile-img {
+  @apply h-[150px] w-[150px] bg-white shadow-lg bg-white rounded-xl;
+}
+
+/*MODAL*/
+.modal-container {
+  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
+}
+.modal-content {
+  @apply flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
+}
+
+.modal-title-bar {
+  @apply absolute top-0 left-0 w-full h-16 bg-navy-blue rounded-t-xl z-0 flex justify-between items-center px-4;
+}
+.modal-title {
+  @apply text-xl text-white font-bold;
+}
+.modal-btn-close {
+  @apply z-10 transition-all  duration-200 hover:bg-red-600 absolute right-0 top-0 bottom-0 w-12 rounded-t-xl flex items-center justify-center;
+}
+.btn-close-icon {
+  @apply text-3xl text-white;
+}
+
+/*RESPONSIVE*/
+@media (max-width: 640px) {
+}
+
+@media (max-width: 768px) {
+  .main {
+    @apply ml-[theme('spacing.sidebar-collapsed')];
+  }
+}
+
+@media (max-width: 1024) {
+}

@@ -4,14 +4,13 @@ import axios from "axios";
 import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
-import mongoose from "mongoose";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { FiCamera } from "react-icons/fi";
-import { FiUpload } from "react-icons/fi";
-import "../Stylesheets/CreateResident.css";
+import { FiCamera, FiUpload } from "react-icons/fi";
 
 function CreateResident({ isCollapsed }) {
   ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
+  const [isIDProcessing, setIsIDProcessing] = useState(false);
+  const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState(null);
   const [signature, setSignature] = useState(null);
@@ -414,19 +413,26 @@ function CreateResident({ isCollapsed }) {
   const handleChangeID = async (event) => {
     const fileUploaded = event.target.files[0];
     if (fileUploaded) {
+      setIsIDProcessing(true);
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
         setId(url);
       } catch (error) {
         console.error("Error removing background:", error);
+      } finally {
+        setIsIDProcessing(false);
       }
     }
   };
 
   const handleDone = (url) => {
-    setIsCameraOpen(false);
-    setId(url);
+    setIsIDProcessing(true);
+    setTimeout(() => {
+      setIsCameraOpen(false);
+      setId(url);
+      setIsIDProcessing(false);
+    }, 500);
   };
 
   const handleClose = () => {
@@ -469,8 +475,30 @@ function CreateResident({ isCollapsed }) {
             ...updatedResidentForm,
           }
         );
-        console.log(updatedResidentForm);
         alert("Resident successfully created!");
+        console.log("Create resident response:", response.data);
+        try {
+          const response2 = await axios.post(
+            `http://localhost:5000/api/generatebrgyID/${response.data.resID}`
+          );
+          console.log(response2.data);
+          const qrCode = await uploadToFirebase(response2.data.qrCode);
+          try {
+            const response3 = await axios.put(
+              `http://localhost:5000/api/savebrgyID/${response.data.resID}`,
+              {
+                idNumber: response2.data.idNumber,
+                expirationDate: response2.data.expirationDate,
+                qrCode,
+                qrToken: response2.data.qrToken,
+              }
+            );
+          } catch (error) {
+            console.log("Error saving barangay ID", error);
+          }
+        } catch (error) {
+          console.log("Error generating barangay ID", error);
+        }
       }
     } catch (error) {
       console.log("Error", error);
@@ -480,12 +508,15 @@ function CreateResident({ isCollapsed }) {
   const handleChangeSig = async (event) => {
     const fileUploaded = event.target.files[0];
     if (fileUploaded) {
+      setIsSignProcessing(true);
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
         setSignature(url);
       } catch (error) {
         console.error("Error removing background:", error);
+      } finally {
+        setIsSignProcessing(false);
       }
     }
   };
@@ -496,7 +527,8 @@ function CreateResident({ isCollapsed }) {
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <h1 className="header-text">Create Resident</h1>
 
-      <div className="resident-info-container">
+      {/* Personal Information */}
+      <div className="white-bg-container">
         <h3 className="section-title">Personal Information</h3>
         <hr class="section-divider" />
         <div className="upload-container">
@@ -514,14 +546,16 @@ function CreateResident({ isCollapsed }) {
 
               <div className="upload-content">
                 <div className="preview-container">
-                  {id ? (
-                    <img src={id} className="w-[150px] sm:w-[100px]" />
+                  {isIDProcessing ? (
+                    <p>Processing...</p>
+                  ) : id ? (
+                    <img src={id} className="upload-img" />
                   ) : (
                     <p>No Picture Attached</p>
                   )}
                 </div>
 
-                <div className="upload-picture-btn">
+                <div className="upload-picture-btn ">
                   <button onClick={toggleCamera} className="upload-btn">
                     <FiCamera />
                   </button>
@@ -546,8 +580,13 @@ function CreateResident({ isCollapsed }) {
               />
               <div className="upload-content">
                 <div className="preview-container">
-                  {signature ? (
-                    <img src={signature} className="w-[150px] sm:w-[100px]" />
+                  {isSignProcessing ? (
+                    <p>Processing...</p>
+                  ) : signature ? (
+                    <img
+                      src={signature}
+                      className="w-full h-full object-contain"
+                    />
                   ) : (
                     <p>No Picture Attached</p>
                   )}
@@ -860,7 +899,7 @@ function CreateResident({ isCollapsed }) {
           <hr class="section-divider" />
 
           <div className="form-grid">
-            <div className="col-span-1">
+            <div className="form-group">
               <label className="form-label">Email</label>
               <input
                 name="email"
@@ -1032,7 +1071,7 @@ function CreateResident({ isCollapsed }) {
 
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Siblings</label>
+              <label className="form-label mt-4">Siblings</label>
               <input
                 name="numberofsiblings"
                 value={residentForm.numberofsiblings}
@@ -1042,11 +1081,13 @@ function CreateResident({ isCollapsed }) {
               />
             </div>
           </div>
-          <div className="form-grid">{renderSiblingsDropdown()}</div>
+          {parseInt(residentForm.numberofsiblings, 10) > 0 && (
+            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
+          )}
 
           <div className="form-grid">
-            <div className="form-group mt-[-20px]">
-              <label className="form-label">Children</label>
+            <div className="form-group">
+              <label className="form-label mt-4 ">Children</label>
               <input
                 name="numberofchildren"
                 value={residentForm.numberofchildren}
@@ -1056,11 +1097,12 @@ function CreateResident({ isCollapsed }) {
               />
             </div>
           </div>
-
-          <div className="form-grid">{renderChildrenDropdown()}</div>
+          {parseInt(residentForm.numberofchildren, 10) > 0 && (
+            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
+          )}
 
           {/* Address Information */}
-          <h3 className="section-title mt-3">Address Information</h3>
+          <h3 className="section-title mt-8">Address Information</h3>
           <hr class="section-divider" />
 
           <div className="form-grid">
@@ -1217,11 +1259,11 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="function-btn-container">
-            <button type="button" className="function-btn bg-btn-color-gray">
+          <div className="function-btn-container mt-4">
+            <button type="button" className="actions-btn  bg-btn-color-gray">
               Clear
             </button>
-            <button type="submit" className="function-btn bg-btn-color-blue">
+            <button type="submit" className="actions-btn  bg-btn-color-blue ">
               Submit
             </button>
           </div>

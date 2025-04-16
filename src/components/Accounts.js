@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
 import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
@@ -11,7 +11,8 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 
 function Accounts({ isCollapsed }) {
   const navigation = useNavigate();
-  const { users, setUsers } = useContext(InfoContext);
+  const [users, setUsers] = useState([]);
+  const { fetchUsers } = useContext(InfoContext);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
@@ -26,8 +27,18 @@ function Accounts({ isCollapsed }) {
   }, [users]);
 
   useEffect(() => {
-    console.log(users);
-  }, [users]);
+    const loadUsers = async () => {
+      try {
+        const data = await fetchUsers();
+        setUsers(data);
+      } catch (err) {
+        console.log("Failed to fetch residents");
+      }
+    };
+
+    loadUsers();
+  }, [fetchUsers]);
+
   //   const buttonClick = (e, resID) => {
   //     e.stopPropagation();
   //     alert(`Clicked ${resID}`);
@@ -88,140 +99,73 @@ function Accounts({ isCollapsed }) {
         <div className="header-text">Users</div>
 
         <SearchBar />
-        <div style={{ padding: "20px", overflowY: "auto" }}>
-          <div style={{ height: "300px", overflowY: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                border: "1px solid black",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Name
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Username
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Role
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    style={{
-                      textAlign: "center",
-                      border: "1px solid black",
-                      padding: "10px",
-                    }}
-                  >
-                    Action
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredUsers.length === 0 ? (
+        <button className="add-btn" onClick={handleAdd}>
+          <MdPersonAddAlt1 className=" text-xl" />
+          <span className="font-bold">Add new user</span>
+        </button>
+        <div className="white-bg-container">
+          <div className="table-container">
+            <div className="table-inner-container">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan={5}>No results found</td>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
-                ) : (
-                  filteredUsers.map((user) => (
-                    <tr
-                      key={user._id}
-                      style={{
-                        cursor: "pointer",
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#f0f0f0";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "";
-                      }}
-                    >
-                      <td
-                        style={{
-                          textAlign: "center",
-                          border: "1px solid black",
-                        }}
-                      >
-                        {user.resID.middlename
-                          ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
-                          : `${user.resID.lastname} ${user.resID.firstname}`}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          border: "1px solid black",
-                        }}
-                      >
-                        {user.username}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          border: "1px solid black",
-                        }}
-                      >
-                        {user.role}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          border: "1px solid black",
-                        }}
-                      >
-                        {user.status}
-                      </td>
-                      <td
-                        style={{
-                          textAlign: "center",
-                          border: "1px solid black",
-                        }}
-                      >
-                        <button>Archive</button>
-                        <button>Deactivate</button>
-                        <button>Edit</button>
-                      </td>
+                </thead>
+
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5}>No results found</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <tr
+                        key={user._id}
+                        style={{
+                          cursor: "pointer",
+                          transition: "background-color 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#f0f0f0";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "";
+                        }}
+                      >
+                        <td>
+                          {user.resID.middlename
+                            ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
+                            : `${user.resID.lastname} ${user.resID.firstname}`}
+                        </td>
+                        <td>{user.username}</td>
+                        <td>{user.role}</td>
+                        <td>{user.status}</td>
+                        <td className="flex justify-between">
+                          <button className="text-btn-color-blue font-bold">
+                            ARCHIVE
+                          </button>
+                          <button className="text-red-600 font-bold">
+                            DEACTIVATE
+                          </button>
+                          <button className="text-green-600 font-bold">
+                            EDIT
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {isCreateClicked && (
+              <CreateAccount onClose={() => setCreateClicked(false)} />
+            )}
           </div>
-          {isCreateClicked && <CreateAccount />}
-          <button className="resident-add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new user</span>
-          </button>
         </div>
       </main>
     </>
