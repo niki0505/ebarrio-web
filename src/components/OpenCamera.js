@@ -62,7 +62,7 @@ function OpenCamera({ onDone, onClose }) {
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
           <div className="modal-content w-[45rem]">
-            <div className="modal-title-bar">
+            <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Picture</h1>
               <button className="modal-btn-close" onClick={onClose}>
                 <IoClose className="btn-close-icon" />
