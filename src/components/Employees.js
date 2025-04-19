@@ -614,7 +614,7 @@ function Employees({ isCollapsed }) {
                                   src={emp.resID.picture}
                                   className="profile-img"
                                 />
-                                <div className="ml-5 text-sm">
+                                <div className="ml-5 text-xs">
                                   <p>
                                     <strong>Name: </strong>
                                     {emp.resID.middlename
@@ -643,7 +643,7 @@ function Employees({ isCollapsed }) {
                                     <strong>Position: </strong> {emp.position}
                                   </p>
                                 </div>
-                                <div className="ml-5 text-sm">
+                                <div className="ml-5 text-xs">
                                   <p>
                                     <strong>Emergency Contact:</strong>
                                   </p>

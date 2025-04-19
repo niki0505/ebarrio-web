@@ -13,7 +13,7 @@ module.exports = {
         "text-blue": "#04384E",
         "btn-color-gray": "#C1C0C0",
       },
-      spacing: {
+      spacing: {  
         sidebar: "18rem",
         "sidebar-collapsed": "5rem",
         "navbar-height": "3.5rem",

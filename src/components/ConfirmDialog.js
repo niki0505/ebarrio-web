@@ -1,18 +1,45 @@
+import { IoIosWarning } from "react-icons/io";
+import { IoClose } from "react-icons/io5";
+import "../Stylesheets/Dialog.css";
+
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full">
-        <p className="text-gray-800 text-center mb-4">{message}</p>
+    <div className="modal-container font-title">
+      <div className="modal-content">
+        <div className="dialog-title-bar">
+          <div className="flex flex-col">
+            <div className="dialog-title-bar-items">
+              <h1 className="dialog-title-bar-title">Confirm</h1>
+              <IoClose
+                onClick={onCancel}
+                class="dialog-title-bar-icon"
+              ></IoClose>
+            </div>
+            <hr className="dialog-line" />
+          </div>
+        </div>
+
+        <div className="flex justify-center mt-10">
+          <div class="bg-red-100 p-3 rounded-full">
+            <IoIosWarning className="text-red-500 text-4xl" />
+          </div>
+        </div>
+
+        <p className="dialog-message text-red-600">{message}</p>
+        <p class="text-gray-400 text-sm mb-4">
+          Press Confirm to continue, or Cancel to stay on the current page
+        </p>
+
         <div className="flex justify-end gap-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-md border border-gray-400 text-gray-700 hover:bg-gray-100"
+            className="actions-btn bg-btn-color-gray hover:bg-gray-400"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+            className="actions-btn bg-btn-color-red hover:bg-red-700"
           >
             Confirm
           </button>

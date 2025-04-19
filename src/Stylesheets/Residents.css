@@ -5,7 +5,7 @@
 .section-divider {
   @apply border-t-[1.5px] border-[#C1C0C0] my-1;
 }
-.picture-upload-wrapper {
+.picture-upload-wrapper { 
   @apply col-span-1 mb-10;
 }
 .upload-container {
@@ -42,7 +42,7 @@
   @apply col-span-1;
 }
 .form-input {
-  @apply block w-full h-[30px] rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+  @apply block w-full rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
 }
 .function-btn-container {
   @apply flex justify-end space-x-5 rounded rounded-md;

@@ -4,13 +4,13 @@
 .page-grid.collapsed .sidebar {
   @apply w-[theme('spacing.sidebar-collapsed')];
 }
-
 .sidebar {
   @apply fixed 
     bg-[#04384e] 
     text-white 
     p-4 
-    transition-all 
+    transition-all
+    ease-in-out 
     duration-300 
     overflow-hidden 
     top-0 

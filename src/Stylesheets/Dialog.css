@@ -1,0 +1,18 @@
+.dialog-title-bar {
+  @apply absolute top-0 left-0 w-full rounded-t-xl z-0;
+}
+.dialog-title-bar-items {
+  @apply flex flex-row justify-between items-center h-12 px-4;
+}
+.dialog-title-bar-title {
+  @apply text-base font-bold text-gray-400;
+}
+.dialog-title-bar-icon {
+  @apply absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold;
+}
+.dialog-line {
+  @apply w-full border-t-2 border-gray-200 mt-0;
+}
+.dialog-message {
+  @apply w-[350px] font-bold text-base mb-2 text-center mt-2;
+}

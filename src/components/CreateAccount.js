@@ -161,8 +161,8 @@ function CreateAccount({ onClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[20rem] h-[30rem] ">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Add New Employee</h1>
+            <div className="modal-title-bar bg-navy-blue">
+              <h1 className="modal-title">Add New User</h1>
               <button className="modal-btn-close">
                 <IoClose className="btn-close-icon" onClick={handleClose} />
               </button>
@@ -184,7 +184,7 @@ function CreateAccount({ onClose }) {
                   name="resID"
                   onChange={handleInputChange}
                   required
-                  className="form-input"
+                  className="form-input h-[30px]"
                 >
                   <option value="" disabled selected hidden>
                     Select
@@ -209,7 +209,7 @@ function CreateAccount({ onClose }) {
                   value={userForm.role}
                   onChange={handleInputChange}
                   readOnly
-                  className="form-input"
+                  className="form-input h-[30px]"
                 />
               </div>
 
@@ -232,7 +232,7 @@ function CreateAccount({ onClose }) {
                   name="username"
                   onChange={usernameValidation}
                   required
-                  className="form-input"
+                  className="form-input h-[30px]"
                 />
               </div>
 
@@ -256,7 +256,7 @@ function CreateAccount({ onClose }) {
                     name="password"
                     onChange={passwordValidation}
                     required
-                    className="form-input"
+                    className="form-input h-[30px]"
                   />
                   <button
                     type="button"
