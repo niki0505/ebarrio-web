@@ -49,12 +49,15 @@ function Residents({ isCollapsed }) {
 
   const handleBRGYID = async (e, resID) => {
     e.stopPropagation();
-    const isConfirmed = await confirm(
+    const action = await confirm(
       "Do you want to print the current barangay ID or generate a new one?",
       "id"
     );
 
-    if (isConfirmed) {
+    if (action === "cancel") {
+      return;
+    }
+    if (action === "generate") {
       try {
         const response = await axios.post(
           `http://localhost:5000/api/generatebrgyID/${resID}`
@@ -158,7 +161,11 @@ function Residents({ isCollapsed }) {
                     fontSize: "9px",
                   }}
                 >
-                  {response.data.emergencyname}
+                  {response.data.middlename
+                    ? `${response.data.lastname}, ${
+                        response.data.firstname
+                      }, ${response.data.middlename.substring(0, 1)}.`
+                    : `${response.data.lastname}, ${response.data.firstname}`}
                 </p>
               </div>
 
@@ -439,11 +446,11 @@ function Residents({ isCollapsed }) {
 
         setTimeout(() => {
           window.print();
-        }, 500);
+        }, 1000);
       } catch (error) {
         console.log("Error generating barangay ID", error);
       }
-    } else {
+    } else if (action === "current") {
       try {
         const response = await axios.get(
           `http://localhost:5000/api/getresident/${resID}`
@@ -529,7 +536,7 @@ function Residents({ isCollapsed }) {
                     ? `${response.data.lastname}, ${
                         response.data.firstname
                       }, ${response.data.middlename.substring(0, 1)}.`
-                    : `${response.data.firstname}, ${response.data.lastname}`}
+                    : `${response.data.lastname}, ${response.data.firstname}`}
                 </p>
               </div>
 
@@ -810,7 +817,7 @@ function Residents({ isCollapsed }) {
 
         setTimeout(() => {
           window.print();
-        }, 500);
+        }, 1000);
       } catch (error) {
         console.log("Error viewing current barangay ID", error);
       }

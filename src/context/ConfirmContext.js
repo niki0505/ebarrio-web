@@ -37,6 +37,16 @@ export const ConfirmProvider = ({ children }) => {
     setConfirmState({ ...confirmState, isOpen: false });
   };
 
+  const handleConfirm2 = (action) => {
+    confirmState.resolve(action);
+    setConfirmState({ ...confirmState, isOpen: false });
+  };
+
+  const handleCancel2 = () => {
+    confirmState.resolve("cancel");
+    setConfirmState({ ...confirmState, isOpen: false });
+  };
+
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
@@ -50,8 +60,8 @@ export const ConfirmProvider = ({ children }) => {
       {confirmState.isOpen && confirmState.dialogType === "id" && (
         <IDDialog
           message={confirmState.message}
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
+          onConfirm={handleConfirm2}
+          onCancel={handleCancel2}
         />
       )}
     </ConfirmContext.Provider>

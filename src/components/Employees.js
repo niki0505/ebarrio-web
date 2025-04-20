@@ -47,12 +47,16 @@ function Employees({ isCollapsed }) {
 
   const handleEmployeeID = async (e, empID) => {
     e.stopPropagation();
-    const isConfirmed = await confirm(
+    const action = await confirm(
       "Do you want to print the current employee ID or generate a new one?",
       "id"
     );
 
-    if (isConfirmed) {
+    if (action === "cancel") {
+      return;
+    }
+
+    if (action === "generate") {
       try {
         const response = await axios.post(
           `http://localhost:5000/api/generateemployeeID/${empID}`
@@ -264,7 +268,7 @@ function Employees({ isCollapsed }) {
 
             setTimeout(() => {
               window.print();
-            }, 500);
+            }, 1000);
           } catch (error) {
             console.log("Error viewing current employee ID", error);
           }
@@ -274,7 +278,7 @@ function Employees({ isCollapsed }) {
       } catch (error) {
         console.log("Error generating employee ID", error);
       }
-    } else {
+    } else if (action === "current") {
       try {
         const response = await axios.get(
           `http://localhost:5000/api/getemployee/${empID}`
@@ -469,7 +473,7 @@ function Employees({ isCollapsed }) {
 
         setTimeout(() => {
           window.print();
-        }, 500);
+        }, 1000);
       } catch (error) {
         console.log("Error viewing current employee ID", error);
       }

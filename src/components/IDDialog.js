@@ -28,13 +28,13 @@ const IDDialog = ({ message, onConfirm, onCancel }) => {
 
         <div className="flex justify-end gap-4">
           <button
-            onClick={onCancel}
+            onClick={() => onConfirm("current")}
             className="actions-btn bg-btn-color-gray hover:bg-gray-400"
           >
             Current
           </button>
           <button
-            onClick={onConfirm}
+            onClick={() => onConfirm("generate")}
             className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
           >
             Generate
