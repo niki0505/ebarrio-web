@@ -17,6 +17,7 @@ import BrgyIDBack from "../assets/brgyidback.png";
 import BrgyIDFront from "../assets/brgyidfront.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
+import CreateCertificate from "./CreateCertificate";
 
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
@@ -1053,6 +1054,12 @@ function Residents({ isCollapsed }) {
             </div>
           </div>
         </div>
+        {isCertClicked && (
+          <CreateCertificate
+            resID={selectedResID}
+            onClose={() => setCertClicked(false)}
+          />
+        )}
       </main>
     </>
   );

@@ -85,7 +85,7 @@ function CreateCertificate({ resID, onClose }) {
         ? `${certificateForm.addressnumber} ${certificateForm.street} Aniban 2, Bacoor, Cavite`
         : `${certificateForm.street} Aniban 2, Bacoor, Cavite`;
 
-      filteredData.address = fullAddress;
+      filteredData.locationofbusiness = fullAddress;
       delete filteredData.addressnumber;
       delete filteredData.street;
     }
@@ -94,7 +94,7 @@ function CreateCertificate({ resID, onClose }) {
       certificateForm.typeofcertificate === "Barangay Business Clearance" &&
       certificateForm.street === "Resident's Address"
     ) {
-      filteredData.address = certificateForm.street;
+      filteredData.locationofbusiness = certificateForm.street;
       delete filteredData.addressnumber;
       delete filteredData.street;
     }
@@ -165,7 +165,9 @@ function CreateCertificate({ resID, onClose }) {
                   <p style={{ fontSize: "12px", paddingBottom: "3.5px" }}>
                     {response3.data.resID.birthdate}
                   </p>
-                  <p style={{ fontSize: "12px", paddingBottom: "4px" }}>SEX</p>
+                  <p style={{ fontSize: "12px", paddingBottom: "4px" }}>
+                    {response3.data.resID.sex}
+                  </p>
                   <p style={{ fontSize: "12px", paddingBottom: "5px" }}>
                     {response3.data.resID.civilstatus}
                   </p>
@@ -347,13 +349,13 @@ function CreateCertificate({ resID, onClose }) {
                             size: A4;
                             margin: 0;
                         }
-            
+
                         @media screen {
                             #printContent, #printContent * {
                             display: none;
                             }
                         }
-            
+
                         @media print {
                             html, body {
                             margin: 0 !important;
@@ -362,15 +364,15 @@ function CreateCertificate({ resID, onClose }) {
                             height: 297mm !important;
                             overflow: hidden !important;
                             }
-            
+
                             body * {
                             visibility: hidden;
                             }
-            
+
                             #printContent, #printContent * {
                             visibility: visible;
                             }
-            
+
                             #printContent {
                             position: absolute;
                             top: 0;
@@ -378,7 +380,7 @@ function CreateCertificate({ resID, onClose }) {
                             width: 210mm;
                             height: 297mm;
                             }
-            
+
                             .id-page {
                             width: 210mm;
                             height: 297mm;
@@ -387,7 +389,7 @@ function CreateCertificate({ resID, onClose }) {
                             padding: 0;
                             page-break-after: avoid;
                             }
-            
+
                             .id-img {
                             width: 100%;
                             height: 100%;
@@ -410,7 +412,7 @@ function CreateCertificate({ resID, onClose }) {
 
           setTimeout(() => {
             window.print();
-          }, 1000);
+          }, 2000);
         } else if (response3.data.typeofcertificate === "Barangay Clearance") {
           const printContent = (
             <div id="printContent">
@@ -449,7 +451,9 @@ function CreateCertificate({ resID, onClose }) {
                   <p style={{ fontSize: "12px", paddingBottom: "3.5px" }}>
                     {response3.data.resID.birthdate}
                   </p>
-                  <p style={{ fontSize: "12px", paddingBottom: "4px" }}>SEX</p>
+                  <p style={{ fontSize: "12px", paddingBottom: "4px" }}>
+                    {response3.data.resID.sex}
+                  </p>
                   <p style={{ fontSize: "12px", paddingBottom: "5px" }}>
                     {response3.data.resID.civilstatus}
                   </p>
@@ -631,6 +635,286 @@ function CreateCertificate({ resID, onClose }) {
                                 size: A4;
                                 margin: 0;
                             }
+
+                            @media screen {
+                                #printContent, #printContent * {
+                                display: none;
+                                }
+                            }
+
+                            @media print {
+                                html, body {
+                                margin: 0 !important;
+                                padding: 0 !important;
+                                width: 210mm !important;
+                                height: 297mm !important;
+                                overflow: hidden !important;
+                                }
+
+                                body * {
+                                visibility: hidden;
+                                }
+
+                                #printContent, #printContent * {
+                                visibility: visible;
+                                }
+
+                                #printContent {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 210mm;
+                                height: 297mm;
+                                }
+
+                                .id-page {
+                                width: 210mm;
+                                height: 297mm;
+                                overflow: hidden;
+                                margin: 0;
+                                padding: 0;
+                                page-break-after: avoid;
+                                }
+
+                                .id-img {
+                                width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: block;
+                                }
+                            }
+                            `;
+
+          document.head.appendChild(printStyle);
+
+          window.onbeforeprint = () => {
+            console.log("Barangay Clearance is generated.");
+          };
+          window.onafterprint = () => {
+            console.log("Barangay Clearance is issued.");
+            document.body.removeChild(printDiv);
+            document.head.removeChild(printStyle);
+          };
+
+          setTimeout(() => {
+            window.print();
+          }, 2000);
+        } else if (
+          response3.data.typeofcertificate === "Barangay Business Clearance"
+        ) {
+          const printContent = (
+            <div id="printContent">
+              <div className="id-page">
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "342px",
+                    left: "470px",
+                    width: "300px",
+                    height: "130px",
+                  }}
+                >
+                  <p style={{ fontSize: "12px", paddingBottom: "4px" }}>
+                    {response3.data.resID.middlename
+                      ? `${response3.data.resID.firstname.toUpperCase()} ${response3.data.resID.middlename.substring(
+                          0,
+                          1
+                        )}. ${response3.data.resID.lastname.toUpperCase()}`
+                      : `${response3.data.resID.firstname.toUpperCase()} ${response3.data.resID.lastname.toUpperCase()}`}
+                  </p>
+                  <p style={{ fontSize: "12px", paddingBottom: "6px" }}>
+                    {response3.data.businessname.toUpperCase()}
+                  </p>
+                  <p style={{ fontSize: "12px", paddingBottom: "7px" }}>
+                    {response3.data.lineofbusiness}
+                  </p>
+                  <p style={{ fontSize: "12px", paddingBottom: "7px" }}>
+                    {response3.data.locationofbusiness === "Resident's Address"
+                      ? `${response3.data.resID.address}`
+                      : `${response3.data.locationofbusiness}`}
+                  </p>
+                  <p style={{ fontSize: "12px" }}>
+                    {response3.data.locationofbusiness === "Resident's Address"
+                      ? "same as above"
+                      : `${response3.data.resID.address}`}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "607px",
+                    left: "345px",
+                    width: "30px",
+                    height: "20px",
+                    fontWeight: "bold",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "10px",
+                      fontStyle: "italic",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    {(() => {
+                      const fullDate = response.data.createdAt.substring(
+                        0,
+                        response.data.createdAt.indexOf(" at")
+                      );
+                      const [, date] = fullDate.split(" ");
+                      const numericDate = parseInt(date.replace(",", ""));
+
+                      const getOrdinalSuffix = (n) => {
+                        const s = ["th", "st", "nd", "rd"];
+                        const v = n % 100;
+                        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                      };
+
+                      return getOrdinalSuffix(numericDate);
+                    })()}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "607px",
+                    left: "405px",
+                    width: "65px",
+                    height: "20px",
+                    fontWeight: "bold",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: "10px",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {(() => {
+                      const fullDate = response.data.createdAt.substring(
+                        0,
+                        response.data.createdAt.indexOf(" at")
+                      );
+                      const [month, , year] = fullDate.split(" ");
+                      return `${month} ${year}`;
+                    })()}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "700px",
+                    left: "565px",
+                    width: "200px",
+                    height: "65px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    flexDirection: "column",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <img
+                    style={{ width: "75px", height: "75px" }}
+                    src={response5.data.signature}
+                  />
+                  <p style={{ fontSize: "12px" }}>
+                    {response5.data.name.toUpperCase()}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "833px",
+                    left: "565px",
+                    width: "200px",
+                    height: "65px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    flexDirection: "column",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <img
+                    style={{ width: "75px", height: "75px" }}
+                    src={response4.data.resID.signature}
+                  />
+                  <p style={{ fontSize: "12px" }}>
+                    {response4.data.resID.middlename
+                      ? `${response4.data.resID.firstname.toUpperCase()} ${response4.data.resID.middlename.substring(
+                          0,
+                          1
+                        )}. ${response4.data.resID.lastname.toUpperCase()}`
+                      : `${response4.data.resID.firstname.toUpperCase()} ${response4.data.resID.lastname.toUpperCase()}`}
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "983px",
+                    left: "655px",
+                    width: "105px",
+                    height: "93px",
+                  }}
+                >
+                  <img
+                    style={{ width: "100%", height: "100%" }}
+                    src={response3.data.certID.qrCode}
+                    alt="QR Code"
+                  />
+                </div>
+
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "1010px",
+                    left: "110px",
+                    width: "100px",
+                    height: "70px",
+                  }}
+                >
+                  <p style={{ fontSize: "11px", paddingBottom: "4px" }}>
+                    {response3.data.certID.controlNumber}
+                  </p>
+                  <p style={{ fontSize: "11px", paddingBottom: "5px" }}>
+                    {response.data.createdAt.substring(
+                      0,
+                      response.data.createdAt.indexOf(" at")
+                    )}
+                  </p>
+                  <p style={{ fontSize: "11px" }}>
+                    {response.data.createdAt
+                      .substring(response.data.createdAt.indexOf("at") + 3)
+                      .trim()}
+                  </p>
+                </div>
+                <img className="id-img" src={BusinessClearance} />
+              </div>
+            </div>
+          );
+
+          const printDiv = document.createElement("div");
+          document.body.appendChild(printDiv);
+
+          const root = ReactDOM.createRoot(printDiv);
+          root.render(printContent);
+
+          const printStyle = document.createElement("style");
+          printStyle.innerHTML = `
+                            @page {
+                                size: A4;
+                                margin: 0;
+                            }
                 
                             @media screen {
                                 #printContent, #printContent * {
@@ -694,7 +978,7 @@ function CreateCertificate({ resID, onClose }) {
 
           setTimeout(() => {
             window.print();
-          }, 1000);
+          }, 2000);
         }
         setTimeout(() => {
           handleClose();
