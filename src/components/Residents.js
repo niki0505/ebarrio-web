@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
 import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
@@ -951,7 +952,7 @@ function Residents({ isCollapsed }) {
                                   src={res.picture}
                                   className="profile-img"
                                 />
-                                <div className="ml-5 text-sm">
+                                <div className="ml-5 text-xs">
                                   <p>
                                     <strong>Name: </strong>
                                     {res.middlename
@@ -976,7 +977,7 @@ function Residents({ isCollapsed }) {
                                     <strong>Address: </strong> {res.address}
                                   </p>
                                 </div>
-                                <div className="ml-5 text-sm">
+                                <div className="ml-5 text-xs">
                                   <p>
                                     <strong>Emergency Contact:</strong>
                                   </p>
@@ -1027,13 +1028,13 @@ function Residents({ isCollapsed }) {
                             </td>
                           ) : (
                             <>
-                              <td className="text-sm">
+                              <td>
                                 {res.middlename
                                   ? `${res.lastname} ${res.middlename} ${res.firstname}`
                                   : `${res.lastname} ${res.firstname}`}
                               </td>
-                              <td className="text-sm">{res.mobilenumber}</td>
-                              <td className="text-sm">{res.address}</td>
+                              <td>{res.mobilenumber}</td>
+                              <td>{res.address}</td>
                             </>
                           )}
                         </tr>

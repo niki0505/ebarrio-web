@@ -90,7 +90,7 @@ function CreateResident({ isCollapsed }) {
             id={`sibling-${i}`}
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
-            className="form-input"
+            className="form-input h-[30px]"
           >
             <option value="" disabled selected hidden>
               Select
@@ -123,7 +123,7 @@ function CreateResident({ isCollapsed }) {
             id={`child-${i}`}
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
-            className="form-input"
+            className="form-input h-[30px]"
           >
             <option value="" disabled selected hidden>
               Select
@@ -620,7 +620,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter first name"
                 required
-                className="form-input input-box"
+                className="form-input h-[30px] input-box"
               />
             </div>
 
@@ -631,7 +631,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.middlename}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
             <div className="form-group">
@@ -644,7 +644,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter last name"
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
             <div className="form-group">
@@ -655,7 +655,7 @@ function CreateResident({ isCollapsed }) {
                 id="suffix"
                 name="suffix"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -672,7 +672,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.alias}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter alias"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -684,7 +684,7 @@ function CreateResident({ isCollapsed }) {
                 id="salutation"
                 name="salutation"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -704,7 +704,7 @@ function CreateResident({ isCollapsed }) {
                 name="sex"
                 onChange={handleDropdownChange}
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -723,7 +723,7 @@ function CreateResident({ isCollapsed }) {
                 id="gender"
                 name="gender"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -752,7 +752,7 @@ function CreateResident({ isCollapsed }) {
                 placeholder="Enter birthdate"
                 min="1900-01-01"
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -763,7 +763,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.birthplace}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter birthplace"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -776,7 +776,7 @@ function CreateResident({ isCollapsed }) {
                 name="civilstatus"
                 onChange={handleDropdownChange}
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -795,7 +795,7 @@ function CreateResident({ isCollapsed }) {
                 id="bloodtype"
                 name="bloodtype"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -814,7 +814,7 @@ function CreateResident({ isCollapsed }) {
                 id="religion"
                 name="religion"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -834,7 +834,7 @@ function CreateResident({ isCollapsed }) {
                 name="nationality"
                 onChange={handleDropdownChange}
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -906,7 +906,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.email}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -921,7 +921,7 @@ function CreateResident({ isCollapsed }) {
                 placeholder="Enter mobile number"
                 required
                 maxLength={11}
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
             <div className="form-group">
@@ -931,7 +931,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.telephone}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter telephone"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -942,7 +942,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.facebook}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter facebook"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
           </div>
@@ -961,7 +961,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter name"
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -976,7 +976,7 @@ function CreateResident({ isCollapsed }) {
                 placeholder="Enter mobile number"
                 required
                 maxLength={11}
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
 
@@ -990,7 +990,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter address"
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
           </div>
@@ -1008,7 +1008,7 @@ function CreateResident({ isCollapsed }) {
                 id="mother"
                 name="mother"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1031,7 +1031,7 @@ function CreateResident({ isCollapsed }) {
                 id="father"
                 name="father"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1053,7 +1053,7 @@ function CreateResident({ isCollapsed }) {
                 id="spouse"
                 name="spouse"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1077,7 +1077,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.numberofsiblings}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
           </div>
@@ -1093,7 +1093,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.numberofchildren}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of children"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
           </div>
@@ -1113,7 +1113,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.housenumber}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter house number"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
             <div className="form-group">
@@ -1125,7 +1125,7 @@ function CreateResident({ isCollapsed }) {
                 name="street"
                 onChange={handleDropdownChange}
                 required
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1143,7 +1143,7 @@ function CreateResident({ isCollapsed }) {
                 id="HOAname"
                 name="HOAname"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -1167,7 +1167,7 @@ function CreateResident({ isCollapsed }) {
                 id="employmentstatus"
                 name="employmentstatus"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -1184,7 +1184,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.occupation}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter occupation"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
             <div className="form-group">
@@ -1195,7 +1195,7 @@ function CreateResident({ isCollapsed }) {
                 id="monthlyincome"
                 name="monthlyincome"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -1220,7 +1220,7 @@ function CreateResident({ isCollapsed }) {
                 id="educationalattainment"
                 name="educationalattainment"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -1238,7 +1238,7 @@ function CreateResident({ isCollapsed }) {
                 id="typeofschool"
                 name="typeofschool"
                 onChange={handleDropdownChange}
-                className="form-input"
+                className="form-input h-[30px]"
               >
                 <option value="Select" disabled selected hidden>
                   Select
@@ -1254,7 +1254,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.course}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter course"
-                className="form-input"
+                className="form-input h-[30px]"
               />
             </div>
           </div>

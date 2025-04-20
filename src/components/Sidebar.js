@@ -10,7 +10,7 @@ import {
   IoSettingsOutline,
 } from "react-icons/io5";
 import { HiOutlineDocumentSearch, HiOutlineDocumentText } from "react-icons/hi";
-import { BiCommentDetail, BiMenuAltLeft, BiCctv } from "react-icons/bi";
+import { BiCommentDetail, BiMenuAltLeft, BiMenu, BiCctv } from "react-icons/bi";
 import "../Stylesheets/SideBar.css";
 import { AuthContext } from "../context/AuthContext";
 import { useContext, useEffect } from "react";
@@ -85,10 +85,17 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
       <div className="flex flex-col">
-        <BiMenuAltLeft
-          className={`sidebar-toggle-btn ${isCollapsed && "rotate-180 m-3"}`}
+        <div
+          className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
           onClick={() => toggleSidebar(!isCollapsed)}
-        />
+        >
+          {isCollapsed ? (
+            <BiMenu className="text-xl" />
+          ) : (
+            <BiMenuAltLeft className="text-xl" />
+          )}
+        </div>
+
         <div
           className={`sidebar-logo-container ${
             isCollapsed ? "justify-start" : "justify-center"
@@ -117,14 +124,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                   `flex items-center sidebar-menu-item-link ${
                     isActive
                       ? "bg-gray-500 w-full h-full rounded-lg text-white font-bold"
-                      : " "
+                      : ""
                   }`
                 }
                 end
               >
                 <span
                   className={`sidebar-menu-item-icon ${
-                    isCollapsed ? "ml-2" : ""
+                    isCollapsed ? "ml-3" : ""
                   }`}
                   aria-hidden="true"
                 >
