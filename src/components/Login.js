@@ -40,7 +40,7 @@ function Login() {
         // setUser(decoded);
         // setIsAuthenticated(true);
         alert("Login Successful.");
-        navigation("/");
+        navigation("/employees");
       }
     } catch (error) {
       console.log("Errors", error.message);

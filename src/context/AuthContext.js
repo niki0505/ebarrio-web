@@ -11,29 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
-  const checkTokenValidity = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setIsAuthenticated(false);
-      return;
-    }
-    try {
-      const decodedToken = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-
-      if (decodedToken.exp < currentTime) {
-        alert("Token expired. Logging out.");
-        logout();
-      } else {
-        setUser(decodedToken);
-        setIsAuthenticated(true);
-      }
-    } catch (error) {
-      console.error("Invalid token:", error);
-      logout();
-    }
-  };
-
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/checkrefreshtoken", {
@@ -74,7 +51,6 @@ export const AuthProvider = ({ children }) => {
         setUser,
         isAuthenticated,
         setIsAuthenticated,
-        checkTokenValidity,
       }}
     >
       {children}

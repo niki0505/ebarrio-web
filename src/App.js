@@ -6,6 +6,7 @@ import {
   Routes,
   Route,
   Outlet,
+  Navigate,
 } from "react-router-dom";
 import OpenCamera from "./components/OpenCamera";
 import "./App.css";
@@ -23,6 +24,7 @@ import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import { ConfirmProvider } from "./context/ConfirmContext";
+import PublicRoute from "./components/PublicRoute";
 
 function App() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -47,10 +49,16 @@ function App() {
         <OtpProvider>
           <ConfirmProvider>
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/otp" element={<OTP />} />
-
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route
+                path="/login"
+                element={<PublicRoute element={<Login />} />}
+              />
+              <Route
+                path="/signup"
+                element={<PublicRoute element={<Signup />} />}
+              />
+              <Route path="/otp" element={<PublicRoute element={<OTP />} />} />
               <Route
                 path="/"
                 element={
