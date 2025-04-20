@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
 import axios from "axios";
+import blueBg from "../assets/blue-bg.png";
+import applogo from "../assets/applogo.png";
 
 function OTP() {
   const location = useLocation();
@@ -98,33 +100,56 @@ function OTP() {
   };
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-    >
-      <div style={{ width: "330px" }}>
-        <OtpInput
-          value={OTP}
-          onChange={handleOTPChange}
-          numInputs={6}
-          isInputNum
-          shouldAutoFocus
-          renderSeparator={<span>-</span>}
-          renderInput={(props) => <input {...props} />}
-        />
-      </div>
-      {isResendDisabled ? (
-        <p style={{ color: "gray", marginTop: "10px" }}>
-          Resend OTP in {resendTimer} second{resendTimer !== 1 ? "s" : ""}
-        </p>
-      ) : (
-        <p
-          onClick={handleResend}
-          style={{ color: "blue", cursor: "pointer", marginTop: "10px" }}
+    <>
+      <div className="login-container">
+        <div
+          className="left-login-container"
+          style={{ backgroundImage: `url(${blueBg})` }}
         >
-          Resend OTP
-        </p>
-      )}
-    </div>
+          <img src={applogo} alt="App Logo" className="w-[256px] h-[256px]" />
+        </div>
+
+        <div className="right-login-container">
+          <div className="login-form-container">
+            <span className="login-title">Account Verification</span>
+            <span className="text-base font-bold text-gray-400">
+              Enter the 5 digit code sent to
+            </span>
+            <div style={{ width: "100%" }}>
+              {" "}
+              {/* This div now takes full available width */}
+              <OtpInput
+                value={OTP}
+                onChange={handleOTPChange}
+                numInputs={6}
+                isInputNum
+                shouldAutoFocus
+                renderSeparator={<span>-</span>}
+                renderInput={(props) => (
+                  <input
+                    {...props}
+                    className="w-full h-[70px] mx-2 text-lg text-center border border-gray-300 rounded-[15px] focus:outline-none bg-[#EBEBEB] font-medium"
+                    style={{ maxWidth: "100%" }}
+                  />
+                )}
+              />
+            </div>
+            {isResendDisabled ? (
+              <p className="text-gray-400 mt-10 font-bold text-base">
+                Resend OTP in {resendTimer} second{resendTimer !== 1 ? "s" : ""}
+              </p>
+            ) : (
+              <p
+                onClick={handleResend}
+                className="text-gray-400 font-bold text-base cursor-pointer mt-10"
+              >
+                Resend OTP
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 

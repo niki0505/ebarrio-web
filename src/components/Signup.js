@@ -2,6 +2,8 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../context/OtpContext";
 import axios from "axios";
+import blueBg from "../assets/blue-bg.png";
+import applogo from "../assets/applogo.png";
 
 function Signup() {
   const navigation = useNavigate();
@@ -204,77 +206,104 @@ function Signup() {
     }
   };
   return (
-    <div>
-      <div style={{ width: "300px", flexDirection: "column", gap: "10px" }}>
-        <div>
-          <input
-            type="text"
-            placeholder="First Name"
-            onChange={(e) => firstnameValidation(e.target.value)}
-            value={firstname}
-          />
-          {fnameError ? <p style={{ color: "red" }}>{fnameError}</p> : null}
+    <>
+      <div className="login-container">
+        <div
+          className="left-login-container"
+          style={{ backgroundImage: `url(${blueBg})` }}
+        >
+          <img src={applogo} alt="App Logo" className="w-[256px] h-[256px]" />
         </div>
-        <div>
-          <input
-            type="text"
-            placeholder="Last Name"
-            onChange={(e) => lastnameValidation(e.target.value)}
-            value={lastname}
-          />
-          {lnameError ? <p style={{ color: "red" }}>{lnameError}</p> : null}
+
+        <div className="right-login-container">
+          <div className="login-form-container">
+            <span className="login-title">Create your account</span>
+            <input
+              type="text"
+              placeholder="First Name"
+              onChange={(e) => firstnameValidation(e.target.value)}
+              value={firstname}
+              className="form-input h-[35px]"
+            />
+            {fnameError ? (
+              <p className="error-input-message">{fnameError}</p>
+            ) : null}
+
+            <input
+              type="text"
+              placeholder="Last Name"
+              onChange={(e) => lastnameValidation(e.target.value)}
+              value={lastname}
+              className="form-input h-[35px]"
+            />
+            {lnameError ? (
+              <p className="error-input-message">{lnameError}</p>
+            ) : null}
+
+            <input
+              type="text"
+              placeholder="Mobile Number"
+              onChange={(e) => mobilenumValidation(e.target.value)}
+              value={mobilenumber}
+              maxLength={11}
+              className="form-input h-[35px]"
+            />
+            {mobilenumError ? (
+              <p className="error-input-message">{mobilenumError}</p>
+            ) : null}
+
+            <input
+              type="text"
+              placeholder="Username"
+              onChange={(e) => usernameValidation(e.target.value)}
+              value={username}
+              className="form-input h-[35px]"
+            />
+
+            {usernameErrors.length > 0 &&
+              usernameErrors.map((error, index) => (
+                <p key={index} className="error-input-message">
+                  {error}
+                </p>
+              ))}
+
+            <input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => passwordValidation(e.target.value)}
+              value={password}
+              className="form-input h-[35px]"
+            />
+
+            {passwordErrors.length > 0 &&
+              passwordErrors.map((error, index) => (
+                <p key={index} className="error-input-message">
+                  {error}
+                </p>
+              ))}
+
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              onChange={(e) => password2Validation(e.target.value)}
+              value={password2}
+              className="form-input h-[35px]"
+            />
+            {password2Errors ? (
+              <p className="error-input-message">{password2Errors}</p>
+            ) : null}
+
+            <button
+              onClick={handleSignUp}
+              type="submit"
+              className="actions-btn bg-btn-color-blue"
+            >
+              Sign up
+            </button>
+          </div>
         </div>
-        <div></div>
-        <input
-          type="text"
-          placeholder="Mobile Number"
-          onChange={(e) => mobilenumValidation(e.target.value)}
-          value={mobilenumber}
-          maxLength={11}
-        />
-        {mobilenumError ? (
-          <p style={{ color: "red" }}>{mobilenumError}</p>
-        ) : null}
       </div>
-      <div>
-        <input
-          type="text"
-          placeholder="Username"
-          onChange={(e) => usernameValidation(e.target.value)}
-          value={username}
-        />
-        {usernameErrors ? (
-          <p style={{ color: "red" }}>{usernameErrors}</p>
-        ) : null}
-      </div>
-      <div>
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => passwordValidation(e.target.value)}
-          value={password}
-        />
-        {passwordErrors ? (
-          <p style={{ color: "red" }}>{passwordErrors}</p>
-        ) : null}
-      </div>
-      <div>
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          onChange={(e) => password2Validation(e.target.value)}
-          value={password2}
-        />
-        {password2Errors ? (
-          <p style={{ color: "red" }}>{password2Errors}</p>
-        ) : null}
-      </div>
-      <div>
-        <button onClick={handleSignUp} type="submit">
-          Sign up
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
