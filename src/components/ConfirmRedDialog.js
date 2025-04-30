@@ -1,9 +1,8 @@
 import { IoIosWarning } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
-import { MdOutlineQuestionMark } from "react-icons/md";
 import "../Stylesheets/Dialog.css";
 
-const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
+const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="modal-container font-title">
       <div className="modal-content">
@@ -21,12 +20,12 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
         </div>
 
         <div className="flex justify-center mt-10">
-          <div class="bg-[rgba(4,56,78,0.3)] p-3 rounded-full">
-            <MdOutlineQuestionMark className="text-white text-4xl" />
+          <div class="bg-red-100 p-3 rounded-full">
+            <IoIosWarning className="text-red-500 text-4xl" />
           </div>
         </div>
 
-        <p className="dialog-message text-navy-blue">{message}</p>
+        <p className="dialog-message text-red-600">{message}</p>
         <p class="text-gray-400 text-sm mb-4">
           Press Confirm to continue, or Cancel to stay on the current page
         </p>
@@ -40,7 +39,7 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
           </button>
           <button
             onClick={onConfirm}
-            className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+            className="actions-btn bg-btn-color-red hover:bg-red-700"
           >
             Confirm
           </button>
@@ -50,4 +49,4 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
   );
 };
 
-export default ConfirmDialog;
+export default ConfirmRedDialog;

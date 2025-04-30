@@ -41,24 +41,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       path: "/blotter-reports",
     },
     {
-      title: "Complaint Reports",
-      icon: <HiOutlineDocumentText />,
-      path: "/complaint-reports",
-    },
-    {
       title: "Certificate Requests",
       icon: <IoDocumentsOutline />,
       path: "/certificate-requests",
     },
     {
-      title: "Facility & Asset Reservation",
+      title: "Court Reservations",
       icon: <AiOutlineSchedule />,
-      path: "/reservation",
-    },
-    {
-      title: "Feedback & Suggestions",
-      icon: <BiCommentDetail />,
-      path: "/feedback",
+      path: "/court-reservations",
     },
     {
       title: "Announcements",
@@ -71,9 +61,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       path: "/flood-footage",
     },
     {
-      title: "Emergency Contacts",
+      title: "Emergency Hotlines",
       icon: <RiContactsBook3Line />,
-      path: "/contacts",
+      path: "/emergency-hotlines",
     },
     user.role === "Secretary" && {
       title: "Account Management",

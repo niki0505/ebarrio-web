@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext } from "react";
 import ConfirmDialog from "../components/ConfirmDialog";
 import IDDialog from "../components/IDDialog";
+import ConfirmRedDialog from "../components/ConfirmRedDialog";
 
 const ConfirmContext = createContext();
 
@@ -50,6 +51,13 @@ export const ConfirmProvider = ({ children }) => {
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
+      {confirmState.isOpen && confirmState.dialogType === "confirmred" && (
+        <ConfirmRedDialog
+          message={confirmState.message}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      )}
       {confirmState.isOpen && confirmState.dialogType === "confirm" && (
         <ConfirmDialog
           message={confirmState.message}

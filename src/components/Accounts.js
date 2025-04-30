@@ -11,8 +11,8 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 
 function Accounts({ isCollapsed }) {
   const navigation = useNavigate();
-  const [users, setUsers] = useState([]);
-  const { fetchUsers } = useContext(InfoContext);
+  // const [users, setUsers] = useState([]);
+  const { fetchUsers, users } = useContext(InfoContext);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
@@ -27,16 +27,17 @@ function Accounts({ isCollapsed }) {
   }, [users]);
 
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const data = await fetchUsers();
-        setUsers(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
+    // const loadUsers = async () => {
+    //   try {
+    //     const data = await fetchUsers();
+    //     setUsers(data);
+    //   } catch (err) {
+    //     console.log("Failed to fetch residents");
+    //   }
+    // };
 
-    loadUsers();
+    // loadUsers();
+    fetchUsers();
   }, [fetchUsers]);
 
   //   const buttonClick = (e, resID) => {
@@ -138,9 +139,15 @@ function Accounts({ isCollapsed }) {
                         }}
                       >
                         <td>
-                          {user.resID.middlename
-                            ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
-                            : `${user.resID.lastname} ${user.resID.firstname}`}
+                          {user.empID
+                            ? user.empID.resID.middlename
+                              ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
+                              : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
+                            : user.resID
+                            ? user.resID.middlename
+                              ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
+                              : `${user.resID.lastname} ${user.resID.firstname}`
+                            : "No name available"}
                         </td>
                         <td>{user.username}</td>
                         <td>{user.role}</td>

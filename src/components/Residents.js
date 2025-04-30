@@ -8,8 +8,6 @@ import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
-import Indigency from "./certificates/Indigency";
-import BrgyID from "./certificates/BrgyID";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import BrgyIDImage from "../assets/brgyid.png";
@@ -22,8 +20,8 @@ import CreateCertificate from "./CreateCertificate";
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
-  const { fetchResidents } = useContext(InfoContext);
-  const [residents, setResidents] = useState([]);
+  const { fetchResidents, residents } = useContext(InfoContext);
+  // const [residents, setResidents] = useState([]);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -830,21 +828,21 @@ function Residents({ isCollapsed }) {
   };
 
   useEffect(() => {
-    setFilteredResidents(residents);
-  }, [residents]);
-
-  useEffect(() => {
-    const loadResidents = async () => {
-      try {
-        const data = await fetchResidents();
-        setResidents(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
-
-    loadResidents();
+    fetchResidents();
   }, [fetchResidents]);
+
+  // useEffect(() => {
+  //   const loadResidents = async () => {
+  //     try {
+  //       const data = await fetchResidents();
+  //       setResidents(data);
+  //     } catch (err) {
+  //       console.log("Failed to fetch residents");
+  //     }
+  //   };
+
+  //   loadResidents();
+  // }, [fetchResidents]);
 
   const buttonClick = (e, resID) => {
     e.stopPropagation();
@@ -865,7 +863,7 @@ function Residents({ isCollapsed }) {
     e.stopPropagation();
     const isConfirmed = await confirm(
       "Are you sure you want to archive this resident?",
-      "confirm"
+      "confirmred"
     );
     if (isConfirmed) {
       try {
@@ -881,31 +879,58 @@ function Residents({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-    const capitalizeFirstLetter = lettersOnly
+    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
+    const formattedText = sanitizedText
       .split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
-    setSearch(capitalizeFirstLetter);
-    if (capitalizeFirstLetter) {
+
+    setSearch(formattedText);
+  };
+
+  useEffect(() => {
+    if (search) {
       const filtered = residents.filter((resident) => {
         const first = resident.firstname || "";
         const middle = resident.middlename || "";
         const last = resident.lastname || "";
 
-        return (
-          first.includes(capitalizeFirstLetter) ||
-          middle.includes(capitalizeFirstLetter) ||
-          last.includes(capitalizeFirstLetter) ||
-          `${first} ${last}`.includes(capitalizeFirstLetter) ||
-          `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
-        );
+        const fullName = `${first} ${middle} ${last}`.trim();
+
+        return fullName.includes(search);
       });
       setFilteredResidents(filtered);
     } else {
       setFilteredResidents(residents);
     }
-  };
+  }, [search, residents]);
+
+  // const handleSearch = (text) => {
+  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
+  //   const capitalizeFirstLetter = lettersOnly
+  //     .split(" ")
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+  //     .join(" ");
+  //   setSearch(capitalizeFirstLetter);
+  //   if (capitalizeFirstLetter) {
+  //     const filtered = residents.filter((resident) => {
+  //       const first = resident.firstname || "";
+  //       const middle = resident.middlename || "";
+  //       const last = resident.lastname || "";
+
+  //       return (
+  //         first.includes(capitalizeFirstLetter) ||
+  //         middle.includes(capitalizeFirstLetter) ||
+  //         last.includes(capitalizeFirstLetter) ||
+  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
+  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
+  //       );
+  //     });
+  //     setFilteredResidents(filtered);
+  //   } else {
+  //     setFilteredResidents(residents);
+  //   }
+  // };
 
   return (
     <>
@@ -932,7 +957,7 @@ function Residents({ isCollapsed }) {
                 </thead>
 
                 <tbody>
-                  {filteredResidents === 0 ? (
+                  {filteredResidents.length === 0 ? (
                     <tr className="bg-white">
                       <td colSpan={3}>No results found</td>
                     </tr>

@@ -20,6 +20,11 @@ import { InfoProvider } from "./context/InfoContext";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import OTP from "./components/OTP";
+import EmergencyHotlines from "./components/EmergencyHotlines";
+import CertificateRequests from "./components/CertificateRequests";
+import Announcements from "./components/Announcements";
+import Dashboard from "./components/Dashboard";
+import CourtReservations from "./components/CourtReservations";
 import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
@@ -99,6 +104,26 @@ function App() {
                 <Route
                   path="accounts"
                   element={<PrivateRoute element={<Accounts />} />}
+                />
+                <Route
+                  path="certificate-requests"
+                  element={<PrivateRoute element={<CertificateRequests />} />}
+                />
+                <Route
+                  path="emergency-hotlines"
+                  element={<PrivateRoute element={<EmergencyHotlines />} />}
+                />
+                <Route
+                  path="announcements"
+                  element={<PrivateRoute element={<Announcements />} />}
+                />
+                <Route
+                  path="dashboard"
+                  element={<PrivateRoute element={<Dashboard />} />}
+                />
+                <Route
+                  path="court-reservations"
+                  element={<PrivateRoute element={<CourtReservations />} />}
                 />
               </Route>
             </Routes>

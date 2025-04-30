@@ -9,7 +9,7 @@ import applogo from "../assets/applogo.png";
 function OTP() {
   const location = useLocation();
   const navigation = useNavigate();
-  const { resID, mobilenumber, username, password, role } = location.state;
+  const { empID, mobilenumber, username, password, role } = location.state;
   const [resendTimer, setResendTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
@@ -79,7 +79,7 @@ function OTP() {
       const res = await axios.post("http://localhost:5000/api/register", {
         username: username,
         password: password,
-        resID: resID,
+        empID: empID,
         role,
       });
       alert("User registered successfully. Please log in.");

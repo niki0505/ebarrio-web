@@ -4,7 +4,6 @@ import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
-import Indigency from "./certificates/Indigency";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
@@ -19,8 +18,8 @@ import { useConfirm } from "../context/ConfirmContext";
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
-  const { fetchEmployees } = useContext(InfoContext);
-  const [employees, setEmployees] = useState([]);
+  const { fetchEmployees, employees } = useContext(InfoContext);
+  // const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -481,46 +480,28 @@ function Employees({ isCollapsed }) {
   };
 
   useEffect(() => {
-    setFilteredEmployees(employees);
-  }, [employees]);
+    // const loadEmployees = async () => {
+    //   try {
+    //     const data = await fetchEmployees();
+    //     setEmployees(data);
+    //   } catch (err) {
+    //     console.log("Failed to fetch residents");
+    //   }
+    // };
 
-  useEffect(() => {
-    const loadEmployees = async () => {
-      try {
-        const data = await fetchEmployees();
-        setEmployees(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
-
-    loadEmployees();
+    // loadEmployees();
+    fetchEmployees();
   }, [fetchEmployees]);
 
   const handleAdd = () => {
     setCreateClicked(true);
   };
 
-  const buttonClicks = (e, resID) => {
-    e.stopPropagation();
-    alert(`Clicked ${resID}`);
-  };
-
-  //   const editBtn = (resID) => {
-  //     navigation("/editresident", { state: { resID } });
-  //   };
-
-  //   const certBtn = (e, resID) => {
-  //     e.stopPropagation();
-  //     setSelectedResID(resID);
-  //     setCertClicked(true);
-  //   };
-
   const archiveBtn = async (e, empID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
       "Are you sure you want to archive this employee?",
-      "confirm"
+      "confirmred"
     );
     if (isConfirmed) {
       try {
@@ -528,7 +509,6 @@ function Employees({ isCollapsed }) {
           `http://localhost:5000/api/archiveemployee/${empID}`
         );
         alert("Employee successfully archived");
-        window.location.reload();
       } catch (error) {
         console.log("Error", error);
       }
@@ -536,33 +516,61 @@ function Employees({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-    const capitalizeFirstLetter = lettersOnly
+    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
+    const formattedText = sanitizedText
       .split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
-    setSearch(capitalizeFirstLetter);
-    if (capitalizeFirstLetter) {
-      const filtered = employees.filter((employees) => {
-        const first = employees.resID.firstname || "";
-        const middle = employees.resID.middlename || "";
-        const last = employees.resID.lastname || "";
-        const position = employees.position || "";
 
-        return (
-          first.includes(capitalizeFirstLetter) ||
-          middle.includes(capitalizeFirstLetter) ||
-          last.includes(capitalizeFirstLetter) ||
-          `${first} ${last}`.includes(capitalizeFirstLetter) ||
-          `${first} ${middle} ${last}`.includes(capitalizeFirstLetter) ||
-          position.includes(capitalizeFirstLetter)
-        );
+    setSearch(formattedText);
+  };
+
+  useEffect(() => {
+    if (search) {
+      const filtered = employees.filter((emp) => {
+        const first = emp.resID.firstname || "";
+        const middle = emp.resID.middlename || "";
+        const last = emp.resID.lastname || "";
+        const position = emp.position || "";
+
+        const fullName = `${first} ${middle} ${last}`.trim();
+
+        return fullName.includes(search) || position.includes(search);
       });
       setFilteredEmployees(filtered);
     } else {
       setFilteredEmployees(employees);
     }
-  };
+  }, [search, employees]);
+
+  // const handleSearch = (text) => {
+  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
+  //   const capitalizeFirstLetter = lettersOnly
+  //     .split(" ")
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+  //     .join(" ");
+  //   setSearch(capitalizeFirstLetter);
+  //   if (capitalizeFirstLetter) {
+  //     const filtered = employees.filter((employees) => {
+  //       const first = employees.resID.firstname || "";
+  //       const middle = employees.resID.middlename || "";
+  //       const last = employees.resID.lastname || "";
+  //       const position = employees.position || "";
+
+  //       return (
+  //         first.includes(capitalizeFirstLetter) ||
+  //         middle.includes(capitalizeFirstLetter) ||
+  //         last.includes(capitalizeFirstLetter) ||
+  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
+  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter) ||
+  //         position.includes(capitalizeFirstLetter)
+  //       );
+  //     });
+  //     setFilteredEmployees(filtered);
+  //   } else {
+  //     setFilteredEmployees(employees);
+  //   }
+  // };
 
   return (
     <>
@@ -708,7 +716,6 @@ function Employees({ isCollapsed }) {
                 </tbody>
               </table>
             </div>
-            {isCertClicked && <Indigency resID={selectedResID} />}
             {isCreateClicked && (
               <CreateEmployee onClose={() => setCreateClicked(false)} />
             )}

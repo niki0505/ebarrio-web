@@ -189,7 +189,7 @@ function Signup() {
           startOtp(res3.data.otp, 300);
           navigation("/otp", {
             state: {
-              resID: res.data.resID,
+              empID: res.data.empID,
               mobilenumber,
               username,
               password,

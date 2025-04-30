@@ -7,8 +7,8 @@ import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 function CreateEmployee({ onClose }) {
-  const { fetchResidents } = useContext(InfoContext);
-  const [residents, setResidents] = useState([]);
+  const { fetchResidents, residents } = useContext(InfoContext);
+  // const [residents, setResidents] = useState([]);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
@@ -17,16 +17,16 @@ function CreateEmployee({ onClose }) {
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
-    const loadResidents = async () => {
-      try {
-        const data = await fetchResidents();
-        setResidents(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
-
-    loadResidents();
+    // const loadResidents = async () => {
+    //   try {
+    //     const data = await fetchResidents();
+    //     setResidents(data);
+    //   } catch (err) {
+    //     console.log("Failed to fetch residents");
+    //   }
+    // };
+    // loadResidents();
+    fetchResidents();
   }, [fetchResidents]);
 
   useEffect(() => {
