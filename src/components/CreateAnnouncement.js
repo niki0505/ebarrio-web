@@ -12,6 +12,9 @@ import { FiCalendar, FiUpload } from "react-icons/fi";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
+//ICONS
+import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
+
 function CreateAnnouncement({ onClose }) {
   const confirm = useConfirm();
   const [name, setName] = useState("");
@@ -180,21 +183,14 @@ function CreateAnnouncement({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
+          <div className="modal-content w-[45rem] h-[30rem]">
             <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Add New Announcement</h1>
               <button className="modal-btn-close">
                 <IoClose className="btn-close-icon" onClick={handleClose} />
               </button>
             </div>
-            <div
-              style={{
-                overflowY: "auto",
-                maxHeight: "70%",
-                scrollbarWidth: "none",
-                padding: "10px",
-              }}
-            >
+            <div className="w-full overflow-y-auto">
               <form
                 className="employee-form-container"
                 onSubmit={(e) => {
@@ -202,33 +198,53 @@ function CreateAnnouncement({ onClose }) {
                   handleSubmit();
                 }}
               >
-                <div className="employee-form-group">
-                  <label for="resID" className="form-label">
-                    Category<label className="text-red-600">*</label>
-                  </label>
-                  <select
-                    id="category"
-                    name="category"
-                    onChange={handleInputChange}
-                    className="form-input h-[30px]"
-                  >
-                    <option value="Select" disabled selected hidden>
-                      Select
-                    </option>
-                    {categoryList.map((element) => (
-                      <option value={element}>{element}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="employee-form-group">
-                  <label className="form-label">Title</label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    onChange={handleInputChange}
-                    className="form-input h-[30px]"
+                {/*UPLOADER - DETAILS*/}
+                <div className="flex items-center w-full">
+                  <img
+                    src={user.picture}
+                    alt="Profile"
+                    className="navbar-profile-img"
                   />
+                  <div className="flex flex-col items-start ml-2">
+                    <label className="text-base font-semibold">
+                      {user.name}
+                    </label>
+                    <label className="text-sm font-regular text-gray-500">
+                      {user.role}
+                    </label>
+                  </div>
+                </div>
+
+                {/*CATEGORY, TITLE, CONTENT*/}
+                <div className="flex flex-row w-full">
+                  <div className="employee-form-group">
+                    <label for="resID" className="form-label">
+                      Category<label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="category"
+                      name="category"
+                      onChange={handleInputChange}
+                      className="form-input h-[30px]"
+                    >
+                      <option value="Select" disabled selected hidden>
+                        Select
+                      </option>
+                      {categoryList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="employee-form-group">
+                    <label className="form-label">Title</label>
+                    <input
+                      type="text"
+                      id="title"
+                      name="title"
+                      onChange={handleInputChange}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
                 </div>
                 <div className="employee-form-group">
                   <label className="form-label">Content</label>
@@ -238,26 +254,38 @@ function CreateAnnouncement({ onClose }) {
                     name="content"
                     value={announcementForm.content}
                     onChange={handleInputChange}
-                    className="form-input h-[100px]"
+                    className="form-input h-[100px] "
                   />
                 </div>
                 {havePicture && (
-                  <>
-                    <label>Attachment</label>
-                    <img
-                      src={announcementForm.picture}
-                      width={100}
-                      height={100}
-                    />
-                  </>
+                  <div className="employee-form-group">
+                    <label className="font-semibold text-navy-blue">
+                      Attachment
+                    </label>
+                    <div className="create-announcement-attachment">
+                      <img
+                        src={announcementForm.picture}
+                        className="w-full h-[30rem] mt-2"
+                      />
+                    </div>
+                  </div>
                 )}
-                <div>
+              </form>
+            </div>
+
+            {/*ADD TO YOUR POST AND SUBMIT BUTTON*/}
+            <div className="mt-4 w-full">
+              <div className="create-announcement-fixed-btns">
+                <label className="font-semibold text-navy-blue">
+                  Add to your post
+                </label>
+                <div className="flex flex-row items-center justify-center">
                   <button
                     type="button"
                     onClick={handleUploadPicture}
-                    className="upload-btn"
+                    className=" text-[#50C700] "
                   >
-                    <FiUpload />
+                    <MdInsertPhoto className="w-[2rem] h-[2rem]" />
                   </button>
                   <input
                     name="picture"
@@ -266,84 +294,83 @@ function CreateAnnouncement({ onClose }) {
                     style={{ display: "none" }}
                     ref={hiddenInputRef1}
                   />
-                </div>
-                <div>
+
                   <button
                     type="button"
                     onClick={handleEvent}
-                    className="upload-btn"
+                    className=" text-[#FFB200] "
                   >
-                    <FiCalendar />
+                    <MdCalendarMonth className="w-[2rem] h-[2rem]" />
                   </button>
+
+                  {/*SHOW EVENT DETAILS */}
+                  {showDateTimeInputs && (
+                    <div className="create-announcement-event-details">
+                      <div className="modal-title-bar bg-navy-blue">
+                        <h1 className="modal-title">Event Details</h1>
+                      </div>
+
+                      <form className="employee-form-container">
+                        <div className="employee-form-group">
+                          <label className="text-base font-semibold text-navy-blue">
+                            Date
+                          </label>
+                          <input
+                            type="date"
+                            min={new Date().toISOString().split("T")[0]}
+                            value={announcementForm.eventDate}
+                            name="eventDate"
+                            onChange={handleInputChange}
+                            className="form-input h-[30px] text-base"
+                          />
+                        </div>
+
+                        <div className="employee-form-group">
+                          <label className="text-base font-semibold text-navy-blue">
+                            Start Time
+                          </label>
+                          <input
+                            type="time"
+                            name="eventStartTime"
+                            value={announcementForm.eventStartTime}
+                            onChange={handleInputChange}
+                            className="create-announcement-event-input"
+                          />
+                        </div>
+
+                        <div className="employee-form-group">
+                          <label className="text-base font-semibold text-navy-blue">
+                            End Time
+                          </label>
+                          <input
+                            type="time"
+                            name="eventEndTime"
+                            value={announcementForm.eventEndTime}
+                            onChange={handleInputChange}
+                            className="create-announcement-event-input"
+                          />
+                        </div>
+
+                        <button
+                          onClick={handleOK}
+                          type="button"
+                          className="actions-btn bg-btn-color-blue"
+                        >
+                          OK
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </div>
-                {showDateTimeInputs && (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      position: "absolute",
-                      top: "60px",
-                      backgroundColor: "white",
-                      left: "10px",
-                      zIndex: 10,
-                      border: "1px solid black",
-                    }}
-                  >
-                    <label>Date</label>
-                    <input
-                      type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      value={announcementForm.eventDate}
-                      name="eventDate"
-                      onChange={handleInputChange}
-                      style={{
-                        marginTop: "10px",
-                        width: "180px",
-                        padding: "5px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
-                      }}
-                    />
-                    <label>Start Time</label>
-                    <input
-                      type="time"
-                      name="eventStartTime"
-                      value={announcementForm.eventStartTime}
-                      onChange={handleInputChange}
-                      style={{
-                        marginTop: "10px",
-                        width: "180px",
-                        padding: "5px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
-                      }}
-                    />
-                    <label>End Time</label>
-                    <input
-                      type="time"
-                      name="eventEndTime"
-                      value={announcementForm.eventEndTime}
-                      onChange={handleInputChange}
-                      style={{
-                        marginTop: "10px",
-                        width: "180px",
-                        padding: "5px",
-                        borderRadius: "4px",
-                        border: "1px solid #ccc",
-                        fontSize: "14px",
-                      }}
-                    />
-                    <button onClick={handleOK} type="button">
-                      OK
-                    </button>
-                  </div>
-                )}
-                <button type="submit" className="actions-btn bg-btn-color-blue">
-                  Submit
-                </button>
-              </form>
+              </div>
+
+              <button
+                onClick={handleSubmit}
+                type="submit"
+                className="actions-btn bg-btn-color-blue w-full"
+              >
+                Submit
+              </button>
             </div>
           </div>
         </div>

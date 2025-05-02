@@ -5,7 +5,7 @@
 .section-divider {
   @apply border-t-[1.5px] border-[#C1C0C0] my-1;
 }
-.picture-upload-wrapper { 
+.picture-upload-wrapper {
   @apply col-span-1 mb-10;
 }
 .upload-container {
@@ -33,7 +33,7 @@
   @apply w-full h-full object-contain;
 }
 .form-label {
-  @apply text-[12px] font-[650] block;
+  @apply text-[12px] font-[650] block text-navy-blue;
 }
 .form-grid {
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
