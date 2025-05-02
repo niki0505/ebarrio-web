@@ -213,7 +213,7 @@ function CreateCertificate({ resID, onClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[20rem] h-[30rem] ">
-            <div className="modal-title-bar">
+            <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Create Certificate</h1>
               <button className="modal-btn-close">
                 <IoClose className="btn-close-icon" onClick={handleClose} />
@@ -236,7 +236,7 @@ function CreateCertificate({ resID, onClose }) {
                   name="typeofcertificate"
                   onChange={handleDropdownChange}
                   required
-                  className="form-input"
+                  className="form-input h-[30px]"
                 >
                   <option value="" disabled selected hidden>
                     Select
@@ -259,7 +259,7 @@ function CreateCertificate({ resID, onClose }) {
                     name="purpose"
                     onChange={handleDropdownChange}
                     required
-                    className="form-input"
+                    className="form-input h-[30px]"
                   >
                     <option value="" disabled selected hidden>
                       Select
@@ -285,7 +285,7 @@ function CreateCertificate({ resID, onClose }) {
                           id="addressnumber"
                           name="addressnumber"
                           onChange={handleInputChange}
-                          className="form-input"
+                          className="form-input h-[30px]"
                         />
                       </div>
                     )}
@@ -299,7 +299,7 @@ function CreateCertificate({ resID, onClose }) {
                       name="street"
                       onChange={handleDropdownChange}
                       required
-                      className="form-input"
+                      className="form-input h-[30px]"
                     >
                       <option value="" disabled selected hidden>
                         Select
@@ -321,7 +321,7 @@ function CreateCertificate({ resID, onClose }) {
                       id="businessname"
                       name="businessname"
                       onChange={handleInputChange}
-                      className="form-input"
+                      className="form-input h-[30px]"
                     />
                   </div>
 
@@ -334,7 +334,7 @@ function CreateCertificate({ resID, onClose }) {
                       id="lineofbusiness"
                       name="lineofbusiness"
                       onChange={handleInputChange}
-                      className="form-input"
+                      className="form-input h-[30px]"
                     />
                   </div>
                 </>
@@ -351,7 +351,7 @@ function CreateCertificate({ resID, onClose }) {
                   name="amount"
                   value={certificateForm.amount}
                   readOnly
-                  className="form-input"
+                  className="form-input h-[30px]"
                 />
               </div>
               <button type="submit" className="actions-btn bg-btn-color-blue">

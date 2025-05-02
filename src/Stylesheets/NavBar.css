@@ -5,7 +5,7 @@
 .navbar {
   @apply shadow-[0px_0px_4px_0px_rgba(0,0,0,0.5)] 
     fixed 
-    bg-[#FDFBEE] 
+    bg-[#fff] 
     transition-[left,width] 
     duration-300 
     top-0 
@@ -35,7 +35,7 @@
     sm:text-base;
 }
 .navbar-profile-img {
-  @apply w-8 h-8 sm:w-10 sm:h-10 
+  @apply w-12 h-12 object-cover sm:w-10 sm:h-10 
     cursor-pointer 
     rounded-full;
 }

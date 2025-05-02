@@ -88,78 +88,74 @@ function EmergencyHotlines({ isCollapsed }) {
           <MdPersonAddAlt1 className=" text-xl" />
           <span className="font-bold">Add new contact</span>
         </button>
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Public Service Facilities</th>
-                    <th>Contact Number</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
 
-                <tbody>
-                  {filteredEmergencyHotlines.length === 0 ? (
-                    <tr>
-                      <td colSpan={3}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredEmergencyHotlines.map((emergency) => (
-                      <tr
-                        key={emergency._id}
-                        style={{
-                          cursor: "pointer",
-                          transition: "background-color 0.3s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "#f0f0f0";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "";
-                        }}
-                      >
-                        <td>{emergency.name}</td>
-                        <td>{emergency.contactnumber}</td>
-                        <td className="flex justify-between">
-                          <button
-                            onClick={() =>
-                              handleEdit(
-                                emergency._id,
-                                emergency.name,
-                                emergency.contactnumber
-                              )
-                            }
-                            className="text-green-600 font-bold"
-                          >
-                            EDIT
-                          </button>
-                          <button
-                            onClick={() => handleArchive(emergency._id)}
-                            className="text-btn-color-red font-bold"
-                          >
-                            ARCHIVE
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {isCreateClicked && (
-              <CreateContact onClose={() => setCreateClicked(false)} />
+        <table>
+          <thead>
+            <tr>
+              <th>Public Service Facilities</th>
+              <th>Contact Number</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="bg-[#fff]">
+            {filteredEmergencyHotlines.length === 0 ? (
+              <tr>
+                <td colSpan={3}>No results found</td>
+              </tr>
+            ) : (
+              filteredEmergencyHotlines.map((emergency) => (
+                <tr
+                  key={emergency._id}
+                  style={{
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#f0f0f0";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "";
+                  }}
+                >
+                  <td>{emergency.name}</td>
+                  <td>{emergency.contactnumber}</td>
+                  <td className="flex justify-between">
+                    <button
+                      onClick={() =>
+                        handleEdit(
+                          emergency._id,
+                          emergency.name,
+                          emergency.contactnumber
+                        )
+                      }
+                      className="text-green-600 font-bold"
+                    >
+                      EDIT
+                    </button>
+                    <button
+                      onClick={() => handleArchive(emergency._id)}
+                      className="text-btn-color-red font-bold"
+                    >
+                      ARCHIVE
+                    </button>
+                  </td>
+                </tr>
+              ))
             )}
-            {isEditClicked && (
-              <EditContact
-                onClose={() => setEditClicked(false)}
-                emergencyID={selectedEmergencyID}
-                emergencyDetails={selectedEmergency}
-              />
-            )}
-          </div>
-        </div>
+          </tbody>
+        </table>
+
+        {isCreateClicked && (
+          <CreateContact onClose={() => setCreateClicked(false)} />
+        )}
+        {isEditClicked && (
+          <EditContact
+            onClose={() => setEditClicked(false)}
+            emergencyID={selectedEmergencyID}
+            emergencyDetails={selectedEmergency}
+          />
+        )}
       </main>
     </>
   );

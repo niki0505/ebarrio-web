@@ -869,6 +869,16 @@ function CreateResident({ isCollapsed }) {
               </label>
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Precinct</label>
+              <input
+                name="precinct"
+                onChange={lettersAndSpaceOnly}
+                placeholder="Enter precinct"
+                className="form-input h-[30px]"
+              />
+            </div>
+
             <div className="form-group space-x-5">
               <label className="form-label">Deceased</label>
               <label>

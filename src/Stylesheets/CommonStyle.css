@@ -37,23 +37,17 @@
 }
 
 /*TABLE*/
-.table-container {
-  @apply overflow-y-auto;
-}
-.table-inner-container {
-  @apply h-auto overflow-y-auto;
-}
 table {
-  @apply min-w-full table-auto border-separate border-spacing-0  border border-[#BDBCBC] shadow-md;
+  @apply overflow-y-auto mt-4 h-auto min-w-full table-auto border border-[#C1C0C0];
 }
 thead {
-  @apply bg-[#DCDCDC] border border-b-2;
+  @apply bg-[#DCDCDC];
 }
 th {
   @apply text-center font-[750px] text-sm p-3;
 }
 td {
-  @apply text-center border border-[#C1C0C0] text-xs font-medium p-2;
+  @apply text-center text-xs font-medium p-2;
 }
 .profile-container {
   @apply text-start p-5 flex flex-row;

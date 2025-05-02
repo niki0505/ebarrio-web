@@ -104,76 +104,69 @@ function Accounts({ isCollapsed }) {
           <MdPersonAddAlt1 className=" text-xl" />
           <span className="font-bold">Add new user</span>
         </button>
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {filteredUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={5}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredUsers.map((user) => (
-                      <tr
-                        key={user._id}
-                        style={{
-                          cursor: "pointer",
-                          transition: "background-color 0.3s ease",
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "#f0f0f0";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "";
-                        }}
-                      >
-                        <td>
-                          {user.empID
-                            ? user.empID.resID.middlename
-                              ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
-                              : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
-                            : user.resID
-                            ? user.resID.middlename
-                              ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
-                              : `${user.resID.lastname} ${user.resID.firstname}`
-                            : "No name available"}
-                        </td>
-                        <td>{user.username}</td>
-                        <td>{user.role}</td>
-                        <td>{user.status}</td>
-                        <td className="flex justify-between">
-                          <button className="text-btn-color-blue font-bold">
-                            ARCHIVE
-                          </button>
-                          <button className="text-red-600 font-bold">
-                            DEACTIVATE
-                          </button>
-                          <button className="text-green-600 font-bold">
-                            EDIT
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {isCreateClicked && (
-              <CreateAccount onClose={() => setCreateClicked(false)} />
+          <tbody className="bg-[#fff]">
+            {filteredUsers.length === 0 ? (
+              <tr>
+                <td colSpan={5}>No results found</td>
+              </tr>
+            ) : (
+              filteredUsers.map((user) => (
+                <tr
+                  key={user._id}
+                  style={{
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#f0f0f0";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "";
+                  }}
+                >
+                  <td>
+                    {user.empID
+                      ? user.empID.resID.middlename
+                        ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
+                        : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
+                      : user.resID
+                      ? user.resID.middlename
+                        ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
+                        : `${user.resID.lastname} ${user.resID.firstname}`
+                      : "No name available"}
+                  </td>
+                  <td>{user.username}</td>
+                  <td>{user.role}</td>
+                  <td>{user.status}</td>
+                  <td className="flex justify-between">
+                    <button className="text-btn-color-blue font-bold">
+                      ARCHIVE
+                    </button>
+                    <button className="text-red-600 font-bold">
+                      DEACTIVATE
+                    </button>
+                    <button className="text-green-600 font-bold">EDIT</button>
+                  </td>
+                </tr>
+              ))
             )}
-          </div>
-        </div>
+          </tbody>
+        </table>
+
+        {isCreateClicked && (
+          <CreateAccount onClose={() => setCreateClicked(false)} />
+        )}
       </main>
     </>
   );

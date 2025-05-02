@@ -1,19 +1,21 @@
 import { NavLink } from "react-router-dom";
-import { BsPeople } from "react-icons/bs";
-import { RiContactsBook3Line } from "react-icons/ri";
-import { AiOutlineSchedule } from "react-icons/ai";
-import { MdOutlineDashboard } from "react-icons/md";
-import { TfiAnnouncement } from "react-icons/tfi";
-import {
-  IoPeopleOutline,
-  IoDocumentsOutline,
-  IoSettingsOutline,
-} from "react-icons/io5";
-import { HiOutlineDocumentSearch, HiOutlineDocumentText } from "react-icons/hi";
-import { BiCommentDetail, BiMenuAltLeft, BiMenu, BiCctv } from "react-icons/bi";
 import "../Stylesheets/SideBar.css";
 import { AuthContext } from "../context/AuthContext";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
+
+//ICONS
+import { IoIosPeople } from "react-icons/io";
+import { PiCourtBasketballFill } from "react-icons/pi";
+import { RiContactsBook3Fill } from "react-icons/ri";
+import { FaUsersCog } from "react-icons/fa";
+import { MdDashboard, MdEditDocument } from "react-icons/md";
+import { IoPeople, IoLocation, IoDocumentTextSharp } from "react-icons/io5";
+import {
+  BiMenuAltLeft,
+  BiMenu,
+  BiSolidMegaphone,
+  BiSolidCctv,
+} from "react-icons/bi";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
@@ -22,52 +24,57 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const Menus = [
     {
       title: "Dashboard",
-      icon: <MdOutlineDashboard />,
+      icon: <MdDashboard />,
       path: "/dashboard",
     },
     {
       title: "Employees",
-      icon: <BsPeople />,
+      icon: <IoPeople />,
       path: "/employees",
     },
     {
       title: "Residents",
-      icon: <IoPeopleOutline />,
+      icon: <IoIosPeople />,
       path: "/residents",
     },
     {
       title: "Blotter Reports",
-      icon: <HiOutlineDocumentSearch />,
+      icon: <MdEditDocument />,
       path: "/blotter-reports",
     },
     {
       title: "Certificate Requests",
-      icon: <IoDocumentsOutline />,
+      icon: <IoDocumentTextSharp />,
       path: "/certificate-requests",
     },
     {
       title: "Court Reservations",
-      icon: <AiOutlineSchedule />,
+      icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
     {
       title: "Announcements",
-      icon: <TfiAnnouncement />,
+      icon: <BiSolidMegaphone />,
       path: "/announcements",
     },
     {
-      title: "Flood Prone Footage",
-      icon: <BiCctv />,
+      title: "SOS Reports",
+      icon: <IoLocation />,
+      path: "/sos-reports",
+    },
+    {
+      title: "CCTV Footage",
+      icon: <BiSolidCctv />,
       path: "/flood-footage",
     },
     {
       title: "Emergency Hotlines",
-      icon: <RiContactsBook3Line />,
+      icon: <RiContactsBook3Fill />,
       path: "/emergency-hotlines",
     },
     user.role === "Secretary" && {
-      title: "Account Management",
-      icon: <IoSettingsOutline />,
+      title: "Accounts Management",
+      icon: <FaUsersCog />,
       path: "/accounts",
     },
   ].filter(Boolean);

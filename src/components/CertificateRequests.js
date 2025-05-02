@@ -190,225 +190,210 @@ function CertificateRequests({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Type of Certificate</th>
-                    <th>Amount</th>
-                    <th>Date Requested</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type of Certificate</th>
+              <th>Amount</th>
+              <th>Date Requested</th>
+              <th>Status</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {filteredCertificates.length === 0 ? (
-                    <tr className="bg-white">
-                      <td colSpan={5}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredCertificates.map((cert) => (
-                      <React.Fragment key={cert._id}>
-                        <tr
-                          onClick={() => handleRowClick(cert._id)}
-                          style={{
-                            cursor: "pointer",
-                            transition: "background-color 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#f0f0f0";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "";
-                          }}
-                        >
-                          {expandedRow === cert._id ? (
-                            <td colSpan={5}>
-                              {/* Additional Information for the resident */}
-                              {cert.typeofcertificate ===
-                                "Barangay Clearance" ||
-                                (cert.typeofcertificate ===
-                                  "Barangay Indigency" && (
-                                  <>
-                                    <div className="profile-container">
-                                      <div className="ml-5 text-xs">
-                                        <p>
-                                          <strong>Name: </strong>
-                                          {cert.resID.middlename
-                                            ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                            : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                        </p>
-                                        <p>
-                                          <strong>Type of Certificate:</strong>{" "}
-                                          {cert.typeofcertificate}
-                                        </p>
-                                        <p>
-                                          <strong>Purpose of Request:</strong>{" "}
-                                          {cert.purpose}
-                                        </p>
-                                        <p>
-                                          <strong>Amount: </strong>
-                                          {cert.amount}
-                                        </p>
-                                        <p>
-                                          <strong>Date Requested: </strong>
-                                          {cert.createdAt.substring(
-                                            0,
-                                            cert.createdAt.indexOf(" at")
-                                          )}
-                                        </p>
-                                        <p>
-                                          <strong>Status: </strong>{" "}
-                                          {cert.status}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="btn-container">
-                                      {cert.status === "Pending" ? (
-                                        <>
-                                          <button
-                                            className="actions-btn bg-btn-color-blue"
-                                            type="submit"
-                                            onClick={(e) =>
-                                              certBtn(e, cert._id)
-                                            }
-                                          >
-                                            ISSUE
-                                          </button>
-                                          <button
-                                            className="actions-btn bg-btn-color-red"
-                                            type="submit"
-                                            onClick={(e) =>
-                                              rejectBtn(e, cert._id)
-                                            }
-                                          >
-                                            REJECT
-                                          </button>
-                                        </>
-                                      ) : cert.status === "Issued" ? (
-                                        <>
-                                          <button
-                                            className="actions-btn bg-btn-color-blue"
-                                            type="submit"
-                                            onClick={(e) =>
-                                              certBtn(e, cert._id)
-                                            }
-                                          >
-                                            PRINT
-                                          </button>
-                                        </>
-                                      ) : null}
-                                    </div>
-                                  </>
-                                ))}
-                              {cert.typeofcertificate ===
-                                "Barangay Business Clearance" && (
-                                <>
-                                  <div className="profile-container">
-                                    <div className="ml-5 text-xs">
-                                      <p>
-                                        <strong>Name: </strong>
-                                        {cert.resID.middlename
-                                          ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                          : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                      </p>
-                                      <p>
-                                        <strong>Type of Certificate: </strong>
-                                        {cert.typeofcertificate}
-                                      </p>
-                                      <p>
-                                        <strong>Business Name: </strong>
-                                        {cert.businessname}
-                                      </p>
-                                      <p>
-                                        <strong>Line of Business: </strong>
-                                        {cert.lineofbusiness}
-                                      </p>
-                                      <p>
-                                        <strong>Location of Business: </strong>
-                                        {cert.locationofbusiness ===
-                                        "Resident's Address"
-                                          ? `${cert.resID.address}`
-                                          : `${cert.locationofbusiness}`}
-                                      </p>
-                                      <p>
-                                        <strong>Amount: </strong> {cert.amount}
-                                      </p>
-                                      <p>
-                                        <strong>Date Requested: </strong>
-                                        {cert.createdAt.substring(
-                                          0,
-                                          cert.createdAt.indexOf(" at")
-                                        )}
-                                      </p>
-                                      <p>
-                                        <strong>Status: </strong> {cert.status}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="btn-container">
-                                    {cert.status === "Pending" ? (
-                                      <>
-                                        <button
-                                          className="actions-btn bg-btn-color-blue"
-                                          type="submit"
-                                          onClick={(e) => certBtn(e, cert._id)}
-                                        >
-                                          ISSUE
-                                        </button>
-                                        <button
-                                          className="actions-btn bg-btn-color-red"
-                                          type="submit"
-                                          //   onClick={() => editBtn(res._id)}
-                                        >
-                                          REJECT
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <button
-                                          className="actions-btn bg-btn-color-blue"
-                                          type="submit"
-                                          onClick={(e) => certBtn(e, cert._id)}
-                                        >
-                                          PRINT
-                                        </button>
-                                      </>
+          <tbody className="bg-[#fff]">
+            {filteredCertificates.length === 0 ? (
+              <tr className="bg-white">
+                <td colSpan={5}>No results found</td>
+              </tr>
+            ) : (
+              filteredCertificates.map((cert) => (
+                <React.Fragment key={cert._id}>
+                  <tr
+                    onClick={() => handleRowClick(cert._id)}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    {expandedRow === cert._id ? (
+                      <td colSpan={5}>
+                        {/* Additional Information for the resident */}
+                        {cert.typeofcertificate === "Barangay Clearance" ||
+                          (cert.typeofcertificate === "Barangay Indigency" && (
+                            <>
+                              <div className="profile-container">
+                                <div className="ml-5 text-xs">
+                                  <p>
+                                    <strong>Name: </strong>
+                                    {cert.resID.middlename
+                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                  </p>
+                                  <p>
+                                    <strong>Type of Certificate:</strong>{" "}
+                                    {cert.typeofcertificate}
+                                  </p>
+                                  <p>
+                                    <strong>Purpose of Request:</strong>{" "}
+                                    {cert.purpose}
+                                  </p>
+                                  <p>
+                                    <strong>Amount: </strong>
+                                    {cert.amount}
+                                  </p>
+                                  <p>
+                                    <strong>Date Requested: </strong>
+                                    {cert.createdAt.substring(
+                                      0,
+                                      cert.createdAt.indexOf(" at")
                                     )}
-                                  </div>
+                                  </p>
+                                  <p>
+                                    <strong>Status: </strong> {cert.status}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="btn-container">
+                                {cert.status === "Pending" ? (
+                                  <>
+                                    <button
+                                      className="actions-btn bg-btn-color-blue"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      ISSUE
+                                    </button>
+                                    <button
+                                      className="actions-btn bg-btn-color-red"
+                                      type="submit"
+                                      onClick={(e) => rejectBtn(e, cert._id)}
+                                    >
+                                      REJECT
+                                    </button>
+                                  </>
+                                ) : cert.status === "Issued" ? (
+                                  <>
+                                    <button
+                                      className="actions-btn bg-btn-color-blue"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      PRINT
+                                    </button>
+                                  </>
+                                ) : null}
+                              </div>
+                            </>
+                          ))}
+                        {cert.typeofcertificate ===
+                          "Barangay Business Clearance" && (
+                          <>
+                            <div className="profile-container">
+                              <div className="ml-5 text-xs">
+                                <p>
+                                  <strong>Name: </strong>
+                                  {cert.resID.middlename
+                                    ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                    : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                </p>
+                                <p>
+                                  <strong>Type of Certificate: </strong>
+                                  {cert.typeofcertificate}
+                                </p>
+                                <p>
+                                  <strong>Business Name: </strong>
+                                  {cert.businessname}
+                                </p>
+                                <p>
+                                  <strong>Line of Business: </strong>
+                                  {cert.lineofbusiness}
+                                </p>
+                                <p>
+                                  <strong>Location of Business: </strong>
+                                  {cert.locationofbusiness ===
+                                  "Resident's Address"
+                                    ? `${cert.resID.address}`
+                                    : `${cert.locationofbusiness}`}
+                                </p>
+                                <p>
+                                  <strong>Amount: </strong> {cert.amount}
+                                </p>
+                                <p>
+                                  <strong>Date Requested: </strong>
+                                  {cert.createdAt.substring(
+                                    0,
+                                    cert.createdAt.indexOf(" at")
+                                  )}
+                                </p>
+                                <p>
+                                  <strong>Status: </strong> {cert.status}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="btn-container">
+                              {cert.status === "Pending" ? (
+                                <>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue"
+                                    type="submit"
+                                    onClick={(e) => certBtn(e, cert._id)}
+                                  >
+                                    ISSUE
+                                  </button>
+                                  <button
+                                    className="actions-btn bg-btn-color-red"
+                                    type="submit"
+                                    //   onClick={() => editBtn(res._id)}
+                                  >
+                                    REJECT
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue"
+                                    type="submit"
+                                    onClick={(e) => certBtn(e, cert._id)}
+                                  >
+                                    PRINT
+                                  </button>
                                 </>
                               )}
-                            </td>
-                          ) : (
-                            <>
-                              <td>
-                                {cert.resID.middlename
-                                  ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
-                                  : `${cert.resID.lastname} ${cert.resID.firstname}`}
-                              </td>
-                              <td>{cert.typeofcertificate}</td>
-                              <td>{cert.amount}</td>
-                              <td>
-                                {cert.createdAt.substring(
-                                  0,
-                                  cert.createdAt.indexOf(" at")
-                                )}
-                              </td>
-                              <td>{cert.status}</td>
-                            </>
+                            </div>
+                          </>
+                        )}
+                      </td>
+                    ) : (
+                      <>
+                        <td>
+                          {cert.resID.middlename
+                            ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
+                            : `${cert.resID.lastname} ${cert.resID.firstname}`}
+                        </td>
+                        <td>{cert.typeofcertificate}</td>
+                        <td>{cert.amount}</td>
+                        <td>
+                          {cert.createdAt.substring(
+                            0,
+                            cert.createdAt.indexOf(" at")
                           )}
-                        </tr>
-                      </React.Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                        </td>
+                        <td>{cert.status}</td>
+                      </>
+                    )}
+                  </tr>
+                </React.Fragment>
+              ))
+            )}
+          </tbody>
+        </table>
         {isRejectClicked && (
           <Reject
             certID={selectedCertID}

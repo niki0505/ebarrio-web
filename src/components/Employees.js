@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoArchiveSharp } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
@@ -584,143 +584,136 @@ function Employees({ isCollapsed }) {
           <span className="font-bold">Add new employee</span>
         </button>
 
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Mobile No.</th>
-                    <th>Address</th>
-                    <th>Position</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile No.</th>
+              <th>Address</th>
+              <th>Position</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {filteredEmployees.length === 0 ? (
-                    <tr className="bg-white">
-                      <td colSpan={4}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredEmployees.map((emp) => (
-                      <React.Fragment key={emp._id}>
-                        <tr
-                          onClick={() => handleRowClick(emp._id)}
-                          style={{
-                            cursor: "pointer",
-                            transition: "background-color 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#f0f0f0";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "";
-                          }}
-                        >
-                          {expandedRow === emp._id ? (
-                            <td colSpan={4}>
-                              {/* Additional Information for the resident */}
-                              <div className="profile-container">
-                                <img
-                                  src={emp.resID.picture}
-                                  className="profile-img"
-                                />
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {emp.resID.middlename
-                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                                  </p>
-                                  <p>
-                                    <strong>Age:</strong> {emp.resID.age}
-                                  </p>
-                                  <p>
-                                    <strong>Sex:</strong> {emp.resID.sex}
-                                  </p>
-                                  <p>
-                                    <strong>Civil Status: </strong>{" "}
-                                    {emp.resID.civilstatus}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile Number: </strong>{" "}
-                                    {emp.resID.mobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong>{" "}
-                                    {emp.resID.address}
-                                  </p>
-                                  <p>
-                                    <strong>Position: </strong> {emp.position}
-                                  </p>
-                                </div>
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Emergency Contact:</strong>
-                                  </p>
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {emp.resID.emergencyname}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile: </strong>
-                                    {emp.resID.emergencymobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong>
-                                    {emp.resID.emergencyaddress}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="btn-container">
-                                <button
-                                  className="actions-btn bg-btn-color-red"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, emp._id)}
-                                >
-                                  ARCHIVE
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  onClick={(e) => handleEmployeeID(e, emp._id)}
-                                >
-                                  EMPLOYEE ID
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  // onClick={() => editBtn(emp._id)}
-                                >
-                                  EDIT
-                                </button>
-                              </div>
-                            </td>
-                          ) : (
-                            <>
-                              <td>
-                                {emp.resID.middlename
-                                  ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                                  : `${emp.resID.lastname} ${emp.resID.firstname}`}
-                              </td>
-                              <td>{emp.resID.mobilenumber}</td>
-                              <td>{emp.resID.address}</td>
-                              <td>{emp.position}</td>
-                            </>
-                          )}
-                        </tr>
-                      </React.Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {isCreateClicked && (
-              <CreateEmployee onClose={() => setCreateClicked(false)} />
+          <tbody className="bg-[#fff]">
+            {filteredEmployees.length === 0 ? (
+              <tr className="bg-white">
+                <td colSpan={4}>No results found</td>
+              </tr>
+            ) : (
+              filteredEmployees.map((emp) => (
+                <React.Fragment key={emp._id}>
+                  <tr
+                    onClick={() => handleRowClick(emp._id)}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    {expandedRow === emp._id ? (
+                      <td colSpan={4}>
+                        {/* Additional Information for the resident */}
+                        <div className="profile-container">
+                          <img
+                            src={emp.resID.picture}
+                            className="profile-img"
+                          />
+                          <div className="ml-5 text-xs">
+                            <p>
+                              <strong>Name: </strong>
+                              {emp.resID.middlename
+                                ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                            </p>
+                            <p>
+                              <strong>Age:</strong> {emp.resID.age}
+                            </p>
+                            <p>
+                              <strong>Sex:</strong> {emp.resID.sex}
+                            </p>
+                            <p>
+                              <strong>Civil Status: </strong>{" "}
+                              {emp.resID.civilstatus}
+                            </p>
+                            <p>
+                              <strong>Mobile Number: </strong>{" "}
+                              {emp.resID.mobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong> {emp.resID.address}
+                            </p>
+                            <p>
+                              <strong>Position: </strong> {emp.position}
+                            </p>
+                          </div>
+                          <div className="ml-5 text-xs">
+                            <p>
+                              <strong>Emergency Contact:</strong>
+                            </p>
+                            <p>
+                              <strong>Name: </strong>
+                              {emp.resID.emergencyname}
+                            </p>
+                            <p>
+                              <strong>Mobile: </strong>
+                              {emp.resID.emergencymobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong>
+                              {emp.resID.emergencyaddress}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="btn-container">
+                          <button
+                            className="actions-btn bg-btn-color-red"
+                            type="submit"
+                            onClick={(e) => archiveBtn(e, emp._id)}
+                          >
+                            ARCHIVE
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={(e) => handleEmployeeID(e, emp._id)}
+                          >
+                            EMPLOYEE ID
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            // onClick={() => editBtn(emp._id)}
+                          >
+                            EDIT
+                          </button>
+                        </div>
+                      </td>
+                    ) : (
+                      <>
+                        <td>
+                          {emp.resID.middlename
+                            ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                            : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                        </td>
+                        <td>{emp.resID.mobilenumber}</td>
+                        <td>{emp.resID.address}</td>
+                        <td>{emp.position}</td>
+                      </>
+                    )}
+                  </tr>
+                </React.Fragment>
+              ))
             )}
-          </div>
-        </div>
+          </tbody>
+        </table>
+        {isCreateClicked && (
+          <CreateEmployee onClose={() => setCreateClicked(false)} />
+        )}
       </main>
     </>
   );
