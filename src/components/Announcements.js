@@ -145,7 +145,7 @@ function Announcements({ isCollapsed }) {
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="text-sm font-semibold w-full rounded-md"
+                className="text-sm font-semibold w-full h-full rounded-md"
               >
                 <option value="Newest">Newest</option>
                 <option value="Latest">Latest</option>
