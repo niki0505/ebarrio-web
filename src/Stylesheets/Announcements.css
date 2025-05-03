@@ -1,0 +1,51 @@
+.announcement-category-panel {
+  @apply p-4 mb-4 lg:mb-0 border-r w-full lg:w-1/5;
+}
+.announcement-subheader {
+  @apply font-bold mb-2;
+}
+.announcement-left-container {
+  @apply bg-gray-200 rounded-[15px];
+}
+.announcement-center-panel {
+  @apply w-2/5 p-4;
+}
+.announcement-create {
+  @apply flex flex-row p-2 rounded-md shadow-md mb-4 bg-white;
+}
+.announcement-create-button {
+  @apply border border-btn-color-gray rounded-[15px] w-full text-start;
+}
+.announcement-card {
+  @apply relative bg-white p-2 mb-4 rounded-md shadow-md;
+}
+.announcement-menu {
+  @apply absolute bg-white border shadow-md right-0 mt-6 w-24;
+}
+.announcement-profile-img {
+  @apply rounded-full w-10 h-10 mr-2 object-cover;
+}
+.announcement-info-label {
+  @apply text-gray-500 text-sm;
+}
+.announcement-info-value {
+  @apply font-bold text-sm;
+}
+.announcement-pinned-panel {
+  @apply p-4 border-l w-full lg:w-2/5;
+}
+.announcement-sort-options {
+  @apply flex border-2 border-navy-blue justify-center items-center bg-white w-[6rem] h-[2rem] mb-4 rounded-md shadow-md;
+}
+.create-announcement-attachment {
+  @apply w-full border border-solid border-gray-300 p-4;
+}
+.create-announcement-fixed-btns {
+  @apply flex flex-row items-center justify-between border p-3 w-full rounded-[15px] border-btn-color-gray mb-4;
+}
+.create-announcement-event-details {
+  @apply flex flex-col absolute top-[60px] left-[260px] z-10 w-[14rem] h-[22rem] bg-white rounded-xl shadow-lg p-5 text-center;
+}
+.create-announcement-event-input {
+  @apply mt-[10px] w-[180px] p-[5px] rounded-[4px] border border-[#ccc] text-[14px];
+}

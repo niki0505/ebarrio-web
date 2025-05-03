@@ -1,5 +1,5 @@
-import { IoIosWarning } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
+import { IoArchiveSharp } from "react-icons/io5";
 import "../Stylesheets/Dialog.css";
 
 const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
@@ -21,7 +21,7 @@ const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
 
         <div className="flex justify-center mt-10">
           <div class="bg-red-100 p-3 rounded-full">
-            <IoIosWarning className="text-red-500 text-4xl" />
+            <IoArchiveSharp className="text-red-500 text-4xl" />
           </div>
         </div>
 

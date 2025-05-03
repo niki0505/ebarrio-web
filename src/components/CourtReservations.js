@@ -53,23 +53,20 @@ function CourtReservations({ isCollapsed }) {
 
         {/* <SearchBar handleSearch={handleSearch} searchValue={search} /> */}
 
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Purpose</th>
-                    <th>Date & Time</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Purpose</th>
+              <th>Date & Time</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {/* {filteredReservations.length === 0 ? (
+          <tbody className="bg-[#fff]">
+            {/* {filteredReservations.length === 0 ? (
                     <tr className="bg-white">
                       <td colSpan={5} className="text-center p-2">
                         No results found
@@ -95,11 +92,8 @@ function CourtReservations({ isCollapsed }) {
                       </tr>
                     ))
                   )} */}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+          </tbody>
+        </table>
         {/* {isRejectClicked && (
           <Reject
             certID={selectedCertID}
