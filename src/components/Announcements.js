@@ -32,7 +32,7 @@ function Announcements({ isCollapsed }) {
 
   useEffect(() => {
     fetchAnnouncements();
-  }, [fetchAnnouncements]);
+  }, []);
 
   const handleAdd = () => {
     setCreateClicked(true);

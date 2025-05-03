@@ -480,18 +480,8 @@ function Employees({ isCollapsed }) {
   };
 
   useEffect(() => {
-    // const loadEmployees = async () => {
-    //   try {
-    //     const data = await fetchEmployees();
-    //     setEmployees(data);
-    //   } catch (err) {
-    //     console.log("Failed to fetch residents");
-    //   }
-    // };
-
-    // loadEmployees();
     fetchEmployees();
-  }, [fetchEmployees]);
+  }, []);
 
   const handleAdd = () => {
     setCreateClicked(true);

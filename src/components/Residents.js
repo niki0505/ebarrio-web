@@ -829,20 +829,7 @@ function Residents({ isCollapsed }) {
 
   useEffect(() => {
     fetchResidents();
-  }, [fetchResidents]);
-
-  // useEffect(() => {
-  //   const loadResidents = async () => {
-  //     try {
-  //       const data = await fetchResidents();
-  //       setResidents(data);
-  //     } catch (err) {
-  //       console.log("Failed to fetch residents");
-  //     }
-  //   };
-
-  //   loadResidents();
-  // }, [fetchResidents]);
+  }, []);
 
   const buttonClick = (e, resID) => {
     e.stopPropagation();

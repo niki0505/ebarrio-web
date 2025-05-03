@@ -6,8 +6,7 @@ import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function CreateAccount({ onClose }) {
-  const { fetchResidents } = useContext(InfoContext);
-  const [residents, setResidents] = useState([]);
+  const { fetchResidents, residents } = useContext(InfoContext);
   const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
@@ -21,21 +20,8 @@ function CreateAccount({ onClose }) {
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
-    const loadResidents = async () => {
-      try {
-        const data = await fetchResidents();
-        setResidents(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
-
-    loadResidents();
-  }, [fetchResidents]);
-
-  useEffect(() => {
-    console.log("User Form", userForm);
-  }, [userForm]);
+    fetchResidents();
+  }, []);
 
   const usernameValidation = (e) => {
     const { name, value } = e.target;
@@ -136,26 +122,6 @@ function CreateAccount({ onClose }) {
     setShowModal(false);
     onClose();
   };
-  //   useEffect(() => {
-  //     const fetchAvailableRole = async () => {
-  //       try {
-  //         const response = await axios.get("http://localhost:5000/api/rolecount");
-  //         const counts = response.data;
-
-  //         const remainingRole = Object.entries(userRole)
-  //           .filter(([pos, limit]) => {
-  //             const lowerPos = pos.toLowerCase();
-  //             return (counts[lowerPos] || 0) < limit;
-  //           })
-  //           .map(([pos]) => pos);
-  //         setAvailableRole(remainingRole);
-  //       } catch (err) {
-  //         console.error("Failed to fetch available role", err);
-  //       }
-  //     };
-  //     fetchAvailableRole();
-  //   }, []);
-
   return (
     <>
       {setShowModal && (
@@ -189,13 +155,19 @@ function CreateAccount({ onClose }) {
                   <option value="" disabled selected hidden>
                     Select
                   </option>
-                  {residents.map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
+                  {residents
+                    .filter(
+                      (element) =>
+                        !element.userID &&
+                        !(element.empID && element.empID.userID)
+                    )
+                    .map((element) => (
+                      <option value={element._id}>
+                        {element.middlename
+                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                          : `${element.firstname} ${element.lastname}`}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="employee-form-group">

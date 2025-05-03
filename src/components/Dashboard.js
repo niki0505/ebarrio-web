@@ -20,41 +20,44 @@ import { PiCourtBasketballFill } from "react-icons/pi";
 import { FaMale, FaFemale } from "react-icons/fa";
 
 function Dashboard({ isCollapsed }) {
-  const { announcements, fetchAnnouncements } = useContext(InfoContext);
+  const {
+    announcements,
+    fetchAnnouncements,
+    fetchReservations,
+    courtreservations,
+  } = useContext(InfoContext);
   const [events, setEvents] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
 
   useEffect(() => {
     if (!isFetched) {
       fetchAnnouncements();
+      fetchReservations();
       setIsFetched(true);
     }
-  }, [fetchAnnouncements]);
+  }, [fetchAnnouncements, fetchReservations]);
 
   useEffect(() => {
-    if (announcements && announcements.length > 0) {
-      console.log("Raw Announcements Data:", announcements);
-      const newEvents = announcements
-        .filter(
-          (announcement) => announcement.eventStart && announcement.eventEnd
-        )
-        .map((announcement) => ({
-          title: announcement.title,
-          start: announcement.eventStart,
-          end: announcement.eventEnd,
-        }));
-      setEvents((prevEvents) => {
-        const updatedEvents = newEvents.filter(
-          (newEvent) =>
-            !prevEvents.some(
-              (event) =>
-                event.start === newEvent.start && event.end === newEvent.end
-            )
-        );
-        return [...prevEvents, ...updatedEvents];
-      });
-    }
-  }, [announcements]);
+    const announcementEvents = (announcements || [])
+      .filter((a) => a.eventStart && a.eventEnd)
+      .map((a) => ({
+        title: a.title,
+        start: a.eventStart,
+        end: a.eventEnd,
+        backgroundColor: "#3174ad", // optional
+      }));
+
+    const approvedReservationEvents = (courtreservations || [])
+      .filter((r) => r.status === "Approved")
+      .map((r) => ({
+        title: `${r.resID?.lastname}, ${r.resID?.firstname}`,
+        start: r.starttime,
+        end: r.endtime,
+        backgroundColor: "#4caf50", // optional
+      }));
+
+    setEvents([...announcementEvents, ...approvedReservationEvents]);
+  }, [announcements, courtreservations]);
 
   return (
     <>

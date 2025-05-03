@@ -17,15 +17,6 @@ function CreateEmployee({ onClose }) {
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
-    // const loadResidents = async () => {
-    //   try {
-    //     const data = await fetchResidents();
-    //     setResidents(data);
-    //   } catch (err) {
-    //     console.log("Failed to fetch residents");
-    //   }
-    // };
-    // loadResidents();
     fetchResidents();
   }, [fetchResidents]);
 
@@ -91,7 +82,7 @@ function CreateEmployee({ onClose }) {
   const brgyPosition = {
     Captain: 1,
     Secretary: 1,
-    "Assistant Secretary": 1,
+    Clerk: 1,
     Kagawad: 7,
     Tanod: 20,
   };

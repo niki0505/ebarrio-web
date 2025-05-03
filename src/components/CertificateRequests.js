@@ -18,6 +18,7 @@ import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
 import { AuthContext } from "../context/AuthContext";
 import Reject from "./Reject";
+import api from "../api";
 
 function CertificateRequests({ isCollapsed }) {
   const confirm = useConfirm();
@@ -30,6 +31,11 @@ function CertificateRequests({ isCollapsed }) {
   const [search, setSearch] = useState("");
 
   const [isRejectClicked, setRejectClicked] = useState(false);
+
+  const [isPendingClicked, setPendingClicked] = useState(true);
+  const [isIssuedClicked, setIssuedClicked] = useState(false);
+  const [isRejectedClicked, setRejectedClicked] = useState(false);
+
   const [selectedCertID, setSelectedCertID] = useState(null);
 
   const handleSearch = (text) => {
@@ -44,11 +50,20 @@ function CertificateRequests({ isCollapsed }) {
 
   useEffect(() => {
     fetchCertificates();
-  }, [fetchCertificates]);
+  }, []);
 
   useEffect(() => {
+    let filtered = certificates;
+
+    if (isPendingClicked) {
+      filtered = certificates.filter((cert) => cert.status === "Pending");
+    } else if (isIssuedClicked) {
+      filtered = certificates.filter((cert) => cert.status === "Issued");
+    } else if (isRejectedClicked) {
+      filtered = certificates.filter((cert) => cert.status === "Rejected");
+    }
     if (search) {
-      const filtered = certificates.filter((cert) => {
+      filtered = filtered.filter((cert) => {
         const first = cert.resID.firstname || "";
         const middle = cert.resID.middlename || "";
         const last = cert.resID.lastname || "";
@@ -57,11 +72,15 @@ function CertificateRequests({ isCollapsed }) {
 
         return fullName.includes(search);
       });
-      setFilteredCertificates(filtered);
-    } else {
-      setFilteredCertificates(certificates);
     }
-  }, [search, certificates]);
+    setFilteredCertificates(filtered);
+  }, [
+    certificates,
+    search,
+    isPendingClicked,
+    isIssuedClicked,
+    isRejectedClicked,
+  ]);
 
   const handleRowClick = (certId) => {
     setExpandedRow(expandedRow === certId ? null : certId);
@@ -88,13 +107,9 @@ function CertificateRequests({ isCollapsed }) {
 
   const certBtn = async (e, certID) => {
     e.stopPropagation();
-    let response3 = await axios.get(
-      `http://localhost:5000/api/getcertificate/${certID}`
-    );
-    const response4 = await axios.get(`http://localhost:5000/api/getcaptain/`);
-    const response5 = await axios.get(
-      `http://localhost:5000/api/getprepared/${user.userID}`
-    );
+    let response3 = await api.get(`/getcertificate/${certID}`);
+    const response4 = await api.get(`/getcaptain/`);
+    const response5 = await api.get(`/getprepared/${user.userID}`);
 
     console.log("Cert Data", response3.data);
     console.log("Captain Data", response4.data);
@@ -108,17 +123,12 @@ function CertificateRequests({ isCollapsed }) {
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await axios.put(
-          `http://localhost:5000/api/generatecertificatereq/${certID}`
-        );
+        const gencert = await api.put(`/generatecertificatereq/${certID}`);
         const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await axios.put(
-          `http://localhost:5000/api/savecertificatereq/${certID}`,
-          { qrCode }
-        );
-        response3 = await axios.get(
-          `http://localhost:5000/api/getcertificate/${certID}`
-        );
+        const savecert = await api.put(`/savecertificatereq/${certID}`, {
+          qrCode,
+        });
+        response3 = await api.get(`/getcertificate/${certID}`);
       }
       IndigencyPrint({
         certData: response3.data,
@@ -135,17 +145,12 @@ function CertificateRequests({ isCollapsed }) {
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await axios.put(
-          `http://localhost:5000/api/generatecertificatereq/${certID}`
-        );
+        const gencert = await api.put(`/generatecertificatereq/${certID}`);
         const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await axios.put(
-          `http://localhost:5000/api/savecertificatereq/${certID}`,
-          { qrCode }
-        );
-        response3 = await axios.get(
-          `http://localhost:5000/api/getcertificate/${certID}`
-        );
+        const savecert = await api.put(`/savecertificatereq/${certID}`, {
+          qrCode,
+        });
+        response3 = await api.get(`/getcertificate/${certID}`);
       }
       ClearancePrint({
         certData: response3.data,
@@ -162,17 +167,12 @@ function CertificateRequests({ isCollapsed }) {
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await axios.put(
-          `http://localhost:5000/api/generatecertificatereq/${certID}`
-        );
+        const gencert = await api.put(`/generatecertificatereq/${certID}`);
         const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await axios.put(
-          `http://localhost:5000/api/savecertificatereq/${certID}`,
-          { qrCode }
-        );
-        response3 = await axios.get(
-          `http://localhost:5000/api/getcertificate/${certID}`
-        );
+        const savecert = await api.put(`/savecertificatereq/${certID}`, {
+          qrCode,
+        });
+        response3 = await api.get(`/getcertificate/${certID}`);
       }
       BusinessClearancePrint({
         certData: response3.data,
@@ -183,12 +183,37 @@ function CertificateRequests({ isCollapsed }) {
     }
   };
 
+  const handleMenu1 = () => {
+    setPendingClicked(true);
+    setIssuedClicked(false);
+    setRejectedClicked(false);
+  };
+  const handleMenu2 = () => {
+    setIssuedClicked(true);
+    setPendingClicked(false);
+    setRejectedClicked(false);
+  };
+  const handleMenu3 = () => {
+    setRejectedClicked(true);
+    setPendingClicked(false);
+    setIssuedClicked(false);
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Certificate Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
+        <p onClick={handleMenu1} style={{ cursor: "pointer" }}>
+          Pending
+        </p>
+        <p onClick={handleMenu2} style={{ cursor: "pointer" }}>
+          Issued
+        </p>
+        <p onClick={handleMenu3} style={{ cursor: "pointer" }}>
+          Rejected
+        </p>
 
         <table>
           <thead>
@@ -258,6 +283,11 @@ function CertificateRequests({ isCollapsed }) {
                                   <p>
                                     <strong>Status: </strong> {cert.status}
                                   </p>
+                                  {cert.status === "Rejected" && (
+                                    <p>
+                                      <strong>Remarks: </strong> {cert.remarks}
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                               <div className="btn-container">

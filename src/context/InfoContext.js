@@ -19,39 +19,74 @@ export const InfoProvider = ({ children }) => {
   const [certificates, setCertificates] = useState([]);
   const [emergencyhotlines, setEmergencyHotlines] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [courtreservations, setCourtReservations] = useState([]);
 
   const fetchResidents = async () => {
-    const response = await api.get("/getresidents");
-    setResidents(response.data);
+    try {
+      const response = await api.get("/getresidents");
+      setResidents(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch residents:", error);
+    }
   };
 
   const fetchEmployees = async () => {
-    const response = await api.get("/getemployees");
-    setEmployees(response.data);
+    try {
+      const response = await api.get("/getemployees");
+      setEmployees(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch employees:", error);
+    }
   };
 
   const fetchUsers = async () => {
-    const response = await api.get("/getusers");
-    setUsers(response.data);
+    try {
+      const response = await api.get("/getusers");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
   };
 
   const fetchCertificates = async () => {
-    const response = await api.get("/getcertificates");
-    setCertificates(response.data);
+    try {
+      const response = await api.get("/getcertificates");
+      console.log(response.data);
+      setCertificates(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch certificates:", error);
+    }
   };
 
   const fetchEmergencyHotlines = async () => {
-    const response = await api.get("/getemergencyhotlines");
-    setEmergencyHotlines(response.data);
+    try {
+      const response = await api.get("/getemergencyhotlines");
+      setEmergencyHotlines(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch emergency hotlines:", error);
+    }
   };
 
   const fetchAnnouncements = async () => {
-    const response = await api.get("/getannouncements");
-    setAnnouncements(response.data);
+    try {
+      const response = await api.get("/getannouncements");
+      setAnnouncements(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch announcements:", error);
+    }
+  };
+
+  const fetchReservations = async () => {
+    try {
+      const response = await api.get("/getreservations");
+      setCourtReservations(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch reservations:", error);
+    }
   };
 
   useEffect(() => {
-    socket.on("dataUpdated", (updatedData) => {
+    socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
         setResidents(updatedData.data);
       } else if (updatedData.type === "employees") {
@@ -59,16 +94,19 @@ export const InfoProvider = ({ children }) => {
       } else if (updatedData.type === "users") {
         setUsers(updatedData.data);
       } else if (updatedData.type === "certificates") {
+        console.log(updatedData.data);
         setCertificates(updatedData.data);
       } else if (updatedData.type === "emergencyhotlines") {
         setEmergencyHotlines(updatedData.data);
       } else if (updatedData.type === "announcements") {
         setAnnouncements(updatedData.data);
+      } else if (updatedData.type === "courtreservations") {
+        setCourtReservations(updatedData.data);
       }
     });
 
     return () => {
-      socket.disconnect();
+      socket.off("dbChange");
     };
   }, []);
 
@@ -82,12 +120,14 @@ export const InfoProvider = ({ children }) => {
           certificates,
           emergencyhotlines,
           announcements,
+          courtreservations,
           fetchResidents,
           fetchEmployees,
           fetchUsers,
           fetchCertificates,
           fetchEmergencyHotlines,
           fetchAnnouncements,
+          fetchReservations,
         }}
       >
         {children}
@@ -95,44 +135,3 @@ export const InfoProvider = ({ children }) => {
     </SocketContext.Provider>
   );
 };
-
-// import { createContext, useState, useEffect } from "react";
-// import axios from "axios";
-// import api from "../api";
-
-// export const InfoContext = createContext(undefined);
-
-// export const InfoProvider = ({ children }) => {
-//   const fetchResidents = async () => {
-//     const response = await api.get("/getresidents");
-//     return response.data;
-//   };
-
-//   const fetchEmployees = async () => {
-//     const response = await api.get("/getemployees");
-//     return response.data;
-//   };
-
-//   const fetchUsers = async () => {
-//     const response = await api.get("/getusers");
-//     return response.data;
-//   };
-
-//   const fetchCertificates = async () => {
-//     const response = await api.get("/getcertificates");
-//     return response.data;
-//   };
-
-//   return (
-//     <InfoContext.Provider
-//       value={{
-//         fetchResidents,
-//         fetchCertificates,
-//         fetchEmployees,
-//         fetchUsers,
-//       }}
-//     >
-//       {children}
-//     </InfoContext.Provider>
-//   );
-// };

@@ -27,7 +27,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
   useEffect(() => {
     fetchEmergencyHotlines();
-  }, [fetchEmergencyHotlines]);
+  }, []);
 
   const handleAdd = () => {
     setCreateClicked(true);
