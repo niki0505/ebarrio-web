@@ -380,7 +380,7 @@ function CertificateRequests({ isCollapsed }) {
                                   <button
                                     className="actions-btn bg-btn-color-red"
                                     type="submit"
-                                    //   onClick={() => editBtn(res._id)}
+                                    onClick={(e) => rejectBtn(e, cert._id)}
                                   >
                                     REJECT
                                   </button>
