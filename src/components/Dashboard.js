@@ -44,7 +44,20 @@ function Dashboard({ isCollapsed }) {
         title: a.title,
         start: a.eventStart,
         end: a.eventEnd,
-        backgroundColor: "#3174ad", // optional
+        backgroundColor:
+          a.category === "General"
+            ? "#E3DE48"
+            : a.category === "Public Safety & Emergency"
+            ? "#FA7020"
+            : a.category === "Health & Sanitation"
+            ? "#E3DE48"
+            : a.category === "Social Services"
+            ? "#50C700"
+            : a.category === "Infrastructure"
+            ? "#0E94D3"
+            : a.category === "Education & Youth"
+            ? "#1E0ED3"
+            : "#3174ad",
       }));
 
     const approvedReservationEvents = (courtreservations || [])
@@ -53,7 +66,7 @@ function Dashboard({ isCollapsed }) {
         title: `${r.resID?.lastname}, ${r.resID?.firstname}`,
         start: r.starttime,
         end: r.endtime,
-        backgroundColor: "#4caf50", // optional
+        backgroundColor: "#770ED3",
       }));
 
     setEvents([...announcementEvents, ...approvedReservationEvents]);
@@ -256,6 +269,8 @@ function Dashboard({ isCollapsed }) {
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
+              slotEventOverlap={false}
+              dayMaxEventRows={true}
               events={events}
               height="auto"
               eventTimeFormat={{

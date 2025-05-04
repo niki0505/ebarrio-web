@@ -3,16 +3,12 @@ import axios from "axios";
 import "../App.css";
 import { AuthContext } from "../context/AuthContext";
 import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIndigency from "../assets/brgyindigency.png";
-import BusinessClearance from "../assets/businessclearance.png";
 import IndigencyPrint from "./certificates/IndigencyPrint";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
-import BrgyClearance from "../assets/brgyclearance.png";
-import ReactDOM from "react-dom/client";
+import api from "../api";
 
 function CreateCertificate({ resID, onClose }) {
   const { user } = useContext(AuthContext);
@@ -143,14 +139,14 @@ function CreateCertificate({ resID, onClose }) {
       delete filteredData.street;
     }
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/generatecertificate",
-        { filteredData, resID }
-      );
+      const response = await api.post("/generatecertificate", {
+        filteredData,
+        resID,
+      });
       const qrCode = await uploadToFirebase(response.data.qrCode);
       try {
-        const response2 = await axios.put(
-          `http://localhost:5000/api/savecertificate/${response.data.certID}`,
+        const response2 = await api.put(
+          `/savecertificate/${response.data.certID}`,
           {
             qrCode,
           }
@@ -159,15 +155,11 @@ function CreateCertificate({ resID, onClose }) {
         console.log("Error saving barangay ID", error);
       }
       try {
-        const response3 = await axios.get(
-          `http://localhost:5000/api/getcertificate/${response.data.certID}`
+        const response3 = await api.get(
+          `/getcertificate/${response.data.certID}`
         );
-        const response4 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
-        const response5 = await axios.get(
-          `http://localhost:5000/api/getprepared/${user.userID}`
-        );
+        const response4 = await api.get(`/getcaptain/`);
+        const response5 = await api.get(`/getprepared/${user.userID}`);
 
         if (response3.data.typeofcertificate === "Barangay Indigency") {
           IndigencyPrint({

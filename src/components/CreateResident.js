@@ -1,14 +1,18 @@
-import Webcam from "react-webcam";
-import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useContext, useEffect, useRef, useState } from "react";
 import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { FiCamera, FiUpload } from "react-icons/fi";
+import { useConfirm } from "../context/ConfirmContext";
+import { InfoContext } from "../context/InfoContext";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 function CreateResident({ isCollapsed }) {
-  ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
+  const navigation = useNavigate();
+  const confirm = useConfirm();
+  const { fetchResidents, residents } = useContext(InfoContext);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -16,7 +20,6 @@ function CreateResident({ isCollapsed }) {
   const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
-  const [residents, setResidents] = useState([]);
   const [residentForm, setResidentForm] = useState({
     firstname: "",
     middlename: "",
@@ -33,6 +36,7 @@ function CreateResident({ isCollapsed }) {
     religion: "",
     nationality: "",
     voter: "",
+    precinct: "",
     deceased: "",
     email: "",
     mobilenumber: "",
@@ -62,17 +66,6 @@ function CreateResident({ isCollapsed }) {
   });
 
   useEffect(() => {
-    const fetchResidents = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/getresidents"
-        );
-        console.log(response.data);
-        setResidents(response.data);
-      } catch (error) {
-        console.log("Error fetching residents", error);
-      }
-    };
     fetchResidents();
   }, []);
 
@@ -458,6 +451,13 @@ function CreateResident({ isCollapsed }) {
       } else if (!signature) {
         alert("Signature is required");
       } else {
+        const isConfirmed = await confirm(
+          "Are you sure you want to create a resident profile?",
+          "confirm"
+        );
+        if (!isConfirmed) {
+          return;
+        }
         const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
         const idPicture = await uploadToFirebase(id);
         const signaturePicture = await uploadToFirebase(signature);
@@ -467,25 +467,20 @@ function CreateResident({ isCollapsed }) {
           address: fulladdress,
         };
 
-        const response = await axios.post(
-          "http://localhost:5000/api/createresident",
-          {
-            picture: idPicture,
-            signature: signaturePicture,
-            ...updatedResidentForm,
-          }
-        );
-        alert("Resident successfully created!");
-        console.log("Create resident response:", response.data);
+        const response = await api.post("/createresident", {
+          picture: idPicture,
+          signature: signaturePicture,
+          ...updatedResidentForm,
+        });
         try {
-          const response2 = await axios.post(
-            `http://localhost:5000/api/generatebrgyID/${response.data.resID}`
+          const response2 = await api.post(
+            `/generatebrgyID/${response.data.resID}`
           );
           console.log(response2.data);
           const qrCode = await uploadToFirebase(response2.data.qrCode);
           try {
-            const response3 = await axios.put(
-              `http://localhost:5000/api/savebrgyID/${response.data.resID}`,
+            const response3 = await api.put(
+              `/savebrgyID/${response.data.resID}`,
               {
                 idNumber: response2.data.idNumber,
                 expirationDate: response2.data.expirationDate,
@@ -499,6 +494,8 @@ function CreateResident({ isCollapsed }) {
         } catch (error) {
           console.log("Error generating barangay ID", error);
         }
+        alert("Resident successfully created!");
+        navigation("/residents");
       }
     } catch (error) {
       console.log("Error", error);
@@ -520,8 +517,6 @@ function CreateResident({ isCollapsed }) {
       }
     }
   };
-
-  ///////////////////////////DO NOT MODIFY/////////////////////////////////////////////////////
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -873,7 +868,8 @@ function CreateResident({ isCollapsed }) {
               <label className="form-label">Precinct</label>
               <input
                 name="precinct"
-                onChange={lettersAndSpaceOnly}
+                onChange={lettersNumbersAndSpaceOnly}
+                value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input h-[30px]"
               />

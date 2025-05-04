@@ -20,6 +20,7 @@ export const InfoProvider = ({ children }) => {
   const [emergencyhotlines, setEmergencyHotlines] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [courtreservations, setCourtReservations] = useState([]);
+  const [blotterreports, setBlotterReports] = useState([]);
 
   const fetchResidents = async () => {
     try {
@@ -85,6 +86,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchBlotterReports = async () => {
+    try {
+      const response = await api.get("/getblotters");
+      setBlotterReports(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch blotter reports:", error);
+    }
+  };
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -102,6 +112,8 @@ export const InfoProvider = ({ children }) => {
         setAnnouncements(updatedData.data);
       } else if (updatedData.type === "courtreservations") {
         setCourtReservations(updatedData.data);
+      } else if (updatedData.type === "blotterreports") {
+        setBlotterReports(updatedData.data);
       }
     });
 
@@ -121,6 +133,7 @@ export const InfoProvider = ({ children }) => {
           emergencyhotlines,
           announcements,
           courtreservations,
+          blotterreports,
           fetchResidents,
           fetchEmployees,
           fetchUsers,
@@ -128,6 +141,7 @@ export const InfoProvider = ({ children }) => {
           fetchEmergencyHotlines,
           fetchAnnouncements,
           fetchReservations,
+          fetchBlotterReports,
         }}
       >
         {children}

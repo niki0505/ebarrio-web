@@ -1,7 +1,5 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";

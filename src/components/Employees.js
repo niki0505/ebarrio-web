@@ -1,6 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import axios from "axios";
-import { IoClose, IoArchiveSharp } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
@@ -14,12 +12,12 @@ import EmployeeIDFront from "../assets/employeeidfront.png";
 import EmployeeIDBack from "../assets/employeeidback.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
+import api from "../api";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchEmployees, employees } = useContext(InfoContext);
-  // const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -57,28 +55,19 @@ function Employees({ isCollapsed }) {
 
     if (action === "generate") {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/generateemployeeID/${empID}`
-        );
+        const response = await api.post(`/generateemployeeID/${empID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
 
         try {
-          const response2 = await axios.put(
-            `http://localhost:5000/api/saveemployeeID/${empID}`,
-            {
-              idNumber: response.data.idNumber,
-              expirationDate: response.data.expirationDate,
-              qrCode,
-              qrToken: response.data.qrToken,
-            }
-          );
+          const response2 = await api.put(`/saveemployeeID/${empID}`, {
+            idNumber: response.data.idNumber,
+            expirationDate: response.data.expirationDate,
+            qrCode,
+            qrToken: response.data.qrToken,
+          });
           try {
-            const response = await axios.get(
-              `http://localhost:5000/api/getemployee/${empID}`
-            );
-            const response2 = await axios.get(
-              `http://localhost:5000/api/getcaptain/`
-            );
+            const response = await api.get(`/getemployee/${empID}`);
+            const response2 = await api.get(`/getcaptain/`);
             const printContent = (
               <div id="printContent">
                 <div className="id-page">
@@ -279,12 +268,8 @@ function Employees({ isCollapsed }) {
       }
     } else if (action === "current") {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getemployee/${empID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getemployee/${empID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -355,7 +340,7 @@ function Employees({ isCollapsed }) {
                 }}
               >
                 <p style={{ fontSize: "8px" }}>
-                  {response.data.resID.brgyID[0]?.idNumber}
+                  {response.data.employeeID[0]?.idNumber}
                 </p>
               </div>
               <img className="id-img" src={EmployeeIDFront} />
@@ -495,9 +480,7 @@ function Employees({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await axios.delete(
-          `http://localhost:5000/api/archiveemployee/${empID}`
-        );
+        const response = await api.delete(`/archiveemployee/${empID}`);
         alert("Employee successfully archived");
       } catch (error) {
         console.log("Error", error);
@@ -532,35 +515,6 @@ function Employees({ isCollapsed }) {
       setFilteredEmployees(employees);
     }
   }, [search, employees]);
-
-  // const handleSearch = (text) => {
-  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-  //   const capitalizeFirstLetter = lettersOnly
-  //     .split(" ")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  //     .join(" ");
-  //   setSearch(capitalizeFirstLetter);
-  //   if (capitalizeFirstLetter) {
-  //     const filtered = employees.filter((employees) => {
-  //       const first = employees.resID.firstname || "";
-  //       const middle = employees.resID.middlename || "";
-  //       const last = employees.resID.lastname || "";
-  //       const position = employees.position || "";
-
-  //       return (
-  //         first.includes(capitalizeFirstLetter) ||
-  //         middle.includes(capitalizeFirstLetter) ||
-  //         last.includes(capitalizeFirstLetter) ||
-  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
-  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter) ||
-  //         position.includes(capitalizeFirstLetter)
-  //       );
-  //     });
-  //     setFilteredEmployees(filtered);
-  //   } else {
-  //     setFilteredEmployees(employees);
-  //   }
-  // };
 
   return (
     <>

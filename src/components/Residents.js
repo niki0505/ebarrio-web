@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
@@ -10,18 +8,17 @@ import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIDImage from "../assets/brgyid.png";
 import BrgyIDBack from "../assets/brgyidback.png";
 import BrgyIDFront from "../assets/brgyidfront.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateCertificate from "./CreateCertificate";
+import api from "../api";
 
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchResidents, residents } = useContext(InfoContext);
-  // const [residents, setResidents] = useState([]);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -58,21 +55,15 @@ function Residents({ isCollapsed }) {
     }
     if (action === "generate") {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/generatebrgyID/${resID}`
-        );
-        console.log(response.data);
+        const response = await api.post(`/generatebrgyID/${resID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
         try {
-          const response2 = await axios.put(
-            `http://localhost:5000/api/savebrgyID/${resID}`,
-            {
-              idNumber: response.data.idNumber,
-              expirationDate: response.data.expirationDate,
-              qrCode,
-              qrToken: response.data.qrToken,
-            }
-          );
+          const response2 = await api.put(`/savebrgyID/${resID}`, {
+            idNumber: response.data.idNumber,
+            expirationDate: response.data.expirationDate,
+            qrCode,
+            qrToken: response.data.qrToken,
+          });
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
@@ -81,12 +72,8 @@ function Residents({ isCollapsed }) {
       }
 
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getresident/${resID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getresident/${resID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -249,13 +236,13 @@ function Residents({ isCollapsed }) {
                   height: "13px",
                 }}
               >
-                {/* <p
+                <p
                   style={{
                     fontSize: "8px",
                   }}
                 >
-                  {response.data.nationality}
-                </p> */}
+                  {response.data.precinct ? response.data.precinct : "N/A"}
+                </p>
               </div>
 
               <div
@@ -451,12 +438,8 @@ function Residents({ isCollapsed }) {
       }
     } else if (action === "current") {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getresident/${resID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getresident/${resID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -620,13 +603,13 @@ function Residents({ isCollapsed }) {
                   height: "13px",
                 }}
               >
-                {/* <p
+                <p
                   style={{
                     fontSize: "8px",
                   }}
                 >
-                  {response.data.nationality}
-                </p> */}
+                  {response.data.precinct ? response.data.precinct : "N/A"}
+                </p>
               </div>
 
               <div
@@ -854,9 +837,7 @@ function Residents({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await axios.delete(
-          `http://localhost:5000/api/archiveresident/${resID}`
-        );
+        const response = await api.delete(`/archiveresident/${resID}`);
         alert("Resident successfully archived");
         window.location.reload();
       } catch (error) {
@@ -891,33 +872,6 @@ function Residents({ isCollapsed }) {
       setFilteredResidents(residents);
     }
   }, [search, residents]);
-
-  // const handleSearch = (text) => {
-  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-  //   const capitalizeFirstLetter = lettersOnly
-  //     .split(" ")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  //     .join(" ");
-  //   setSearch(capitalizeFirstLetter);
-  //   if (capitalizeFirstLetter) {
-  //     const filtered = residents.filter((resident) => {
-  //       const first = resident.firstname || "";
-  //       const middle = resident.middlename || "";
-  //       const last = resident.lastname || "";
-
-  //       return (
-  //         first.includes(capitalizeFirstLetter) ||
-  //         middle.includes(capitalizeFirstLetter) ||
-  //         last.includes(capitalizeFirstLetter) ||
-  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
-  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
-  //       );
-  //     });
-  //     setFilteredResidents(filtered);
-  //   } else {
-  //     setFilteredResidents(residents);
-  //   }
-  // };
 
   return (
     <>
@@ -983,7 +937,7 @@ function Residents({ isCollapsed }) {
                               <strong>Civil Status: </strong> {res.civilstatus}
                             </p>
                             <p>
-                              <strong>Mobile Number: </strong>{" "}
+                              <strong>Mobile Number: </strong>
                               {res.mobilenumber}
                             </p>
                             <p>
@@ -991,6 +945,26 @@ function Residents({ isCollapsed }) {
                             </p>
                           </div>
                           <div className="ml-5 text-xs">
+                            {res.voter === "Yes" ? (
+                              <>
+                                <p>
+                                  <strong>Status: </strong>
+                                  Voter
+                                </p>
+                                <p>
+                                  <strong>Precinct: </strong>
+                                  {res.precinct ? res.precinct : "N/A"}
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p>
+                                  <strong>Status: </strong>
+                                  Not Voter
+                                </p>
+                              </>
+                            )}
+
                             <p>
                               <strong>Emergency Contact:</strong>
                             </p>

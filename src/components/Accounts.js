@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import CreateAccount from "./CreateAccount";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
+import api from "../api";
 
 function Accounts({ isCollapsed }) {
   const navigation = useNavigate();
@@ -28,60 +29,6 @@ function Accounts({ isCollapsed }) {
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  //   const buttonClick = (e, resID) => {
-  //     e.stopPropagation();
-  //     alert(`Clicked ${resID}`);
-  //   };
-
-  //   const editBtn = (resID) => {
-  //     navigation("/editresident", { state: { resID } });
-  //   };
-
-  //   const certBtn = (e, resID) => {
-  //     e.stopPropagation();
-  //     setSelectedResID(resID);
-  //     setCertClicked(true);
-  //   };
-
-  //   const archiveBtn = async (e, resID) => {
-  //     try {
-  //       const response = await axios.delete(
-  //         `http://localhost:5000/api/archiveresident/${resID}`
-  //       );
-  //       alert("Resident successfully archived");
-  //       window.location.reload();
-  //     } catch (error) {
-  //       console.log("Error", error);
-  //     }
-  //   };
-
-  //   const handleSearch = (text) => {
-  //     const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-  //     const capitalizeFirstLetter = lettersOnly
-  //       .split(" ")
-  //       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  //       .join(" ");
-  //     setSearch(capitalizeFirstLetter);
-  //     if (capitalizeFirstLetter) {
-  //       const filtered = residents.filter((resident) => {
-  //         const first = resident.firstname || "";
-  //         const middle = resident.middlename || "";
-  //         const last = resident.lastname || "";
-
-  //         return (
-  //           first.includes(capitalizeFirstLetter) ||
-  //           middle.includes(capitalizeFirstLetter) ||
-  //           last.includes(capitalizeFirstLetter) ||
-  //           `${first} ${last}`.includes(capitalizeFirstLetter) ||
-  //           `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
-  //         );
-  //       });
-  //       setFilteredResidents(filtered);
-  //     } else {
-  //       setFilteredResidents(residents);
-  //     }
-  //   };
 
   return (
     <>

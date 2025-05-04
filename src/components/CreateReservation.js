@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 
@@ -220,10 +218,6 @@ function CreateReservation({ onClose }) {
       );
     });
   };
-
-  useEffect(() => {
-    console.log(reservationForm);
-  }, [reservationForm]);
 
   return (
     <>

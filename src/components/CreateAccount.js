@@ -4,6 +4,7 @@ import "../App.css";
 import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import api from "../api";
 
 function CreateAccount({ onClose }) {
   const { fetchResidents, residents } = useContext(InfoContext);
@@ -109,10 +110,7 @@ function CreateAccount({ onClose }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/createuser",
-        userForm
-      );
+      const response = await api.post("/createuser", userForm);
       alert("User successfully created!");
     } catch (error) {
       console.log("Error creating user");

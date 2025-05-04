@@ -1,16 +1,15 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import CreateAnnouncement from "./CreateAnnouncement";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
 import "../Stylesheets/Announcements.css";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle } from "react-icons/bs";
@@ -19,6 +18,8 @@ import { IoPencilSharp } from "react-icons/io5";
 import { IoArchiveSharp } from "react-icons/io5";
 
 function Announcements({ isCollapsed }) {
+  dayjs.extend(relativeTime);
+  const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchAnnouncements, announcements } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
@@ -34,6 +35,12 @@ function Announcements({ isCollapsed }) {
     fetchAnnouncements();
   }, []);
 
+  useEffect(() => {
+    setPinnedAnnouncements(
+      announcements.filter((announcement) => announcement.status === "Pinned")
+    );
+  }, [announcements]);
+
   const handleAdd = () => {
     setCreateClicked(true);
   };
@@ -45,14 +52,30 @@ function Announcements({ isCollapsed }) {
       announcement.category === selectedCategory
   );
 
-  /* PIN ANNOUNCEMENT */
-  const togglePin = (announcement) => {
-    if (pinnedAnnouncements.some((a) => a._id === announcement._id)) {
-      setPinnedAnnouncements((prev) =>
-        prev.filter((a) => a._id !== announcement._id)
-      );
+  /* SORTED ANNOUNCEMENTS */
+  const sortedAnnouncements = [...filteredAnnouncements].sort((a, b) => {
+    if (sortOption === "Newest") {
+      return new Date(b.createdAt) - new Date(a.createdAt);
     } else {
-      setPinnedAnnouncements((prev) => [...prev, announcement]);
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    }
+  });
+
+  /* PIN ANNOUNCEMENT */
+  const togglePin = async (announcementID) => {
+    try {
+      await api.put(`/pinannouncement/${announcementID}`);
+    } catch (error) {
+      console.log("Error pinning announcement", error);
+    }
+  };
+
+  /* UNPIN ANNOUNCEMENT */
+  const toggleUnpin = async (announcementID) => {
+    try {
+      await api.put(`/unpinannouncement/${announcementID}`);
+    } catch (error) {
+      console.log("Error pinning announcement", error);
     }
   };
 
@@ -89,6 +112,19 @@ function Announcements({ isCollapsed }) {
         )}
       </div>
     );
+  };
+
+  const handleArchive = async (announcementID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to archive this announcement?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/archiveannouncement/${announcementID}`);
+    } catch (error) {}
   };
 
   return (
@@ -148,20 +184,22 @@ function Announcements({ isCollapsed }) {
                 className="text-sm font-semibold w-full h-full rounded-md"
               >
                 <option value="Newest">Newest</option>
-                <option value="Latest">Latest</option>
+                <option value="Oldest">Oldest</option>
               </select>
             </div>
 
             {/* ALL ANNOUNCEMENTS */}
-            {filteredAnnouncements
-              .filter((a) => !pinnedAnnouncements.find((p) => p._id === a._id))
+            {sortedAnnouncements
+              .filter((announcement) => announcement.status === "Not Pinned")
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card ">
                   <div className="absolute top-2 right-2 flex flex-col sm:flex-row gap-2">
-                    <label className="text-sm text-gray-500">2 mins ago</label>
+                    <label className="text-sm text-gray-500">
+                      {dayjs(announcement.createdAt).fromNow()}
+                    </label>
                     <div>
                       <button
-                        onClick={() => togglePin(announcement)}
+                        onClick={() => togglePin(announcement._id)}
                         className="mr-2"
                       >
                         <BsPinAngle />
@@ -179,7 +217,10 @@ function Announcements({ isCollapsed }) {
                             <IoPencilSharp className="ml-2" />
                             <li className="text-sm font-semibold">Edit</li>
                           </div>
-                          <div className="navbar-dropdown-item justify-start">
+                          <div
+                            className="navbar-dropdown-item justify-start"
+                            onClick={() => handleArchive(announcement._id)}
+                          >
                             <IoArchiveSharp className="text-red-600 ml-2" />
                             <li className="text-sm font-semibold text-red-600">
                               Archive
@@ -254,13 +295,15 @@ function Announcements({ isCollapsed }) {
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="absolute top-2 right-2 flex flex-col sm:flex-row gap-2">
-                  <label className="text-sm text-gray-500">2 mins ago</label>
+                  <label className="text-sm text-gray-500">
+                    {dayjs(announcement.createdAt).fromNow()}
+                  </label>
                   <div>
                     <button
-                      onClick={() => togglePin(announcement)}
+                      onClick={() => toggleUnpin(announcement._id)}
                       className="mr-2"
                     >
-                      <BsPinAngle />
+                      <BsPinAngleFill />
                     </button>
                     <button onClick={() => toggleMenu(announcement._id)}>
                       <BsThreeDots />
