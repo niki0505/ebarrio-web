@@ -56,7 +56,9 @@ const IndigencyPrint = ({
             <p style={{ fontSize: "12px", paddingBottom: "5px" }}>
               {certData.resID.nationality}
             </p>
-            <p style={{ fontSize: "12px" }}>PRECINCT</p>
+            <p style={{ fontSize: "12px" }}>
+              {certData.resID.precinct ? certData.resID.precinct : "N/A"}
+            </p>
           </div>
 
           <div

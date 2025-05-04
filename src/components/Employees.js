@@ -1,6 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
@@ -14,12 +12,12 @@ import EmployeeIDFront from "../assets/employeeidfront.png";
 import EmployeeIDBack from "../assets/employeeidback.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
+import api from "../api";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchEmployees, employees } = useContext(InfoContext);
-  // const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -57,28 +55,19 @@ function Employees({ isCollapsed }) {
 
     if (action === "generate") {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/generateemployeeID/${empID}`
-        );
+        const response = await api.post(`/generateemployeeID/${empID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
 
         try {
-          const response2 = await axios.put(
-            `http://localhost:5000/api/saveemployeeID/${empID}`,
-            {
-              idNumber: response.data.idNumber,
-              expirationDate: response.data.expirationDate,
-              qrCode,
-              qrToken: response.data.qrToken,
-            }
-          );
+          const response2 = await api.put(`/saveemployeeID/${empID}`, {
+            idNumber: response.data.idNumber,
+            expirationDate: response.data.expirationDate,
+            qrCode,
+            qrToken: response.data.qrToken,
+          });
           try {
-            const response = await axios.get(
-              `http://localhost:5000/api/getemployee/${empID}`
-            );
-            const response2 = await axios.get(
-              `http://localhost:5000/api/getcaptain/`
-            );
+            const response = await api.get(`/getemployee/${empID}`);
+            const response2 = await api.get(`/getcaptain/`);
             const printContent = (
               <div id="printContent">
                 <div className="id-page">
@@ -279,12 +268,8 @@ function Employees({ isCollapsed }) {
       }
     } else if (action === "current") {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getemployee/${empID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getemployee/${empID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -355,7 +340,7 @@ function Employees({ isCollapsed }) {
                 }}
               >
                 <p style={{ fontSize: "8px" }}>
-                  {response.data.resID.brgyID[0]?.idNumber}
+                  {response.data.employeeID[0]?.idNumber}
                 </p>
               </div>
               <img className="id-img" src={EmployeeIDFront} />
@@ -480,18 +465,8 @@ function Employees({ isCollapsed }) {
   };
 
   useEffect(() => {
-    // const loadEmployees = async () => {
-    //   try {
-    //     const data = await fetchEmployees();
-    //     setEmployees(data);
-    //   } catch (err) {
-    //     console.log("Failed to fetch residents");
-    //   }
-    // };
-
-    // loadEmployees();
     fetchEmployees();
-  }, [fetchEmployees]);
+  }, []);
 
   const handleAdd = () => {
     setCreateClicked(true);
@@ -505,9 +480,7 @@ function Employees({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await axios.delete(
-          `http://localhost:5000/api/archiveemployee/${empID}`
-        );
+        const response = await api.delete(`/archiveemployee/${empID}`);
         alert("Employee successfully archived");
       } catch (error) {
         console.log("Error", error);
@@ -543,35 +516,6 @@ function Employees({ isCollapsed }) {
     }
   }, [search, employees]);
 
-  // const handleSearch = (text) => {
-  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-  //   const capitalizeFirstLetter = lettersOnly
-  //     .split(" ")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  //     .join(" ");
-  //   setSearch(capitalizeFirstLetter);
-  //   if (capitalizeFirstLetter) {
-  //     const filtered = employees.filter((employees) => {
-  //       const first = employees.resID.firstname || "";
-  //       const middle = employees.resID.middlename || "";
-  //       const last = employees.resID.lastname || "";
-  //       const position = employees.position || "";
-
-  //       return (
-  //         first.includes(capitalizeFirstLetter) ||
-  //         middle.includes(capitalizeFirstLetter) ||
-  //         last.includes(capitalizeFirstLetter) ||
-  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
-  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter) ||
-  //         position.includes(capitalizeFirstLetter)
-  //       );
-  //     });
-  //     setFilteredEmployees(filtered);
-  //   } else {
-  //     setFilteredEmployees(employees);
-  //   }
-  // };
-
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -584,143 +528,136 @@ function Employees({ isCollapsed }) {
           <span className="font-bold">Add new employee</span>
         </button>
 
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Mobile No.</th>
-                    <th>Address</th>
-                    <th>Position</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile No.</th>
+              <th>Address</th>
+              <th>Position</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {filteredEmployees.length === 0 ? (
-                    <tr className="bg-white">
-                      <td colSpan={4}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredEmployees.map((emp) => (
-                      <React.Fragment key={emp._id}>
-                        <tr
-                          onClick={() => handleRowClick(emp._id)}
-                          style={{
-                            cursor: "pointer",
-                            transition: "background-color 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#f0f0f0";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "";
-                          }}
-                        >
-                          {expandedRow === emp._id ? (
-                            <td colSpan={4}>
-                              {/* Additional Information for the resident */}
-                              <div className="profile-container">
-                                <img
-                                  src={emp.resID.picture}
-                                  className="profile-img"
-                                />
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {emp.resID.middlename
-                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                                  </p>
-                                  <p>
-                                    <strong>Age:</strong> {emp.resID.age}
-                                  </p>
-                                  <p>
-                                    <strong>Sex:</strong> {emp.resID.sex}
-                                  </p>
-                                  <p>
-                                    <strong>Civil Status: </strong>{" "}
-                                    {emp.resID.civilstatus}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile Number: </strong>{" "}
-                                    {emp.resID.mobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong>{" "}
-                                    {emp.resID.address}
-                                  </p>
-                                  <p>
-                                    <strong>Position: </strong> {emp.position}
-                                  </p>
-                                </div>
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Emergency Contact:</strong>
-                                  </p>
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {emp.resID.emergencyname}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile: </strong>
-                                    {emp.resID.emergencymobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong>
-                                    {emp.resID.emergencyaddress}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="btn-container">
-                                <button
-                                  className="actions-btn bg-btn-color-red"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, emp._id)}
-                                >
-                                  ARCHIVE
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  onClick={(e) => handleEmployeeID(e, emp._id)}
-                                >
-                                  EMPLOYEE ID
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  // onClick={() => editBtn(emp._id)}
-                                >
-                                  EDIT
-                                </button>
-                              </div>
-                            </td>
-                          ) : (
-                            <>
-                              <td>
-                                {emp.resID.middlename
-                                  ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                                  : `${emp.resID.lastname} ${emp.resID.firstname}`}
-                              </td>
-                              <td>{emp.resID.mobilenumber}</td>
-                              <td>{emp.resID.address}</td>
-                              <td>{emp.position}</td>
-                            </>
-                          )}
-                        </tr>
-                      </React.Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {isCreateClicked && (
-              <CreateEmployee onClose={() => setCreateClicked(false)} />
+          <tbody className="bg-[#fff]">
+            {filteredEmployees.length === 0 ? (
+              <tr className="bg-white">
+                <td colSpan={4}>No results found</td>
+              </tr>
+            ) : (
+              filteredEmployees.map((emp) => (
+                <React.Fragment key={emp._id}>
+                  <tr
+                    onClick={() => handleRowClick(emp._id)}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    {expandedRow === emp._id ? (
+                      <td colSpan={4}>
+                        {/* Additional Information for the resident */}
+                        <div className="profile-container">
+                          <img
+                            src={emp.resID.picture}
+                            className="profile-img"
+                          />
+                          <div className="ml-5 text-xs">
+                            <p>
+                              <strong>Name: </strong>
+                              {emp.resID.middlename
+                                ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                            </p>
+                            <p>
+                              <strong>Age:</strong> {emp.resID.age}
+                            </p>
+                            <p>
+                              <strong>Sex:</strong> {emp.resID.sex}
+                            </p>
+                            <p>
+                              <strong>Civil Status: </strong>{" "}
+                              {emp.resID.civilstatus}
+                            </p>
+                            <p>
+                              <strong>Mobile Number: </strong>{" "}
+                              {emp.resID.mobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong> {emp.resID.address}
+                            </p>
+                            <p>
+                              <strong>Position: </strong> {emp.position}
+                            </p>
+                          </div>
+                          <div className="ml-5 text-xs">
+                            <p>
+                              <strong>Emergency Contact:</strong>
+                            </p>
+                            <p>
+                              <strong>Name: </strong>
+                              {emp.resID.emergencyname}
+                            </p>
+                            <p>
+                              <strong>Mobile: </strong>
+                              {emp.resID.emergencymobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong>
+                              {emp.resID.emergencyaddress}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="btn-container">
+                          <button
+                            className="actions-btn bg-btn-color-red"
+                            type="submit"
+                            onClick={(e) => archiveBtn(e, emp._id)}
+                          >
+                            ARCHIVE
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={(e) => handleEmployeeID(e, emp._id)}
+                          >
+                            EMPLOYEE ID
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            // onClick={() => editBtn(emp._id)}
+                          >
+                            EDIT
+                          </button>
+                        </div>
+                      </td>
+                    ) : (
+                      <>
+                        <td>
+                          {emp.resID.middlename
+                            ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                            : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                        </td>
+                        <td>{emp.resID.mobilenumber}</td>
+                        <td>{emp.resID.address}</td>
+                        <td>{emp.position}</td>
+                      </>
+                    )}
+                  </tr>
+                </React.Fragment>
+              ))
             )}
-          </div>
-        </div>
+          </tbody>
+        </table>
+        {isCreateClicked && (
+          <CreateEmployee onClose={() => setCreateClicked(false)} />
+        )}
       </main>
     </>
   );

@@ -2,9 +2,9 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
-import axios from "axios";
 import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
+import api from "../api";
 
 function OTP() {
   const location = useLocation();
@@ -42,7 +42,7 @@ function OTP() {
       console.log("OTP from context is removed");
       console.log("Resending OTP...");
       try {
-        const res = await axios.post("http://localhost:5000/api/otp", {
+        const res = await api.post("/otp", {
           mobilenumber,
         });
         startOtp(res.data.otp, 300);
@@ -76,7 +76,7 @@ function OTP() {
     const cleanOtp = otp.toString().trim();
     const cleanEnteredOtp = enteredOTP.toString().trim();
     if (cleanOtp === cleanEnteredOtp) {
-      const res = await axios.post("http://localhost:5000/api/register", {
+      const res = await api.post("/register", {
         username: username,
         password: password,
         empID: empID,

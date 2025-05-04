@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import api from "../api";
 
 function CreateEmployee({ onClose }) {
   const { fetchResidents, residents } = useContext(InfoContext);
-  // const [residents, setResidents] = useState([]);
   const [availablePositions, setAvailablePositions] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
@@ -17,21 +16,8 @@ function CreateEmployee({ onClose }) {
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
-    // const loadResidents = async () => {
-    //   try {
-    //     const data = await fetchResidents();
-    //     setResidents(data);
-    //   } catch (err) {
-    //     console.log("Failed to fetch residents");
-    //   }
-    // };
-    // loadResidents();
     fetchResidents();
-  }, [fetchResidents]);
-
-  useEffect(() => {
-    console.log("Employee Form", employeeForm);
-  }, [employeeForm]);
+  }, []);
 
   const handleDropdownChange = (e) => {
     const { name, value } = e.target;
@@ -56,19 +42,16 @@ function CreateEmployee({ onClose }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/createemployee",
-        employeeForm
-      );
+      const response = await api.post("/createemployee", employeeForm);
       try {
-        const response2 = await axios.post(
-          `http://localhost:5000/api/generateemployeeID/${response.data.empID}`
+        const response2 = await api.post(
+          `/generateemployeeID/${response.data.empID}`
         );
         const qrCode = await uploadToFirebase(response2.data.qrCode);
 
         try {
-          const response3 = await axios.put(
-            `http://localhost:5000/api/saveemployeeID/${response.data.empID}`,
+          const response3 = await api.put(
+            `/saveemployeeID/${response.data.empID}`,
             {
               idNumber: response2.data.idNumber,
               expirationDate: response2.data.expirationDate,
@@ -91,17 +74,16 @@ function CreateEmployee({ onClose }) {
   const brgyPosition = {
     Captain: 1,
     Secretary: 1,
-    "Assistant Secretary": 1,
+    Clerk: 1,
     Kagawad: 7,
     Tanod: 20,
+    Justice: 10,
   };
 
   useEffect(() => {
     const fetchAvailablePositions = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/positioncount"
-        );
+        const response = await api.get("/positioncount");
         const counts = response.data;
 
         const remainingPositions = Object.entries(brgyPosition)

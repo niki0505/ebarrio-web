@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
 import "../App.css";
-import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 
@@ -41,7 +38,7 @@ function CreateContact({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
+          <div className="modal-content w-[20rem] h-[16rem] ">
             <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Add New Contact</h1>
               <button className="modal-btn-close">

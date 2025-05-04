@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
@@ -10,18 +8,17 @@ import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIDImage from "../assets/brgyid.png";
 import BrgyIDBack from "../assets/brgyidback.png";
 import BrgyIDFront from "../assets/brgyidfront.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateCertificate from "./CreateCertificate";
+import api from "../api";
 
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchResidents, residents } = useContext(InfoContext);
-  // const [residents, setResidents] = useState([]);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
@@ -58,21 +55,15 @@ function Residents({ isCollapsed }) {
     }
     if (action === "generate") {
       try {
-        const response = await axios.post(
-          `http://localhost:5000/api/generatebrgyID/${resID}`
-        );
-        console.log(response.data);
+        const response = await api.post(`/generatebrgyID/${resID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
         try {
-          const response2 = await axios.put(
-            `http://localhost:5000/api/savebrgyID/${resID}`,
-            {
-              idNumber: response.data.idNumber,
-              expirationDate: response.data.expirationDate,
-              qrCode,
-              qrToken: response.data.qrToken,
-            }
-          );
+          const response2 = await api.put(`/savebrgyID/${resID}`, {
+            idNumber: response.data.idNumber,
+            expirationDate: response.data.expirationDate,
+            qrCode,
+            qrToken: response.data.qrToken,
+          });
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
@@ -81,12 +72,8 @@ function Residents({ isCollapsed }) {
       }
 
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getresident/${resID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getresident/${resID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -249,13 +236,13 @@ function Residents({ isCollapsed }) {
                   height: "13px",
                 }}
               >
-                {/* <p
+                <p
                   style={{
                     fontSize: "8px",
                   }}
                 >
-                  {response.data.nationality}
-                </p> */}
+                  {response.data.precinct ? response.data.precinct : "N/A"}
+                </p>
               </div>
 
               <div
@@ -451,12 +438,8 @@ function Residents({ isCollapsed }) {
       }
     } else if (action === "current") {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getresident/${resID}`
-        );
-        const response2 = await axios.get(
-          `http://localhost:5000/api/getcaptain/`
-        );
+        const response = await api.get(`/getresident/${resID}`);
+        const response2 = await api.get(`/getcaptain/`);
         const printContent = (
           <div id="printContent">
             <div className="id-page">
@@ -620,13 +603,13 @@ function Residents({ isCollapsed }) {
                   height: "13px",
                 }}
               >
-                {/* <p
+                <p
                   style={{
                     fontSize: "8px",
                   }}
                 >
-                  {response.data.nationality}
-                </p> */}
+                  {response.data.precinct ? response.data.precinct : "N/A"}
+                </p>
               </div>
 
               <div
@@ -829,20 +812,7 @@ function Residents({ isCollapsed }) {
 
   useEffect(() => {
     fetchResidents();
-  }, [fetchResidents]);
-
-  // useEffect(() => {
-  //   const loadResidents = async () => {
-  //     try {
-  //       const data = await fetchResidents();
-  //       setResidents(data);
-  //     } catch (err) {
-  //       console.log("Failed to fetch residents");
-  //     }
-  //   };
-
-  //   loadResidents();
-  // }, [fetchResidents]);
+  }, []);
 
   const buttonClick = (e, resID) => {
     e.stopPropagation();
@@ -867,9 +837,7 @@ function Residents({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await axios.delete(
-          `http://localhost:5000/api/archiveresident/${resID}`
-        );
+        const response = await api.delete(`/archiveresident/${resID}`);
         alert("Resident successfully archived");
         window.location.reload();
       } catch (error) {
@@ -905,33 +873,6 @@ function Residents({ isCollapsed }) {
     }
   }, [search, residents]);
 
-  // const handleSearch = (text) => {
-  //   const lettersOnly = text.replace(/[^a-zA-Z\s.]/g, "");
-  //   const capitalizeFirstLetter = lettersOnly
-  //     .split(" ")
-  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-  //     .join(" ");
-  //   setSearch(capitalizeFirstLetter);
-  //   if (capitalizeFirstLetter) {
-  //     const filtered = residents.filter((resident) => {
-  //       const first = resident.firstname || "";
-  //       const middle = resident.middlename || "";
-  //       const last = resident.lastname || "";
-
-  //       return (
-  //         first.includes(capitalizeFirstLetter) ||
-  //         middle.includes(capitalizeFirstLetter) ||
-  //         last.includes(capitalizeFirstLetter) ||
-  //         `${first} ${last}`.includes(capitalizeFirstLetter) ||
-  //         `${first} ${middle} ${last}`.includes(capitalizeFirstLetter)
-  //       );
-  //     });
-  //     setFilteredResidents(filtered);
-  //   } else {
-  //     setFilteredResidents(residents);
-  //   }
-  // };
-
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -944,141 +885,151 @@ function Residents({ isCollapsed }) {
           <span className="font-bold">Add new resident</span>
         </button>
 
-        <div className="white-bg-container">
-          <div className="table-container">
-            <div className="table-inner-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Mobile No.</th>
-                    <th>Address</th>
-                  </tr>
-                </thead>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Mobile No.</th>
+              <th>Address</th>
+            </tr>
+          </thead>
 
-                <tbody>
-                  {filteredResidents.length === 0 ? (
-                    <tr className="bg-white">
-                      <td colSpan={3}>No results found</td>
-                    </tr>
-                  ) : (
-                    filteredResidents.map((res) => (
-                      <React.Fragment key={res._id}>
-                        <tr
-                          onClick={() => handleRowClick(res._id)}
-                          style={{
-                            cursor: "pointer",
-                            transition: "background-color 0.3s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#f0f0f0";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "";
-                          }}
-                        >
-                          {expandedRow === res._id ? (
-                            <td colSpan={3}>
-                              {/* Additional Information for the resident */}
-                              <div className="profile-container">
-                                <img
-                                  src={res.picture}
-                                  className="profile-img"
-                                />
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {res.middlename
-                                      ? `${res.firstname} ${res.middlename} ${res.lastname}`
-                                      : `${res.firstname} ${res.lastname}`}
-                                  </p>
-                                  <p>
-                                    <strong>Age:</strong> {res.age}
-                                  </p>
-                                  <p>
-                                    <strong>Sex:</strong> {res.sex}
-                                  </p>
-                                  <p>
-                                    <strong>Civil Status: </strong>{" "}
-                                    {res.civilstatus}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile Number: </strong>{" "}
-                                    {res.mobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong> {res.address}
-                                  </p>
-                                </div>
-                                <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Emergency Contact:</strong>
-                                  </p>
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {res.emergencyname}
-                                  </p>
-                                  <p>
-                                    <strong>Mobile: </strong>
-                                    {res.emergencymobilenumber}
-                                  </p>
-                                  <p>
-                                    <strong>Address: </strong>
-                                    {res.emergencyaddress}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="btn-container">
-                                <button
-                                  className="actions-btn bg-btn-color-red"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, res._id)}
-                                >
-                                  ARCHIVE
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  onClick={(e) => handleBRGYID(e, res._id)}
-                                >
-                                  BRGY ID
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  CERTIFICATE
-                                </button>
-                                <button
-                                  className="actions-btn bg-btn-color-blue"
-                                  type="submit"
-                                  onClick={() => editBtn(res._id)}
-                                >
-                                  EDIT
-                                </button>
-                              </div>
-                            </td>
-                          ) : (
-                            <>
-                              <td>
-                                {res.middlename
-                                  ? `${res.lastname} ${res.middlename} ${res.firstname}`
-                                  : `${res.lastname} ${res.firstname}`}
-                              </td>
-                              <td>{res.mobilenumber}</td>
-                              <td>{res.address}</td>
-                            </>
-                          )}
-                        </tr>
-                      </React.Fragment>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+          <tbody className="bg-[#fff]">
+            {filteredResidents.length === 0 ? (
+              <tr className="bg-white">
+                <td colSpan={3}>No results found</td>
+              </tr>
+            ) : (
+              filteredResidents.map((res) => (
+                <React.Fragment key={res._id}>
+                  <tr
+                    onClick={() => handleRowClick(res._id)}
+                    style={{
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    {expandedRow === res._id ? (
+                      <td colSpan={3}>
+                        {/* Additional Information for the resident */}
+                        <div className="profile-container">
+                          <img src={res.picture} className="profile-img" />
+                          <div className="ml-5 text-xs">
+                            <p>
+                              <strong>Name: </strong>
+                              {res.middlename
+                                ? `${res.firstname} ${res.middlename} ${res.lastname}`
+                                : `${res.firstname} ${res.lastname}`}
+                            </p>
+                            <p>
+                              <strong>Age:</strong> {res.age}
+                            </p>
+                            <p>
+                              <strong>Sex:</strong> {res.sex}
+                            </p>
+                            <p>
+                              <strong>Civil Status: </strong> {res.civilstatus}
+                            </p>
+                            <p>
+                              <strong>Mobile Number: </strong>
+                              {res.mobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong> {res.address}
+                            </p>
+                          </div>
+                          <div className="ml-5 text-xs">
+                            {res.voter === "Yes" ? (
+                              <>
+                                <p>
+                                  <strong>Status: </strong>
+                                  Voter
+                                </p>
+                                <p>
+                                  <strong>Precinct: </strong>
+                                  {res.precinct ? res.precinct : "N/A"}
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <p>
+                                  <strong>Status: </strong>
+                                  Not Voter
+                                </p>
+                              </>
+                            )}
+
+                            <p>
+                              <strong>Emergency Contact:</strong>
+                            </p>
+                            <p>
+                              <strong>Name: </strong>
+                              {res.emergencyname}
+                            </p>
+                            <p>
+                              <strong>Mobile: </strong>
+                              {res.emergencymobilenumber}
+                            </p>
+                            <p>
+                              <strong>Address: </strong>
+                              {res.emergencyaddress}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="btn-container">
+                          <button
+                            className="actions-btn bg-btn-color-red"
+                            type="submit"
+                            onClick={(e) => archiveBtn(e, res._id)}
+                          >
+                            ARCHIVE
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={(e) => handleBRGYID(e, res._id)}
+                          >
+                            BRGY ID
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={(e) => certBtn(e, res._id)}
+                          >
+                            CERTIFICATE
+                          </button>
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={() => editBtn(res._id)}
+                          >
+                            EDIT
+                          </button>
+                        </div>
+                      </td>
+                    ) : (
+                      <>
+                        <td>
+                          {res.middlename
+                            ? `${res.lastname} ${res.middlename} ${res.firstname}`
+                            : `${res.lastname} ${res.firstname}`}
+                        </td>
+                        <td>{res.mobilenumber}</td>
+                        <td>{res.address}</td>
+                      </>
+                    )}
+                  </tr>
+                </React.Fragment>
+              ))
+            )}
+          </tbody>
+        </table>
         {isCertClicked && (
           <CreateCertificate
             resID={selectedResID}

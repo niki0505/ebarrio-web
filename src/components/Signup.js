@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../context/OtpContext";
-import axios from "axios";
 import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
+import api from "../api";
 
 function Signup() {
   const navigation = useNavigate();
@@ -129,7 +129,7 @@ function Signup() {
       }
 
       //CHECKS IF THE USER IS AN EMPLOYEE
-      const res = await axios.post("http://localhost:5000/api/checkemployee", {
+      const res = await api.post("/checkemployee", {
         firstname,
         lastname,
         mobilenumber,
@@ -163,12 +163,9 @@ function Signup() {
         res.data.isEmployee
       ) {
         //CHECKS IF THE USERNAME IS ALREADY TAKEN
-        const res2 = await axios.post(
-          "http://localhost:5000/api/checkusername",
-          {
-            username,
-          }
-        );
+        const res2 = await api.post("/checkusername", {
+          username,
+        });
         if (res2.data.usernameExists) {
           alert("Username is already taken");
           return;
@@ -178,7 +175,7 @@ function Signup() {
 
         //SENDS OTP
         try {
-          const res3 = await axios.post("http://localhost:5000/api/otp", {
+          const res3 = await api.post("/otp", {
             mobilenumber,
           });
           setUsername("");

@@ -1,4 +1,3 @@
-// BarangayIndigencyPrint.jsx
 import React from "react";
 import ReactDOM from "react-dom/client";
 import BusinessClearance from "../../assets/businessclearance.png";

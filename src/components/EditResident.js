@@ -1,6 +1,4 @@
-import Webcam from "react-webcam";
 import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
 import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
@@ -8,15 +6,19 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation } from "react-router-dom";
 import { FiCamera, FiUpload } from "react-icons/fi";
+import { useConfirm } from "../context/ConfirmContext";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 function EditResident({ isCollapsed }) {
+  const navigation = useNavigate();
+  const confirm = useConfirm();
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const location = useLocation();
   const { resID } = location.state;
   const [residentInfo, setResidentInfo] = useState([]);
-  const [residents, setResidents] = useState([]);
-  const { fetchResidents } = useContext(InfoContext);
+  const { fetchResidents, residents } = useContext(InfoContext);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -38,6 +40,7 @@ function EditResident({ isCollapsed }) {
     religion: "",
     nationality: "",
     voter: "",
+    precinct: "",
     deceased: "",
     email: "",
     mobilenumber: "",
@@ -67,21 +70,8 @@ function EditResident({ isCollapsed }) {
   });
 
   useEffect(() => {
-    const loadResidents = async () => {
-      try {
-        const data = await fetchResidents();
-        setResidents(data);
-      } catch (err) {
-        console.log("Failed to fetch residents");
-      }
-    };
-
-    loadResidents();
-  }, [fetchResidents]);
-  useEffect(() => {
-    console.log(residentForm);
-  }, [residentForm, residentInfo]);
-
+    fetchResidents();
+  }, []);
   useEffect(() => {
     if (residentInfo) {
       let houseNumber = "";
@@ -117,13 +107,9 @@ function EditResident({ isCollapsed }) {
   }, [residentInfo]);
 
   useEffect(() => {
-    console.log(`Resident ID: ${resID}`);
     const fetchResident = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/getresident/${resID}`
-        );
-        console.log("Resident Data", response.data);
+        const response = await api.get(`/getresident/${resID}`);
         setResidentInfo(response.data);
       } catch (error) {
         console.log("Error fetching resident", error);
@@ -199,10 +185,6 @@ function EditResident({ isCollapsed }) {
     }
     return childrenDropdowns;
   };
-
-  useEffect(() => {
-    console.log(residentForm);
-  }, [residentForm]);
 
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
@@ -521,6 +503,13 @@ function EditResident({ isCollapsed }) {
         alert("Signature is required");
         return;
       }
+      const isConfirmed = await confirm(
+        "Are you sure you want to edit this resident profile?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
       if (residentForm.numberofsiblings == 0) {
         residentForm.siblings = [];
       } else {
@@ -558,17 +547,12 @@ function EditResident({ isCollapsed }) {
         address: fulladdress,
       };
 
-      console.log("New picture", idPicture);
-      const response = await axios.put(
-        `http://localhost:5000/api/updateresident/${resID}`,
+      const response = await api.put(
+        `/updateresident/${resID}`,
         updatedResidentForm
       );
-      console.log("PUT payload", {
-        picture: idPicture,
-        signature: signaturePicture,
-        ...updatedResidentForm,
-      });
       alert("Resident successfully updated!");
+      navigation("/residents");
     } catch (error) {
       console.log("Error", error);
     }
@@ -937,6 +921,17 @@ function EditResident({ isCollapsed }) {
                 />
                 No
               </label>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Precinct</label>
+              <input
+                name="precinct"
+                value={residentForm.precinct}
+                onChange={lettersNumbersAndSpaceOnly}
+                placeholder="Enter precinct"
+                className="form-input h-[30px]"
+              />
             </div>
 
             <div className="form-group space-x-5">

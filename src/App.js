@@ -25,6 +25,9 @@ import CertificateRequests from "./components/CertificateRequests";
 import Announcements from "./components/Announcements";
 import Dashboard from "./components/Dashboard";
 import CourtReservations from "./components/CourtReservations";
+import BlotterReports from "./components/BlotterReports";
+import CreateBlotter from "./components/CreateBlotter";
+import SettleBlotter from "./components/SettleBlotter";
 import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
@@ -124,6 +127,18 @@ function App() {
                 <Route
                   path="court-reservations"
                   element={<PrivateRoute element={<CourtReservations />} />}
+                />
+                <Route
+                  path="blotter-reports"
+                  element={<PrivateRoute element={<BlotterReports />} />}
+                />
+                <Route
+                  path="create-blotter"
+                  element={<PrivateRoute element={<CreateBlotter />} />}
+                />
+                <Route
+                  path="settle-blotter"
+                  element={<PrivateRoute element={<SettleBlotter />} />}
                 />
               </Route>
             </Routes>
