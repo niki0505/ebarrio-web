@@ -11,7 +11,7 @@ const PublicRoute = ({ element }) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/employees" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return element;

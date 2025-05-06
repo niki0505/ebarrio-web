@@ -4,9 +4,11 @@ import { AuthContext } from "../context/AuthContext";
 import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
 import api from "../api";
+import { OtpContext } from "../context/OtpContext";
 
 function Login() {
   const { setUser, setIsAuthenticated } = useContext(AuthContext);
+  const { sendOTP } = useContext(OtpContext);
   const navigation = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -14,32 +16,46 @@ function Login() {
   const handleLogin = async () => {
     try {
       const res = await api.post(
-        "/login",
+        "/checkcredentials",
         {
           username,
           password,
         },
         { withCredentials: true }
       );
-      if (!res.data.exists) {
-        console.log(`❌ Account not found`);
-        alert("Account not found. Please register.");
-        setUsername("");
-        setPassword("");
-        return;
-      }
 
-      if (!res.data.correctPassword) {
-        console.log(`❌ Incorrect Password`);
-        alert("Incorrect Password. Please input the correct password.");
-        setPassword("");
-      } else {
-        console.log(`✅ Correct Password`);
-        alert("Login Successful.");
-        navigation("/employees");
+      if (res.status === 200) {
+        if (res.data.message === "Credentials verified") {
+          try {
+            const response = await api.get(`/getmobilenumber/${username}`);
+            console.log(response.data);
+            sendOTP(username, response.data.empID?.resID.mobilenumber);
+            navigation("/otp", {
+              state: {
+                username: username,
+                mobilenumber: response.data.empID?.resID.mobilenumber,
+              },
+            });
+          } catch (error) {
+            console.log("Error getting mobile number", error);
+          }
+        } else if (res.data.message === "Token verified successfully!") {
+          navigation("/set-password", {
+            state: {
+              username: username,
+            },
+          });
+        }
       }
     } catch (error) {
-      console.log("Errors", error.message);
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   return (

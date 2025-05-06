@@ -5,16 +5,18 @@ import { OtpContext } from "../context/OtpContext";
 import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
 import api from "../api";
+import { AuthContext } from "../context/AuthContext";
 
 function OTP() {
   const location = useLocation();
   const navigation = useNavigate();
-  const { empID, mobilenumber, username, password, role } = location.state;
+  const { sendOTP, verifyOTP } = useContext(OtpContext);
+  const { setIsAuthenticated } = useContext(AuthContext);
+  const { username, mobilenumber } = location.state;
   const [resendTimer, setResendTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
   const [OTP, setOTP] = useState("");
-  const { otp, timer, startOtp, clearOtp } = useContext(OtpContext);
   const otpRef = useRef(null);
 
   useEffect(() => {
@@ -37,14 +39,8 @@ function OTP() {
 
   const handleResend = async () => {
     if (resendCount < 3) {
-      clearOtp();
-      console.log("OTP from context is removed");
-      console.log("Resending OTP...");
       try {
-        const res = await api.post("/otp", {
-          mobilenumber,
-        });
-        startOtp(res.data.otp, 300);
+        sendOTP(username, mobilenumber);
         setResendTimer(30);
         setIsResendDisabled(true);
         setResendCount((prevCount) => prevCount + 1);
@@ -58,44 +54,40 @@ function OTP() {
     }
   };
 
-  useEffect(() => {
-    if (otp) {
-      console.log("OTP from context is active");
-    } else {
-      console.log("OTP from context is not active");
-    }
-  }, [otp]);
-
-  const handleOTP = async (enteredOTP) => {
-    if (!otp) {
-      alert("OTP has expired.");
-      setOTP("");
-      return;
-    }
-    const cleanOtp = otp.toString().trim();
-    const cleanEnteredOtp = enteredOTP.toString().trim();
-    if (cleanOtp === cleanEnteredOtp) {
-      const res = await api.post("/register", {
-        username: username,
-        password: password,
-        empID: empID,
-        role,
-      });
-      alert("User registered successfully. Please log in.");
-      navigation("/login");
-    } else {
-      alert("The OTP you entered is incorrect.");
-      setOTP("");
+  const handleVerify = async () => {
+    try {
+      const result = await verifyOTP(username, OTP);
+      alert(result.message);
+      try {
+        await api.put(`/login/${username}`);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log("Error logging in", error);
+      }
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
 
+  useEffect(() => {
+    if (OTP.length === 6) {
+      const timeout = setTimeout(() => {
+        handleVerify();
+      }, 500);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [OTP]);
+
   const handleOTPChange = (text) => {
     setOTP(text);
-    if (text.length === 6) {
-      setTimeout(() => {
-        handleOTP(text);
-      }, 200);
-    }
   };
 
   return (
@@ -112,7 +104,7 @@ function OTP() {
           <div className="login-form-container">
             <span className="login-title">Account Verification</span>
             <span className="text-base font-bold text-gray-400">
-              Enter the 5 digit code sent to
+              Enter the 6 digit code sent to {mobilenumber}
             </span>
             <div style={{ width: "100%" }}>
               {" "}
@@ -121,6 +113,7 @@ function OTP() {
                 value={OTP}
                 onChange={handleOTPChange}
                 numInputs={6}
+                inputType="tel"
                 isInputNum
                 shouldAutoFocus
                 renderSeparator={<span>-</span>}

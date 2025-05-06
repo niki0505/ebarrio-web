@@ -27,6 +27,7 @@ import Dashboard from "./components/Dashboard";
 import CourtReservations from "./components/CourtReservations";
 import BlotterReports from "./components/BlotterReports";
 import CreateBlotter from "./components/CreateBlotter";
+import SetPassword from "./components/SetPassword";
 import SettleBlotter from "./components/SettleBlotter";
 import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
@@ -67,6 +68,10 @@ function App() {
                 element={<PublicRoute element={<Signup />} />}
               />
               <Route path="/otp" element={<PublicRoute element={<OTP />} />} />
+              <Route
+                path="/set-password"
+                element={<PublicRoute element={<SetPassword />} />}
+              />
               <Route
                 path="/"
                 element={

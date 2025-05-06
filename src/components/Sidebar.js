@@ -16,8 +16,10 @@ import {
   BiSolidMegaphone,
   BiSolidCctv,
 } from "react-icons/bi";
+import { useState } from "react";
 
-const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+const Sidebar = ({}) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useContext(AuthContext);
   if (!user) return null;
 
@@ -84,7 +86,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       <div className="flex flex-col">
         <div
           className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
-          onClick={() => toggleSidebar(!isCollapsed)}
+          onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? (
             <BiMenu className="text-xl" />

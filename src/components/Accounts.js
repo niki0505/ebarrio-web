@@ -8,12 +8,14 @@ import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
 import { FaUserXmark } from "react-icons/fa6";
 
 function Accounts({ isCollapsed }) {
+  const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchUsers, users } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
@@ -68,6 +70,22 @@ function Accounts({ isCollapsed }) {
       .join(" ");
 
     setSearch(formattedText);
+  };
+
+  const handleDeactivate = async (userID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to deactivate this user?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/deactivateuser/${userID}`);
+      alert("User deactivated successfully!");
+    } catch (error) {
+      console.log("Error in deactivating user", error);
+    }
   };
 
   return (
@@ -137,7 +155,11 @@ function Accounts({ isCollapsed }) {
                     </div>
 
                     <div className="table-actions-container">
-                      <button type="button" className="table-actions-btn">
+                      <button
+                        type="button"
+                        className="table-actions-btn"
+                        onClick={() => handleDeactivate(user._id)}
+                      >
                         <FaUserXmark className="text-xl text-btn-color-red" />
                         <label className="text-xs font-semibold text-btn-color-red">
                           Deactivate

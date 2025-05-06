@@ -85,6 +85,22 @@ function CreateAccount({ onClose }) {
     }));
   };
 
+  const generatePassword = () => {
+    const characters = "0123456789";
+    let password = "";
+    for (let i = 0; i < 8; i++) {
+      const randomChar = characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+      password += randomChar;
+    }
+
+    setUserForm((prev) => ({
+      ...prev,
+      password: password,
+    }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -132,6 +148,8 @@ function CreateAccount({ onClose }) {
     setShowModal(false);
     onClose();
   };
+
+  console.log(userForm.password);
   return (
     <>
       {setShowModal && (
@@ -224,10 +242,12 @@ function CreateAccount({ onClose }) {
                 </label>
                 <div className="relative w-full h-[30px]">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     id="password"
                     name="password"
+                    readOnly
                     onChange={passwordValidation}
+                    value={userForm.password}
                     required
                     className="form-input h-[30px]"
                   />
@@ -243,13 +263,9 @@ function CreateAccount({ onClose }) {
                   <button
                     type="button"
                     className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={generatePassword}
                   >
-                    {showPassword ? (
-                      <FaEyeSlash className="text-gray-500" />
-                    ) : (
-                      <FaEye className="text-gray-500" />
-                    )}
+                    <FaEyeSlash className="text-gray-500" />
                   </button>
                 </div>
               </div>
