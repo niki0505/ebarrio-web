@@ -10,6 +10,10 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
 
+//ICONS
+import { FaArchive, FaEdit } from "react-icons/fa";
+import { IoArchiveSharp } from "react-icons/io5";
+
 function EmergencyHotlines({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
@@ -115,25 +119,38 @@ function EmergencyHotlines({ isCollapsed }) {
                 >
                   <td>{emergency.name}</td>
                   <td>{emergency.contactnumber}</td>
-                  <td className="flex justify-between">
-                    <button
-                      onClick={() =>
-                        handleEdit(
-                          emergency._id,
-                          emergency.name,
-                          emergency.contactnumber
-                        )
-                      }
-                      className="text-green-600 font-bold"
-                    >
-                      EDIT
-                    </button>
-                    <button
-                      onClick={() => handleArchive(emergency._id)}
-                      className="text-btn-color-red font-bold"
-                    >
-                      ARCHIVE
-                    </button>
+                  <td className="flex justify-center gap-x-8">
+                    <div className="table-actions-container">
+                      <button
+                        type="button"
+                        className="table-actions-btn"
+                        onClick={() =>
+                          handleEdit(
+                            emergency._id,
+                            emergency.name,
+                            emergency.contactnumber
+                          )
+                        }
+                      >
+                        <FaEdit className="text-xl text-[#06D001]" />
+                        <label className="text-xs font-semibold text-[#06D001]">
+                          Edit
+                        </label>
+                      </button>
+                    </div>
+
+                    <div className="table-actions-container">
+                      <button
+                        type="button"
+                        className="table-actions-btn"
+                        onClick={() => handleArchive(emergency._id)}
+                      >
+                        <FaArchive className="text-xl text-btn-color-red" />
+                        <label className="text-xs font-semibold text-btn-color-red">
+                          Archive
+                        </label>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

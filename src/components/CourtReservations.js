@@ -239,7 +239,7 @@ function CourtReservations({ isCollapsed }) {
                     <td className="p-2">{court.amount}</td>
                     <td className="p-2">{court.status}</td>
                     {isPendingClicked && court.status == "Pending" && (
-                      <td className="flex justify-between">
+                      <td className="flex justify-center gap-x-8">
                         <>
                           <div className="table-actions-container">
                             <button

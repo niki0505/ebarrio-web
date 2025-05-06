@@ -15,6 +15,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
 import { IoPencilSharp, IoArchiveSharp } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa";
+import { FaArchive, FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
@@ -214,7 +215,7 @@ function Announcements({ isCollapsed }) {
                       <div className="announcement-menu">
                         <ul className="w-full">
                           <div className="navbar-dropdown-item justify-start">
-                            <IoPencilSharp className="ml-2" />
+                            <FaEdit className="ml-2" />
                             <li className="text-sm font-semibold ml-2">Edit</li>
                           </div>
                           <div
@@ -317,12 +318,12 @@ function Announcements({ isCollapsed }) {
                     <div className="announcement-menu">
                       <ul className="w-full">
                         <div className="navbar-dropdown-item justify-start">
-                          <IoPencilSharp className="ml-2" />
-                          <li className="text-sm font-semibold">Edit</li>
+                          <FaEdit className="ml-2" />
+                          <li className="text-sm font-semibold ml-2">Edit</li>
                         </div>
                         <div className="navbar-dropdown-item justify-start">
                           <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600">
+                          <li className="text-sm font-semibold text-red-600 ml-2">
                             Archive
                           </li>
                         </div>
