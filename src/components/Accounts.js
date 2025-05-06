@@ -86,13 +86,13 @@ function Accounts({ isCollapsed }) {
                   <td>{user.role}</td>
                   <td>{user.status}</td>
                   <td className="flex justify-between">
-                    <button className="text-btn-color-blue font-bold">
-                      ARCHIVE
-                    </button>
+                    <button className="text-green-600 font-bold">EDIT</button>
                     <button className="text-red-600 font-bold">
                       DEACTIVATE
                     </button>
-                    <button className="text-green-600 font-bold">EDIT</button>
+                    <button className="text-btn-color-blue font-bold">
+                      ARCHIVE
+                    </button>
                   </td>
                 </tr>
               ))

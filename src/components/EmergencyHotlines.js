@@ -105,10 +105,7 @@ function EmergencyHotlines({ isCollapsed }) {
               filteredEmergencyHotlines.map((emergency) => (
                 <tr
                   key={emergency._id}
-                  style={{
-                    cursor: "pointer",
-                    transition: "background-color 0.3s ease",
-                  }}
+                  className="border-t transition-colors duration-300 ease-in-out"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "#f0f0f0";
                   }}

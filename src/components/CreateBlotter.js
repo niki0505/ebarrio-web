@@ -13,6 +13,7 @@ import { storage } from "../firebase";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+import "../Stylesheets/CommonStyle.css";
 
 function CreateBlotter({ isCollapsed }) {
   const confirm = useConfirm();
@@ -218,183 +219,207 @@ function CreateBlotter({ isCollapsed }) {
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Blotter Form</div>
 
-        {/*Complainant Information*/}
-        <label>Complainant Information</label>
-        <div className="form-group relative">
-          <label className="form-label">Name</label>
-          <input
-            name="complainantname"
-            value={blotterForm.complainantname}
-            onChange={handleComplainantChange}
-            placeholder="Enter name"
-            className="form-input h-[30px] w-full"
-            autoComplete="off"
-          />
-          {blotterForm.complainantname?.length > 0 &&
-            complainantSuggestions?.length > 0 && (
-              <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                {complainantSuggestions.map((res) => {
-                  const fullName = `${res.firstname} ${
-                    res.middlename ? res.middlename + " " : ""
-                  }${res.lastname}`;
-                  return (
-                    <li
-                      key={res.id}
-                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleComplainantSuggestionClick(res)}
-                    >
-                      {fullName}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Address</label>
-          <input
-            name="complainantaddress"
-            onChange={handleComplainantChange}
-            value={blotterForm.complainantaddress}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Contact No.</label>
-          <input
-            name="complainantcontactno"
-            onChange={handleComplainantChange}
-            value={blotterForm.complainantcontactno}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-          />
-        </div>
-
-        {!blotterForm.complainantID && (
-          <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Signature<label className="text-red-600">*</label>
-            </h3>
-            <div className="upload-box">
-              <input
-                onChange={handleChangeSig}
-                type="file"
-                style={{ display: "none" }}
-                ref={hiddenInputRef1}
-              />
-              <div className="upload-content">
-                <div className="preview-container">
-                  {isSignProcessing ? (
-                    <p>Processing...</p>
-                  ) : blotterForm.complainantsignature ? (
-                    <img
-                      src={blotterForm.complainantsignature}
-                      className="w-full h-full object-contain"
+        <div className="white-bg-container">
+          {/*Complainant Information*/}
+          <h3 className="section-title">Complainant Information</h3>
+          <hr className="section-divider" />
+          <div className="form-grid">
+            <div className="col-span-2">
+              {!blotterForm.complainantID && (
+                <div className="picture-upload-wrapper">
+                  <h3 className="form-label">
+                    Signature<label className="text-red-600">*</label>
+                  </h3>
+                  <div className="upload-box">
+                    <input
+                      onChange={handleChangeSig}
+                      type="file"
+                      style={{ display: "none" }}
+                      ref={hiddenInputRef1}
                     />
-                  ) : (
-                    <p>No Picture Attached</p>
-                  )}
-                </div>
+                    <div className="upload-content">
+                      <div className="preview-container">
+                        {isSignProcessing ? (
+                          <p>Processing...</p>
+                        ) : blotterForm.complainantsignature ? (
+                          <img
+                            src={blotterForm.complainantsignature}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <p>No Picture Attached</p>
+                        )}
+                      </div>
 
-                <div className="upload-signature-btn">
-                  <button onClick={handleUploadSig} className="upload-btn">
-                    <FiUpload />
-                  </button>
+                      <div className="upload-signature-btn">
+                        <button
+                          onClick={handleUploadSig}
+                          className="upload-btn"
+                        >
+                          <FiUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
-        )}
 
-        {/*Subject of the Complaint Information*/}
-        <label>Subject of the Complaint Information</label>
+          <div className="form-grid">
+            <div>
+              <label className="form-label">Name</label>
+              <input
+                name="complainantname"
+                value={blotterForm.complainantname}
+                onChange={handleComplainantChange}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                autoComplete="off"
+              />
+              {blotterForm.complainantname?.length > 0 &&
+                complainantSuggestions?.length > 0 && (
+                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    {complainantSuggestions.map((res) => {
+                      const fullName = `${res.firstname} ${
+                        res.middlename ? res.middlename + " " : ""
+                      }${res.lastname}`;
+                      return (
+                        <li
+                          key={res.id}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleComplainantSuggestionClick(res)}
+                        >
+                          {fullName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+            </div>
 
-        <div className="form-group relative">
-          <label className="form-label">Name</label>
-          <input
-            name="subjectname"
-            value={blotterForm.subjectname}
-            onChange={handleSubjectChange}
-            placeholder="Enter name"
-            className="form-input h-[30px] w-full"
-            autoComplete="off"
-          />
-          {blotterForm.subjectname?.length > 0 &&
-            subjectSuggestions?.length > 0 && (
-              <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                {subjectSuggestions.map((res) => {
-                  const fullName = `${res.firstname} ${
-                    res.middlename ? res.middlename + " " : ""
-                  }${res.lastname}`;
-                  return (
-                    <li
-                      key={res.id}
-                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleSubjectSuggestionClick(res)}
-                    >
-                      {fullName}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-        </div>
-        <div className="form-group">
-          <label className="form-label">Address</label>
-          <input
-            name="subjectaddress"
-            onChange={handleSubjectChange}
-            value={blotterForm.subjectaddress}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-          />
-        </div>
+            <div>
+              <label className="form-label">Address</label>
+              <input
+                name="complainantaddress"
+                onChange={handleComplainantChange}
+                value={blotterForm.complainantaddress}
+                placeholder="Enter address"
+                className="form-input h-[30px]"
+              />
+            </div>
 
-        {/*Blotter Information*/}
-        <label>Blotter Information</label>
-        <div className="form-group">
-          <label for="type" className="form-label">
-            Type of the Incident
-          </label>
-          <select
-            id="type"
-            name="type"
-            onChange={handleInputChange}
-            value={blotterForm.type}
-            className="form-input h-[30px]"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {typeList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
+            <div>
+              <label className="form-label">Contact No.</label>
+              <input
+                name="complainantcontactno"
+                onChange={handleComplainantChange}
+                value={blotterForm.complainantcontactno}
+                placeholder="Enter contact no"
+                className="form-input h-[30px]"
+              />
+            </div>
+          </div>
 
-        <div className="form-group">
-          <label for="details" className="form-label">
-            Details of the Incident
-          </label>
-          <textarea
-            maxLength={1000}
-            id="details"
-            name="details"
-            value={blotterForm.details}
-            onChange={handleInputChange}
-          />
-          <label>{blotterForm.details.length}/1000</label>
+          {/*Subject of the Complaint Information*/}
+          <h3 className="section-title mt-8">
+            Subject of the Complaint Information
+          </h3>
+          <hr className="section-divider" />
+          <div className="form-grid">
+            <div className="form-group relative">
+              <label className="form-label">Name</label>
+              <input
+                name="subjectname"
+                value={blotterForm.subjectname}
+                onChange={handleSubjectChange}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                autoComplete="off"
+              />
+              {blotterForm.subjectname?.length > 0 &&
+                subjectSuggestions?.length > 0 && (
+                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    {subjectSuggestions.map((res) => {
+                      const fullName = `${res.firstname} ${
+                        res.middlename ? res.middlename + " " : ""
+                      }${res.lastname}`;
+                      return (
+                        <li
+                          key={res.id}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSubjectSuggestionClick(res)}
+                        >
+                          {fullName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+            </div>
+            <div className="form-group">
+              <label className="form-label">Address</label>
+              <input
+                name="subjectaddress"
+                onChange={handleSubjectChange}
+                value={blotterForm.subjectaddress}
+                placeholder="Enter address"
+                className="form-input h-[30px]"
+              />
+            </div>
+          </div>
+
+          {/*Blotter Information*/}
+          <h3 className="section-title mt-8">Blotter Information</h3>
+          <hr className="section-divider" />
+          <div className="form-grid">
+            <div className="form-group">
+              <label for="type" className="form-label">
+                Type of the Incident
+              </label>
+              <select
+                id="type"
+                name="type"
+                onChange={handleInputChange}
+                value={blotterForm.type}
+                className="form-input h-[30px]"
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {typeList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-4">
+              <label for="details" className="form-label">
+                Details of the Incident
+              </label>
+              <textarea
+                placeholder="Enter details"
+                maxLength={1000}
+                id="details"
+                name="details"
+                value={blotterForm.details}
+                onChange={handleInputChange}
+                className="form-input h-[10rem]"
+              />
+              <h3 className="text-end">{blotterForm.details.length}/1000</h3>
+            </div>
+          </div>
+
+          <div className="flex justify-end rounded-md mt-4">
+            <button
+              onClick={handleSubmit}
+              className="actions-btn bg-btn-color-blue"
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleSubmit}
-          className="actions-btn bg-btn-color-blue"
-          type="submit"
-        >
-          Submit
-        </button>
       </main>
     </>
   );

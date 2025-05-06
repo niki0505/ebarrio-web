@@ -17,6 +17,10 @@ import { AuthContext } from "../context/AuthContext";
 import CourtReject from "./CourtReject";
 import api from "../api";
 
+//ICONS
+import { FaCheckCircle } from "react-icons/fa";
+import { FaCircleXmark } from "react-icons/fa6";
+
 function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
@@ -162,19 +166,37 @@ function CourtReservations({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <p onClick={handleMenu1} style={{ cursor: "pointer" }}>
-          Pending
-        </p>
-        <p onClick={handleMenu2} style={{ cursor: "pointer" }}>
-          Approved
-        </p>
-        <p onClick={handleMenu3} style={{ cursor: "pointer" }}>
-          Rejected
-        </p>
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-bold">Add new reservation</span>
-        </button>
+        <div className="status-add-btn-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+            >
+              Pending
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isApprovedClicked ? "status-line" : ""
+              }`}
+            >
+              Approved
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`status-text ${
+                isRejectedClicked ? "status-line" : ""
+              }`}
+            >
+              Rejected
+            </p>
+          </div>
+          <button className="add-btn" onClick={handleAdd}>
+            <MdPersonAddAlt1 className=" text-xl" />
+            <span className="font-bold">Add new reservation</span>
+          </button>
+        </div>
+
         <table>
           <thead>
             <tr>
@@ -206,7 +228,7 @@ function CourtReservations({ isCollapsed }) {
                 );
 
                 return (
-                  <tr key={court.resID._id} className="border-t">
+                  <tr key={court.resID._id}>
                     <td className="p-2">
                       {court.resID.middlename
                         ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
@@ -217,22 +239,33 @@ function CourtReservations({ isCollapsed }) {
                     <td className="p-2">{court.amount}</td>
                     <td className="p-2">{court.status}</td>
                     {isPendingClicked && court.status == "Pending" && (
-                      <td>
+                      <td className="flex justify-between">
                         <>
-                          <button
-                            className="actions-btn bg-btn-color-blue"
-                            type="button"
-                            onClick={(e) => approveBtn(e, court._id)}
-                          >
-                            APPROVE
-                          </button>
-                          <button
-                            className="actions-btn bg-btn-color-red"
-                            type="button"
-                            onClick={(e) => rejectBtn(e, court._id)}
-                          >
-                            REJECT
-                          </button>
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              onClick={(e) => approveBtn(e, court._id)}
+                              className="table-actions-btn"
+                            >
+                              <FaCheckCircle className="text-xl text-[#06D001]" />
+                              <label className="text-xs font-semibold text-[#06D001]">
+                                Approve
+                              </label>
+                            </button>
+                          </div>
+
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              onClick={(e) => rejectBtn(e, court._id)}
+                              className="table-actions-btn"
+                            >
+                              <FaCircleXmark className="text-xl text-btn-color-red" />
+                              <label className="text-xs font-semibold text-btn-color-red">
+                                Reject
+                              </label>
+                            </button>
+                          </div>
                         </>
                       </td>
                     )}

@@ -1,15 +1,15 @@
 /*CREATE-RESIDENT*/
 .section-title {
-  @apply font-bold text-base;
+  @apply font-[650] text-base;
 }
 .section-divider {
   @apply border-t-[1.5px] border-[#C1C0C0] my-1;
 }
 .picture-upload-wrapper {
-  @apply col-span-1 mb-10;
+  @apply col-span-1;
 }
 .upload-container {
-  @apply grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 mt-6;
+  @apply grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 mt-4;
 }
 .upload-box {
   @apply bg-btn-color-gray bg-opacity-45 rounded-[10px] p-5;
@@ -36,7 +36,7 @@
   @apply text-[12px] font-[650] block text-navy-blue;
 }
 .form-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4;
 }
 .form-group {
   @apply col-span-1;
