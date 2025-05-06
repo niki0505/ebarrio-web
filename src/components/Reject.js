@@ -30,7 +30,7 @@ function Reject({ onClose, certID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
+          <div className="modal-content w-[20rem] h-[25rem] ">
             <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Reject Certificate Request</h1>
               <button className="modal-btn-close">
@@ -44,11 +44,7 @@ function Reject({ onClose, certID }) {
               rows={5}
               minLength={20}
               maxLength={255}
-              style={{
-                width: "250px",
-                height: "100px",
-                border: "1px solid black",
-              }}
+              className="w-full h-full border border-btn-color-gray rounded-md mt-10 text-justify p-2"
             ></textarea>
             <div style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}>
               {remarks.length}/255

@@ -21,6 +21,7 @@ function ViewBlotter({ onClose, blotterID }) {
     starttime: null,
     endtime: null,
   });
+  const [expandedDetails, setExpandedDetails] = useState([]);
 
   useEffect(() => {
     const fetchBlotter = async () => {
@@ -243,224 +244,295 @@ function ViewBlotter({ onClose, blotterID }) {
     setRejectClicked(true);
   };
 
+  const toggleExpanded = (id) => {
+    setExpandedDetails((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+  const renderDetails = (blotter) => {
+    const details = blotter.details || "";
+    const words = details.split(" ");
+    const isLong = words.length > 50;
+    const isExpanded = expandedDetails.includes(blotter._id);
+    const displayText = isExpanded
+      ? blotter.details
+      : words.slice(0, 50).join(" ") + (isLong ? "..." : "");
+
+    return (
+      <div className="text-sm font-normal text-justify">
+        {displayText}
+        {isLong && (
+          <span
+            className="text-blue-500 cursor-pointer ml-1"
+            onClick={() => toggleExpanded(blotter._id)}
+          >
+            {isExpanded ? "See less" : "See more"}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[45rem] h-[30rem]">
+          <div className="flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 relative w-[45rem] h-[30rem]">
             <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">View Blotter</h1>
               <button className="modal-btn-close">
                 <IoClose className="btn-close-icon" onClick={handleClose} />
               </button>
             </div>
-            <div className="w-full overflow-y-auto">
+            <div className="w-full overflow-y-auto mt-10">
+              <label className="section-title text-start">
+                Complainant Information
+              </label>
+              <hr class="section-divider" />
               {/*Complainant Information*/}
-              <div>
-                <label>Complainant Name: </label>
-                <label>
-                  {blotter.complainantID
-                    ? `${blotter.complainantID.firstname} ${
-                        blotter.complainantID.middlename || ""
-                      } ${blotter.complainantID.lastname}`.trim()
-                    : blotter.complainantname}
-                </label>
-              </div>
+              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
+                <div>
+                  <label className="form-label">Complainant Name</label>
+                  <label className="text-sm font-regular">
+                    {blotter.complainantID
+                      ? `${blotter.complainantID.firstname} ${
+                          blotter.complainantID.middlename || ""
+                        } ${blotter.complainantID.lastname}`.trim()
+                      : blotter.complainantname}
+                  </label>
+                </div>
 
-              <div>
-                <label>Complainant Address: </label>
-                <label>
-                  {blotter.complainantID
-                    ? blotter.complainantID.address
-                    : blotter.complainantaddress}
-                </label>
-              </div>
+                <div>
+                  <label className="form-label">Complainant Address </label>
+                  <label className="text-sm font-regular">
+                    {blotter.complainantID
+                      ? blotter.complainantID.address
+                      : blotter.complainantaddress}
+                  </label>
+                </div>
 
-              <div>
-                <label>Complainant Contact No: </label>
-                <label>
-                  {blotter.complainantID
-                    ? blotter.complainantID.mobilenumber
-                    : blotter.complainantcontactno}
-                </label>
+                <div>
+                  <label className="form-label">Complainant Contact No</label>
+                  <label className="text-sm font-regular">
+                    {blotter.complainantID
+                      ? blotter.complainantID.mobilenumber
+                      : blotter.complainantcontactno}
+                  </label>
+                </div>
               </div>
 
               {/*Subject of the Complaint Information*/}
-              <div>
-                <label>Subject Name: </label>
-                <label>
-                  {blotter.subjectID
-                    ? `${blotter.subjectID.firstname} ${
-                        blotter.subjectID.middlename || ""
-                      } ${blotter.subjectID.lastname}`.trim()
-                    : blotter.subjectname}
-                </label>
-              </div>
+              <label className="section-title text-start">
+                Subject Information
+              </label>
+              <hr class="section-divider" />
+              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
+                <div>
+                  <label className="form-label">Subject Name</label>
+                  <label className="text-sm font-regular">
+                    {blotter.subjectID
+                      ? `${blotter.subjectID.firstname} ${
+                          blotter.subjectID.middlename || ""
+                        } ${blotter.subjectID.lastname}`.trim()
+                      : blotter.subjectname}
+                  </label>
+                </div>
 
-              <div>
-                <label>Subject Address: </label>
-                <label>
-                  {blotter.subjectID
-                    ? blotter.subjectID.address
-                    : blotter.subjectaddress}
-                </label>
+                <div>
+                  <label className="form-label">Subject Address</label>
+                  <label className="text-sm font-regular">
+                    {blotter.subjectID
+                      ? blotter.subjectID.address
+                      : blotter.subjectaddress}
+                  </label>
+                </div>
               </div>
 
               {/*Blotter Information*/}
-              <div>
-                <label>Type of the Incident: </label>
-                <label>{blotter.type}</label>
-              </div>
-
-              <div>
-                <label>Details of the Incident: </label>
-                <label>{blotter.details}</label>
+              <label className="section-title text-start">
+                Blotter Information
+              </label>
+              <hr class="section-divider" />
+              <div className="grid grid-cols-1 gap-4 mt-4 mb-4">
+                <div className="col-span-1">
+                  <label className="form-label">Type of the Incident</label>
+                  <label className="text-sm font-regular">{blotter.type}</label>
+                </div>
+                <div className="col-span-3">
+                  <label className="form-label">Details of the Incident</label>
+                  <label>{renderDetails(blotter)}</label>
+                </div>
               </div>
 
               {(blotter.status === "Pending" ||
                 blotter.status === "Scheduled") && (
                 <>
                   {/*Settlement Proceedings*/}
-                  <div>
-                    <label>Date: </label>
-                    <input
-                      type="date"
-                      id="date"
-                      name="date"
-                      value={scheduleForm.date ? scheduleForm.date : ""}
-                      onChange={handleDateChange}
-                      className="form-input h-[30px]"
-                      min={new Date().toISOString().split("T")[0]}
-                    />
-                  </div>
+                  <label className="section-title text-start">
+                    Schedule Information
+                  </label>
+                  <hr class="section-divider" />
+                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                    <div>
+                      <label className="form-label">Date</label>
+                      <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        value={scheduleForm.date ? scheduleForm.date : ""}
+                        onChange={handleDateChange}
+                        className="form-input h-[30px]"
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
 
-                  <div>
-                    <label>Start Time: </label>
-                    <input
-                      type="time"
-                      id="starttime"
-                      name="starttime"
-                      className="form-input h-[30px]"
-                      onChange={handleStartTimeChange}
-                      value={
-                        scheduleForm.starttime
-                          ? new Date(scheduleForm.starttime)
-                              .toTimeString()
-                              .slice(0, 5)
-                          : ""
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label>End Time: </label>
-                    <input
-                      type="time"
-                      id="endtime"
-                      name="endtime"
-                      className="form-input h-[30px]"
-                      onChange={handleEndTimeChange}
-                      value={
-                        scheduleForm.endtime
-                          ? new Date(scheduleForm.endtime)
-                              .toTimeString()
-                              .slice(0, 5)
-                          : ""
-                      }
-                    />
+                    <div>
+                      <label className="form-label">Start Time</label>
+                      <input
+                        type="time"
+                        id="starttime"
+                        name="starttime"
+                        className="form-input h-[30px]"
+                        onChange={handleStartTimeChange}
+                        value={
+                          scheduleForm.starttime
+                            ? new Date(scheduleForm.starttime)
+                                .toTimeString()
+                                .slice(0, 5)
+                            : ""
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label">End Time </label>
+                      <input
+                        type="time"
+                        id="endtime"
+                        name="endtime"
+                        className="form-input h-[30px]"
+                        onChange={handleEndTimeChange}
+                        value={
+                          scheduleForm.endtime
+                            ? new Date(scheduleForm.endtime)
+                                .toTimeString()
+                                .slice(0, 5)
+                            : ""
+                        }
+                      />
+                    </div>
                   </div>
                 </>
               )}
 
               {blotter.status === "Settled" && (
                 <>
-                  <div>
-                    <label>Date: </label>
-                    <label>{scheduleForm.date}</label>
-                  </div>
-                  <div>
-                    <label>Start Time: </label>
-                    <label>
-                      {new Date(scheduleForm.starttime).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </label>
-                  </div>
-                  <div>
-                    <label>End Time: </label>
-                    <label>
-                      {new Date(scheduleForm.endtime).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </label>
-                  </div>
+                  <label className="section-title text-start">
+                    Settlement Information
+                  </label>
+                  <hr class="section-divider" />
+                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                    <div>
+                      <label className="form-label">Date</label>
+                      <label className="text-sm font-regular">
+                        {scheduleForm.date}
+                      </label>
+                    </div>
+                    <div>
+                      <label className="form-label">Start Time </label>
+                      <label className="text-sm font-regular">
+                        {new Date(scheduleForm.starttime).toLocaleTimeString(
+                          [],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )}
+                      </label>
+                    </div>
+                    <div>
+                      <label className="form-label">End Time </label>
+                      <label className="text-sm font-regular">
+                        {new Date(scheduleForm.endtime).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </label>
+                    </div>
 
-                  <div>
-                    <label>Details: </label>
-                    <label>{blotter.agreementdetails}</label>
-                  </div>
-                  <div>
-                    <label>Witness: </label>
-                    <label>
-                      {blotter.witnessID
-                        ? `${blotter.witnessID.firstname} ${
-                            blotter.witnessID.middlename || ""
-                          } ${blotter.witnessID.lastname}`
-                        : blotter.witnessname}
-                    </label>
+                    <div className="col-span-3">
+                      <label className="form-label">Details </label>
+                      <label className="text-sm font-regular">
+                        {blotter.agreementdetails}
+                      </label>
+                    </div>
+                    <div className="col-span-1">
+                      <label className="form-label">Witness </label>
+                      <label className="text-sm font-regular">
+                        {blotter.witnessID
+                          ? `${blotter.witnessID.firstname} ${
+                              blotter.witnessID.middlename || ""
+                            } ${blotter.witnessID.lastname}`
+                          : blotter.witnessname}
+                      </label>
+                    </div>
                   </div>
                 </>
               )}
 
               {blotter.status === "Pending" && (
                 <>
-                  <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Schedule
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleReject}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Reject
-                  </button>
+                  <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      type="submit"
+                      onClick={handleSubmit}
+                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                    >
+                      Schedule
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleReject}
+                      className="actions-btn bg-btn-color-red hover:bg-red-700"
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </>
               )}
 
               {blotter.status === "Scheduled" && (
                 <>
-                  <button
-                    type="button"
-                    onClick={handleEdit}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSettle}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Settle
-                  </button>
+                  <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      type="button"
+                      onClick={handleEdit}
+                      className="actions-btn bg-btn-color-blue"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSettle}
+                      className="actions-btn bg-btn-color-blue"
+                    >
+                      Settle
+                    </button>
+                  </div>
                 </>
               )}
               {blotter.status === "Settled" && (
                 <>
-                  <button
-                    type="button"
-                    onClick={handlePrint}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Print
-                  </button>
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={handlePrint}
+                      className="actions-btn bg-btn-color-blue "
+                    >
+                      Print
+                    </button>
+                  </div>
                 </>
               )}
             </div>

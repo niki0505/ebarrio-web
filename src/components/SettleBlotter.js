@@ -248,234 +248,277 @@ function SettleBlotter({ isCollapsed }) {
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Settle Agreement Form</div>
 
-        {/*Complainant Information*/}
-        <label>Complainant Information</label>
-        <div className="form-group relative">
-          <label className="form-label">Name</label>
-          <input
-            name="complainantname"
-            value={blotterForm.complainantname}
-            placeholder="Enter name"
-            className="form-input h-[30px] w-full"
-            readOnly
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Address</label>
-          <input
-            name="complainantaddress"
-            value={blotterForm.complainantaddress}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-            readOnly
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Contact No.</label>
-          <input
-            name="complainantcontactno"
-            value={blotterForm.complainantcontactno}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-            readOnly
-          />
-        </div>
-
-        {/*Subject of the Complaint Information*/}
-        <label>Subject of the Complaint Information</label>
-
-        <div className="form-group relative">
-          <label className="form-label">Name</label>
-          <input
-            name="subjectname"
-            value={blotterForm.subjectname}
-            placeholder="Enter name"
-            className="form-input h-[30px] w-full"
-            readOnly
-          />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Address</label>
-          <input
-            name="subjectaddress"
-            value={blotterForm.subjectaddress}
-            placeholder="Enter name"
-            className="form-input h-[30px]"
-            readOnly
-          />
-        </div>
-
-        {!blotter.complainantID && (
-          <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Signature<label className="text-red-600">*</label>
-            </h3>
-            <div className="upload-box">
+        <div className="white-bg-container">
+          {/*Complainant Information*/}
+          <h3 className="section-title">Complainant Information</h3>
+          <hr class="section-divider" />
+          <div className="form-grid">
+            <div>
+              <label className="form-label">Name</label>
               <input
-                onChange={handleChangeSig}
-                type="file"
-                name="subjectsignature"
-                style={{ display: "none" }}
-                ref={hiddenInputRef1}
+                name="complainantname"
+                value={blotterForm.complainantname}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                readOnly
               />
-              <div className="upload-content">
-                <div className="preview-container">
-                  {isSignProcessing ? (
-                    <p>Processing...</p>
-                  ) : settleForm.subjectsignature ? (
-                    <img
-                      src={settleForm.subjectsignature}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <p>No Picture Attached</p>
-                  )}
-                </div>
+            </div>
 
-                <div className="upload-signature-btn">
-                  <button onClick={handleUploadSig} className="upload-btn">
-                    <FiUpload />
-                  </button>
-                </div>
-              </div>
+            <div>
+              <label className="form-label">Address</label>
+              <input
+                name="complainantaddress"
+                value={blotterForm.complainantaddress}
+                placeholder="Enter name"
+                className="form-input h-[30px]"
+                readOnly
+              />
+            </div>
+
+            <div>
+              <label className="form-label">Contact No.</label>
+              <input
+                name="complainantcontactno"
+                value={blotterForm.complainantcontactno}
+                placeholder="Enter name"
+                className="form-input h-[30px]"
+                readOnly
+              />
             </div>
           </div>
-        )}
 
-        {/*Blotter Information*/}
-        <label>Blotter Information</label>
-        <div className="form-group">
-          <label for="type" className="form-label">
-            Type of the Incident
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={blotterForm.type}
-            className="form-input h-[30px]"
-            readOnly
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {typeList.map((element) => (
-              <option value={element}>{element}</option>
-            ))}
-          </select>
-        </div>
+          {/*Subject of the Complaint Information*/}
+          <h3 className="section-title mt-8">
+            Subject of the Complaint Information
+          </h3>
+          <hr class="section-divider" />
 
-        <div className="form-group">
-          <label for="details" className="form-label">
-            Details
-          </label>
-          <textarea
-            maxLength={1000}
-            id="details"
-            name="details"
-            value={blotterForm.details}
-            readOnly
-          />
-          <label>{blotterForm.details.length}/1000</label>
-        </div>
+          <div className="form-grid">
+            <div>
+              <label className="form-label">Name</label>
+              <input
+                name="subjectname"
+                value={blotterForm.subjectname}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                readOnly
+              />
+            </div>
 
-        {/*Agreement Information*/}
-        <label>Agreement Information</label>
-        <div className="form-group">
-          <label for="details" className="form-label">
-            Details
-          </label>
-          <textarea
-            maxLength={1000}
-            onChange={handleInputChange}
-            id="agreementdetails"
-            name="agreementdetails"
-            value={settleForm.agreementdetails}
-          />
-          <label>{settleForm.agreementdetails.length}/1000</label>
-        </div>
+            <div>
+              <label className="form-label">Address</label>
+              <input
+                name="subjectaddress"
+                value={blotterForm.subjectaddress}
+                placeholder="Enter address"
+                className="form-input h-[30px]"
+                readOnly
+              />
+            </div>
+          </div>
 
-        {/*Witness Information*/}
-        <label>Witness Information</label>
-        <div className="form-group relative">
-          <div className="form-group">
-            <label for="type" className="form-label">
-              Name
-            </label>
-            <input
-              name="witnessname"
-              value={settleForm.witnessname}
-              onChange={handleWitnessChange}
-              placeholder="Enter name"
-              className="form-input h-[30px] w-full"
-              autoComplete="off"
-            />
-            {settleForm.witnessname?.length > 0 &&
-              witnessSuggestions?.length > 0 && (
-                <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                  {witnessSuggestions.map((res) => {
-                    const fullName = `${res.firstname} ${
-                      res.middlename ? res.middlename + " " : ""
-                    }${res.lastname}`;
-                    return (
-                      <li
-                        key={res.id}
-                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleWitnessSuggestionClick(res)}
-                      >
-                        {fullName}
-                      </li>
-                    );
-                  })}
-                </ul>
+          <div className="form-grid">
+            {/* Signature - Spans the entire first row (3 columns) */}
+            <div className="col-span-2">
+              {!blotter.complainantID && (
+                <div className="picture-upload-wrapper">
+                  <h3 className="form-label">
+                    Signature<label className="text-red-600">*</label>
+                  </h3>
+                  <div className="upload-box">
+                    <input
+                      onChange={handleChangeSig}
+                      type="file"
+                      name="subjectsignature"
+                      style={{ display: "none" }}
+                      ref={hiddenInputRef1}
+                    />
+                    <div className="upload-content">
+                      <div className="preview-container">
+                        {isSignProcessing ? (
+                          <p>Processing...</p>
+                        ) : settleForm.subjectsignature ? (
+                          <img
+                            src={settleForm.subjectsignature}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <p>No Picture Attached</p>
+                        )}
+                      </div>
+
+                      <div className="upload-signature-btn">
+                        <button
+                          onClick={handleUploadSig}
+                          className="upload-btn"
+                        >
+                          <FiUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
-          </div>
-        </div>
-
-        {!settleForm.witnessID && (
-          <div className="form-group">
-            <label for="type" className="form-label">
-              Signature
-            </label>
-            <div className="upload-box">
-              <input
-                onChange={handleChangeSig2}
-                type="file"
-                name="witnesssignature"
-                style={{ display: "none" }}
-                ref={hiddenInputRef2}
-              />
-              <div className="upload-content">
-                <div className="preview-container">
-                  {isSignProcessing2 ? (
-                    <p>Processing...</p>
-                  ) : settleForm.witnesssignature ? (
-                    <img
-                      src={settleForm.witnesssignature}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <p>No Picture Attached</p>
-                  )}
-                </div>
-
-                <div className="upload-signature-btn">
-                  <button onClick={handleUploadSig2} className="upload-btn">
-                    <FiUpload />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
-        )}
-        <button
-          onClick={handleSubmit}
-          className="actions-btn bg-btn-color-blue"
-          type="submit"
-        >
-          Submit
-        </button>
+
+          {/*Blotter Information*/}
+          <h3 className="section-title mt-8">Blotter Information</h3>
+          <hr class="section-divider" />
+          <div className="form-grid">
+            <div className="col-span-1">
+              <label for="type" className="form-label">
+                Type of the Incident
+              </label>
+              <select
+                id="type"
+                name="type"
+                value={blotterForm.type}
+                className="form-input h-[30px]"
+                readOnly
+              >
+                <option value="" disabled selected hidden>
+                  Select
+                </option>
+                {typeList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-4">
+              <label for="details" className="form-label">
+                Details
+              </label>
+              <textarea
+                placeholder="Enter details"
+                maxLength={1000}
+                id="details"
+                name="details"
+                value={blotterForm.details}
+                readOnly
+                className="form-input h-[10rem]"
+              />
+              <h3 className="text-end">{blotterForm.details.length}/1000</h3>
+            </div>
+          </div>
+
+          {/*Agreement Information*/}
+          <h3 className="section-title mt-8">Agreement Information</h3>
+          <hr class="section-divider" />
+          <div className="form-grid">
+            <div className="col-span-4">
+              <label for="details" className="form-label">
+                Details
+              </label>
+              <textarea
+                placeholder="Enter details"
+                maxLength={1000}
+                onChange={handleInputChange}
+                id="agreementdetails"
+                name="agreementdetails"
+                value={settleForm.agreementdetails}
+                className="form-input h-[10rem]"
+              />
+              <h3 className="text-end">
+                {settleForm.agreementdetails.length}/1000
+              </h3>
+            </div>
+          </div>
+
+          {/*Witness Information*/}
+          <h3 className="section-title mt-8">Witness Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div className="cols-span-1">
+              <label for="type" className="form-label">
+                Name
+              </label>
+              <input
+                name="witnessname"
+                value={settleForm.witnessname}
+                onChange={handleWitnessChange}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                autoComplete="off"
+              />
+              {settleForm.witnessname?.length > 0 &&
+                witnessSuggestions?.length > 0 && (
+                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    {witnessSuggestions.map((res) => {
+                      const fullName = `${res.firstname} ${
+                        res.middlename ? res.middlename + " " : ""
+                      }${res.lastname}`;
+                      return (
+                        <li
+                          key={res.id}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleWitnessSuggestionClick(res)}
+                        >
+                          {fullName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="col-span-2">
+              {!settleForm.witnessID && (
+                <div className="form-group">
+                  <label for="type" className="form-label">
+                    Signature
+                  </label>
+                  <div className="upload-box">
+                    <input
+                      onChange={handleChangeSig2}
+                      type="file"
+                      name="witnesssignature"
+                      style={{ display: "none" }}
+                      ref={hiddenInputRef2}
+                    />
+                    <div className="upload-content">
+                      <div className="preview-container">
+                        {isSignProcessing2 ? (
+                          <p>Processing...</p>
+                        ) : settleForm.witnesssignature ? (
+                          <img
+                            src={settleForm.witnesssignature}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <p>No Picture Attached</p>
+                        )}
+                      </div>
+
+                      <div className="upload-signature-btn">
+                        <button
+                          onClick={handleUploadSig2}
+                          className="upload-btn"
+                        >
+                          <FiUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex justify-end rounded-md mt-4">
+            <button
+              onClick={handleSubmit}
+              className="actions-btn bg-btn-color-blue"
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
       </main>
     </>
   );

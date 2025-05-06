@@ -10,6 +10,10 @@ import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import api from "../api";
 
+//ICONS
+import { FaArchive, FaEdit } from "react-icons/fa";
+import { FaUserXmark } from "react-icons/fa6";
+
 function Accounts({ isCollapsed }) {
   const navigation = useNavigate();
   const { fetchUsers, users } = useContext(InfoContext);
@@ -85,14 +89,33 @@ function Accounts({ isCollapsed }) {
                   <td>{user.username}</td>
                   <td>{user.role}</td>
                   <td>{user.status}</td>
-                  <td className="flex justify-between">
-                    <button className="text-btn-color-blue font-bold">
-                      ARCHIVE
-                    </button>
-                    <button className="text-red-600 font-bold">
-                      DEACTIVATE
-                    </button>
-                    <button className="text-green-600 font-bold">EDIT</button>
+                  <td className="flex justify-center gap-x-8">
+                    <div className="table-actions-container">
+                      <button type="button" className="table-actions-btn">
+                        <FaEdit className="text-xl text-[#06D001]" />
+                        <label className="text-xs font-semibold text-[#06D001]">
+                          Edit
+                        </label>
+                      </button>
+                    </div>
+
+                    <div className="table-actions-container">
+                      <button type="button" className="table-actions-btn">
+                        <FaUserXmark className="text-xl text-btn-color-red" />
+                        <label className="text-xs font-semibold text-btn-color-red">
+                          Deactivate
+                        </label>
+                      </button>
+                    </div>
+
+                    <div className="table-actions-container">
+                      <button type="button" className="table-actions-btn">
+                        <FaArchive className="text-xl text-btn-color-blue" />
+                        <label className="text-xs font-semibold text-btn-color-blue">
+                          Archive
+                        </label>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
