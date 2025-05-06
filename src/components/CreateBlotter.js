@@ -223,48 +223,6 @@ function CreateBlotter({ isCollapsed }) {
           {/*Complainant Information*/}
           <h3 className="section-title">Complainant Information</h3>
           <hr className="section-divider" />
-          <div className="form-grid">
-            <div className="col-span-2">
-              {!blotterForm.complainantID && (
-                <div className="picture-upload-wrapper">
-                  <h3 className="form-label">
-                    Signature<label className="text-red-600">*</label>
-                  </h3>
-                  <div className="upload-box">
-                    <input
-                      onChange={handleChangeSig}
-                      type="file"
-                      style={{ display: "none" }}
-                      ref={hiddenInputRef1}
-                    />
-                    <div className="upload-content">
-                      <div className="preview-container">
-                        {isSignProcessing ? (
-                          <p>Processing...</p>
-                        ) : blotterForm.complainantsignature ? (
-                          <img
-                            src={blotterForm.complainantsignature}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <p>No Picture Attached</p>
-                        )}
-                      </div>
-
-                      <div className="upload-signature-btn">
-                        <button
-                          onClick={handleUploadSig}
-                          className="upload-btn"
-                        >
-                          <FiUpload />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
 
           <div className="form-grid">
             <div>
@@ -318,6 +276,49 @@ function CreateBlotter({ isCollapsed }) {
                 placeholder="Enter contact no"
                 className="form-input h-[30px]"
               />
+            </div>
+          </div>
+
+          <div className="form-grid">
+            <div className="col-span-2">
+              {!blotterForm.complainantID && (
+                <div className="picture-upload-wrapper">
+                  <h3 className="form-label">
+                    Signature<label className="text-red-600">*</label>
+                  </h3>
+                  <div className="upload-box">
+                    <input
+                      onChange={handleChangeSig}
+                      type="file"
+                      style={{ display: "none" }}
+                      ref={hiddenInputRef1}
+                    />
+                    <div className="upload-content">
+                      <div className="preview-container">
+                        {isSignProcessing ? (
+                          <p>Processing...</p>
+                        ) : blotterForm.complainantsignature ? (
+                          <img
+                            src={blotterForm.complainantsignature}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <p>No Picture Attached</p>
+                        )}
+                      </div>
+
+                      <div className="upload-signature-btn">
+                        <button
+                          onClick={handleUploadSig}
+                          className="upload-btn"
+                        >
+                          <FiUpload />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

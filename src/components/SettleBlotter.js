@@ -292,6 +292,31 @@ function SettleBlotter({ isCollapsed }) {
             Subject of the Complaint Information
           </h3>
           <hr class="section-divider" />
+
+          <div className="form-grid">
+            <div>
+              <label className="form-label">Name</label>
+              <input
+                name="subjectname"
+                value={blotterForm.subjectname}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                readOnly
+              />
+            </div>
+
+            <div>
+              <label className="form-label">Address</label>
+              <input
+                name="subjectaddress"
+                value={blotterForm.subjectaddress}
+                placeholder="Enter address"
+                className="form-input h-[30px]"
+                readOnly
+              />
+            </div>
+          </div>
+
           <div className="form-grid">
             {/* Signature - Spans the entire first row (3 columns) */}
             <div className="col-span-2">
@@ -334,30 +359,6 @@ function SettleBlotter({ isCollapsed }) {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="form-grid">
-            <div>
-              <label className="form-label">Name</label>
-              <input
-                name="subjectname"
-                value={blotterForm.subjectname}
-                placeholder="Enter name"
-                className="form-input h-[30px] w-full"
-                readOnly
-              />
-            </div>
-
-            <div>
-              <label className="form-label">Address</label>
-              <input
-                name="subjectaddress"
-                value={blotterForm.subjectaddress}
-                placeholder="Enter address"
-                className="form-input h-[30px]"
-                readOnly
-              />
             </div>
           </div>
 
@@ -430,6 +431,41 @@ function SettleBlotter({ isCollapsed }) {
           <hr class="section-divider" />
 
           <div className="form-grid">
+            <div className="cols-span-1">
+              <label for="type" className="form-label">
+                Name
+              </label>
+              <input
+                name="witnessname"
+                value={settleForm.witnessname}
+                onChange={handleWitnessChange}
+                placeholder="Enter name"
+                className="form-input h-[30px] w-full"
+                autoComplete="off"
+              />
+              {settleForm.witnessname?.length > 0 &&
+                witnessSuggestions?.length > 0 && (
+                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    {witnessSuggestions.map((res) => {
+                      const fullName = `${res.firstname} ${
+                        res.middlename ? res.middlename + " " : ""
+                      }${res.lastname}`;
+                      return (
+                        <li
+                          key={res.id}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleWitnessSuggestionClick(res)}
+                        >
+                          {fullName}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+            </div>
+          </div>
+
+          <div className="form-grid">
             <div className="col-span-2">
               {!settleForm.witnessID && (
                 <div className="form-group">
@@ -470,41 +506,6 @@ function SettleBlotter({ isCollapsed }) {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="form-grid">
-            <div className="cols-span-1">
-              <label for="type" className="form-label">
-                Name
-              </label>
-              <input
-                name="witnessname"
-                value={settleForm.witnessname}
-                onChange={handleWitnessChange}
-                placeholder="Enter name"
-                className="form-input h-[30px] w-full"
-                autoComplete="off"
-              />
-              {settleForm.witnessname?.length > 0 &&
-                witnessSuggestions?.length > 0 && (
-                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                    {witnessSuggestions.map((res) => {
-                      const fullName = `${res.firstname} ${
-                        res.middlename ? res.middlename + " " : ""
-                      }${res.lastname}`;
-                      return (
-                        <li
-                          key={res.id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => handleWitnessSuggestionClick(res)}
-                        >
-                          {fullName}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
             </div>
           </div>
 
