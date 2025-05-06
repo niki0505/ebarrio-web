@@ -120,22 +120,46 @@ function BlotterReports({ isCollapsed }) {
 
         <SearchBar searchValue={search} handleSearch={handleSearch} />
 
-        <p onClick={handleMenu1} style={{ cursor: "pointer" }}>
-          Pending
-        </p>
-        <p onClick={handleMenu2} style={{ cursor: "pointer" }}>
-          Scheduled
-        </p>
-        <p onClick={handleMenu3} style={{ cursor: "pointer" }}>
-          Settled
-        </p>
-        <p onClick={handleMenu4} style={{ cursor: "pointer" }}>
-          Rejected
-        </p>
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-bold">Add new blotter</span>
-        </button>
+        <div className="status-add-btn-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+            >
+              Pending
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isScheduledClicked ? "status-line" : ""
+              }`}
+            >
+              Scheduled
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`status-text ${isSettledClicked ? "status-line" : ""}`}
+            >
+              Settled
+            </p>
+            <p
+              onClick={handleMenu4}
+              className={`status-text ${
+                isRejectedClicked ? "status-line" : ""
+              }`}
+            >
+              Rejected
+            </p>
+          </div>
+
+          <button className="add-btn" onClick={handleAdd}>
+            <MdPersonAddAlt1 className=" text-xl" />
+            <span className="font-bold">Add new blotter</span>
+          </button>
+        </div>
+
+        <hr className="mt-4 border border-gray-300" />
+
         <table>
           <thead>
             <tr>
@@ -162,11 +186,6 @@ function BlotterReports({ isCollapsed }) {
                   <tr
                     key={blot._id}
                     onClick={() => handleRowClick(blot._id)}
-                    className="border-t"
-                    style={{
-                      cursor: "pointer",
-                      transition: "background-color 0.3s ease",
-                    }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = "#f0f0f0";
                     }}

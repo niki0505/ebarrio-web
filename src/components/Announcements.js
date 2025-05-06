@@ -12,10 +12,10 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
 //ICONS
-import { BsPinAngleFill, BsPinAngle } from "react-icons/bs";
-import { BsThreeDots } from "react-icons/bs";
-import { IoPencilSharp } from "react-icons/io5";
-import { IoArchiveSharp } from "react-icons/io5";
+import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
+import { IoPencilSharp, IoArchiveSharp } from "react-icons/io5";
+import { FaHeart } from "react-icons/fa";
+import { FaArchive, FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
@@ -132,7 +132,7 @@ function Announcements({ isCollapsed }) {
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Announcements</div>
 
-        <div className="flex flex-col lg:flex-row mt-4 gap-4">
+        <div className="announcement-container">
           {/* LEFT - CATEGORY */}
           <div className="announcement-category-panel ">
             <label className="announcement-subheader">Category</label>
@@ -177,11 +177,12 @@ function Announcements({ isCollapsed }) {
             </div>
 
             {/* SORT OPTIONS - NEWEST, LATEST */}
-            <div className="announcement-sort-options">
+
+            <div className="announcement-sort-container">
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
-                className="text-sm font-semibold w-full h-full rounded-md"
+                className="announcement-sort-dropdown"
               >
                 <option value="Newest">Newest</option>
                 <option value="Oldest">Oldest</option>
@@ -192,8 +193,8 @@ function Announcements({ isCollapsed }) {
             {sortedAnnouncements
               .filter((announcement) => announcement.status === "Not Pinned")
               .map((announcement) => (
-                <div key={announcement._id} className="announcement-card ">
-                  <div className="absolute top-2 right-2 flex flex-col sm:flex-row gap-2">
+                <div key={announcement._id} className="announcement-card">
+                  <div className="announcement-pin-date-menu">
                     <label className="text-sm text-gray-500">
                       {dayjs(announcement.createdAt).fromNow()}
                     </label>
@@ -214,15 +215,15 @@ function Announcements({ isCollapsed }) {
                       <div className="announcement-menu">
                         <ul className="w-full">
                           <div className="navbar-dropdown-item justify-start">
-                            <IoPencilSharp className="ml-2" />
-                            <li className="text-sm font-semibold">Edit</li>
+                            <FaEdit className="ml-2" />
+                            <li className="text-sm font-semibold ml-2">Edit</li>
                           </div>
                           <div
                             className="navbar-dropdown-item justify-start"
                             onClick={() => handleArchive(announcement._id)}
                           >
                             <IoArchiveSharp className="text-red-600 ml-2" />
-                            <li className="text-sm font-semibold text-red-600">
+                            <li className="text-sm font-semibold text-red-600 ml-2">
                               Archive
                             </li>
                           </div>
@@ -234,10 +235,7 @@ function Announcements({ isCollapsed }) {
                   {/* UPLOADED BY - DETAILS */}
                   <div className="flex items-center mb-4">
                     <img
-                      src={
-                        announcement.uploadedby?.resID?.profilePicture ||
-                        user.picture
-                      }
+                      src={announcement.uploadedby?.resID?.picture}
                       alt="Profile"
                       className="announcement-profile-img"
                     />
@@ -281,6 +279,8 @@ function Announcements({ isCollapsed }) {
                         onError={(e) => (e.target.style.display = "none")}
                       />
                     )}
+
+                  <FaHeart className="announcement-heart" />
                 </div>
               ))}
           </div>
@@ -294,7 +294,7 @@ function Announcements({ isCollapsed }) {
             {/* ALL PINNED ANNOUNCEMENTS */}
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
-                <div className="absolute top-2 right-2 flex flex-col sm:flex-row gap-2">
+                <div className="announcement-pin-date-menu">
                   <label className="text-sm text-gray-500">
                     {dayjs(announcement.createdAt).fromNow()}
                   </label>
@@ -315,12 +315,15 @@ function Announcements({ isCollapsed }) {
                     <div className="announcement-menu">
                       <ul className="w-full">
                         <div className="navbar-dropdown-item justify-start">
-                          <IoPencilSharp className="ml-2" />
-                          <li className="text-sm font-semibold">Edit</li>
+                          <FaEdit className="ml-2" />
+                          <li className="text-sm font-semibold ml-2">Edit</li>
                         </div>
-                        <div className="navbar-dropdown-item justify-start">
+                        <div
+                          className="navbar-dropdown-item justify-start"
+                          onClick={handleArchive}
+                        >
                           <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600">
+                          <li className="text-sm font-semibold text-red-600 ml-2">
                             Archive
                           </li>
                         </div>
@@ -332,10 +335,7 @@ function Announcements({ isCollapsed }) {
                 {/* UPLOADED BY - DETAILS */}
                 <div className="flex items-center mb-4">
                   <img
-                    src={
-                      announcement.uploadedby?.resID?.profilePicture ||
-                      user.picture
-                    }
+                    src={announcement.uploadedby?.resID?.picture}
                     alt="Profile"
                     className="announcement-profile-img"
                   />
@@ -377,6 +377,8 @@ function Announcements({ isCollapsed }) {
                     onError={(e) => (e.target.style.display = "none")}
                   />
                 )}
+
+                <FaHeart className="announcement-heart" />
               </div>
             ))}
           </div>

@@ -1075,7 +1075,7 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="form-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label mt-4">Siblings</label>
               <input
@@ -1091,7 +1091,7 @@ function CreateResident({ isCollapsed }) {
             <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
           )}
 
-          <div className="form-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label mt-4 ">Children</label>
               <input

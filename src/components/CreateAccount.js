@@ -5,8 +5,10 @@ import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
 
 function CreateAccount({ onClose }) {
+  const confirm = useConfirm();
   const { fetchResidents, residents } = useContext(InfoContext);
   const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
@@ -91,8 +93,10 @@ function CreateAccount({ onClose }) {
 
       let roleFromPosition = "";
       if (selectedResident.empID) {
-        if (selectedResident.empID.position === "Assistant Secretary") {
-          roleFromPosition = "Assistant Secretary";
+        if (selectedResident.empID.position === "Clerk") {
+          roleFromPosition = "Clerk";
+        } else if (selectedResident.empID.position === "Justice") {
+          roleFromPosition = "Justice";
         } else {
           roleFromPosition = "Official";
         }
@@ -109,9 +113,17 @@ function CreateAccount({ onClose }) {
   };
 
   const handleSubmit = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to create a new account?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     try {
       const response = await api.post("/createuser", userForm);
       alert("User successfully created!");
+      onClose();
     } catch (error) {
       console.log("Error creating user");
     }
@@ -187,6 +199,14 @@ function CreateAccount({ onClose }) {
                 <label className="form-label">
                   Username <label className="text-red-600">*</label>
                 </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  onChange={usernameValidation}
+                  required
+                  className="form-input h-[30px]"
+                />
                 <div className="text-start">
                   {usernameErrors.length > 0 && (
                     <ul className="text-[12px] text-red-600 m-0">
@@ -196,29 +216,12 @@ function CreateAccount({ onClose }) {
                     </ul>
                   )}
                 </div>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  onChange={usernameValidation}
-                  required
-                  className="form-input h-[30px]"
-                />
               </div>
 
               <div className="employee-form-group">
                 <label className="form-label">
                   Password<label className="text-red-600">*</label>
                 </label>
-                <div className="text-start">
-                  {passwordErrors.length > 0 && (
-                    <ul className="text-[12px] text-red-600 m-0">
-                      {passwordErrors.map((err, idx) => (
-                        <li key={idx}>{err}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
                 <div className="relative w-full h-[30px]">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -228,6 +231,15 @@ function CreateAccount({ onClose }) {
                     required
                     className="form-input h-[30px]"
                   />
+                  <div className="text-start">
+                    {passwordErrors.length > 0 && (
+                      <ul className="text-[12px] text-red-600 m-0">
+                        {passwordErrors.map((err, idx) => (
+                          <li key={idx}>{err}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   <button
                     type="button"
                     className="absolute right-2 top-1/2 transform -translate-y-1/2"

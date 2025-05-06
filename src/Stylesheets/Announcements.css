@@ -1,3 +1,6 @@
+.announcement-container {
+  @apply flex flex-col lg:flex-row mt-4 gap-4;
+}
 .announcement-category-panel {
   @apply p-4 mb-4 lg:mb-0 border-r w-full lg:w-1/5;
 }
@@ -23,7 +26,7 @@
   @apply absolute bg-white border shadow-md right-0 mt-6 w-24;
 }
 .announcement-profile-img {
-  @apply rounded-full w-10 h-10 mr-2 object-cover;
+  @apply rounded-full w-10 h-10 mr-2 object-contain;
 }
 .announcement-info-label {
   @apply text-gray-500 text-sm;
@@ -34,8 +37,17 @@
 .announcement-pinned-panel {
   @apply p-4 border-l w-full lg:w-2/5;
 }
-.announcement-sort-options {
-  @apply flex border-2 border-navy-blue justify-center items-center bg-white w-[6rem] h-[2rem] mb-4 rounded-md shadow-md;
+.announcement-sort-container {
+  @apply flex ml-auto border border-btn-color-gray bg-white w-[5rem] h-[2rem] mb-4 rounded-md shadow-md;
+}
+.announcement-pin-date-menu {
+  @apply absolute top-2 right-2 flex flex-col sm:flex-row gap-2;
+}
+.announcement-sort-dropdown {
+  @apply text-sm font-semibold w-full h-full rounded-md;
+}
+.announcement-heart {
+  @apply mt-2 text-btn-color-red text-sm;
 }
 .create-announcement-attachment {
   @apply w-full border border-solid border-gray-300 p-4;

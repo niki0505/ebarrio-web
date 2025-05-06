@@ -205,15 +205,33 @@ function CertificateRequests({ isCollapsed }) {
         <div className="header-text">Certificate Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <p onClick={handleMenu1} style={{ cursor: "pointer" }}>
-          Pending
-        </p>
-        <p onClick={handleMenu2} style={{ cursor: "pointer" }}>
-          Issued
-        </p>
-        <p onClick={handleMenu3} style={{ cursor: "pointer" }}>
-          Rejected
-        </p>
+        <div className="flex flex-row gap-x-3 mt-10">
+          <p
+            onClick={handleMenu1}
+            className={`cursor-pointer text-base font-bold ${
+              isPendingClicked ? "border-b-4 border-btn-color-blue" : ""
+            }`}
+          >
+            Pending
+          </p>
+          <p
+            onClick={handleMenu2}
+            className={`cursor-pointer text-base font-bold ${
+              isIssuedClicked ? "border-b-4 border-btn-color-blue" : ""
+            }`}
+          >
+            Issued
+          </p>
+          <p
+            onClick={handleMenu3}
+            className={`cursor-pointer text-base font-bold ${
+              isRejectedClicked ? "border-b-4 border-btn-color-blue" : ""
+            }`}
+          >
+            Rejected
+          </p>
+        </div>
+        <hr className="mt-4 border border-gray-300" />
 
         <table>
           <thead>
@@ -236,10 +254,7 @@ function CertificateRequests({ isCollapsed }) {
                 <React.Fragment key={cert._id}>
                   <tr
                     onClick={() => handleRowClick(cert._id)}
-                    style={{
-                      cursor: "pointer",
-                      transition: "background-color 0.3s ease",
-                    }}
+                    className="border-t transition-colors duration-300 ease-in-out"
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = "#f0f0f0";
                     }}
