@@ -196,6 +196,7 @@ function CourtReservations({ isCollapsed }) {
             <span className="font-bold">Add new reservation</span>
           </button>
         </div>
+        <hr className="mt-4 border border-gray-300" />
 
         <table>
           <thead>

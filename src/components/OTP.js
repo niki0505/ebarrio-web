@@ -18,7 +18,6 @@ function OTP() {
   const otpRef = useRef(null);
 
   useEffect(() => {
-    console.log(role);
     let interval = null;
     if (isResendDisabled) {
       interval = setInterval(() => {

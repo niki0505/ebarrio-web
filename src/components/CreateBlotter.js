@@ -225,35 +225,39 @@ function CreateBlotter({ isCollapsed }) {
           <hr className="section-divider" />
 
           <div className="form-grid">
-            <div>
-              <label className="form-label">Name</label>
-              <input
-                name="complainantname"
-                value={blotterForm.complainantname}
-                onChange={handleComplainantChange}
-                placeholder="Enter name"
-                className="form-input h-[30px] w-full"
-                autoComplete="off"
-              />
-              {blotterForm.complainantname?.length > 0 &&
-                complainantSuggestions?.length > 0 && (
-                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                    {complainantSuggestions.map((res) => {
-                      const fullName = `${res.firstname} ${
-                        res.middlename ? res.middlename + " " : ""
-                      }${res.lastname}`;
-                      return (
-                        <li
-                          key={res.id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => handleComplainantSuggestionClick(res)}
-                        >
-                          {fullName}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+            <div className="form-group relative">
+              <div>
+                <label className="form-label">Name</label>
+                <input
+                  name="complainantname"
+                  value={blotterForm.complainantname}
+                  onChange={handleComplainantChange}
+                  placeholder="Enter name"
+                  className="form-input h-[30px] w-full"
+                  autoComplete="off"
+                />
+                {blotterForm.complainantname?.length > 0 &&
+                  complainantSuggestions?.length > 0 && (
+                    <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                      {complainantSuggestions.map((res) => {
+                        const fullName = `${res.firstname} ${
+                          res.middlename ? res.middlename + " " : ""
+                        }${res.lastname}`;
+                        return (
+                          <li
+                            key={res.id}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() =>
+                              handleComplainantSuggestionClick(res)
+                            }
+                          >
+                            {fullName}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+              </div>
             </div>
 
             <div>

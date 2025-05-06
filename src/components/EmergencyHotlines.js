@@ -90,6 +90,7 @@ function EmergencyHotlines({ isCollapsed }) {
           <MdPersonAddAlt1 className=" text-xl" />
           <span className="font-bold">Add new contact</span>
         </button>
+        <hr className="mt-4 border border-gray-300" />
 
         <table>
           <thead>

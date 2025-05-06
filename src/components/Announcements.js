@@ -235,10 +235,7 @@ function Announcements({ isCollapsed }) {
                   {/* UPLOADED BY - DETAILS */}
                   <div className="flex items-center mb-4">
                     <img
-                      src={
-                        announcement.uploadedby?.resID?.profilePicture ||
-                        user.picture
-                      }
+                      src={announcement.uploadedby?.resID?.picture}
                       alt="Profile"
                       className="announcement-profile-img"
                     />
@@ -321,7 +318,10 @@ function Announcements({ isCollapsed }) {
                           <FaEdit className="ml-2" />
                           <li className="text-sm font-semibold ml-2">Edit</li>
                         </div>
-                        <div className="navbar-dropdown-item justify-start">
+                        <div
+                          className="navbar-dropdown-item justify-start"
+                          onClick={handleArchive}
+                        >
                           <IoArchiveSharp className="text-red-600 ml-2" />
                           <li className="text-sm font-semibold text-red-600 ml-2">
                             Archive
@@ -335,10 +335,7 @@ function Announcements({ isCollapsed }) {
                 {/* UPLOADED BY - DETAILS */}
                 <div className="flex items-center mb-4">
                   <img
-                    src={
-                      announcement.uploadedby?.resID?.profilePicture ||
-                      user.picture
-                    }
+                    src={announcement.uploadedby?.resID?.picture}
                     alt="Profile"
                     className="announcement-profile-img"
                   />

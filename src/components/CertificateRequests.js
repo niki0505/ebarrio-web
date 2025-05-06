@@ -231,6 +231,7 @@ function CertificateRequests({ isCollapsed }) {
             Rejected
           </p>
         </div>
+        <hr className="mt-4 border border-gray-300" />
 
         <table>
           <thead>
