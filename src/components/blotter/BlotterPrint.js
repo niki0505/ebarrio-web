@@ -6,10 +6,40 @@ import Kasunduan from "../../assets/kasunduan.png";
 const BlotterPrint = ({ blotterData }) => {
   const printContent = (
     <div id="printContent">
+      {/* 1st Page (Sumbong) */}
+
+      {/* Sample box */}
       <div className="id-page">
+        <div
+          style={{
+            position: "absolute",
+            top: "342px",
+            left: "470px",
+            width: "300px",
+            height: "130px",
+            border: "1px solid red",
+          }}
+        >
+          <p style={{ fontSize: 10 }}>Sample text</p>
+        </div>
         <img className="id-img" src={Sumbong} />
       </div>
       <div className="id-page">
+        {/* 2nd Page (Kasunduan ng Pag aayos) */}
+
+        {/* Sample box */}
+        <div
+          style={{
+            position: "absolute",
+            top: "1200px",
+            left: "470px",
+            width: "300px",
+            height: "130px",
+            border: "1px solid red",
+          }}
+        >
+          <p style={{ fontSize: 10 }}>Sample text</p>
+        </div>
         <img className="id-img" src={Kasunduan} />
       </div>
     </div>
