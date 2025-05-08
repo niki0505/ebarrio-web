@@ -1,13 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings } from "react-icons/io";
 import "../Stylesheets/NavBar.css";
 import { AuthContext } from "../context/AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = ({ isCollapsed }) => {
+  const location = useLocation();
+  const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
+
+  useEffect(() => {
+    setprofileDropdown(false);
+  }, [location.pathname]);
+
   if (!user) return null;
 
   const toggleProfileDropdown = () => {
@@ -42,7 +50,12 @@ const Navbar = ({ isCollapsed }) => {
                 <ul className="w-full">
                   <div className="navbar-dropdown-item">
                     <IoMdSettings className="account-icon" />
-                    <li className="account-text">Account</li>
+                    <li
+                      className="account-text"
+                      onClick={() => navigation("/account")}
+                    >
+                      Account
+                    </li>
                   </div>
                   <div className="navbar-dropdown-item ">
                     <PiSignOutBold className="signout-icon" />

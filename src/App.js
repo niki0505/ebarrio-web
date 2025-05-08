@@ -29,6 +29,8 @@ import BlotterReports from "./components/BlotterReports";
 import CreateBlotter from "./components/CreateBlotter";
 import SetPassword from "./components/SetPassword";
 import SettleBlotter from "./components/SettleBlotter";
+import AccountSettings from "./components/AccountSettings";
+import ForgotPassword from "./components/ForgotPassword";
 import { OtpProvider } from "./context/OtpContext";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
@@ -71,6 +73,10 @@ function App() {
               <Route
                 path="/set-password"
                 element={<PublicRoute element={<SetPassword />} />}
+              />
+              <Route
+                path="/forgot-password"
+                element={<PublicRoute element={<ForgotPassword />} />}
               />
               <Route
                 path="/"
@@ -144,6 +150,10 @@ function App() {
                 <Route
                   path="settle-blotter"
                   element={<PrivateRoute element={<SettleBlotter />} />}
+                />
+                <Route
+                  path="account"
+                  element={<PrivateRoute element={<AccountSettings />} />}
                 />
               </Route>
             </Routes>

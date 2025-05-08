@@ -25,27 +25,33 @@ function Login() {
       );
 
       if (res.status === 200) {
-        if (res.data.message === "Credentials verified") {
-          try {
-            const response = await api.get(`/getmobilenumber/${username}`);
-            console.log(response.data);
-            sendOTP(username, response.data.empID?.resID.mobilenumber);
-            navigation("/otp", {
-              state: {
-                username: username,
-                mobilenumber: response.data.empID?.resID.mobilenumber,
-              },
-            });
-          } catch (error) {
-            console.log("Error getting mobile number", error);
-          }
-        } else if (res.data.message === "Token verified successfully!") {
-          navigation("/set-password", {
-            state: {
-              username: username,
-            },
-          });
+        try {
+          await api.put(`/login/${username}`);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.log("Error logging in", error);
         }
+        // if (res.data.message === "Credentials verified") {
+        //   try {
+        //     const response = await api.get(`/getmobilenumber/${username}`);
+        //     console.log(response.data);
+        //     sendOTP(username, response.data.empID?.resID.mobilenumber);
+        //     navigation("/otp", {
+        //       state: {
+        //         username: username,
+        //         mobilenumber: response.data.empID?.resID.mobilenumber,
+        //       },
+        //     });
+        //   } catch (error) {
+        //     console.log("Error getting mobile number", error);
+        //   }
+        // } else if (res.data.message === "Token verified successfully!") {
+        //   navigation("/set-password", {
+        //     state: {
+        //       username: username,
+        //     },
+        //   });
+        // }
       }
     } catch (error) {
       const response = error.response;
@@ -90,6 +96,7 @@ function Login() {
             >
               Login
             </button>
+            <a href="/forgot-password">Forgot password?</a>
           </div>
         </div>
       </div>

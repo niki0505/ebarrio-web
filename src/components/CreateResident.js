@@ -135,10 +135,6 @@ function CreateResident({ isCollapsed }) {
     return childrenDropdowns;
   };
 
-  useEffect(() => {
-    console.log(residentForm);
-  }, [residentForm]);
-
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
   const salutationList = [

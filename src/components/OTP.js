@@ -107,8 +107,6 @@ function OTP() {
               Enter the 6 digit code sent to {mobilenumber}
             </span>
             <div style={{ width: "100%" }}>
-              {" "}
-              {/* This div now takes full available width */}
               <OtpInput
                 value={OTP}
                 onChange={handleOTPChange}
