@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
+import AppLogo from "../assets/applogo-darkbg.png";
 import api from "../api";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
+import { IoArrowBack } from "react-icons/io5";
+import { RiQuestionnaireFill, RiLockPasswordFill } from "react-icons/ri";
 
 function ForgotPassword() {
   const navigation = useNavigate();
@@ -186,18 +187,26 @@ function ForgotPassword() {
           <div className="login-container">
             <div
               className="left-login-container"
-              style={{ backgroundImage: `url(${blueBg})` }}
+              style={{
+                backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+              }}
             >
               <img
-                src={applogo}
+                src={AppLogo}
                 alt="App Logo"
-                className="w-[256px] h-[256px]"
+                className="w-[312px] h-[312px]"
               />
             </div>
 
             <div className="right-login-container">
               <div className="login-form-container">
-                <span className="login-title">Forgot Password</span>
+                <div>
+                  <h1 className="login-title">Forgot Password</h1>
+                  <label className="text-gray-400">
+                    Please enter your username to begin the password reset
+                    process.
+                  </label>
+                </div>
 
                 <>
                   <input
@@ -213,7 +222,9 @@ function ForgotPassword() {
                   >
                     Submit
                   </button>
-                  <a href="/login">Remember your password?</a>
+                  <a href="/login" className="text-[#0E94D3] ml-auto">
+                    Remember your password?
+                  </a>
                 </>
               </div>
             </div>
@@ -229,105 +240,243 @@ function ForgotPassword() {
             {/* Reset Password */}
             {isVerified ? (
               <>
-                <label>Reset Password</label>
-                <input
-                  type="password"
-                  placeholder="Enter new password"
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="form-input h-[35px]"
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm new password"
-                  onChange={(e) => setReNewPassword(e.target.value)}
-                  className="form-input h-[35px]"
-                />
-                <button type="button" onClick={handleSuccessful}>
-                  Submit
-                </button>
+                <div
+                  className="w-screen h-screen relative overflow-hidden"
+                  style={{
+                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                  }}
+                >
+                  <img
+                    src={AppLogo}
+                    alt="App Logo"
+                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                  />
+                  <div className="modal-container">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] justify-center items-center">
+                      <div className="p-4">
+                        <div>
+                          <h1 className="login-title text-start">
+                            Reset Password
+                          </h1>
+                          <span className="text-gray-400">
+                            Enter your new password and confirm it to complete
+                            the reset process.
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col gap-4 mt-5 w-full">
+                          <input
+                            type="password"
+                            placeholder="Enter new password"
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="form-input h-[35px]"
+                          />
+                          <input
+                            type="password"
+                            placeholder="Confirm new password"
+                            onChange={(e) => setReNewPassword(e.target.value)}
+                            className="form-input h-[35px]"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleSuccessful}
+                          className="actions-btn bg-btn-color-blue w-full mt-5"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             ) : /* One-Time Password */ isOTPClicked ? (
               <>
-                <label onClick={() => setOTPClicked(false)}>Back</label>
-                <label>OTP</label>
-                <span className="text-base font-bold text-gray-400">
-                  Enter the 6 digit code sent to
-                  {/* Enter the 6 digit code sent to {user.empID.resID.mobilenumber} */}
-                </span>
-                <div style={{ width: "100%" }}>
-                  <OtpInput
-                    value={OTP}
-                    onChange={setOTP}
-                    numInputs={6}
-                    inputType="tel"
-                    isInputNum
-                    shouldAutoFocus
-                    renderSeparator={<span>-</span>}
-                    renderInput={(props) => (
-                      <input
-                        {...props}
-                        className="w-full h-[70px] mx-2 text-lg text-center border border-gray-300 rounded-[15px] focus:outline-none bg-[#EBEBEB] font-medium"
-                        style={{ maxWidth: "100%" }}
-                      />
-                    )}
+                <div
+                  className="w-screen h-screen relative overflow-hidden"
+                  style={{
+                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                  }}
+                >
+                  <img
+                    src={AppLogo}
+                    alt="App Logo"
+                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
+                  <div className="modal-container">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                      <IoArrowBack
+                        className="text-2xl"
+                        onClick={() => setOTPClicked(false)}
+                      />
+                      <div className="p-4">
+                        <div>
+                          <h1 className="login-title text-start">
+                            One-Time Password
+                          </h1>
+                          <span className="text-gray-400">
+                            Enter the 6 digit code sent to
+                            {/* Enter the 6 digit code sent to {user.empID.resID.mobilenumber} */}
+                          </span>
+                        </div>
+
+                        <div className="w-full mt-10">
+                          <OtpInput
+                            value={OTP}
+                            onChange={setOTP}
+                            numInputs={6}
+                            inputType="tel"
+                            isInputNum
+                            shouldAutoFocus
+                            renderSeparator={<span>-</span>}
+                            renderInput={(props) => (
+                              <input
+                                {...props}
+                                className="w-full h-[60px] mx-2 text-lg text-center border border-gray-300 rounded-[10px] focus:outline-none bg-[#EBEBEB] font-medium"
+                                style={{ maxWidth: "100%" }}
+                              />
+                            )}
+                          />
+                        </div>
+                        {isResendDisabled ? (
+                          <p className="text-gray-400 mt-5 font-bold text-end">
+                            Resend OTP in {resendTimer} second
+                            {resendTimer !== 1 ? "s" : ""}
+                          </p>
+                        ) : (
+                          <p
+                            onClick={handleResend}
+                            className="text-gray-400 font-bold cursor-pointer mt-5 text-end"
+                          >
+                            Resend OTP
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                {isResendDisabled ? (
-                  <p className="text-gray-400 mt-10 font-bold text-base">
-                    Resend OTP in {resendTimer} second
-                    {resendTimer !== 1 ? "s" : ""}
-                  </p>
-                ) : (
-                  <p
-                    onClick={handleResend}
-                    className="text-gray-400 font-bold text-base cursor-pointer mt-10"
-                  >
-                    Resend OTP
-                  </p>
-                )}
               </>
             ) : /* Security Questions */ isQuestionsClicked ? (
               <>
-                <label onClick={() => setQuestionsClicked(false)}>Back</label>
-                <label>Security Questions</label>
-                <select
-                  onChange={handleInputChange}
-                  className="form-input h-[30px]"
-                  name="question"
+                <div
+                  className="w-screen h-screen relative overflow-hidden"
+                  style={{
+                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                  }}
                 >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {user.securityquestions?.map((element, index) => (
-                    <option key={index} value={element.question}>
-                      {element.question}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="password"
-                  placeholder="Enter answer"
-                  name="answer"
-                  onChange={handleInputChange}
-                  className="form-input h-[35px]"
-                />
-                <button type="button" onClick={handleQuestionVerify}>
-                  Submit
-                </button>
+                  <img
+                    src={AppLogo}
+                    alt="App Logo"
+                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                  />
+                  <div className="modal-container">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                      <IoArrowBack
+                        className="text-2xl"
+                        onClick={() => setQuestionsClicked(false)}
+                      />
+                      <div className="p-4">
+                        <div>
+                          <h1 className="login-title text-start">
+                            Security Questions
+                          </h1>
+                          <span className="text-gray-400">
+                            To verify your identity, please answer the security
+                            question below.
+                          </span>
+                        </div>
+                        <div className="mt-5 flex flex-col gap-y-4">
+                          <select
+                            onChange={handleInputChange}
+                            className="form-input h-[30px]"
+                            name="question"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {user.securityquestions?.map((element, index) => (
+                              <option key={index} value={element.question}>
+                                {element.question}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            type="password"
+                            placeholder="Enter answer"
+                            name="answer"
+                            onChange={handleInputChange}
+                            className="form-input h-[35px]"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleQuestionVerify}
+                          className="actions-btn bg-btn-color-blue w-full mt-5"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             ) : (
               /* Verification Method */
               <>
-                <label>
-                  How would you like to recover your password? Please choose a
-                  method:
-                </label>
-                <button type="button" onClick={handleOTP}>
-                  OTP
-                </button>
-                <button type="button" onClick={() => setQuestionsClicked(true)}>
-                  Security Questions
-                </button>
+                <div
+                  className="w-screen h-screen relative overflow-hidden"
+                  style={{
+                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                  }}
+                >
+                  <img
+                    src={AppLogo}
+                    alt="App Logo"
+                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                  />
+                  <div className="modal-container">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                      <IoArrowBack className="text-2xl" />
+                      <div className="p-4">
+                        <div>
+                          <h1 className="login-title text-start">
+                            Verification Method
+                          </h1>
+                          <label className="text-gray-400">
+                            Please choose a method to verify your identity and
+                            continue resetting your password
+                          </label>
+                        </div>
+
+                        <div className="flex flex-col mt-10 gap-y-4">
+                          <button
+                            type="button"
+                            onClick={handleOTP}
+                            className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
+                          >
+                            <RiLockPasswordFill className="text-3xl text-navy-blue" />
+                            <label className="text-navy-blue">
+                              One-Time Password (OTP)
+                            </label>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setQuestionsClicked(true)}
+                            className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
+                          >
+                            <RiQuestionnaireFill className="text-3xl text-navy-blue" />
+                            <label className="text-navy-blue">
+                              Security Questions
+                            </label>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>

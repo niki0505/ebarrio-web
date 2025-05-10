@@ -17,6 +17,7 @@ import {
   BiSolidCctv,
 } from "react-icons/bi";
 import { useState } from "react";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 const Sidebar = ({}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -101,16 +102,24 @@ const Sidebar = ({}) => {
           }`}
         >
           <img
-            src={require("../assets/BarangayLogo.png")}
-            alt="Barangay Logo"
+            src={AppLogo}
+            alt="App Logo"
             className={`sidebar-logo-img ${
               isCollapsed ? "rotate-[360deg]" : ""
             }`}
           />
           <span
-            className={`sidebar-logo-text ${isCollapsed ? "hidden" : "block"}`}
+            className={`flex flex-col text-center ${
+              isCollapsed ? "hidden" : "block"
+            }`}
           >
-            eBarrio
+            <label className="sidebar-logo-text">eBarrio</label>
+            <label className="text-[rgba(255,255,255,0.50)] text-xs">
+              Barangay Management
+            </label>
+            <label className="text-[rgba(255,255,255,0.50)] text-xs">
+              Disaster Response System
+            </label>
           </span>
         </div>
 
