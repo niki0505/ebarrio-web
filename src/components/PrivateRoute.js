@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 
 const PrivateRoute = ({ element }) => {
   const { isAuthenticated } = useContext(AuthContext);
-  console.log("Is Authenticated", isAuthenticated);
 
   if (isAuthenticated === null) {
     return null;

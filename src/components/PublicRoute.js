@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 
 const PublicRoute = ({ element }) => {
   const { isAuthenticated } = useContext(AuthContext);
-  console.log("Is Authenticated (PublicRoute):", isAuthenticated);
 
   if (isAuthenticated === null) {
     return null;

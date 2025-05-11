@@ -19,8 +19,7 @@ import {
 import { useState } from "react";
 import AppLogo from "../assets/applogo-darkbg.png";
 
-const Sidebar = ({}) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
   if (!user) return null;
 
@@ -87,7 +86,7 @@ const Sidebar = ({}) => {
       <div className="flex flex-col">
         <div
           className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleSidebar}
         >
           {isCollapsed ? (
             <BiMenu className="text-xl" />

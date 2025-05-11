@@ -281,6 +281,9 @@ function Announcements({ isCollapsed }) {
                     )}
 
                   <FaHeart className="announcement-heart" />
+                  <label className="announcement-info-value ">
+                    {announcement.hearts}
+                  </label>
                 </div>
               ))}
           </div>
@@ -379,6 +382,9 @@ function Announcements({ isCollapsed }) {
                 )}
 
                 <FaHeart className="announcement-heart" />
+                <label className="announcement-info-value ">
+                  {announcement.hearts}
+                </label>
               </div>
             ))}
           </div>

@@ -36,127 +36,97 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import { ConfirmProvider } from "./context/ConfirmContext";
 import PublicRoute from "./components/PublicRoute";
+import AppLayout from "./AppLayout";
 
 function App() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  const AppLayout = ({ isCollapsed, setIsCollapsed }) => (
-    <InfoProvider>
-      <div className={`page-grid ${isCollapsed ? "collapsed" : ""}`}>
-        <Sidebar
-          isCollapsed={isCollapsed}
-          toggleSidebar={() => setIsCollapsed(!isCollapsed)}
-        />
-        <Navbar isCollapsed={isCollapsed} />
-        <div className="page-content">
-          <Outlet />
-        </div>
-      </div>
-    </InfoProvider>
-  );
   return (
     <Router>
       <AuthProvider>
         <OtpProvider>
           <ConfirmProvider>
-            <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route
-                path="/login"
-                element={<PublicRoute element={<Login />} />}
-              />
-              <Route
-                path="/signup"
-                element={<PublicRoute element={<Signup />} />}
-              />
-              <Route path="/otp" element={<PublicRoute element={<OTP />} />} />
-              <Route
-                path="/set-password"
-                element={<PublicRoute element={<SetPassword />} />}
-              />
-              <Route
-                path="/forgot-password"
-                element={<PublicRoute element={<ForgotPassword />} />}
-              />
-              <Route
-                path="/"
-                element={
-                  <AppLayout
-                    isCollapsed={isCollapsed}
-                    setIsCollapsed={setIsCollapsed}
+            <InfoProvider>
+              <Routes>
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route
+                  path="/login"
+                  element={<PublicRoute element={<Login />} />}
+                />
+                <Route
+                  path="/signup"
+                  element={<PublicRoute element={<Signup />} />}
+                />
+                <Route
+                  path="/otp"
+                  element={<PublicRoute element={<OTP />} />}
+                />
+                <Route
+                  path="/set-password"
+                  element={<PublicRoute element={<SetPassword />} />}
+                />
+                <Route
+                  path="/forgot-password"
+                  element={<PublicRoute element={<ForgotPassword />} />}
+                />
+                <Route path="/" element={<AppLayout />}>
+                  <Route
+                    path="residents"
+                    element={<PrivateRoute element={<Residents />} />}
                   />
-                }
-              >
-                <Route
-                  path="residents"
-                  element={
-                    <PrivateRoute
-                      element={<Residents isCollapsed={isCollapsed} />}
-                    />
-                  }
-                />
-                <Route
-                  path="create-resident"
-                  element={
-                    <PrivateRoute
-                      element={<CreateResident isCollapsed={isCollapsed} />}
-                    />
-                  }
-                />
-                <Route
-                  path="edit-resident"
-                  element={
-                    <PrivateRoute
-                      element={<EditResident isCollapsed={isCollapsed} />}
-                    />
-                  }
-                />
-                <Route
-                  path="employees"
-                  element={<PrivateRoute element={<Employees />} />}
-                />
-                <Route
-                  path="accounts"
-                  element={<PrivateRoute element={<Accounts />} />}
-                />
-                <Route
-                  path="certificate-requests"
-                  element={<PrivateRoute element={<CertificateRequests />} />}
-                />
-                <Route
-                  path="emergency-hotlines"
-                  element={<PrivateRoute element={<EmergencyHotlines />} />}
-                />
-                <Route
-                  path="announcements"
-                  element={<PrivateRoute element={<Announcements />} />}
-                />
-                <Route
-                  path="dashboard"
-                  element={<PrivateRoute element={<Dashboard />} />}
-                />
-                <Route
-                  path="court-reservations"
-                  element={<PrivateRoute element={<CourtReservations />} />}
-                />
-                <Route
-                  path="blotter-reports"
-                  element={<PrivateRoute element={<BlotterReports />} />}
-                />
-                <Route
-                  path="create-blotter"
-                  element={<PrivateRoute element={<CreateBlotter />} />}
-                />
-                <Route
-                  path="settle-blotter"
-                  element={<PrivateRoute element={<SettleBlotter />} />}
-                />
-                <Route
-                  path="account"
-                  element={<PrivateRoute element={<AccountSettings />} />}
-                />
-              </Route>
-            </Routes>
+                  <Route
+                    path="create-resident"
+                    element={<PrivateRoute element={<CreateResident />} />}
+                  />
+                  <Route
+                    path="edit-resident"
+                    element={<PrivateRoute element={<EditResident />} />}
+                  />
+                  <Route
+                    path="employees"
+                    element={<PrivateRoute element={<Employees />} />}
+                  />
+                  <Route
+                    path="accounts"
+                    element={<PrivateRoute element={<Accounts />} />}
+                  />
+                  <Route
+                    path="certificate-requests"
+                    element={<PrivateRoute element={<CertificateRequests />} />}
+                  />
+                  <Route
+                    path="emergency-hotlines"
+                    element={<PrivateRoute element={<EmergencyHotlines />} />}
+                  />
+                  <Route
+                    path="announcements"
+                    element={<PrivateRoute element={<Announcements />} />}
+                  />
+                  <Route
+                    path="dashboard"
+                    element={<PrivateRoute element={<Dashboard />} />}
+                  />
+                  <Route
+                    path="court-reservations"
+                    element={<PrivateRoute element={<CourtReservations />} />}
+                  />
+                  <Route
+                    path="blotter-reports"
+                    element={<PrivateRoute element={<BlotterReports />} />}
+                  />
+                  <Route
+                    path="create-blotter"
+                    element={<PrivateRoute element={<CreateBlotter />} />}
+                  />
+                  <Route
+                    path="settle-blotter"
+                    element={<PrivateRoute element={<SettleBlotter />} />}
+                  />
+                  <Route
+                    path="account"
+                    element={<PrivateRoute element={<AccountSettings />} />}
+                  />
+                </Route>
+              </Routes>
+            </InfoProvider>
           </ConfirmProvider>
         </OtpProvider>
       </AuthProvider>
