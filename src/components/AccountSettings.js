@@ -760,995 +760,1075 @@ function AccountSettings({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        {/* Menu */}
-        <div className="flex flex-row gap-x-3 mt-10">
-          <p
-            onClick={handleMenu1}
-            className={`cursor-pointer text-base font-bold ${
-              isProfileClicked ? "border-b-4 border-btn-color-blue" : ""
-            }`}
-          >
-            Profile
-          </p>
-          <p
-            onClick={handleMenu2}
-            className={`cursor-pointer text-base font-bold ${
-              isUsernameClicked ? "border-b-4 border-btn-color-blue" : ""
-            }`}
-          >
-            Change Username
-          </p>
-          <p
-            onClick={handleMenu3}
-            className={`cursor-pointer text-base font-bold ${
-              isPasswordClicked ? "border-b-4 border-btn-color-blue" : ""
-            }`}
-          >
-            Change Password
-          </p>
-          <p
-            onClick={handleMenu4}
-            className={`cursor-pointer text-base font-bold ${
-              isQuestionsClicked ? "border-b-4 border-btn-color-blue" : ""
-            }`}
-          >
-            Edit Security Questions
-          </p>
-        </div>
-        <hr className="mt-4 border border-gray-300" />
+        <div className="header-text">Account Settings</div>
+        <div className="flex flex-col lg:flex-row mt-4 gap-10">
+          {/* Left Panel */}
+          <div className="flex flex-col mt-4">
+            <p
+              onClick={handleMenu1}
+              className={`cursor-pointer text-base font-bold ${
+                isProfileClicked
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
+                  : "px-2"
+              }`}
+            >
+              Profile
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`cursor-pointer text-base font-bold ${
+                isUsernameClicked
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
+                  : "px-2"
+              }`}
+            >
+              Change Username
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`cursor-pointer text-base font-bold ${
+                isPasswordClicked
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
+                  : "px-2"
+              }`}
+            >
+              Change Password
+            </p>
+            <p
+              onClick={handleMenu4}
+              className={`cursor-pointer text-base font-bold ${
+                isQuestionsClicked
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
+                  : "px-2"
+              }`}
+            >
+              Edit Security Questions
+            </p>
+          </div>
 
-        {/* Profile */}
-        {isProfileClicked && (
-          <>
-            <div className="white-bg-container">
-              <h3 className="section-title">Personal Information</h3>
-              <hr class="section-divider" />
-              <div className="upload-container">
-                <div className="picture-upload-wrapper">
-                  <h3 className="form-label">
-                    Picture<label className="text-red-600">*</label>
-                  </h3>
-                  <div className="upload-box">
-                    <input
-                      onChange={handleChangeID}
-                      type="file"
-                      style={{ display: "none" }}
-                      ref={hiddenInputRef1}
-                    />
-                    <div className="upload-content">
-                      <div className="preview-container ">
-                        {isIDProcessing ? (
-                          <p>Processing...</p>
-                        ) : id ? (
-                          <img
-                            src={id}
-                            className="w-full h-full object-contain bg-white"
-                          />
-                        ) : (
-                          <p>No Picture Attached</p>
-                        )}
-                      </div>
-
-                      <div className="upload-picture-btn">
-                        <button onClick={toggleCamera} className="upload-btn">
-                          <FiCamera />
-                        </button>
-                        <button onClick={handleUploadID} className="upload-btn">
-                          <FiUpload />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="picture-upload-wrapper">
-                  <h3 className="form-label">
-                    Signature<label className="text-red-600">*</label>
-                  </h3>
-                  <div className="upload-box">
-                    <input
-                      onChange={handleChangeSig}
-                      type="file"
-                      style={{ display: "none" }}
-                      ref={hiddenInputRef2}
-                    />
-                    <div className="upload-content">
-                      <div className="preview-container">
-                        {isSignProcessing ? (
-                          <p>Processing...</p>
-                        ) : signature ? (
-                          <img
-                            src={signature}
-                            className="w-full h-full object-contain bg-white"
-                          />
-                        ) : (
-                          <p>No Picture Attached</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="upload-signature-btn">
-                      <button onClick={handleUploadSig} className="upload-btn">
-                        <FiUpload className="upload-btn-img" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSubmit();
-                }}
-              >
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">
-                      First Name<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      type="text"
-                      name="firstname"
-                      value={residentForm.firstname}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter first name"
-                      required
-                      className="form-input h-[30px] input-box"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Middle Name</label>
-                    <input
-                      name="middlename"
-                      value={residentForm.middlename}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter middle name"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      Last Name<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      name="lastname"
-                      value={residentForm.lastname}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter last name"
-                      required
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label for="suffix" className="form-label">
-                      Suffix
-                    </label>
-                    <select
-                      id="suffix"
-                      name="suffix"
-                      onChange={handleDropdownChange}
-                      value={residentForm.suffix}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {suffixList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Alias</label>
-                    <input
-                      name="alias"
-                      value={residentForm.alias}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter alias"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label for="salutation" className="form-label">
-                      Salutation
-                    </label>
-                    <select
-                      id="salutation"
-                      name="salutation"
-                      onChange={handleDropdownChange}
-                      value={residentForm.salutation}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-
-                      {salutationList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="sex" className="form-label">
-                      Sex:<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="sex"
-                      name="sex"
-                      onChange={handleDropdownChange}
-                      required
-                      value={residentForm.sex}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {sexList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="gender" className="form-label">
-                      Gender
-                    </label>
-                    <select
-                      id="gender"
-                      name="gender"
-                      onChange={handleDropdownChange}
-                      value={residentForm.gender}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {genderList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      Birthdate<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      type="date"
-                      name="birthdate"
-                      onChange={(e) => {
-                        const { name, value } = e.target;
-                        setResidentForm((prev) => ({
-                          ...prev,
-                          [name]: value,
-                        }));
-                      }}
-                      value={residentForm.birthdate}
-                      placeholder="Enter birthdate"
-                      min="1900-01-01"
-                      required
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Birthplace</label>
-                    <input
-                      name="birthplace"
-                      value={residentForm.birthplace}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter birthplace"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label for="civilstatus" className="form-label">
-                      Civil Status<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="civilstatus"
-                      name="civilstatus"
-                      onChange={handleDropdownChange}
-                      required
-                      value={residentForm.civilstatus}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {civilstatusList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="bloodtype" className="form-label">
-                      Blood Type
-                    </label>
-                    <select
-                      id="bloodtype"
-                      name="bloodtype"
-                      onChange={handleDropdownChange}
-                      value={residentForm.bloodtype}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {bloodtypeList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label for="religion" className="form-label">
-                      Religion
-                    </label>
-                    <select
-                      id="religion"
-                      name="religion"
-                      onChange={handleDropdownChange}
-                      value={residentForm.religion}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {religionList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="nationality" className="form-label">
-                      Nationality<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="nationality"
-                      name="nationality"
-                      onChange={handleDropdownChange}
-                      required
-                      value={residentForm.nationality}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {nationalityList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group space-x-5">
-                    <label className="form-label ">Registered Voter</label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="voter"
-                        onChange={handleRadioChange}
-                        value="Yes"
-                        checked={residentForm.voter === "Yes"}
-                      />
-                      Yes
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="voter"
-                        onChange={handleRadioChange}
-                        value="No"
-                        checked={residentForm.voter === "No"}
-                      />
-                      No
-                    </label>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Precinct</label>
-                    <input
-                      name="precinct"
-                      value={residentForm.precinct}
-                      onChange={lettersNumbersAndSpaceOnly}
-                      placeholder="Enter precinct"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-
-                  <div className="form-group space-x-5">
-                    <label className="form-label">Deceased:</label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="deceased"
-                        onChange={handleRadioChange}
-                        value="Yes"
-                        checked={residentForm.deceased === "Yes"}
-                      />
-                      Yes
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="deceased"
-                        onChange={handleRadioChange}
-                        value="No"
-                        checked={residentForm.deceased === "No"}
-                      />
-                      No
-                    </label>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <h3 className="section-title mt-8">Contact Information</h3>
-                <hr class="section-divider" />
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">Email</label>
-                    <input
-                      name="email"
-                      value={residentForm.email}
-                      onChange={stringsAndNoSpaceOnly}
-                      placeholder="Enter email"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      Mobile Number<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      name="mobilenumber"
-                      value={residentForm.mobilenumber}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter mobile number"
-                      required
-                      maxLength={11}
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Telephone</label>
-                    <input
-                      name="telephone"
-                      value={residentForm.telephone}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter telephone"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Facebook</label>
-                    <input
-                      name="facebook"
-                      value={residentForm.facebook}
-                      onChange={stringsAndNoSpaceOnly}
-                      placeholder="Enter facebook"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                </div>
-
-                {/* In Case Of Emergency Situation */}
-                <h3 className="section-title mt-8">
-                  In Case Of Emergency Situation
-                </h3>
-                <hr class="section-divider" />
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">
-                      Name<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      name="emergencyname"
-                      value={residentForm.emergencyname}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter name"
-                      required
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      Mobile Number<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      name="emergencymobilenumber"
-                      value={residentForm.emergencymobilenumber}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter mobile number"
-                      required
-                      maxLength={11}
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      Address<label className="text-red-600">*</label>
-                    </label>
-                    <input
-                      name="emergencyaddress"
-                      value={residentForm.emergencyaddress}
-                      onChange={lettersNumbersAndSpaceOnly}
-                      placeholder="Enter address"
-                      required
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                </div>
-
-                {/* Family Information */}
-                <h3 className="section-title mt-8">Family Information</h3>
-                <hr class="section-divider" />
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label for="mother" className="form-label">
-                      Mother
-                    </label>
-                    <select
-                      id="mother"
-                      name="mother"
-                      onChange={handleDropdownChange}
-                      value={residentForm.mother}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-
-                      {residents.map((element) => (
-                        <option value={element._id}>
-                          {element.middlename
-                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                            : `${element.firstname} ${element.lastname}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="father" className="form-label">
-                      Father
-                    </label>
-                    <select
-                      id="father"
-                      name="father"
-                      onChange={handleDropdownChange}
-                      value={residentInfo.father}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {residents.map((element) => (
-                        <option value={element._id}>
-                          {element.middlename
-                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                            : `${element.firstname} ${element.lastname}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="spouse" className="form-label">
-                      Spouse
-                    </label>
-                    <select
-                      id="spouse"
-                      name="spouse"
-                      onChange={handleDropdownChange}
-                      value={residentInfo.spouse}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {residents.map((element) => (
-                        <option value={element._id}>
-                          {element.middlename
-                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                            : `${element.firstname} ${element.lastname}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label mt-4">Siblings</label>
-                    <input
-                      name="numberofsiblings"
-                      value={residentForm.numberofsiblings}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter number of siblings"
-                      className="form-input h-[30px] "
-                    />
-                  </div>
-                </div>
-                {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-                  <div className="form-grid mt-4">
-                    {renderSiblingsDropdown()}
-                  </div>
-                )}
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label mt-4 ">Children</label>
-                    <input
-                      name="numberofchildren"
-                      value={residentForm.numberofchildren}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter number of siblings"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                </div>
-
-                {parseInt(residentForm.numberofchildren, 10) > 0 && (
-                  <div className="form-grid mt-4 ">
-                    {renderChildrenDropdown()}
-                  </div>
-                )}
-
-                {/* Address Information */}
-                <h3 className="section-title mt-8">Address Information</h3>
-                <hr class="section-divider" />
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">House Number</label>
-                    <input
-                      name="housenumber"
-                      value={residentForm.housenumber}
-                      onChange={numbersAndNoSpaceOnly}
-                      placeholder="Enter house number"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label for="street" className="form-label">
-                      Street<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="street"
-                      name="street"
-                      onChange={handleDropdownChange}
-                      required
-                      value={residentForm.street}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {streetList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="HOAname" className="form-label">
-                      HOA Name
-                    </label>
-                    <select
-                      id="HOAname"
-                      name="HOAname"
-                      onChange={handleDropdownChange}
-                      value={residentForm.HOAname}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      <option value="Bermuda Town Homes">
-                        Bermuda Town Homes
-                      </option>
-                      <option value="None">None</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Employment Information */}
-                <h3 className="section-title mt-8">Employment Information</h3>
-                <hr class="section-divider" />
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label for="employmentstatus" className="form-label">
-                      Employment Status
-                    </label>
-                    <select
-                      id="employmentstatus"
-                      name="employmentstatus"
-                      onChange={handleDropdownChange}
-                      value={residentForm.employmentstatus}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {employmentstatusList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Occupation</label>
-                    <input
-                      name="occupation"
-                      value={residentForm.occupation}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter occupation"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label for="monthlyincome" className="form-label">
-                      Monthly Income
-                    </label>
-                    <select
-                      id="monthlyincome"
-                      name="monthlyincome"
-                      onChange={handleDropdownChange}
-                      value={residentForm.monthlyincome}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {monthlyincomeList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Educational Information */}
-                <h3 className="section-title mt-8">Educational Information</h3>
-                <hr class="section-divider" />
-
-                <div className="form-grid">
-                  <div className="form-group ">
-                    <label for="educationalattainment" className="form-label">
-                      Highest Educational Attainment
-                    </label>
-                    <select
-                      id="educationalattainment"
-                      name="educationalattainment"
-                      onChange={handleDropdownChange}
-                      value={residentForm.educationalattainment}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {educationalattainmentList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="typeofschool" className="form-label">
-                      Type of School
-                    </label>
-                    <select
-                      id="typeofschool"
-                      name="typeofschool"
-                      onChange={handleDropdownChange}
-                      value={residentForm.typeofschool}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      <option value="Public">Public</option>
-                      <option value="Private">Private</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Course</label>
-                    <input
-                      name="course"
-                      value={residentForm.course}
-                      onChange={lettersAndSpaceOnly}
-                      placeholder="Enter course"
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                </div>
-
-                <div className="function-btn-container">
-                  <button
-                    type="submit"
-                    className="actions-btn bg-btn-color-blue mt-4"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        )}
-
-        {/* Change Username */}
-        {isUsernameClicked && (
-          <>
-            <div className="header-text">Change Username</div>
+          {/* Right Panel */}
+          <div className="cols-span-3">
+            {/* Profile */}
             <div>
-              <label>Current Username</label>
-              <div>
-                <label>{user.username}</label>
+              {isProfileClicked && (
+                <>
+                  <div className="white-bg-container">
+                    <h3 className="section-title">Personal Information</h3>
+                    <hr class="section-divider" />
+                    <div className="upload-container">
+                      <div className="picture-upload-wrapper">
+                        <h3 className="form-label">
+                          Picture<label className="text-red-600">*</label>
+                        </h3>
+                        <div className="upload-box">
+                          <input
+                            onChange={handleChangeID}
+                            type="file"
+                            style={{ display: "none" }}
+                            ref={hiddenInputRef1}
+                          />
+                          <div className="upload-content">
+                            <div className="preview-container ">
+                              {isIDProcessing ? (
+                                <p>Processing...</p>
+                              ) : id ? (
+                                <img
+                                  src={id}
+                                  className="w-full h-full object-contain bg-white"
+                                />
+                              ) : (
+                                <p>No Picture Attached</p>
+                              )}
+                            </div>
+
+                            <div className="upload-picture-btn">
+                              <button
+                                onClick={toggleCamera}
+                                className="upload-btn"
+                              >
+                                <FiCamera />
+                              </button>
+                              <button
+                                onClick={handleUploadID}
+                                className="upload-btn"
+                              >
+                                <FiUpload />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="picture-upload-wrapper">
+                        <h3 className="form-label">
+                          Signature<label className="text-red-600">*</label>
+                        </h3>
+                        <div className="upload-box">
+                          <input
+                            onChange={handleChangeSig}
+                            type="file"
+                            style={{ display: "none" }}
+                            ref={hiddenInputRef2}
+                          />
+                          <div className="upload-content">
+                            <div className="preview-container">
+                              {isSignProcessing ? (
+                                <p>Processing...</p>
+                              ) : signature ? (
+                                <img
+                                  src={signature}
+                                  className="w-full h-full object-contain bg-white"
+                                />
+                              ) : (
+                                <p>No Picture Attached</p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="upload-signature-btn">
+                            <button
+                              onClick={handleUploadSig}
+                              className="upload-btn"
+                            >
+                              <FiUpload className="upload-btn-img" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSubmit();
+                      }}
+                    >
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label">
+                            First Name<label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            type="text"
+                            name="firstname"
+                            value={residentForm.firstname}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter first name"
+                            required
+                            className="form-input h-[30px] input-box"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Middle Name</label>
+                          <input
+                            name="middlename"
+                            value={residentForm.middlename}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter middle name"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            Last Name<label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            name="lastname"
+                            value={residentForm.lastname}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter last name"
+                            required
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="suffix" className="form-label">
+                            Suffix
+                          </label>
+                          <select
+                            id="suffix"
+                            name="suffix"
+                            onChange={handleDropdownChange}
+                            value={residentForm.suffix}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {suffixList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Alias</label>
+                          <input
+                            name="alias"
+                            value={residentForm.alias}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter alias"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="salutation" className="form-label">
+                            Salutation
+                          </label>
+                          <select
+                            id="salutation"
+                            name="salutation"
+                            onChange={handleDropdownChange}
+                            value={residentForm.salutation}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+
+                            {salutationList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="sex" className="form-label">
+                            Sex:<label className="text-red-600">*</label>
+                          </label>
+                          <select
+                            id="sex"
+                            name="sex"
+                            onChange={handleDropdownChange}
+                            required
+                            value={residentForm.sex}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {sexList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="gender" className="form-label">
+                            Gender
+                          </label>
+                          <select
+                            id="gender"
+                            name="gender"
+                            onChange={handleDropdownChange}
+                            value={residentForm.gender}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {genderList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            Birthdate<label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            type="date"
+                            name="birthdate"
+                            onChange={(e) => {
+                              const { name, value } = e.target;
+                              setResidentForm((prev) => ({
+                                ...prev,
+                                [name]: value,
+                              }));
+                            }}
+                            value={residentForm.birthdate}
+                            placeholder="Enter birthdate"
+                            min="1900-01-01"
+                            required
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Birthplace</label>
+                          <input
+                            name="birthplace"
+                            value={residentForm.birthplace}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter birthplace"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="civilstatus" className="form-label">
+                            Civil Status
+                            <label className="text-red-600">*</label>
+                          </label>
+                          <select
+                            id="civilstatus"
+                            name="civilstatus"
+                            onChange={handleDropdownChange}
+                            required
+                            value={residentForm.civilstatus}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {civilstatusList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="bloodtype" className="form-label">
+                            Blood Type
+                          </label>
+                          <select
+                            id="bloodtype"
+                            name="bloodtype"
+                            onChange={handleDropdownChange}
+                            value={residentForm.bloodtype}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {bloodtypeList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label for="religion" className="form-label">
+                            Religion
+                          </label>
+                          <select
+                            id="religion"
+                            name="religion"
+                            onChange={handleDropdownChange}
+                            value={residentForm.religion}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {religionList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="nationality" className="form-label">
+                            Nationality<label className="text-red-600">*</label>
+                          </label>
+                          <select
+                            id="nationality"
+                            name="nationality"
+                            onChange={handleDropdownChange}
+                            required
+                            value={residentForm.nationality}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {nationalityList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group space-x-5">
+                          <label className="form-label ">
+                            Registered Voter
+                          </label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="voter"
+                              onChange={handleRadioChange}
+                              value="Yes"
+                              checked={residentForm.voter === "Yes"}
+                            />
+                            Yes
+                          </label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="voter"
+                              onChange={handleRadioChange}
+                              value="No"
+                              checked={residentForm.voter === "No"}
+                            />
+                            No
+                          </label>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Precinct</label>
+                          <input
+                            name="precinct"
+                            value={residentForm.precinct}
+                            onChange={lettersNumbersAndSpaceOnly}
+                            placeholder="Enter precinct"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+
+                        <div className="form-group space-x-5">
+                          <label className="form-label">Deceased:</label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="deceased"
+                              onChange={handleRadioChange}
+                              value="Yes"
+                              checked={residentForm.deceased === "Yes"}
+                            />
+                            Yes
+                          </label>
+                          <label>
+                            <input
+                              type="radio"
+                              name="deceased"
+                              onChange={handleRadioChange}
+                              value="No"
+                              checked={residentForm.deceased === "No"}
+                            />
+                            No
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Contact Information */}
+                      <h3 className="section-title mt-8">
+                        Contact Information
+                      </h3>
+                      <hr class="section-divider" />
+
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label">Email</label>
+                          <input
+                            name="email"
+                            value={residentForm.email}
+                            onChange={stringsAndNoSpaceOnly}
+                            placeholder="Enter email"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            Mobile Number
+                            <label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            name="mobilenumber"
+                            value={residentForm.mobilenumber}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter mobile number"
+                            required
+                            maxLength={11}
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Telephone</label>
+                          <input
+                            name="telephone"
+                            value={residentForm.telephone}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter telephone"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">Facebook</label>
+                          <input
+                            name="facebook"
+                            value={residentForm.facebook}
+                            onChange={stringsAndNoSpaceOnly}
+                            placeholder="Enter facebook"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* In Case Of Emergency Situation */}
+                      <h3 className="section-title mt-8">
+                        In Case Of Emergency Situation
+                      </h3>
+                      <hr class="section-divider" />
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label">
+                            Name<label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            name="emergencyname"
+                            value={residentForm.emergencyname}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter name"
+                            required
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            Mobile Number
+                            <label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            name="emergencymobilenumber"
+                            value={residentForm.emergencymobilenumber}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter mobile number"
+                            required
+                            maxLength={11}
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label className="form-label">
+                            Address<label className="text-red-600">*</label>
+                          </label>
+                          <input
+                            name="emergencyaddress"
+                            value={residentForm.emergencyaddress}
+                            onChange={lettersNumbersAndSpaceOnly}
+                            placeholder="Enter address"
+                            required
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Family Information */}
+                      <h3 className="section-title mt-8">Family Information</h3>
+                      <hr class="section-divider" />
+
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label for="mother" className="form-label">
+                            Mother
+                          </label>
+                          <select
+                            id="mother"
+                            name="mother"
+                            onChange={handleDropdownChange}
+                            value={residentForm.mother}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+
+                            {residents.map((element) => (
+                              <option value={element._id}>
+                                {element.middlename
+                                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                                  : `${element.firstname} ${element.lastname}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="father" className="form-label">
+                            Father
+                          </label>
+                          <select
+                            id="father"
+                            name="father"
+                            onChange={handleDropdownChange}
+                            value={residentInfo.father}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {residents.map((element) => (
+                              <option value={element._id}>
+                                {element.middlename
+                                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                                  : `${element.firstname} ${element.lastname}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="spouse" className="form-label">
+                            Spouse
+                          </label>
+                          <select
+                            id="spouse"
+                            name="spouse"
+                            onChange={handleDropdownChange}
+                            value={residentInfo.spouse}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {residents.map((element) => (
+                              <option value={element._id}>
+                                {element.middlename
+                                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                                  : `${element.firstname} ${element.lastname}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label mt-4">Siblings</label>
+                          <input
+                            name="numberofsiblings"
+                            value={residentForm.numberofsiblings}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter number of siblings"
+                            className="form-input h-[30px] "
+                          />
+                        </div>
+                      </div>
+                      {parseInt(residentForm.numberofsiblings, 10) > 0 && (
+                        <div className="form-grid mt-4">
+                          {renderSiblingsDropdown()}
+                        </div>
+                      )}
+
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label mt-4 ">Children</label>
+                          <input
+                            name="numberofchildren"
+                            value={residentForm.numberofchildren}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter number of siblings"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                      </div>
+
+                      {parseInt(residentForm.numberofchildren, 10) > 0 && (
+                        <div className="form-grid mt-4 ">
+                          {renderChildrenDropdown()}
+                        </div>
+                      )}
+
+                      {/* Address Information */}
+                      <h3 className="section-title mt-8">
+                        Address Information
+                      </h3>
+                      <hr class="section-divider" />
+
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label className="form-label">House Number</label>
+                          <input
+                            name="housenumber"
+                            value={residentForm.housenumber}
+                            onChange={numbersAndNoSpaceOnly}
+                            placeholder="Enter house number"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label for="street" className="form-label">
+                            Street<label className="text-red-600">*</label>
+                          </label>
+                          <select
+                            id="street"
+                            name="street"
+                            onChange={handleDropdownChange}
+                            required
+                            value={residentForm.street}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {streetList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="HOAname" className="form-label">
+                            HOA Name
+                          </label>
+                          <select
+                            id="HOAname"
+                            name="HOAname"
+                            onChange={handleDropdownChange}
+                            value={residentForm.HOAname}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            <option value="Bermuda Town Homes">
+                              Bermuda Town Homes
+                            </option>
+                            <option value="None">None</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Employment Information */}
+                      <h3 className="section-title mt-8">
+                        Employment Information
+                      </h3>
+                      <hr class="section-divider" />
+
+                      <div className="form-grid">
+                        <div className="form-group">
+                          <label for="employmentstatus" className="form-label">
+                            Employment Status
+                          </label>
+                          <select
+                            id="employmentstatus"
+                            name="employmentstatus"
+                            onChange={handleDropdownChange}
+                            value={residentForm.employmentstatus}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {employmentstatusList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label className="form-label">Occupation</label>
+                          <input
+                            name="occupation"
+                            value={residentForm.occupation}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter occupation"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label for="monthlyincome" className="form-label">
+                            Monthly Income
+                          </label>
+                          <select
+                            id="monthlyincome"
+                            name="monthlyincome"
+                            onChange={handleDropdownChange}
+                            value={residentForm.monthlyincome}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {monthlyincomeList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Educational Information */}
+                      <h3 className="section-title mt-8">
+                        Educational Information
+                      </h3>
+                      <hr class="section-divider" />
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        <div className="form-group">
+                          <label
+                            for="educationalattainment"
+                            className="form-label whitespace-nowrap"
+                          >
+                            Highest Educational Attainment
+                          </label>
+                          <select
+                            id="educationalattainment"
+                            name="educationalattainment"
+                            onChange={handleDropdownChange}
+                            value={residentForm.educationalattainment}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            {educationalattainmentList.map((element) => (
+                              <option value={element}>{element}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label for="typeofschool" className="form-label">
+                            Type of School
+                          </label>
+                          <select
+                            id="typeofschool"
+                            name="typeofschool"
+                            onChange={handleDropdownChange}
+                            value={residentForm.typeofschool}
+                            className="form-input h-[30px]"
+                          >
+                            <option value="" disabled selected hidden>
+                              Select
+                            </option>
+                            <option value="Public">Public</option>
+                            <option value="Private">Private</option>
+                          </select>
+                        </div>
+                        <div className="form-group ">
+                          <label className="form-label">Course</label>
+                          <input
+                            name="course"
+                            value={residentForm.course}
+                            onChange={lettersAndSpaceOnly}
+                            placeholder="Enter course"
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="function-btn-container">
+                        <button
+                          type="submit"
+                          className="actions-btn bg-btn-color-blue mt-4"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Change Username */}
+            {isUsernameClicked && (
+              <div className="white-bg-container w-[30rem] h-auto">
+                <div className="header-text">Change Username</div>
+                <div className="p-4">
+                  <div>
+                    <label>Current Username</label>
+                    <div>
+                      <label>{user.username}</label>
+                    </div>
+                  </div>
+
+                  <div className="employee-form-group mt-4">
+                    <label for="newusername" className="form-label">
+                      New Username
+                    </label>
+                    <input
+                      placeholder="Enter New Username"
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={username}
+                      onChange={(e) =>
+                        setUsername(e.target.value.toLowerCase())
+                      }
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                  <div className="employee-form-group mt-4">
+                    <label for="password" className="form-label">
+                      Password
+                    </label>
+                    <input
+                      placeholder="Enter Password"
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+
+                  <div className="function-btn-container">
+                    <button
+                      className="actions-btn bg-btn-color-blue mt-4"
+                      type="button"
+                      onClick={handleUsernameChange}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="employee-form-group">
-              <label for="newusername" className="form-label">
-                New Username
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <div className="employee-form-group">
-              <label for="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <button
-              className="actions-btn bg-btn-color-blue"
-              type="button"
-              onClick={handleUsernameChange}
-            >
-              Confirm
-            </button>
-          </>
-        )}
+            {/* Change Password */}
+            {isPasswordClicked && (
+              <div className="white-bg-container w-[30rem] h-auto">
+                <div className="header-text">Change Password</div>
+                <div className="p-4">
+                  <div className="employee-form-group">
+                    <label for="password" className="form-label">
+                      Current Password
+                    </label>
+                    <input
+                      placeholder="Enter Current Password"
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                  <div className="employee-form-group mt-4">
+                    <label for="newpassword" className="form-label">
+                      New Password
+                    </label>
+                    <input
+                      placeholder="Enter New Password"
+                      type="password"
+                      id="newpassword"
+                      name="newpassword"
+                      value={newpassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                  <div className="employee-form-group mt-4">
+                    <label for="renewpassword" className="form-label">
+                      Reenter Password
+                    </label>
+                    <input
+                      placeholder="Enter Reenter Password"
+                      type="password"
+                      id="renewpassword"
+                      name="renewpassword"
+                      value={renewpassword}
+                      onChange={(e) => setRenewPassword(e.target.value)}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                  <div className="function-btn-container">
+                    <button
+                      className="actions-btn bg-btn-color-blue mt-4"
+                      type="button"
+                      onClick={handlePasswordChange}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-        {/* Change Password */}
-        {isPasswordClicked && (
-          <>
-            <div className="header-text">Change Password</div>
-            <div className="employee-form-group">
-              <label for="password" className="form-label">
-                Current Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <div className="employee-form-group">
-              <label for="newpassword" className="form-label">
-                New Password
-              </label>
-              <input
-                type="password"
-                id="newpassword"
-                name="newpassword"
-                value={newpassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <div className="employee-form-group">
-              <label for="renewpassword" className="form-label">
-                Reenter Password
-              </label>
-              <input
-                type="password"
-                id="renewpassword"
-                name="renewpassword"
-                value={renewpassword}
-                onChange={(e) => setRenewPassword(e.target.value)}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <button
-              className="actions-btn bg-btn-color-blue"
-              type="button"
-              onClick={handlePasswordChange}
-            >
-              Confirm
-            </button>
-          </>
-        )}
+            {/* Edit Security Questions */}
+            {isQuestionsClicked && (
+              <div className="white-bg-container w-[30rem] h-auto">
+                <div className="header-text">Edit Security Questions</div>
+                <div className="p-4">
+                  <div>
+                    <label>Security Question #1</label>
+                    <select
+                      onChange={(e) =>
+                        handleSecurityChange(0, "question", e.target.value)
+                      }
+                      className="form-input h-[30px] mb-2"
+                      value={securityquestions[0].question}
+                    >
+                      <option value="" disabled selected hidden>
+                        Select
+                      </option>
+                      {securityQuestionsList
+                        .filter(
+                          (element) => element !== securityquestions[1].question
+                        )
+                        .map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                    </select>
+                    <input
+                      type="password"
+                      placeholder="Enter answer"
+                      onChange={(e) =>
+                        handleSecurityChange(
+                          0,
+                          "answer",
+                          e.target.value.toLowerCase()
+                        )
+                      }
+                      className="form-input h-[35px]"
+                    />
+                  </div>
 
-        {/* Edit Security Questions */}
-        {isQuestionsClicked && (
-          <>
-            <div className="header-text">Edit Security Questions</div>
-            <label>Security Question #1</label>
-            <select
-              onChange={(e) =>
-                handleSecurityChange(0, "question", e.target.value)
-              }
-              className="form-input h-[30px]"
-              value={securityquestions[0].question}
-            >
-              <option value="" disabled selected hidden>
-                Select
-              </option>
-              {securityQuestionsList
-                .filter((element) => element !== securityquestions[1].question)
-                .map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-            </select>
-            <input
-              type="password"
-              placeholder="Enter answer"
-              onChange={(e) =>
-                handleSecurityChange(0, "answer", e.target.value.toLowerCase())
-              }
-              className="form-input h-[35px]"
-            />
-            <label>Security Question #2</label>
-            <select
-              onChange={(e) =>
-                handleSecurityChange(1, "question", e.target.value)
-              }
-              className="form-input h-[30px]"
-              value={securityquestions[1].question}
-            >
-              <option value="" disabled selected hidden>
-                Select
-              </option>
-              {securityQuestionsList
-                .filter((element) => element !== securityquestions[0].question)
-                .map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-            </select>
-            <input
-              type="password"
-              placeholder="Enter answer"
-              onChange={(e) =>
-                handleSecurityChange(1, "answer", e.target.value.toLowerCase())
-              }
-              className="form-input h-[35px]"
-            />
-            <div className="employee-form-group">
-              <label for="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input h-[30px]"
-              />
-            </div>
-            <button
-              className="actions-btn bg-btn-color-blue"
-              type="button"
-              onClick={handleQuestionsChange}
-            >
-              Confirm
-            </button>
-          </>
-        )}
+                  <div className="mt-4">
+                    <label>Security Question #2</label>
+                    <select
+                      onChange={(e) =>
+                        handleSecurityChange(1, "question", e.target.value)
+                      }
+                      className="form-input h-[30px] mb-2"
+                      value={securityquestions[1].question}
+                    >
+                      <option value="" disabled selected hidden>
+                        Select
+                      </option>
+                      {securityQuestionsList
+                        .filter(
+                          (element) => element !== securityquestions[0].question
+                        )
+                        .map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                    </select>
+                    <input
+                      type="password"
+                      placeholder="Enter answer"
+                      onChange={(e) =>
+                        handleSecurityChange(
+                          1,
+                          "answer",
+                          e.target.value.toLowerCase()
+                        )
+                      }
+                      className="form-input h-[35px]"
+                    />
+                  </div>
+
+                  <div className="employee-form-group mt-4">
+                    <label for="password" className="form-label">
+                      Password
+                    </label>
+                    <input
+                      placeholder="Enter Password"
+                      type="password"
+                      id="password"
+                      name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                  <div className="function-btn-container">
+                    <button
+                      className="actions-btn bg-btn-color-blue mt-4"
+                      type="button"
+                      onClick={handleQuestionsChange}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {isCameraOpen && (
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}

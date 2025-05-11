@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
+
+import LoginBg from "../assets/login-bg-blue.png";
+import AppLogo from "../assets/applogo-darkbg.png";
 import api from "../api";
 import { OtpContext } from "../context/OtpContext";
 
@@ -69,14 +70,22 @@ function Login() {
       <div className="login-container">
         <div
           className="left-login-container"
-          style={{ backgroundImage: `url(${blueBg})` }}
+          style={{
+            backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+          }}
         >
-          <img src={applogo} alt="App Logo" className="w-[256px] h-[256px]" />
+          <img src={AppLogo} alt="App Logo" className="w-[312px] h-[312px]" />
         </div>
 
         <div className="right-login-container">
           <div className="login-form-container">
-            <span className="login-title">Welcome</span>
+            <div className="flex flex-col">
+              <h1 className="login-title">Welcome</h1>
+              <label className="text-gray-400">
+                Please enter your credentials to log in.
+              </label>
+            </div>
+
             <input
               type="text"
               placeholder="Enter username"
@@ -96,7 +105,9 @@ function Login() {
             >
               Login
             </button>
-            <a href="/forgot-password">Forgot password?</a>
+            <a href="/forgot-password" className="text-[#0E94D3] ml-auto">
+              Forgot password?
+            </a>
           </div>
         </div>
       </div>
