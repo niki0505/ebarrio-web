@@ -184,49 +184,42 @@ function ForgotPassword() {
       {/* Forgot Password */}
       {!isExisting && (
         <>
-          <div className="login-container">
-            <div
-              className="left-login-container"
-              style={{
-                backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-              }}
-            >
-              <img
-                src={AppLogo}
-                alt="App Logo"
-                className="w-[312px] h-[312px]"
-              />
-            </div>
-
-            <div className="right-login-container">
-              <div className="login-form-container">
-                <div>
-                  <h1 className="login-title">Forgot Password</h1>
-                  <label className="text-gray-400">
-                    Please enter your username to begin the password reset
-                    process.
-                  </label>
-                </div>
-
-                <>
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="form-input h-[35px]"
-                  />
-                  <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Submit
-                  </button>
-                  <a href="/login" className="text-[#0E94D3] ml-auto">
-                    Remember your password?
-                  </a>
-                </>
+          <div
+            className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+            style={{
+              backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+            }}
+          >
+            <img
+              src={AppLogo}
+              alt="App Logo"
+              className="w-[312px] h-[312px] translate-x-[-20vw]"
+            />
+            <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
+              <div className="mb-4">
+                <h1 className="login-title">Forgot Password</h1>
+                <label className="text-gray-400">
+                  Please enter your username to begin the password <br /> reset
+                  process.
+                </label>
               </div>
+
+              <input
+                type="text"
+                placeholder="Enter your username"
+                onChange={(e) => setUsername(e.target.value)}
+                className="form-input h-[35px]"
+              />
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="actions-btn bg-btn-color-blue"
+              >
+                Submit
+              </button>
+              <a href="/login" className="text-[#0E94D3] ml-auto">
+                Remember your password?
+              </a>
             </div>
           </div>
         </>

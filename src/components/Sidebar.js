@@ -97,7 +97,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
         <div
           className={`sidebar-logo-container ${
-            isCollapsed ? "justify-start" : "justify-center"
+            isCollapsed ? "justify-start mt-4" : "justify-center"
           }`}
         >
           <img
@@ -137,7 +137,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 end
               >
                 <span
-                  className={`sidebar-menu-item-icon ${
+                  className={`sidebar-menu-item-icon ml-2 ${
                     isCollapsed ? "ml-3" : ""
                   }`}
                   aria-hidden="true"

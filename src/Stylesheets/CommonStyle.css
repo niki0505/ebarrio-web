@@ -93,7 +93,7 @@ td {
   @apply w-3/5 h-screen bg-cover bg-center flex items-center justify-center;
 }
 .right-login-container {
-  @apply w-2/5 flex items-center justify-center bg-[#FFFBFC];
+  @apply w-2/5 flex items-center justify-center bg-[#FFFBFC] rounded-md mt-5 mb-5 mr-5;
 }
 .login-form-container {
   @apply flex flex-col gap-4 w-2/3 max-w-md;

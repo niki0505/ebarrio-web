@@ -59,12 +59,10 @@
 }
 .sidebar-menu-item-icon {
   @apply text-2xl 
-    text-white 
-    ml-2;
+    text-white;
 }
 .sidebar-menu-item-title {
   @apply text-base 
-   
     font-medium
     ml-3;
 }
