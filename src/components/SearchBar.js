@@ -11,7 +11,7 @@ const Searchbar = ({ handleSearch, searchValue }) => {
           <input
             type="text"
             placeholder="Search..."
-            className="search-input"
+            className="search-input "
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
           />

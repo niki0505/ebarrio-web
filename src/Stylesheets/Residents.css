@@ -33,7 +33,7 @@
   @apply w-full h-full object-contain;
 }
 .form-label {
-  @apply text-[12px] font-[650] block text-navy-blue;
+  @apply text-[14px] block text-navy-blue font-title font-normal;
 }
 .form-grid {
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4;
@@ -42,8 +42,9 @@
   @apply col-span-1;
 }
 .form-input {
-  @apply block w-full rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+  @apply block w-full rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm;
 }
+
 .function-btn-container {
   @apply flex justify-end space-x-5 rounded rounded-md;
 }

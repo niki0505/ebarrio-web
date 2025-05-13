@@ -26,13 +26,13 @@ const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
         </div>
 
         <p className="dialog-message text-red-600">{message}</p>
-        <p class="text-gray-400 text-sm mb-4">
+        <p class="text-[#ACACAC] text-sm mb-4 font-subTitle font-semibold">
           Press Confirm to continue, or Cancel to stay on the current page
         </p>
 
         <div className="flex justify-end gap-4">
           <button
-            onClick={onCancel}
+            onClick={onCancel}  
             className="actions-btn bg-btn-color-gray hover:bg-gray-400"
           >
             Cancel

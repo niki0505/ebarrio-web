@@ -29,10 +29,10 @@
   @apply rounded-full w-10 h-10 mr-2 object-contain;
 }
 .announcement-info-label {
-  @apply text-gray-500 text-sm;
+  @apply text-[#ACACAC] text-sm font-subTitle font-bold;
 }
 .announcement-info-value {
-  @apply font-bold text-sm;
+  @apply text-sm font-subTitle font-bold;
 }
 .announcement-pinned-panel {
   @apply p-4 border-l w-full lg:w-2/5;
@@ -44,7 +44,7 @@
   @apply absolute top-2 right-2 flex flex-col sm:flex-row gap-2;
 }
 .announcement-sort-dropdown {
-  @apply text-sm font-semibold w-full h-full rounded-md;
+  @apply text-sm font-semibold w-full h-full rounded-md font-subTitle;
 }
 .announcement-heart {
   @apply mt-2 text-btn-color-red text-sm;

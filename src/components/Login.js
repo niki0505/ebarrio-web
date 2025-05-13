@@ -121,8 +121,8 @@ const Login = () => {
           `}
         >
           <div className="mb-4">
-            <h1 className="login-title">Welcome</h1>
-            <label className="text-gray-400">
+            <h1 className="header-text">Welcome!</h1>
+            <label className="text-[#ACACAC] font-subTitle font-semibold">
               Please enter your credentials to log in.
             </label>
           </div>
@@ -142,11 +142,14 @@ const Login = () => {
           <button
             onClick={handleLogin}
             type="submit"
-            className="actions-btn bg-btn-color-blue"
+            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
           >
             Login
           </button>
-          <a href="/forgot-password" className="text-[#0E94D3] ml-auto">
+          <a
+            href="/forgot-password"
+            className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+          >
             Forgot password?
           </a>
         </div>

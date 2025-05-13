@@ -63,10 +63,10 @@
   @apply text-text-blue text-xl ml-3;
 }
 .account-text {
-  @apply text-text-blue font-bold px-4 py-2;
+  @apply text-navy-blue font-bold px-4 py-2 text-[16px];
 }
 .signout-text {
-  @apply text-red-500 font-bold px-4 py-2;
+  @apply text-red-500 font-bold px-4 py-2 text-[16px];
 }
 
 /*RESPONSIVE*/

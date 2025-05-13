@@ -83,7 +83,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="flex flex-col">
+      <div className="flex flex-col overflow-y-auto h-full hide-scrollbar">
         <div
           className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
           onClick={toggleSidebar}
@@ -112,12 +112,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
               isCollapsed ? "hidden" : "block"
             }`}
           >
-            <label className="sidebar-logo-text">eBarrio</label>
-            <label className="text-[rgba(255,255,255,0.50)] text-xs">
-              Barangay Management
-            </label>
-            <label className="text-[rgba(255,255,255,0.50)] text-xs">
-              Disaster Response System
+            <label className="font-title font-bold text-[24px]">eBarrio</label>
+            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold">
+              Barangay Management <br /> Disaster Response System
             </label>
           </span>
         </div>

@@ -769,7 +769,7 @@ function AccountSettings({ isCollapsed }) {
               className={`cursor-pointer text-base font-bold ${
                 isProfileClicked
                   ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2"
+                  : "px-2 font-medium"
               }`}
             >
               Profile
@@ -779,7 +779,7 @@ function AccountSettings({ isCollapsed }) {
               className={`cursor-pointer text-base font-bold ${
                 isUsernameClicked
                   ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2"
+                  : "px-2 font-medium"
               }`}
             >
               Change Username
@@ -789,7 +789,7 @@ function AccountSettings({ isCollapsed }) {
               className={`cursor-pointer text-base font-bold ${
                 isPasswordClicked
                   ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2"
+                  : "px-2 font-medium"
               }`}
             >
               Change Password
@@ -799,7 +799,7 @@ function AccountSettings({ isCollapsed }) {
               className={`cursor-pointer text-base font-bold ${
                 isQuestionsClicked
                   ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2"
+                  : "px-2 font-medium"
               }`}
             >
               Edit Security Questions
@@ -1733,7 +1733,7 @@ function AccountSettings({ isCollapsed }) {
                 <div className="header-text">Edit Security Questions</div>
                 <div className="p-4">
                   <div>
-                    <label>Security Question #1</label>
+                    <label className="form-label">Security Question #1</label>
                     <select
                       onChange={(e) =>
                         handleSecurityChange(0, "question", e.target.value)
@@ -1767,7 +1767,7 @@ function AccountSettings({ isCollapsed }) {
                   </div>
 
                   <div className="mt-4">
-                    <label>Security Question #2</label>
+                    <label className="form-label">Security Question #2</label>
                     <select
                       onChange={(e) =>
                         handleSecurityChange(1, "question", e.target.value)

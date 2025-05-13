@@ -218,7 +218,7 @@ function Signup() {
           className="w-[312px] h-[312px] translate-x-[-20vw]"
         />
         <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
-          <span className="login-title">Create your account</span>
+          <span className="header-text">Create your account</span>
           <input
             type="text"
             placeholder="First Name"
@@ -297,7 +297,7 @@ function Signup() {
           <button
             onClick={handleSignUp}
             type="submit"
-            className="actions-btn bg-btn-color-blue"
+            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
           >
             Sign up
           </button>

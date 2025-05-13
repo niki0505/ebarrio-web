@@ -223,7 +223,7 @@ function CreateReservation({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
+          <div className="modal-content w-[20rem] h-[35rem] ">
             <div className="modal-title-bar bg-navy-blue">
               <h1 className="modal-title">Add New Reservation</h1>
               <button className="modal-btn-close">
