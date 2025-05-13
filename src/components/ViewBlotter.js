@@ -515,7 +515,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     <button
                       type="button"
                       onClick={handleSettle}
-                      className="actions-btn bg-btn-color-blue"
+                      className="actions-btn bg-[#06D001]"
                     >
                       Settle
                     </button>

@@ -17,6 +17,7 @@
 }
 .search-input {
   @apply w-full 
+  font-subTitle font-semibold
     h-full 
     border-none 
     outline-none 

@@ -83,8 +83,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#E3DE48]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">3,000</h2>
-                <p class="text-[#E3DE48] font-semibold">Total Residents</p>
+                <h2 class="font-title text-[24px] font-bold">3,000</h2>
+                <p class="text-[#E3DE48] font-title text-[16px] font-medium">
+                  Total Residents
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -98,8 +100,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#0E94D3]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">1,500</h2>
-                <p class="text-[#0E94D3] font-semibold">Male</p>
+                <h2 class="font-title text-[24px] font-bold">1,500</h2>
+                <p class="text-[#0E94D3] font-title text-[16px] font-medium">
+                  Male
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -113,8 +117,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#FCA0FE]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">1,500</h2>
-                <p class="text-[#FCA0FE] font-semibold">Female</p>
+                <h2 class="font-title text-[24px] font-bold">1,500</h2>
+                <p class="text-[#FCA0FE] font-title text-[16px] font-medium">
+                  Female
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -128,8 +134,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#FA7020]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">500</h2>
-                <p class="text-[#FA7020] font-semibold">Senior Citizens</p>
+                <h2 class="font-title text-[24px] font-bold">500</h2>
+                <p class="text-[#FA7020] font-title text-[16px] font-medium">
+                  Senior Citizens
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -143,8 +151,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#59D05E]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">1,000</h2>
-                <p class="text-[#59D05E] font-semibold">Voters</p>
+                <h2 class="font-title text-[24px] font-bold">1,000</h2>
+                <p class="text-[#59D05E] font-title text-[16px] font-medium">
+                  Voters
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -158,8 +168,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#FF0000]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">500</h2>
-                <p class="text-[#FF0000] font-semibold">Non-Voters</p>
+                <h2 class="font-title text-[24px] font-bold">500</h2>
+                <p class="text-[#FF0000] font-title text-[16px] font-medium">
+                  Non-Voters
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -173,8 +185,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#BF9727]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">500</h2>
-                <p class="text-[#BF9727] font-semibold">Blotter</p>
+                <h2 class="font-title text-[24px] font-bold">500</h2>
+                <p class="text-[#BF9727] font-title text-[16px] font-medium">
+                  Blotter
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -188,8 +202,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#43254F]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">500</h2>
-                <p class="text-[#43254F] font-semibold">Certificate Requests</p>
+                <h2 class="font-title text-[24px] font-bold">500</h2>
+                <p class="text-[#43254F] font-title text-[16px] font-medium">
+                  Certificate Requests
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -203,8 +219,10 @@ function Dashboard({ isCollapsed }) {
               <div class="demog-card-left-border bg-[#7D7979]"></div>
 
               <div class="flex-grow">
-                <h2 class="demog-text-number">2</h2>
-                <p class="text-[#7D7979] font-semibold">Court Reservations</p>
+                <h2 class="font-title text-[24px] font-bold">2</h2>
+                <p class="text-[#7D7979] font-title text-[16px] font-medium">
+                  Court Reservations
+                </p>
               </div>
 
               <div class="demog-icon">
@@ -215,7 +233,7 @@ function Dashboard({ isCollapsed }) {
         </div>
 
         <div className="mt-8">
-          <h1 className="text-xl tracking-tight font-semibold">
+          <h1 className="text-[20px] font-title font-semibold">
             Events Calendar
           </h1>
           <div className="bg-white p-2 rounded-md">
@@ -223,13 +241,15 @@ function Dashboard({ isCollapsed }) {
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">General</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    General
+                  </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#FA7020] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">
+                  <span className="ml-4 text-[14px] font-title font-medium">
                     Public Safety & Emergency
                   </span>
                 </div>
@@ -237,31 +257,41 @@ function Dashboard({ isCollapsed }) {
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#E3DE48] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">Health & Sanitation</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    Health & Sanitation
+                  </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#50C700] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">Social Services</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    Social Services
+                  </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#0E94D3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">Infrastructure</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    Infrastructure
+                  </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#1E0ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">Education & Youth</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    Education & Youth
+                  </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#770ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm">Court Reservation</span>
+                  <span className="ml-4 text-[14px] font-title font-medium">
+                    Court Reservation
+                  </span>
                 </div>
               </div>
             </div>

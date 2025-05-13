@@ -33,8 +33,10 @@ const Navbar = ({ isCollapsed }) => {
 
           {/* User Information */}
           <div className="navbar-user-info">
-            <h2 className="text-blue font-bold text-base">{user.name}</h2>
-            <h2 className="text-gray-500 text-sm">{user.role}</h2>
+            <h2 className="text-navy-blue font-bold text-base">{user.name}</h2>
+            <h2 className="text-[#ACACAC] text-sm font-semibold font-subTitle">
+              {user.role}
+            </h2>
           </div>
 
           {/* Profile Image and Dropdown */}

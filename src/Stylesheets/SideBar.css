@@ -59,14 +59,19 @@
 }
 .sidebar-menu-item-icon {
   @apply text-2xl 
-    text-white 
-    ml-2;
+    text-white;
 }
 .sidebar-menu-item-title {
-  @apply text-base 
-   
-    font-medium
-    ml-3;
+  @apply font-title text-[16px] font-light ml-3;
+}
+
+/*Hide Scroll Bar*/
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 /*RESPONSIVE*/

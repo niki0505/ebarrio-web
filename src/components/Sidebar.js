@@ -83,7 +83,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="flex flex-col">
+      <div className="flex flex-col overflow-y-auto h-full hide-scrollbar">
         <div
           className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
           onClick={toggleSidebar}
@@ -97,7 +97,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
         <div
           className={`sidebar-logo-container ${
-            isCollapsed ? "justify-start" : "justify-center"
+            isCollapsed ? "justify-start mt-4" : "justify-center"
           }`}
         >
           <img
@@ -112,12 +112,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
               isCollapsed ? "hidden" : "block"
             }`}
           >
-            <label className="sidebar-logo-text">eBarrio</label>
-            <label className="text-[rgba(255,255,255,0.50)] text-xs">
-              Barangay Management
-            </label>
-            <label className="text-[rgba(255,255,255,0.50)] text-xs">
-              Disaster Response System
+            <label className="font-title font-bold text-[24px]">eBarrio</label>
+            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold">
+              Barangay Management <br /> Disaster Response System
             </label>
           </span>
         </div>
@@ -137,7 +134,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 end
               >
                 <span
-                  className={`sidebar-menu-item-icon ${
+                  className={`sidebar-menu-item-icon ml-2 ${
                     isCollapsed ? "ml-3" : ""
                   }`}
                   aria-hidden="true"

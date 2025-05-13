@@ -525,7 +525,7 @@ function Employees({ isCollapsed }) {
 
         <button className="add-btn" onClick={handleAdd}>
           <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-bold">Add new employee</span>
+          <span className="font-semibold text-[16px] ">Add new employee</span>
         </button>
 
         <table>

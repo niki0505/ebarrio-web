@@ -184,49 +184,45 @@ function ForgotPassword() {
       {/* Forgot Password */}
       {!isExisting && (
         <>
-          <div className="login-container">
-            <div
-              className="left-login-container"
-              style={{
-                backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-              }}
-            >
-              <img
-                src={AppLogo}
-                alt="App Logo"
-                className="w-[312px] h-[312px]"
-              />
-            </div>
-
-            <div className="right-login-container">
-              <div className="login-form-container">
-                <div>
-                  <h1 className="login-title">Forgot Password</h1>
-                  <label className="text-gray-400">
-                    Please enter your username to begin the password reset
-                    process.
-                  </label>
-                </div>
-
-                <>
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="form-input h-[35px]"
-                  />
-                  <button
-                    type="submit"
-                    onClick={handleSubmit}
-                    className="actions-btn bg-btn-color-blue"
-                  >
-                    Submit
-                  </button>
-                  <a href="/login" className="text-[#0E94D3] ml-auto">
-                    Remember your password?
-                  </a>
-                </>
+          <div
+            className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+            style={{
+              backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+            }}
+          >
+            <img
+              src={AppLogo}
+              alt="App Logo"
+              className="w-[312px] h-[312px] translate-x-[-20vw]"
+            />
+            <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
+              <div className="mb-4">
+                <h1 className="header-text">Forgot Password</h1>
+                <label className="text-[#ACACAC] font-subTitle font-semibold">
+                  Please enter your username to begin the password <br /> reset
+                  process.
+                </label>
               </div>
+
+              <input
+                type="text"
+                placeholder="Enter your username"
+                onChange={(e) => setUsername(e.target.value)}
+                className="form-input h-[35px]"
+              />
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
+              >
+                Submit
+              </button>
+              <a
+                href="/login"
+                className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+              >
+                Remember your password?
+              </a>
             </div>
           </div>
         </>
@@ -255,10 +251,10 @@ function ForgotPassword() {
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] justify-center items-center">
                       <div className="p-4">
                         <div>
-                          <h1 className="login-title text-start">
+                          <h1 className="header-text text-start">
                             Reset Password
                           </h1>
-                          <span className="text-gray-400">
+                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
                             Enter your new password and confirm it to complete
                             the reset process.
                           </span>
@@ -282,7 +278,7 @@ function ForgotPassword() {
                         <button
                           type="button"
                           onClick={handleSuccessful}
-                          className="actions-btn bg-btn-color-blue w-full mt-5"
+                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px]"
                         >
                           Submit
                         </button>
@@ -312,10 +308,10 @@ function ForgotPassword() {
                       />
                       <div className="p-4">
                         <div>
-                          <h1 className="login-title text-start">
+                          <h1 className="header-text text-start">
                             One-Time Password
                           </h1>
-                          <span className="text-gray-400">
+                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
                             Enter the 6 digit code sent to
                             {/* Enter the 6 digit code sent to {user.empID.resID.mobilenumber} */}
                           </span>
@@ -340,14 +336,14 @@ function ForgotPassword() {
                           />
                         </div>
                         {isResendDisabled ? (
-                          <p className="text-gray-400 mt-5 font-bold text-end">
+                          <p className="text-[#ACACAC] font-subTitle font-bold text-[14px] mt-5 text-end text-[14px]">
                             Resend OTP in {resendTimer} second
                             {resendTimer !== 1 ? "s" : ""}
                           </p>
                         ) : (
                           <p
                             onClick={handleResend}
-                            className="text-gray-400 font-bold cursor-pointer mt-5 text-end"
+                            className="cursor-pointer mt-5 text-end text-[#ACACAC] font-subTitle font-bold text-[14px]"
                           >
                             Resend OTP
                           </p>
@@ -378,10 +374,10 @@ function ForgotPassword() {
                       />
                       <div className="p-4">
                         <div>
-                          <h1 className="login-title text-start">
+                          <h1 className="header-text text-start">
                             Security Questions
                           </h1>
-                          <span className="text-gray-400">
+                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
                             To verify your identity, please answer the security
                             question below.
                           </span>
@@ -413,7 +409,7 @@ function ForgotPassword() {
                         <button
                           type="button"
                           onClick={handleQuestionVerify}
-                          className="actions-btn bg-btn-color-blue w-full mt-5"
+                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px]"
                         >
                           Next
                         </button>
@@ -444,10 +440,10 @@ function ForgotPassword() {
                       />
                       <div className="p-4">
                         <div>
-                          <h1 className="login-title text-start">
+                          <h1 className="header-text text-start">
                             Verification Method
                           </h1>
-                          <label className="text-gray-400">
+                          <label className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
                             Please choose a method to verify your identity and
                             continue resetting your password
                           </label>
@@ -460,7 +456,7 @@ function ForgotPassword() {
                             className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
                           >
                             <RiLockPasswordFill className="text-3xl text-navy-blue" />
-                            <label className="text-navy-blue">
+                            <label className="text-navy-blue font-subTitle font-semibold">
                               One-Time Password (OTP)
                             </label>
                           </button>
@@ -471,7 +467,7 @@ function ForgotPassword() {
                             className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
                           >
                             <RiQuestionnaireFill className="text-3xl text-navy-blue" />
-                            <label className="text-navy-blue">
+                            <label className="text-navy-blue font-subTitle font-semibold">
                               Security Questions
                             </label>
                           </button>
