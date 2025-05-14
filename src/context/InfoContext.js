@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
+import { AuthContext } from "./AuthContext";
+import { useRouteError } from "react-router-dom";
 
 // Create a context for socket connection
 export const SocketContext = createContext();
@@ -13,6 +14,7 @@ const socket = io("http://localhost:5000", {
 });
 
 export const InfoProvider = ({ children }) => {
+  const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
@@ -21,6 +23,22 @@ export const InfoProvider = ({ children }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (users && user) {
+      users.map((usr) => {
+        if (usr._id === user.userID) {
+          setUserStatus(usr.status);
+        }
+      });
+    }
+  }, [users, user]);
 
   const fetchResidents = async () => {
     try {

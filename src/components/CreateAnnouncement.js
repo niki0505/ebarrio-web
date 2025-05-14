@@ -193,6 +193,19 @@ function CreateAnnouncement({ onClose }) {
     return `${hours}:${minutes}`;
   };
 
+  const handleCancel = () => {
+    setAnnouncementForm((prev) => ({
+      ...prev,
+      eventDate: "",
+      eventStart: "",
+      eventEnd: "",
+      eventStartTime: "",
+      eventEndTime: "",
+    }));
+    setEventDetails(null);
+    setShowDateTimeInputs(false);
+  };
+
   return (
     <>
       {setShowModal && (
@@ -381,6 +394,13 @@ function CreateAnnouncement({ onClose }) {
                           />
                         </div>
 
+                        <button
+                          onClick={handleCancel}
+                          type="button"
+                          className="actions-btn bg-btn-color-blue"
+                        >
+                          CANCEL
+                        </button>
                         <button
                           onClick={handleOK}
                           type="button"

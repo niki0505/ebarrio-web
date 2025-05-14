@@ -275,7 +275,7 @@ function EditAnnouncement({ onClose, announcementID }) {
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="modal-title-bar bg-navy-blue">
-              <h1 className="modal-title">Add New Announcement</h1>
+              <h1 className="modal-title">Edit Announcement</h1>
               <button className="modal-btn-close">
                 <IoClose className="btn-close-icon" onClick={handleClose} />
               </button>
