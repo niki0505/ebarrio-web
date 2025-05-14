@@ -27,26 +27,26 @@
 }
 .sidebar-logo-container {
   @apply flex 
-    items-center  
-    duration-300;
+  flex-col
+  items-center  
+  duration-300;
 }
 .sidebar-logo-img {
-  @apply w-20 
-    rounded 
-    block 
+  @apply w-32
     transition-transform 
-    duration-300;
+    duration-300
+    mt-[-20px];
 }
 .sidebar-logo-text {
   @apply items-start 
-    ml-1
-    text-white 
+    text-[#fff] 
     font-bold 
+    mt-[-20px]
     text-2xl;
 }
 .sidebar-menu {
   @apply h-[40px]
-    mt-5;
+    mt-3;
 }
 .sidebar-menu-item {
   @apply flex 
@@ -59,14 +59,19 @@
 }
 .sidebar-menu-item-icon {
   @apply text-2xl 
-    text-white 
-    ml-2;
+    text-white;
 }
 .sidebar-menu-item-title {
-  @apply text-base 
-   
-    font-medium
-    ml-3;
+  @apply font-title text-[16px] font-light ml-3;
+}
+
+/*Hide Scroll Bar*/
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 /*RESPONSIVE*/

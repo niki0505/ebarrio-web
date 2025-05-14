@@ -31,7 +31,6 @@ function Accounts({ isCollapsed }) {
     fetchUsers();
   }, []);
 
-  console.log(user);
   useEffect(() => {
     const otherUsers = users.filter((u) => u._id !== user.userID);
     if (search) {
@@ -88,6 +87,22 @@ function Accounts({ isCollapsed }) {
     }
   };
 
+  const handleActivate = async (userID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to activate this user?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/activateuser/${userID}`);
+      alert("User activated successfully!");
+    } catch (error) {
+      console.log("Error in activating user", error);
+    }
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -104,8 +119,9 @@ function Accounts({ isCollapsed }) {
             <tr>
               <th>Name</th>
               <th>Username</th>
-              <th>Role</th>
+              <th>User Role</th>
               <th>Status</th>
+              <th>Created Date</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -113,7 +129,7 @@ function Accounts({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={5}>No results found</td>
+                <td colSpan={6}>No results found</td>
               </tr>
             ) : (
               filteredUsers.map((user) => (
@@ -131,19 +147,39 @@ function Accounts({ isCollapsed }) {
                   }}
                 >
                   <td>
-                    {user.empID
-                      ? user.empID.resID.middlename
-                        ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
-                        : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
-                      : user.resID
-                      ? user.resID.middlename
-                        ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
-                        : `${user.resID.lastname} ${user.resID.firstname}`
-                      : "No name available"}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <img
+                        width={40}
+                        style={{
+                          borderRadius: "50%",
+                          height: 40,
+                          objectFit: "cover",
+                        }}
+                        alt="User"
+                        src={user.empID?.resID?.picture || user.resID?.picture}
+                      />
+                      {user.empID
+                        ? user.empID.resID.middlename
+                          ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
+                          : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
+                        : user.resID
+                        ? user.resID.middlename
+                          ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
+                          : `${user.resID.lastname} ${user.resID.firstname}`
+                        : "No name available"}
+                    </div>
                   </td>
                   <td>{user.username}</td>
                   <td>{user.role}</td>
                   <td>{user.status}</td>
+                  <td></td>
                   <td className="flex justify-center gap-x-8">
                     <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">
@@ -154,18 +190,36 @@ function Accounts({ isCollapsed }) {
                       </button>
                     </div>
 
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() => handleDeactivate(user._id)}
-                      >
-                        <FaUserXmark className="text-xl text-btn-color-red" />
-                        <label className="text-xs font-semibold text-btn-color-red">
-                          Deactivate
-                        </label>
-                      </button>
-                    </div>
+                    {(user.status === "Inactive" ||
+                      user.status === "Active") && (
+                      <div className="table-actions-container">
+                        <button
+                          type="button"
+                          className="table-actions-btn"
+                          onClick={() => handleDeactivate(user._id)}
+                        >
+                          <FaUserXmark className="text-xl text-btn-color-red" />
+                          <label className="text-xs font-semibold text-btn-color-red">
+                            Deactivate
+                          </label>
+                        </button>
+                      </div>
+                    )}
+
+                    {user.status === "Deactivated" && (
+                      <div className="table-actions-container">
+                        <button
+                          type="button"
+                          className="table-actions-btn"
+                          onClick={() => handleActivate(user._id)}
+                        >
+                          <FaUserXmark className="text-xl text-btn-color-red" />
+                          <label className="text-xs font-semibold text-btn-color-red">
+                            Activate
+                          </label>
+                        </button>
+                      </div>
+                    )}
 
                     <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">

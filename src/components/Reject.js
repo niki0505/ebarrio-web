@@ -44,7 +44,7 @@ function Reject({ onClose, certID }) {
               rows={5}
               minLength={20}
               maxLength={255}
-              className="w-full h-full border border-btn-color-gray rounded-md mt-10 text-justify p-2"
+              className="w-full h-full border border-btn-color-gray rounded-md mt-10 text-justify p-2 font-semibold font-subTitle"
             ></textarea>
             <div style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}>
               {remarks.length}/255

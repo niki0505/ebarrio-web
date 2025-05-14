@@ -29,7 +29,7 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
         </div>
 
         <p className="dialog-message text-navy-blue">{message}</p>
-        <p class="text-gray-400 text-sm mb-4">
+        <p class="text-[#ACACAC] text-sm mb-4 font-subTitle font-semibold">
           Press Confirm to continue, or Cancel to stay on the current page
         </p>
 

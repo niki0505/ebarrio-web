@@ -9,7 +9,6 @@
 /*MAIN CONTENT*/
 .main {
   @apply p-[1.25rem] 
-  font-title
   bg-main-color
   transition-all 
   duration-300 
@@ -19,10 +18,14 @@
   mt-[theme('spacing.navbar-height')];
 }
 .header-text {
-  @apply text-[30px] tracking-tight font-bold;
+  @apply text-[30px] font-extrabold font-title text-navy-blue;
 }
+.subHeader-text {
+  @apply font-subTitle text-navy-blue;
+}
+
 .white-bg-container {
-  @apply bg-white rounded-[10px] p-3 mt-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
+  @apply bg-[#fff] rounded-[10px] p-3 mt-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
 }
 
 /*BUTTONS*/
@@ -33,7 +36,7 @@
   @apply p-5 flex justify-end gap-4 mt-[-45px];
 }
 .actions-btn {
-  @apply px-4 py-1.5 rounded-[8px] items-center text-white font-bold shadow-box-shadow;
+  @apply px-4 py-1.5 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title;
 }
 
 /*TABLE*/
@@ -50,7 +53,7 @@ tr {
   @apply border-t transition-colors duration-300 ease-in-out;
 }
 td {
-  @apply text-center text-xs font-medium p-2;
+  @apply text-center text-xs font-bold p-2 font-subTitle;
 }
 .profile-container {
   @apply text-start p-5 flex flex-row;
@@ -87,19 +90,16 @@ td {
 
 /*LOGIN SIGN UP OTP*/
 .login-container {
-  @apply grid grid-cols-2 h-screen font-title;
+  @apply flex flex-row h-screen font-title;
 }
 .left-login-container {
-  @apply w-full h-screen bg-cover bg-center flex items-center justify-center;
+  @apply w-3/5 h-screen bg-cover bg-center flex items-center justify-center;
 }
 .right-login-container {
-  @apply flex items-center justify-center;
+  @apply w-2/5 flex items-center justify-center bg-[#FFFBFC] rounded-md mt-5 mb-5 mr-5;
 }
 .login-form-container {
   @apply flex flex-col gap-4 w-2/3 max-w-md;
-}
-.login-title {
-  @apply font-extrabold text-[30px] tracking-tight text-navy-blue font-title;
 }
 .error-input-message {
   @apply text-red-600 text-sm font-semibold;

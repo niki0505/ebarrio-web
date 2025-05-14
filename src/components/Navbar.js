@@ -5,16 +5,33 @@ import { IoMdSettings } from "react-icons/io";
 import "../Stylesheets/NavBar.css";
 import { AuthContext } from "../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import { InfoContext } from "../context/InfoContext";
 
 const Navbar = ({ isCollapsed }) => {
   const location = useLocation();
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
+  const { residents, fetchResidents } = useContext(InfoContext);
+  const [profilePic, setProfilePic] = useState(null);
+  const [name, setName] = useState(null);
 
   useEffect(() => {
     setprofileDropdown(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    fetchResidents();
+  }, []);
+
+  useEffect(() => {
+    residents.map((res) => {
+      if (res.empID?._id === user.empID) {
+        setProfilePic(res.picture);
+        setName(`${res.firstname} ${res.lastname}`);
+      }
+    });
+  }, [residents]);
 
   if (!user) return null;
 
@@ -33,14 +50,16 @@ const Navbar = ({ isCollapsed }) => {
 
           {/* User Information */}
           <div className="navbar-user-info">
-            <h2 className="text-blue font-bold text-base">{user.name}</h2>
-            <h2 className="text-gray-500 text-sm">{user.role}</h2>
+            <h2 className="text-navy-blue font-bold text-base">{name}</h2>
+            <h2 className="text-[#ACACAC] text-sm font-semibold font-subTitle">
+              {user.role}
+            </h2>
           </div>
 
           {/* Profile Image and Dropdown */}
           <div className="relative">
             <img
-              src={user.picture}
+              src={profilePic}
               alt="Profile"
               onClick={toggleProfileDropdown}
               className="navbar-profile-img"

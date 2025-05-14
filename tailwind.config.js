@@ -13,13 +13,14 @@ module.exports = {
         "text-blue": "#04384E",
         "btn-color-gray": "#C1C0C0",
       },
-      spacing: {  
+      spacing: {
         sidebar: "18rem",
         "sidebar-collapsed": "5rem",
         "navbar-height": "3.5rem",
       },
       fontFamily: {
-        title: ["Inter", "sans-serif"],
+        title: ["REM", "sans-serif"],
+        subTitle: ["Quicksand", "sans-serif"],
       },
       boxShadow: {
         "box-shadow": "0 4px 4px 0 rgba(0, 0, 0, 0.25)",

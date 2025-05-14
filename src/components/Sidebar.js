@@ -17,59 +17,63 @@ import {
   BiSolidCctv,
 } from "react-icons/bi";
 import { useState } from "react";
+import AppLogo from "../assets/applogo-darkbg.png";
 
-const Sidebar = ({}) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
   if (!user) return null;
 
   const Menus = [
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Dashboard",
       icon: <MdDashboard />,
       path: "/dashboard",
     },
-    {
+    user.role === "Secretary" && {
       title: "Employees",
       icon: <IoPeople />,
       path: "/employees",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Residents",
       icon: <IoIosPeople />,
       path: "/residents",
     },
-    {
+    user.role === "Justice" && {
       title: "Blotter Reports",
       icon: <MdEditDocument />,
       path: "/blotter-reports",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Certificate Requests",
       icon: <IoDocumentTextSharp />,
       path: "/certificate-requests",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Court Reservations",
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Announcements",
       icon: <BiSolidMegaphone />,
       path: "/announcements",
     },
-    {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "SOS Reports",
       icon: <IoLocation />,
       path: "/sos-reports",
     },
-    {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "CCTV Footage",
       icon: <BiSolidCctv />,
       path: "/flood-footage",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Emergency Hotlines",
       icon: <RiContactsBook3Fill />,
       path: "/emergency-hotlines",
@@ -83,10 +87,10 @@ const Sidebar = ({}) => {
 
   return (
     <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
-      <div className="flex flex-col">
+      <div className="flex flex-col overflow-y-auto h-full hide-scrollbar">
         <div
           className={`sidebar-toggle-btn ${isCollapsed ? "m-3" : ""}`}
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={toggleSidebar}
         >
           {isCollapsed ? (
             <BiMenu className="text-xl" />
@@ -97,20 +101,25 @@ const Sidebar = ({}) => {
 
         <div
           className={`sidebar-logo-container ${
-            isCollapsed ? "justify-start" : "justify-center"
+            isCollapsed ? "justify-start mt-4" : "justify-center"
           }`}
         >
           <img
-            src={require("../assets/BarangayLogo.png")}
-            alt="Barangay Logo"
+            src={AppLogo}
+            alt="App Logo"
             className={`sidebar-logo-img ${
               isCollapsed ? "rotate-[360deg]" : ""
             }`}
           />
           <span
-            className={`sidebar-logo-text ${isCollapsed ? "hidden" : "block"}`}
+            className={`flex flex-col text-center ${
+              isCollapsed ? "hidden" : "block"
+            }`}
           >
-            eBarrio
+            <label className="font-title font-bold text-[24px]">eBarrio</label>
+            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold">
+              Barangay Management <br /> Disaster Response System
+            </label>
           </span>
         </div>
 
@@ -129,7 +138,7 @@ const Sidebar = ({}) => {
                 end
               >
                 <span
-                  className={`sidebar-menu-item-icon ${
+                  className={`sidebar-menu-item-icon ml-2 ${
                     isCollapsed ? "ml-3" : ""
                   }`}
                   aria-hidden="true"

@@ -46,8 +46,6 @@ function SetPassword() {
     "What was the name of your first school?",
   ];
 
-  console.log(securityquestions);
-
   return (
     <>
       <div className="login-container">

@@ -239,8 +239,9 @@ function CertificateRequests({ isCollapsed }) {
               <th>Name</th>
               <th>Type of Certificate</th>
               <th>Amount</th>
-              <th>Date Requested</th>
-              <th>Status</th>
+              {isPendingClicked && <th>Date Requested</th>}
+              {isIssuedClicked && <th>Date Issued</th>}
+              {isRejectedClicked && <th>Date Rejected</th>}
             </tr>
           </thead>
 
@@ -294,9 +295,6 @@ function CertificateRequests({ isCollapsed }) {
                                       0,
                                       cert.createdAt.indexOf(" at")
                                     )}
-                                  </p>
-                                  <p>
-                                    <strong>Status: </strong> {cert.status}
                                   </p>
                                   {cert.status === "Rejected" && (
                                     <p>
@@ -377,9 +375,6 @@ function CertificateRequests({ isCollapsed }) {
                                     cert.createdAt.indexOf(" at")
                                   )}
                                 </p>
-                                <p>
-                                  <strong>Status: </strong> {cert.status}
-                                </p>
                               </div>
                             </div>
                             <div className="btn-container">
@@ -424,13 +419,22 @@ function CertificateRequests({ isCollapsed }) {
                         </td>
                         <td>{cert.typeofcertificate}</td>
                         <td>{cert.amount}</td>
-                        <td>
-                          {cert.createdAt.substring(
-                            0,
-                            cert.createdAt.indexOf(" at")
-                          )}
-                        </td>
-                        <td>{cert.status}</td>
+                        {isPendingClicked && (
+                          <td>
+                            {cert.createdAt.substring(
+                              0,
+                              cert.createdAt.indexOf(" at")
+                            )}
+                          </td>
+                        )}
+                        {(isIssuedClicked || isRejectedClicked) && (
+                          <td>
+                            {cert.updatedAt.substring(
+                              0,
+                              cert.updatedAt.indexOf(" at")
+                            )}
+                          </td>
+                        )}
                       </>
                     )}
                   </tr>

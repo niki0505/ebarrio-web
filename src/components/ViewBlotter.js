@@ -13,6 +13,7 @@ function ViewBlotter({ onClose, blotterID }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const [blotter, setBlotter] = useState([]);
+  const [captain, setCaptain] = useState([]);
   const { blotterreports, fetchBlotterReports } = useContext(InfoContext);
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [showModal, setShowModal] = useState(true);
@@ -22,6 +23,18 @@ function ViewBlotter({ onClose, blotterID }) {
     endtime: null,
   });
   const [expandedDetails, setExpandedDetails] = useState([]);
+
+  useEffect(() => {
+    const fetchCaptain = async () => {
+      try {
+        const response = await api.get("/getcaptain");
+        setCaptain(response.data);
+      } catch (error) {
+        console.log("Error fetching captain");
+      }
+    };
+    fetchCaptain();
+  }, []);
 
   useEffect(() => {
     const fetchBlotter = async () => {
@@ -237,6 +250,7 @@ function ViewBlotter({ onClose, blotterID }) {
   const handlePrint = () => {
     BlotterPrint({
       blotterData: blotter,
+      captainData: captain,
     });
   };
 
@@ -515,7 +529,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     <button
                       type="button"
                       onClick={handleSettle}
-                      className="actions-btn bg-btn-color-blue"
+                      className="actions-btn bg-[#06D001]"
                     >
                       Settle
                     </button>

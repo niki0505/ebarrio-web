@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { createContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useLocation, useNavigate } from "react-router-dom";
+import api from "../api";
 
 export const AuthContext = createContext();
 
@@ -10,6 +11,13 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [userStatus, setUserStatus] = useState(null);
+
+  useEffect(() => {
+    if (userStatus && userStatus === "Deactivated") {
+      autologout();
+    }
+  }, [userStatus]);
 
   useEffect(() => {
     axios
@@ -26,6 +34,17 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(false);
       });
   }, [navigation]);
+
+  const autologout = async () => {
+    try {
+      await api.post(`/deactivateduser/${user.userID}`);
+      alert("You have been deactivated");
+      setIsAuthenticated(false);
+      navigation("/login");
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
 
   const logout = async () => {
     try {
@@ -49,6 +68,7 @@ export const AuthProvider = ({ children }) => {
         user,
         logout,
         setUser,
+        setUserStatus,
         isAuthenticated,
         setIsAuthenticated,
       }}

@@ -10,6 +10,7 @@ import api from "../api";
 import "../Stylesheets/Announcements.css";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import EditAnnouncement from "./EditAnnouncement";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
@@ -24,6 +25,8 @@ function Announcements({ isCollapsed }) {
   const { fetchAnnouncements, announcements } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
   const [isCreateClicked, setCreateClicked] = useState(false);
+  const [isEditClicked, setEditClicked] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
 
   const [selectedCategory, setSelectedCategory] = useState("All Announcement");
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState([]);
@@ -45,6 +48,12 @@ function Announcements({ isCollapsed }) {
     setCreateClicked(true);
   };
 
+  const handleEdit = (announcementID) => {
+    setEditClicked(true);
+    setSelectedAnnouncement(announcementID);
+  };
+
+  console.log(user);
   /* FILTER CATEGORY */
   const filteredAnnouncements = announcements.filter(
     (announcement) =>
@@ -92,6 +101,31 @@ function Announcements({ isCollapsed }) {
   };
 
   const renderContent = (announcement) => {
+    let eventInfo = "";
+    if (announcement.eventStart) {
+      const startDate = new Date(announcement.eventStart);
+      const endDate = new Date(announcement.eventEnd);
+
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      const formattedStartTime = startDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const formattedEndTime = endDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      eventInfo = `📅 ${formattedDate}\n🕒 ${formattedStartTime} - ${formattedEndTime}\n\n`;
+    }
     const words = announcement.content.split(" ");
     const isLong = words.length > 25;
     const isExpanded = expandedAnnouncements.includes(announcement._id);
@@ -100,11 +134,12 @@ function Announcements({ isCollapsed }) {
       : words.slice(0, 25).join(" ") + (isLong ? "..." : "");
 
     return (
-      <div className="text-sm font-normal mt-4">
+      <div className="text-sm font-medium mt-4 font-subTitle whitespace-pre-wrap">
+        {eventInfo}
         {displayText}
         {isLong && (
           <span
-            className="text-blue-500 cursor-pointer ml-1"
+            className="text-blue-500 cursor-pointer ml-1 font-bold"
             onClick={() => toggleExpanded(announcement._id)}
           >
             {isExpanded ? "See less" : "See more"}
@@ -136,7 +171,7 @@ function Announcements({ isCollapsed }) {
           {/* LEFT - CATEGORY */}
           <div className="announcement-category-panel ">
             <label className="announcement-subheader">Category</label>
-            <div className="announcement-left-container">
+            <div className="announcement-left-container font-subTitle font-medium text-black">
               {[
                 "All Announcement",
                 "General",
@@ -149,7 +184,7 @@ function Announcements({ isCollapsed }) {
                 <div
                   key={cat}
                   className={`cursor-pointer p-2 ${
-                    selectedCategory === cat ? "font-bold" : ""
+                    selectedCategory === cat ? "text-navy-blue font-bold" : ""
                   }`}
                   onClick={() => setSelectedCategory(cat)}
                 >
@@ -172,7 +207,9 @@ function Announcements({ isCollapsed }) {
                 onClick={handleAdd}
                 className="announcement-create-button"
               >
-                <label className="ml-3">Create Announcement</label>
+                <label className="ml-3 font-subTitle text-[#ACACAC] font-semibold text-[16px]">
+                  Create Announcement
+                </label>
               </button>
             </div>
 
@@ -195,7 +232,7 @@ function Announcements({ isCollapsed }) {
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card">
                   <div className="announcement-pin-date-menu">
-                    <label className="text-sm text-gray-500">
+                    <label className="text-[#ACACAC] text-xs font-medium font-subTitle">
                       {dayjs(announcement.createdAt).fromNow()}
                     </label>
                     <div>
@@ -205,25 +242,32 @@ function Announcements({ isCollapsed }) {
                       >
                         <BsPinAngle />
                       </button>
-                      <button onClick={() => toggleMenu(announcement._id)}>
-                        <BsThreeDots />
-                      </button>
+                      {announcement.uploadedby._id === user.empID && (
+                        <button onClick={() => toggleMenu(announcement._id)}>
+                          <BsThreeDots />
+                        </button>
+                      )}
                     </div>
 
                     {/* MENU */}
                     {menuVisible === announcement._id && (
                       <div className="announcement-menu">
                         <ul className="w-full">
-                          <div className="navbar-dropdown-item justify-start">
+                          <div
+                            className="navbar-dropdown-item justify-start"
+                            onClick={() => handleEdit(announcement._id)}
+                          >
                             <FaEdit className="ml-2" />
-                            <li className="text-sm font-semibold ml-2">Edit</li>
+                            <li className="text-sm font-semibold ml-2 font-subTitle">
+                              Edit
+                            </li>
                           </div>
                           <div
                             className="navbar-dropdown-item justify-start"
                             onClick={() => handleArchive(announcement._id)}
                           >
                             <IoArchiveSharp className="text-red-600 ml-2" />
-                            <li className="text-sm font-semibold text-red-600 ml-2">
+                            <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
                               Archive
                             </li>
                           </div>
@@ -244,7 +288,7 @@ function Announcements({ isCollapsed }) {
                         {announcement.uploadedby?.resID?.firstname}{" "}
                         {announcement.uploadedby?.resID?.lastname}
                       </label>
-                      <label className="text-sm text-gray-500">
+                      <label className="text-sm text-[#ACACAC] font-medium font-subTitle">
                         {announcement.uploadedby?.position}
                       </label>
                     </div>
@@ -255,13 +299,13 @@ function Announcements({ isCollapsed }) {
                     <label className="announcement-info-label">
                       Category:{" "}
                     </label>
-                    <label className="announcement-info-value ">
+                    <label className="announcement-info-value">
                       {announcement.category}
                     </label>
                   </div>
                   <div>
                     <label className="announcement-info-label">Title: </label>
-                    <label className="announcement-info-value ">
+                    <label className="announcement-info-value">
                       {announcement.title}
                     </label>
                   </div>
@@ -281,6 +325,9 @@ function Announcements({ isCollapsed }) {
                     )}
 
                   <FaHeart className="announcement-heart" />
+                  <label className="announcement-info-value">
+                    {announcement.hearts}
+                  </label>
                 </div>
               ))}
           </div>
@@ -305,9 +352,11 @@ function Announcements({ isCollapsed }) {
                     >
                       <BsPinAngleFill />
                     </button>
-                    <button onClick={() => toggleMenu(announcement._id)}>
-                      <BsThreeDots />
-                    </button>
+                    {announcement.uploadedby?._id === user.empID && (
+                      <button onClick={() => toggleMenu(announcement._id)}>
+                        <BsThreeDots />
+                      </button>
+                    )}
                   </div>
 
                   {/* MENU */}
@@ -316,14 +365,16 @@ function Announcements({ isCollapsed }) {
                       <ul className="w-full">
                         <div className="navbar-dropdown-item justify-start">
                           <FaEdit className="ml-2" />
-                          <li className="text-sm font-semibold ml-2">Edit</li>
+                          <li className="text-sm font-semibold ml-2 font-subTitle">
+                            Edit
+                          </li>
                         </div>
                         <div
                           className="navbar-dropdown-item justify-start"
                           onClick={handleArchive}
                         >
                           <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600 ml-2">
+                          <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
                             Archive
                           </li>
                         </div>
@@ -354,18 +405,19 @@ function Announcements({ isCollapsed }) {
 
                 <div>
                   <label className="announcement-info-label">Category: </label>
-                  <label className="announcement-info-value ">
+                  <label className="announcement-info-value">
                     {announcement.category}
                   </label>
                 </div>
                 <div>
                   <label className="announcement-info-label">Title: </label>
-                  <label className="announcement-info-value ">
+                  <label className="announcement-info-value">
                     {announcement.title}
                   </label>
                 </div>
 
                 {/* CONTENT */}
+
                 {renderContent(announcement)}
 
                 {/* ATTACHMENT */}
@@ -379,6 +431,9 @@ function Announcements({ isCollapsed }) {
                 )}
 
                 <FaHeart className="announcement-heart" />
+                <label className="announcement-info-value">
+                  {announcement.hearts}
+                </label>
               </div>
             ))}
           </div>
@@ -387,6 +442,13 @@ function Announcements({ isCollapsed }) {
 
       {isCreateClicked && (
         <CreateAnnouncement onClose={() => setCreateClicked(false)} />
+      )}
+
+      {isEditClicked && (
+        <EditAnnouncement
+          onClose={() => setEditClicked(false)}
+          announcementID={selectedAnnouncement}
+        />
       )}
     </>
   );
