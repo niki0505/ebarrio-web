@@ -24,52 +24,56 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   if (!user) return null;
 
   const Menus = [
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Dashboard",
       icon: <MdDashboard />,
       path: "/dashboard",
     },
-    {
+    user.role === "Secretary" && {
       title: "Employees",
       icon: <IoPeople />,
       path: "/employees",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Residents",
       icon: <IoIosPeople />,
       path: "/residents",
     },
-    {
+    user.role === "Justice" && {
       title: "Blotter Reports",
       icon: <MdEditDocument />,
       path: "/blotter-reports",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Certificate Requests",
       icon: <IoDocumentTextSharp />,
       path: "/certificate-requests",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Court Reservations",
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Announcements",
       icon: <BiSolidMegaphone />,
       path: "/announcements",
     },
-    {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "SOS Reports",
       icon: <IoLocation />,
       path: "/sos-reports",
     },
-    {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "CCTV Footage",
       icon: <BiSolidCctv />,
       path: "/flood-footage",
     },
-    {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Emergency Hotlines",
       icon: <RiContactsBook3Fill />,
       path: "/emergency-hotlines",

@@ -15,7 +15,7 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
 
-function CreateAnnouncement({ onClose }) {
+function EditAnnouncement({ onClose, announcementID }) {
   const confirm = useConfirm();
   const [name, setName] = useState("");
   const [eventDetails, setEventDetails] = useState("");
@@ -37,6 +37,65 @@ function CreateAnnouncement({ onClose }) {
   });
   const [showModal, setShowModal] = useState(true);
 
+  useEffect(() => {
+    const fetchAnnouncement = async () => {
+      try {
+        let formattedDate;
+        let formattedStartTime;
+        let formattedEndTime;
+        const response = await api.get(`/getannouncement/${announcementID}`);
+        if (response.data.picture !== "") {
+          setHavePicture(true);
+        }
+        if (response.data.eventStart !== null) {
+          formattedDate = new Date(response.data.eventStart)
+            .toISOString()
+            .split("T")[0];
+          formattedStartTime = formatToTimeForInput(
+            new Date(response.data.eventStart)
+          );
+          formattedEndTime = formatToTimeForInput(
+            new Date(response.data.eventEnd)
+          );
+          setEventDetails(
+            `📅 ${new Date(response.data.eventStart).toLocaleDateString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            )}\n🕒 ${new Date(response.data.eventStart).toLocaleTimeString(
+              "en-US",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            )} - ${new Date(response.data.eventEnd).toLocaleTimeString(
+              "en-US",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              }
+            )}`
+          );
+        }
+        setAnnouncementForm(() => ({
+          category: response.data.category,
+          title: response.data.title,
+          content: response.data.content,
+          picture: response.data.picture || "",
+          eventDate: formattedDate || "",
+          eventStartTime: formattedStartTime || "",
+          eventEndTime: formattedEndTime || "",
+        }));
+      } catch (error) {
+        console.log("Error fetching announcement", error);
+      }
+    };
+    fetchAnnouncement();
+  }, []);
+
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileName = `id_announcements/${Date.now()}_${randomString}.png`;
@@ -49,10 +108,9 @@ function CreateAnnouncement({ onClose }) {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   }
-
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create an announcement?",
+      "Are you sure you want to edit this announcement?",
       "confirm"
     );
     if (!isConfirmed) {
@@ -60,26 +118,38 @@ function CreateAnnouncement({ onClose }) {
     }
     onClose();
     try {
-      if (announcementForm.picture !== "") {
+      const firebaseBaseUrl = "https://firebasestorage.googleapis.com/";
+      if (
+        announcementForm.picture !== "" &&
+        !announcementForm.picture.startsWith(firebaseBaseUrl)
+      ) {
         const pictureUrl = await uploadToFirebase(announcementForm.picture);
-        const response = await api.post("/createannouncement", {
+        const response = await api.post(`/editannouncement/${announcementID}`, {
           announcementForm: { ...announcementForm, picture: pictureUrl },
         });
       } else {
-        const response = await api.post("/createannouncement", {
+        const response = await api.post(`/editannouncement/${announcementID}`, {
           announcementForm,
         });
       }
-
-      alert("Announcement successfully created!");
+      alert("Announcement successfully updated!");
     } catch (error) {
-      console.log("Error creating announcement", error);
+      console.log("Error updating announcement", error);
     }
   };
 
   const handleClose = () => {
     setShowModal(false);
     onClose();
+  };
+
+  const handleRemovePic = () => {
+    setAnnouncementForm((prev) => ({
+      ...prev,
+      picture: "",
+    }));
+    setHavePicture(false);
+    hiddenInputRef1.current.value = "";
   };
 
   const categoryList = [
@@ -95,15 +165,19 @@ function CreateAnnouncement({ onClose }) {
     const { name, value, files } = e.target;
     if (name === "picture") {
       if (files && files[0]) {
+        const pictureUrl = URL.createObjectURL(files[0]);
+        setAnnouncementForm((prev) => ({
+          ...prev,
+          picture: pictureUrl,
+        }));
         setHavePicture(true);
       } else {
+        setAnnouncementForm((prev) => ({
+          ...prev,
+          picture: "",
+        }));
         setHavePicture(false);
       }
-      const pictureUrl = URL.createObjectURL(files[0]);
-      setAnnouncementForm((prev) => ({
-        ...prev,
-        picture: pictureUrl,
-      }));
     } else {
       setAnnouncementForm((prev) => ({
         ...prev,
@@ -111,18 +185,21 @@ function CreateAnnouncement({ onClose }) {
       }));
     }
   };
-
   const handleEvent = () => {
     setShowDateTimeInputs((prev) => !prev);
   };
 
-  const handleRemovePic = () => {
+  const handleCancel = () => {
     setAnnouncementForm((prev) => ({
       ...prev,
-      picture: "",
+      eventDate: "",
+      eventStart: "",
+      eventEnd: "",
+      eventStartTime: "",
+      eventEndTime: "",
     }));
-    setHavePicture(false);
-    hiddenInputRef1.current.value = "";
+    setEventDetails(null);
+    setShowDateTimeInputs(false);
   };
 
   const handleUploadPicture = (event) => {
@@ -175,7 +252,6 @@ function CreateAnnouncement({ onClose }) {
     }
 
     setShowDateTimeInputs(false);
-    console.log(announcementForm);
   };
 
   const formatToDateForInput = (date) => {
@@ -239,6 +315,7 @@ function CreateAnnouncement({ onClose }) {
                       id="category"
                       name="category"
                       onChange={handleInputChange}
+                      value={announcementForm.category}
                       className="form-input h-[30px]"
                     >
                       <option value="Select" disabled selected hidden>
@@ -255,6 +332,7 @@ function CreateAnnouncement({ onClose }) {
                       type="text"
                       id="title"
                       name="title"
+                      value={announcementForm.title}
                       onChange={handleInputChange}
                       className="form-input h-[30px]"
                     />
@@ -271,8 +349,6 @@ function CreateAnnouncement({ onClose }) {
                     className="form-input h-[100px] "
                   />
                 </div>
-
-                {/* Event Details */}
                 {eventDetails && (
                   <div className="employee-form-group">
                     <label className="font-semibold text-navy-blue">
@@ -382,6 +458,13 @@ function CreateAnnouncement({ onClose }) {
                         </div>
 
                         <button
+                          onClick={handleCancel}
+                          type="button"
+                          className="actions-btn bg-btn-color-blue"
+                        >
+                          CANCEL
+                        </button>
+                        <button
                           onClick={handleOK}
                           type="button"
                           className="actions-btn bg-btn-color-blue"
@@ -409,4 +492,4 @@ function CreateAnnouncement({ onClose }) {
   );
 }
 
-export default CreateAnnouncement;
+export default EditAnnouncement;

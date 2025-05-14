@@ -67,7 +67,7 @@ function CourtReservations({ isCollapsed }) {
       );
     }
     if (search) {
-      filtered = courtreservations.filter((court) => {
+      filtered = filtered.filter((court) => {
         const first = court.resID.firstname || "";
         const middle = court.resID.middlename || "";
         const last = court.resID.lastname || "";
@@ -205,7 +205,6 @@ function CourtReservations({ isCollapsed }) {
               <th>Purpose</th>
               <th>Date & Time</th>
               <th>Amount</th>
-              <th>Status</th>
               {isRejectedClicked && <th>Remarks</th>}
               {isPendingClicked && <th>Action</th>}
             </tr>
@@ -215,7 +214,7 @@ function CourtReservations({ isCollapsed }) {
             {filteredReservations.length === 0 ? (
               <tr className="bg-white">
                 <td
-                  colSpan={isApprovedClicked ? 5 : 6}
+                  colSpan={isApprovedClicked ? 4 : 5}
                   className="text-center p-2"
                 >
                   No results found
@@ -238,7 +237,6 @@ function CourtReservations({ isCollapsed }) {
                     <td className="p-2">{court.purpose}</td>
                     <td className="p-2">{formattedDatetime}</td>
                     <td className="p-2">{court.amount}</td>
-                    <td className="p-2">{court.status}</td>
                     {isPendingClicked && court.status == "Pending" && (
                       <td className="flex justify-center gap-x-8">
                         <>

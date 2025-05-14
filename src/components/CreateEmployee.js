@@ -7,11 +7,15 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import api from "../api";
 
 function CreateEmployee({ onClose }) {
-  const { fetchResidents, residents } = useContext(InfoContext);
+  const { fetchResidents, residents, employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
+  const [availableWeeks, setAvailableWeeks] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
+    chairmanship: "",
+    assignedweeks: "",
+    assignedday: "",
   });
   const [showModal, setShowModal] = useState(true);
 
@@ -42,7 +46,17 @@ function CreateEmployee({ onClose }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.post("/createemployee", employeeForm);
+      let formattedEmployeeForm = { ...employeeForm };
+      if (employeeForm.position !== "Justice") {
+        delete employeeForm.assignedday;
+        delete employeeForm.assignedweeks;
+      }
+      if (employeeForm.position !== "Kagawad") {
+        delete employeeForm.chairmanship;
+      }
+      const response = await api.post("/createemployee", {
+        formattedEmployeeForm,
+      });
       try {
         const response2 = await api.post(
           `/generateemployeeID/${response.data.empID}`
@@ -80,6 +94,23 @@ function CreateEmployee({ onClose }) {
     Justice: 10,
   };
 
+  const assignedWeeks = {
+    "1st & 3rd Week": 5,
+    "2nd & 4th Week": 5,
+  };
+
+  const assignedDay = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+  const chairmanshipList = [
+    "Budget and Appropriation",
+    "Family, Women and Children",
+    "Peace and Order",
+    "Infrastructure",
+    "VAWC (Violence Against Women and Children)",
+    "Health",
+    "Environment",
+  ];
+
   useEffect(() => {
     const fetchAvailablePositions = async () => {
       try {
@@ -99,6 +130,38 @@ function CreateEmployee({ onClose }) {
     };
     fetchAvailablePositions();
   }, []);
+
+  useEffect(() => {
+    const fetchAvailableWeeks = async () => {
+      try {
+        const response = await api.get("/weekscount");
+        const counts = response.data;
+
+        const remainingWeeks = Object.entries(assignedWeeks)
+          .filter(([pos, limit]) => {
+            const lowerPos = pos.toLowerCase();
+            return (counts[lowerPos] || 0) < limit;
+          })
+          .map(([pos]) => pos);
+        setAvailableWeeks(remainingWeeks);
+      } catch (err) {
+        console.error("Failed to fetch available weeks", err);
+      }
+    };
+    fetchAvailableWeeks();
+  }, []);
+
+  const getUsedDaysForSelectedWeek = (week) => {
+    return employees
+      .filter((emp) => emp.position === "Justice" && emp.assignedweeks === week)
+      .map((emp) => emp.assignedday);
+  };
+
+  const getUsedChairmanships = () => {
+    return employees
+      .filter((emp) => emp.position === "Kagawad")
+      .map((emp) => emp.chairmanship);
+  };
 
   const handleClose = () => {
     setShowModal(false);
@@ -137,13 +200,15 @@ function CreateEmployee({ onClose }) {
                   <option value="" disabled selected hidden>
                     Select
                   </option>
-                  {residents.map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
+                  {residents
+                    .filter((res) => !res.empID)
+                    .map((element) => (
+                      <option value={element._id}>
+                        {element.middlename
+                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                          : `${element.firstname} ${element.lastname}`}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -165,6 +230,82 @@ function CreateEmployee({ onClose }) {
                   ))}
                 </select>
               </div>
+
+              {employeeForm.position === "Kagawad" && (
+                <div className="employee-form-group">
+                  <label for="chairmanship" className="form-label">
+                    Chairmanship<label className="text-red-600">*</label>
+                  </label>
+                  <select
+                    id="chairmanship"
+                    name="chairmanship"
+                    onChange={handleDropdownChange}
+                    className="form-input h-[30px]"
+                  >
+                    <option value="" disabled selected hidden>
+                      Select
+                    </option>
+                    {chairmanshipList
+                      .filter(
+                        (chairmanship) =>
+                          !getUsedChairmanships().includes(chairmanship)
+                      )
+                      .map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+              {employeeForm.position === "Justice" && (
+                <div className="employee-form-group">
+                  <label for="assignedweeks" className="form-label">
+                    Assigned Weeks<label className="text-red-600">*</label>
+                  </label>
+                  <select
+                    id="assignedweeks"
+                    name="assignedweeks"
+                    onChange={handleDropdownChange}
+                    className="form-input h-[30px]"
+                  >
+                    <option value="" disabled selected hidden>
+                      Select
+                    </option>
+                    {availableWeeks.map((element) => (
+                      <option value={element}>{element}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {employeeForm.position === "Justice" &&
+                employeeForm.assignedweeks && (
+                  <div className="employee-form-group">
+                    <label for="assignedday" className="form-label">
+                      Assigned Day<label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="assignedday"
+                      name="assignedday"
+                      onChange={handleDropdownChange}
+                      className="form-input h-[30px]"
+                    >
+                      <option value="" disabled selected hidden>
+                        Select
+                      </option>
+                      {assignedDay
+                        .filter(
+                          (day) =>
+                            !getUsedDaysForSelectedWeek(
+                              employeeForm.assignedweeks
+                            ).includes(day)
+                        )
+                        .map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                    </select>
+                  </div>
+                )}
+
               <button type="submit" className="actions-btn bg-btn-color-blue">
                 Submit
               </button>

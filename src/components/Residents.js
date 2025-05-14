@@ -26,6 +26,9 @@ function Residents({ isCollapsed }) {
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
 
+  const [isActiveClicked, setActiveClicked] = useState(true);
+  const [isArchivedClicked, setArchivedClicked] = useState(false);
+
   const handleAdd = () => {
     navigation("/create-resident");
   };
@@ -857,8 +860,14 @@ function Residents({ isCollapsed }) {
   };
 
   useEffect(() => {
+    let filtered = residents;
+    if (isActiveClicked) {
+      filtered = residents.filter((res) => res.status === "Active");
+    } else if (isArchivedClicked) {
+      filtered = residents.filter((res) => res.status === "Archived");
+    }
     if (search) {
-      const filtered = residents.filter((resident) => {
+      filtered = filtered.filter((resident) => {
         const first = resident.firstname || "";
         const middle = resident.middlename || "";
         const last = resident.lastname || "";
@@ -867,11 +876,18 @@ function Residents({ isCollapsed }) {
 
         return fullName.includes(search);
       });
-      setFilteredResidents(filtered);
-    } else {
-      setFilteredResidents(residents);
     }
-  }, [search, residents]);
+    setFilteredResidents(filtered);
+  }, [search, residents, isActiveClicked, isArchivedClicked]);
+
+  const handleMenu1 = () => {
+    setActiveClicked(true);
+    setArchivedClicked(false);
+  };
+  const handleMenu2 = () => {
+    setArchivedClicked(true);
+    setActiveClicked(false);
+  };
 
   return (
     <>
@@ -880,10 +896,30 @@ function Residents({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-bold">Add new resident</span>
-        </button>
+        <div className="status-add-btn-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+            >
+              Active
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isArchivedClicked ? "status-line" : ""
+              }`}
+            >
+              Archived
+            </p>
+          </div>
+          {isActiveClicked && (
+            <button className="add-btn" onClick={handleAdd}>
+              <MdPersonAddAlt1 className=" text-xl" />
+              <span className="font-bold">Add new resident</span>
+            </button>
+          )}
+        </div>
 
         <table>
           <thead>

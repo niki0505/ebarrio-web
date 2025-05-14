@@ -149,7 +149,6 @@ function CreateAccount({ onClose }) {
     onClose();
   };
 
-  console.log(userForm.password);
   return (
     <>
       {setShowModal && (

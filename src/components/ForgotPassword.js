@@ -37,80 +37,76 @@ function ForgotPassword() {
   };
 
   const handleSubmit = async () => {
-    setIsExisting(true);
-    // try {
-    //   const response = await api.get(`/checkuser/${username}`);
-    //   setIsExisting(true);
-    //   setUser(response.data);
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      const response = await api.get(`/checkuser/${username}`);
+      setIsExisting(true);
+      setUser(response.data);
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   const handleQuestionVerify = async () => {
-    setIsVerified(true);
-    // try {
-    //   await api.post(`/verifyquestion/${username}`, { securityquestion });
-    //   setIsVerified(true);
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      await api.post(`/verifyquestion/${username}`, { securityquestion });
+      setIsVerified(true);
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   const handleOTP = async () => {
-    setOTPClicked(true);
-    // try {
-    //   await api.get(`/checkotp/${username}`);
-    //   if (resendCount === 3) {
-    //     setIsResendDisabled(true);
-    //     alert("You can only resend OTP 3 times.");
-    //     setOTPClicked(false);
-    //     await api.get(`/limitotp/${username}`);
-    //     return;
-    //   }
-    //   setOTPClicked(true);
-    //   setResendCount((prevCount) => prevCount + 1);
-    //   setResendTimer(30);
-    //   sendOTP(username, user.empID.resID.mobilenumber);
-    // } catch (error) {
-    //   if (error.response && error.response.status === 429) {
-    //     alert("OTP use is currently disabled. Try again later.");
-    //   } else {
-    //     console.error("Error checking OTP:", error);
-    //   }
-    // }
+    try {
+      await api.get(`/checkotp/${username}`);
+      if (resendCount === 3) {
+        setIsResendDisabled(true);
+        alert("You can only resend OTP 3 times.");
+        setOTPClicked(false);
+        await api.get(`/limitotp/${username}`);
+        return;
+      }
+      setOTPClicked(true);
+      setResendCount((prevCount) => prevCount + 1);
+      setResendTimer(30);
+      sendOTP(username, user.empID.resID.mobilenumber);
+    } catch (error) {
+      if (error.response && error.response.status === 429) {
+        alert("OTP use is currently disabled. Try again later.");
+      } else {
+        console.error("Error checking OTP:", error);
+      }
+    }
   };
 
   const handleSuccessful = async () => {
-    navigation("/login");
-    // try {
-    //   await api.post(`/newpassword/${username}`, { newPassword });
-    //   alert("You have successfully reset your password!");
-    //   navigation("/login");
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      await api.post(`/newpassword/${username}`, { newPassword });
+      alert("You have successfully reset your password!");
+      navigation("/login");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   useEffect(() => {
@@ -151,21 +147,20 @@ function ForgotPassword() {
   };
 
   const handleVerify = async () => {
-    setIsVerified(true);
-    // try {
-    //   const result = await verifyOTP(username, OTP);
-    //   alert(result.message);
-    //   setIsVerified(true);
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      const result = await verifyOTP(username, OTP);
+      alert(result.message);
+      setIsVerified(true);
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   useEffect(() => {
@@ -312,8 +307,8 @@ function ForgotPassword() {
                             One-Time Password
                           </h1>
                           <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
-                            Enter the 6 digit code sent to
-                            {/* Enter the 6 digit code sent to {user.empID.resID.mobilenumber} */}
+                            Enter the 6 digit code sent to{" "}
+                            {user.empID.resID.mobilenumber}
                           </span>
                         </div>
 

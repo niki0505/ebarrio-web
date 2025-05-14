@@ -10,6 +10,7 @@ import api from "../api";
 import "../Stylesheets/Announcements.css";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import EditAnnouncement from "./EditAnnouncement";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
@@ -24,6 +25,8 @@ function Announcements({ isCollapsed }) {
   const { fetchAnnouncements, announcements } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
   const [isCreateClicked, setCreateClicked] = useState(false);
+  const [isEditClicked, setEditClicked] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
 
   const [selectedCategory, setSelectedCategory] = useState("All Announcement");
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState([]);
@@ -45,6 +48,12 @@ function Announcements({ isCollapsed }) {
     setCreateClicked(true);
   };
 
+  const handleEdit = (announcementID) => {
+    setEditClicked(true);
+    setSelectedAnnouncement(announcementID);
+  };
+
+  console.log(user);
   /* FILTER CATEGORY */
   const filteredAnnouncements = announcements.filter(
     (announcement) =>
@@ -92,6 +101,31 @@ function Announcements({ isCollapsed }) {
   };
 
   const renderContent = (announcement) => {
+    let eventInfo = "";
+    if (announcement.eventStart) {
+      const startDate = new Date(announcement.eventStart);
+      const endDate = new Date(announcement.eventEnd);
+
+      const formattedDate = startDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      const formattedStartTime = startDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      const formattedEndTime = endDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      eventInfo = `📅 ${formattedDate}\n🕒 ${formattedStartTime} - ${formattedEndTime}\n\n`;
+    }
     const words = announcement.content.split(" ");
     const isLong = words.length > 25;
     const isExpanded = expandedAnnouncements.includes(announcement._id);
@@ -100,7 +134,8 @@ function Announcements({ isCollapsed }) {
       : words.slice(0, 25).join(" ") + (isLong ? "..." : "");
 
     return (
-      <div className="text-sm font-medium mt-4 font-subTitle">
+      <div className="text-sm font-medium mt-4 font-subTitle whitespace-pre-wrap">
+        {eventInfo}
         {displayText}
         {isLong && (
           <span
@@ -207,16 +242,21 @@ function Announcements({ isCollapsed }) {
                       >
                         <BsPinAngle />
                       </button>
-                      <button onClick={() => toggleMenu(announcement._id)}>
-                        <BsThreeDots />
-                      </button>
+                      {announcement.uploadedby._id === user.empID && (
+                        <button onClick={() => toggleMenu(announcement._id)}>
+                          <BsThreeDots />
+                        </button>
+                      )}
                     </div>
 
                     {/* MENU */}
                     {menuVisible === announcement._id && (
                       <div className="announcement-menu">
                         <ul className="w-full">
-                          <div className="navbar-dropdown-item justify-start">
+                          <div
+                            className="navbar-dropdown-item justify-start"
+                            onClick={() => handleEdit(announcement._id)}
+                          >
                             <FaEdit className="ml-2" />
                             <li className="text-sm font-semibold ml-2 font-subTitle">
                               Edit
@@ -312,9 +352,11 @@ function Announcements({ isCollapsed }) {
                     >
                       <BsPinAngleFill />
                     </button>
-                    <button onClick={() => toggleMenu(announcement._id)}>
-                      <BsThreeDots />
-                    </button>
+                    {announcement.uploadedby?._id === user.empID && (
+                      <button onClick={() => toggleMenu(announcement._id)}>
+                        <BsThreeDots />
+                      </button>
+                    )}
                   </div>
 
                   {/* MENU */}
@@ -400,6 +442,13 @@ function Announcements({ isCollapsed }) {
 
       {isCreateClicked && (
         <CreateAnnouncement onClose={() => setCreateClicked(false)} />
+      )}
+
+      {isEditClicked && (
+        <EditAnnouncement
+          onClose={() => setEditClicked(false)}
+          announcementID={selectedAnnouncement}
+        />
       )}
     </>
   );

@@ -1,7 +1,6 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
@@ -16,14 +15,13 @@ import api from "../api";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
-  const navigation = useNavigate();
   const { fetchEmployees, employees } = useContext(InfoContext);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
-  const [isCertClicked, setCertClicked] = useState(false);
   const [isCreateClicked, setCreateClicked] = useState(false);
-  const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
+  const [isActiveClicked, setActiveClicked] = useState(true);
+  const [isArchivedClicked, setArchivedClicked] = useState(false);
 
   const handleRowClick = (residentId) => {
     setExpandedRow(expandedRow === residentId ? null : residentId);
@@ -499,8 +497,14 @@ function Employees({ isCollapsed }) {
   };
 
   useEffect(() => {
+    let filtered = employees;
+    if (isActiveClicked) {
+      filtered = employees.filter((emp) => emp.status === "Active");
+    } else if (isArchivedClicked) {
+      filtered = employees.filter((emp) => emp.status === "Archived");
+    }
     if (search) {
-      const filtered = employees.filter((emp) => {
+      filtered = filtered.filter((emp) => {
         const first = emp.resID.firstname || "";
         const middle = emp.resID.middlename || "";
         const last = emp.resID.lastname || "";
@@ -510,11 +514,18 @@ function Employees({ isCollapsed }) {
 
         return fullName.includes(search) || position.includes(search);
       });
-      setFilteredEmployees(filtered);
-    } else {
-      setFilteredEmployees(employees);
     }
-  }, [search, employees]);
+    setFilteredEmployees(filtered);
+  }, [search, employees, isActiveClicked, isArchivedClicked]);
+
+  const handleMenu1 = () => {
+    setActiveClicked(true);
+    setArchivedClicked(false);
+  };
+  const handleMenu2 = () => {
+    setArchivedClicked(true);
+    setActiveClicked(false);
+  };
 
   return (
     <>
@@ -523,11 +534,30 @@ function Employees({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-semibold text-[16px] ">Add new employee</span>
-        </button>
-
+        <div className="status-add-btn-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+            >
+              Active
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isArchivedClicked ? "status-line" : ""
+              }`}
+            >
+              Archived
+            </p>
+          </div>
+          {isActiveClicked && (
+            <button className="add-btn" onClick={handleAdd}>
+              <MdPersonAddAlt1 className=" text-xl" />
+              <span className="font-bold">Add new employee</span>
+            </button>
+          )}
+        </div>
         <table>
           <thead>
             <tr>
@@ -535,13 +565,14 @@ function Employees({ isCollapsed }) {
               <th>Mobile No.</th>
               <th>Address</th>
               <th>Position</th>
+              <th>Schedule</th>
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredEmployees.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={4}>No results found</td>
+                <td colSpan={5}>No results found</td>
               </tr>
             ) : (
               filteredEmployees.map((emp) => (
@@ -557,7 +588,7 @@ function Employees({ isCollapsed }) {
                     }}
                   >
                     {expandedRow === emp._id ? (
-                      <td colSpan={4}>
+                      <td colSpan={5}>
                         {/* Additional Information for the resident */}
                         <div className="profile-container">
                           <img
@@ -625,13 +656,15 @@ function Employees({ isCollapsed }) {
                           >
                             EMPLOYEE ID
                           </button>
-                          <button
-                            className="actions-btn bg-btn-color-blue"
-                            type="submit"
-                            // onClick={() => editBtn(emp._id)}
-                          >
-                            EDIT
-                          </button>
+                          {emp.position === "Justice" && (
+                            <button
+                              className="actions-btn bg-btn-color-blue"
+                              type="submit"
+                              // onClick={() => editBtn(emp._id)}
+                            >
+                              EDIT SCHEDULE
+                            </button>
+                          )}
                         </div>
                       </td>
                     ) : (
@@ -644,6 +677,18 @@ function Employees({ isCollapsed }) {
                         <td>{emp.resID.mobilenumber}</td>
                         <td>{emp.resID.address}</td>
                         <td>{emp.position}</td>
+                        {emp.position === "Justice" && (
+                          <td>
+                            {emp.assignedweeks} - {emp.assignedday}
+                          </td>
+                        )}
+                        {(emp.position === "Secretary" ||
+                          emp.position === "Clerk" ||
+                          emp.position === "Captain") && (
+                          <td>Monday - Friday</td>
+                        )}
+                        {(emp.position === "Kagawad" ||
+                          emp.position === "Tanod") && <td>On-Call</td>}
                       </>
                     )}
                   </tr>

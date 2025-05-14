@@ -27,6 +27,9 @@ function EmergencyHotlines({ isCollapsed }) {
   const [selectedEmergency, setSelectedEmergency] = useState({});
   const [search, setSearch] = useState("");
 
+  const [isActiveClicked, setActiveClicked] = useState(true);
+  const [isArchivedClicked, setArchivedClicked] = useState(false);
+
   useEffect(() => {
     fetchEmergencyHotlines();
   }, []);
@@ -70,15 +73,32 @@ function EmergencyHotlines({ isCollapsed }) {
   };
 
   useEffect(() => {
+    let filtered = emergencyhotlines;
+    if (isActiveClicked) {
+      filtered = emergencyhotlines.filter(
+        (emergency) => emergency.status === "Active"
+      );
+    } else if (isArchivedClicked) {
+      filtered = emergencyhotlines.filter(
+        (emergency) => emergency.status === "Archived"
+      );
+    }
     if (search) {
-      const filtered = emergencyhotlines.filter((emergency) => {
+      filtered = filtered.filter((emergency) => {
         return emergency.name.includes(search);
       });
-      setFilteredEmergencyHotlines(filtered);
-    } else {
-      setFilteredEmergencyHotlines(emergencyhotlines);
     }
-  }, [search, emergencyhotlines]);
+    setFilteredEmergencyHotlines(filtered);
+  }, [search, emergencyhotlines, isActiveClicked, isArchivedClicked]);
+
+  const handleMenu1 = () => {
+    setActiveClicked(true);
+    setArchivedClicked(false);
+  };
+  const handleMenu2 = () => {
+    setArchivedClicked(true);
+    setActiveClicked(false);
+  };
 
   return (
     <>
@@ -86,10 +106,30 @@ function EmergencyHotlines({ isCollapsed }) {
         <div className="header-text">Emergency Hotlines</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
-          <span className="font-bold">Add new contact</span>
-        </button>
+        <div className="status-add-btn-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+            >
+              Active
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isArchivedClicked ? "status-line" : ""
+              }`}
+            >
+              Archived
+            </p>
+          </div>
+          {isActiveClicked && (
+            <button className="add-btn" onClick={handleAdd}>
+              <MdPersonAddAlt1 className=" text-xl" />
+              <span className="font-bold">Add new contact</span>
+            </button>
+          )}
+        </div>
         <hr className="mt-4 border border-gray-300" />
 
         <table>

@@ -70,59 +70,129 @@ function App() {
                 <Route path="/" element={<AppLayout />}>
                   <Route
                     path="residents"
-                    element={<PrivateRoute element={<Residents />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Residents />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="create-resident"
-                    element={<PrivateRoute element={<CreateResident />} />}
+                    element={
+                      <PrivateRoute
+                        element={<CreateResident />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="edit-resident"
-                    element={<PrivateRoute element={<EditResident />} />}
+                    element={
+                      <PrivateRoute
+                        element={<EditResident />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="employees"
-                    element={<PrivateRoute element={<Employees />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Employees />}
+                        allowedRoles={["Secretary"]}
+                      />
+                    }
                   />
                   <Route
                     path="accounts"
-                    element={<PrivateRoute element={<Accounts />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Accounts />}
+                        allowedRoles={["Secretary"]}
+                      />
+                    }
                   />
                   <Route
                     path="certificate-requests"
-                    element={<PrivateRoute element={<CertificateRequests />} />}
+                    element={
+                      <PrivateRoute
+                        element={<CertificateRequests />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="emergency-hotlines"
-                    element={<PrivateRoute element={<EmergencyHotlines />} />}
+                    element={
+                      <PrivateRoute
+                        element={<EmergencyHotlines />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="announcements"
-                    element={<PrivateRoute element={<Announcements />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Announcements />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="dashboard"
-                    element={<PrivateRoute element={<Dashboard />} />}
+                    element={
+                      <PrivateRoute
+                        element={<Dashboard />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="court-reservations"
-                    element={<PrivateRoute element={<CourtReservations />} />}
+                    element={
+                      <PrivateRoute
+                        element={<CourtReservations />}
+                        allowedRoles={["Secretary", "Clerk"]}
+                      />
+                    }
                   />
                   <Route
                     path="blotter-reports"
-                    element={<PrivateRoute element={<BlotterReports />} />}
+                    element={
+                      <PrivateRoute
+                        element={<BlotterReports />}
+                        allowedRoles={["Justice"]}
+                      />
+                    }
                   />
                   <Route
                     path="create-blotter"
-                    element={<PrivateRoute element={<CreateBlotter />} />}
+                    element={
+                      <PrivateRoute
+                        element={<CreateBlotter />}
+                        allowedRoles={["Justice"]}
+                      />
+                    }
                   />
                   <Route
                     path="settle-blotter"
-                    element={<PrivateRoute element={<SettleBlotter />} />}
+                    element={
+                      <PrivateRoute
+                        element={<SettleBlotter />}
+                        allowedRoles={["Justice"]}
+                      />
+                    }
                   />
                   <Route
                     path="account"
-                    element={<PrivateRoute element={<AccountSettings />} />}
+                    element={
+                      <PrivateRoute
+                        element={<AccountSettings />}
+                        allowedRoles={["Secretary", "Clerk", "Justice"]}
+                      />
+                    }
                   />
                 </Route>
               </Routes>
