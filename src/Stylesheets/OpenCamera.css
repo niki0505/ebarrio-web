@@ -82,17 +82,12 @@
   .modal-btn-close {
     @apply w-10;
   }
-
-  .btn-close-icon {
-    @apply text-2xl;
-  }
-
   .modal-image-container {
     @apply mt-12;
   }
 
   .modal-image {
-    @apply h-[200px];
+    @apply h-[20rem];
   }
 
   .btn-container {

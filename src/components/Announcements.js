@@ -324,10 +324,12 @@ function Announcements({ isCollapsed }) {
                       />
                     )}
 
-                  <FaHeart className="announcement-heart" />
-                  <label className="announcement-info-value">
-                    {announcement.hearts}
-                  </label>
+                  <div className="flex flex-row items-center gap-1 mt-2">
+                    <FaHeart className="announcement-heart" />
+                    <h3 className="announcement-info-value">
+                      {announcement.hearts}
+                    </h3>
+                  </div>
                 </div>
               ))}
           </div>
@@ -430,10 +432,12 @@ function Announcements({ isCollapsed }) {
                   />
                 )}
 
-                <FaHeart className="announcement-heart" />
-                <label className="announcement-info-value">
-                  {announcement.hearts}
-                </label>
+                <div className="flex flex-row items-center gap-1 mt-2">
+                  <FaHeart className="announcement-heart" />
+                  <h3 className="announcement-info-value">
+                    {announcement.hearts}
+                  </h3>
+                </div>
               </div>
             ))}
           </div>

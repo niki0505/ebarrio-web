@@ -223,128 +223,138 @@ function CreateReservation({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[35rem] ">
-            <div className="modal-title-bar bg-navy-blue">
-              <h1 className="modal-title">Add New Reservation</h1>
+          <div className="modal-content h-[30rem] w-[30rem]">
+            <div className="modal-title-bar">
+              <div className="modal-title">Add New Reservation</div>
               <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
+                <IoClose
+                  className="modal-btn-close-icon"
+                  onClick={handleClose}
+                />
               </button>
             </div>
 
             <form
-              className="employee-form-container"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="employee-form-group">
-                <label for="resID" className="form-label">
-                  Name<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="resID"
-                  name="resID"
-                  onChange={handleDropdownChange}
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {residents.map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
+              <div className="modal-form">
+                <div className="employee-form-group">
+                  <label for="resID" className="form-label">
+                    Name<label className="text-red-600">*</label>
+                  </label>
+                  <select
+                    id="resID"
+                    name="resID"
+                    onChange={handleDropdownChange}
+                    className="form-input h-[30px]"
+                  >
+                    <option value="" disabled selected hidden>
+                      Select
                     </option>
-                  ))}
-                </select>
+                    {residents.map((element) => (
+                      <option value={element._id}>
+                        {element.middlename
+                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                          : `${element.firstname} ${element.lastname}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="employee-form-group">
+                  <label for="purpose" className="form-label">
+                    Purpose<label className="text-red-600">*</label>
+                  </label>
+                  <select
+                    id="purpose"
+                    name="purpose"
+                    onChange={handleDropdownChange}
+                    className="form-input h-[30px]"
+                  >
+                    <option value="" disabled selected hidden>
+                      Select
+                    </option>
+                    {purposeList.map((element) => (
+                      <option value={element}>{element}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="employee-form-group">
+                  <label for="date" className="form-label">
+                    Date<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    className="form-input h-[30px]"
+                    onChange={handleDateChange}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
+                <div className="employee-form-group">
+                  <label for="starttime" className="form-label">
+                    Start Time<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="time"
+                    id="starttime"
+                    name="starttime"
+                    onChange={handleStartTimeChange}
+                    className="form-input h-[30px]"
+                    value={
+                      reservationForm.starttime
+                        ? new Date(reservationForm.starttime)
+                            .toTimeString()
+                            .slice(0, 5)
+                        : ""
+                    }
+                  />
+                </div>
+                <div className="employee-form-group">
+                  <label for="endtime" className="form-label">
+                    End Time<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="time"
+                    id="endtime"
+                    name="endtime"
+                    onChange={handleEndTimeChange}
+                    className="form-input h-[30px]"
+                    value={
+                      reservationForm.endtime
+                        ? new Date(reservationForm.endtime)
+                            .toTimeString()
+                            .slice(0, 5)
+                        : ""
+                    }
+                  />
+                </div>
+                <div className="employee-form-group">
+                  <label for="amount" className="form-label">
+                    Amount
+                  </label>
+                  <input
+                    value={reservationForm.amount}
+                    type="text"
+                    id="name"
+                    name="name"
+                    className="form-input h-[30px]"
+                    readOnly
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
-              <div className="employee-form-group">
-                <label for="purpose" className="form-label">
-                  Purpose<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="purpose"
-                  name="purpose"
-                  onChange={handleDropdownChange}
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {purposeList.map((element) => (
-                    <option value={element}>{element}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="employee-form-group">
-                <label for="date" className="form-label">
-                  Date<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  name="date"
-                  className="form-input h-[30px]"
-                  onChange={handleDateChange}
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </div>
-              <div className="employee-form-group">
-                <label for="starttime" className="form-label">
-                  Start Time<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="time"
-                  id="starttime"
-                  name="starttime"
-                  onChange={handleStartTimeChange}
-                  className="form-input h-[30px]"
-                  value={
-                    reservationForm.starttime
-                      ? new Date(reservationForm.starttime)
-                          .toTimeString()
-                          .slice(0, 5)
-                      : ""
-                  }
-                />
-              </div>
-              <div className="employee-form-group">
-                <label for="endtime" className="form-label">
-                  End Time<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="time"
-                  id="endtime"
-                  name="endtime"
-                  onChange={handleEndTimeChange}
-                  className="form-input h-[30px]"
-                  value={
-                    reservationForm.endtime
-                      ? new Date(reservationForm.endtime)
-                          .toTimeString()
-                          .slice(0, 5)
-                      : ""
-                  }
-                />
-              </div>
-              <div className="employee-form-group">
-                <label for="amount" className="form-label">
-                  Amount
-                </label>
-                <input
-                  value={reservationForm.amount}
-                  type="text"
-                  id="name"
-                  name="name"
-                  className="form-input h-[30px]"
-                  readOnly
-                />
-              </div>
-              <button type="submit" className="actions-btn bg-btn-color-blue">
-                Submit
-              </button>
             </form>
           </div>
         </div>

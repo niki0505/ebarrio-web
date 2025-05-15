@@ -1600,7 +1600,7 @@ function AccountSettings({ isCollapsed }) {
                       <div className="function-btn-container">
                         <button
                           type="submit"
-                          className="actions-btn bg-btn-color-blue mt-4"
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
                         >
                           Save Changes
                         </button>
@@ -1656,7 +1656,7 @@ function AccountSettings({ isCollapsed }) {
 
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue mt-4"
+                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
                       type="button"
                       onClick={handleUsernameChange}
                     >
@@ -1716,7 +1716,7 @@ function AccountSettings({ isCollapsed }) {
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue mt-4"
+                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
                       type="button"
                       onClick={handlePasswordChange}
                     >
@@ -1816,7 +1816,7 @@ function AccountSettings({ isCollapsed }) {
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue mt-4"
+                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
                       type="button"
                       onClick={handleQuestionsChange}
                     >
