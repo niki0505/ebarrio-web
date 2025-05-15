@@ -109,10 +109,14 @@ function Accounts({ isCollapsed }) {
         <div className="header-text">Users</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <button className="add-btn" onClick={handleAdd}>
-          <MdPersonAddAlt1 className=" text-xl" />
+        <button
+          className="flex items-center w-auto space-x-2 mt-10 cursor-pointer text-btn-color-blue ml-0 sm:ml-auto"
+          onClick={handleAdd}
+        >
+          <MdPersonAddAlt1 className="text-xl" />
           <span className="font-bold">Add new user</span>
         </button>
+
         <hr className="mt-4 border border-gray-300" />
         <table>
           <thead>
@@ -146,7 +150,7 @@ function Accounts({ isCollapsed }) {
                     e.currentTarget.style.backgroundColor = "";
                   }}
                 >
-                  <td>
+                  <td className="text-center text-xs font-bold p-2 font-subTitle">
                     <div
                       style={{
                         display: "flex",
@@ -160,7 +164,9 @@ function Accounts({ isCollapsed }) {
                         style={{
                           borderRadius: "50%",
                           height: 40,
+                          width: 40,
                           objectFit: "cover",
+                          marginLeft: 10,
                         }}
                         alt="User"
                         src={user.empID?.resID?.picture || user.resID?.picture}
@@ -180,10 +186,10 @@ function Accounts({ isCollapsed }) {
                   <td>{user.role}</td>
                   <td>{user.status}</td>
                   <td></td>
-                  <td className="flex justify-center gap-x-8">
+                  <td className="flex justify-between gap-x-8">
                     <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">
-                        <FaEdit className="text-xl text-[#06D001]" />
+                        <FaEdit className="text-lg text-[#06D001]" />
                         <label className="text-xs font-semibold text-[#06D001]">
                           Edit
                         </label>
@@ -198,7 +204,7 @@ function Accounts({ isCollapsed }) {
                           className="table-actions-btn"
                           onClick={() => handleDeactivate(user._id)}
                         >
-                          <FaUserXmark className="text-xl text-btn-color-red" />
+                          <FaUserXmark className="text-lg text-btn-color-red" />
                           <label className="text-xs font-semibold text-btn-color-red">
                             Deactivate
                           </label>
@@ -213,7 +219,7 @@ function Accounts({ isCollapsed }) {
                           className="table-actions-btn"
                           onClick={() => handleActivate(user._id)}
                         >
-                          <FaUserXmark className="text-xl text-btn-color-red" />
+                          <FaUserXmark className="text-lg text-btn-color-red" />
                           <label className="text-xs font-semibold text-btn-color-red">
                             Activate
                           </label>
@@ -223,7 +229,7 @@ function Accounts({ isCollapsed }) {
 
                     <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">
-                        <FaArchive className="text-xl text-btn-color-blue" />
+                        <FaArchive className="text-lg text-btn-color-blue" />
                         <label className="text-xs font-semibold text-btn-color-blue">
                           Archive
                         </label>

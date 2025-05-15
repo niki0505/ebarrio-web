@@ -17,7 +17,9 @@
     left-0 
     z-40 
     h-full
-    w-[theme('spacing.sidebar')];
+    w-[theme('spacing.sidebar-collapsed')]
+    md:w-[theme('spacing.sidebar')]
+    lg:w-[theme('spacing.sidebar')];
 }
 .sidebar-toggle-btn {
   @apply text-white 
@@ -35,14 +37,12 @@
   @apply w-32
     transition-transform 
     duration-300
-    mt-[-20px];
+    mt-[0px]
+    md:mt-[-20px]
+    lg:mt-[-20px];
 }
-.sidebar-logo-text {
-  @apply items-start 
-    text-[#fff] 
-    font-bold 
-    mt-[-20px]
-    text-2xl;
+.sidebar-app-name {
+  @apply font-title font-bold md:text-[24px] lg:text-[24px] sm:text-[16px] hidden md:block lg:block;
 }
 .sidebar-menu {
   @apply h-[40px]
@@ -62,7 +62,7 @@
     text-white;
 }
 .sidebar-menu-item-title {
-  @apply font-title text-[16px] font-light ml-3;
+  @apply font-title text-[16px] font-light ml-3 hidden md:block lg:block;
 }
 
 /*Hide Scroll Bar*/
@@ -72,24 +72,4 @@
 .hide-scrollbar {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
-}
-
-/*RESPONSIVE*/
-@media (max-width: 640px) {
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    @apply w-[theme('spacing.sidebar-collapsed')];
-  }
-  .sidebar-logo-text,
-  .sidebar-menu-item-title {
-    @apply hidden;
-  }
-  .sidebar-toggle-btn {
-    @apply rotate-[180deg] ml-3 mb-2;
-  }
-}
-
-@media (max-width: 1024) {
 }

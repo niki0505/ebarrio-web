@@ -153,125 +153,134 @@ function CreateAccount({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
-            <div className="modal-title-bar bg-navy-blue">
+          <div className="modal-content h-[20rem] w-[30rem]">
+            <div className="modal-title-bar">
               <h1 className="modal-title">Add New User</h1>
               <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
+                <IoClose
+                  className="modal-btn-close-icon"
+                  onClick={handleClose}
+                />
               </button>
             </div>
 
             <form
-              className="employee-form-container"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="employee-form-group">
-                <label for="resID" className="form-label">
-                  Name<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="resID"
-                  name="resID"
-                  onChange={handleInputChange}
-                  required
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {residents
-                    .filter(
-                      (element) =>
-                        !element.userID &&
-                        !(element.empID && element.empID.userID)
-                    )
-                    .map((element) => (
-                      <option value={element._id}>
-                        {element.middlename
-                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                          : `${element.firstname} ${element.lastname}`}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div className="employee-form-group">
-                <label className="form-label">
-                  Role<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="text"
-                  id="role"
-                  name="role"
-                  value={userForm.role}
-                  onChange={handleInputChange}
-                  readOnly
-                  className="form-input h-[30px]"
-                />
-              </div>
-
-              <div className="employee-form-group">
-                <label className="form-label">
-                  Username <label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  onChange={usernameValidation}
-                  required
-                  className="form-input h-[30px]"
-                />
-                <div className="text-start">
-                  {usernameErrors.length > 0 && (
-                    <ul className="text-[12px] text-red-600 m-0">
-                      {usernameErrors.map((err, idx) => (
-                        <li key={idx}>{err}</li>
+              <div className="modal-form">
+                <div className="employee-form-group">
+                  <label for="resID" className="form-label">
+                    Name<label className="text-red-600">*</label>
+                  </label>
+                  <select
+                    id="resID"
+                    name="resID"
+                    onChange={handleInputChange}
+                    required
+                    className="form-input h-[30px]"
+                  >
+                    <option value="" disabled selected hidden>
+                      Select
+                    </option>
+                    {residents
+                      .filter(
+                        (element) =>
+                          !element.userID &&
+                          !(element.empID && element.empID.userID)
+                      )
+                      .map((element) => (
+                        <option value={element._id}>
+                          {element.middlename
+                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                            : `${element.firstname} ${element.lastname}`}
+                        </option>
                       ))}
-                    </ul>
-                  )}
+                  </select>
                 </div>
-              </div>
-
-              <div className="employee-form-group">
-                <label className="form-label">
-                  Password<label className="text-red-600">*</label>
-                </label>
-                <div className="relative w-full h-[30px]">
+                <div className="employee-form-group">
+                  <label className="form-label">
+                    Role<label className="text-red-600">*</label>
+                  </label>
                   <input
-                    type="password"
-                    id="password"
-                    name="password"
+                    type="text"
+                    id="role"
+                    name="role"
+                    value={userForm.role}
+                    onChange={handleInputChange}
                     readOnly
-                    onChange={passwordValidation}
-                    value={userForm.password}
+                    className="form-input h-[30px]"
+                  />
+                </div>
+
+                <div className="employee-form-group">
+                  <label className="form-label">
+                    Username <label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    onChange={usernameValidation}
                     required
                     className="form-input h-[30px]"
                   />
                   <div className="text-start">
-                    {passwordErrors.length > 0 && (
+                    {usernameErrors.length > 0 && (
                       <ul className="text-[12px] text-red-600 m-0">
-                        {passwordErrors.map((err, idx) => (
+                        {usernameErrors.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}
                       </ul>
                     )}
                   </div>
+                </div>
+
+                <div className="employee-form-group">
+                  <label className="form-label">
+                    Password<label className="text-red-600">*</label>
+                  </label>
+                  <div className="relative w-full h-[30px]">
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      readOnly
+                      onChange={passwordValidation}
+                      value={userForm.password}
+                      required
+                      className="form-input h-[30px]"
+                    />
+                    <div className="text-start">
+                      {passwordErrors.length > 0 && (
+                        <ul className="text-[12px] text-red-600 m-0">
+                          {passwordErrors.map((err, idx) => (
+                            <li key={idx}>{err}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={generatePassword}
+                    >
+                      <FaEyeSlash className="text-gray-500" />
+                    </button>
+                  </div>
+                </div>
+                <div className="flex justify-center">
                   <button
-                    type="button"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                    onClick={generatePassword}
+                    type="submit"
+                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    <FaEyeSlash className="text-gray-500" />
+                    Submit
                   </button>
                 </div>
               </div>
-
-              <button type="submit" className="actions-btn bg-btn-color-blue">
-                Submit
-              </button>
             </form>
           </div>
         </div>

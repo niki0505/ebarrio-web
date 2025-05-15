@@ -166,7 +166,7 @@ function CourtReservations({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div className="status-add-btn-container">
+        <div className="status-add-container">
           <div className="status-container">
             <p
               onClick={handleMenu1}
@@ -191,11 +191,12 @@ function CourtReservations({ isCollapsed }) {
               Rejected
             </p>
           </div>
-          <button className="add-btn" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
+          <button className="add-container" onClick={handleAdd}>
+            <MdPersonAddAlt1 className="text-xl" />
             <span className="font-bold">Add new reservation</span>
           </button>
         </div>
+
         <hr className="mt-4 border border-gray-300" />
 
         <table>
@@ -246,7 +247,7 @@ function CourtReservations({ isCollapsed }) {
                               onClick={(e) => approveBtn(e, court._id)}
                               className="table-actions-btn"
                             >
-                              <FaCheckCircle className="text-xl text-[#06D001]" />
+                              <FaCheckCircle className="text-lg text-[#06D001]" />
                               <label className="text-xs font-semibold text-[#06D001]">
                                 Approve
                               </label>
@@ -259,7 +260,7 @@ function CourtReservations({ isCollapsed }) {
                               onClick={(e) => rejectBtn(e, court._id)}
                               className="table-actions-btn"
                             >
-                              <FaCircleXmark className="text-xl text-btn-color-red" />
+                              <FaCircleXmark className="text-lg text-btn-color-red" />
                               <label className="text-xs font-semibold text-btn-color-red">
                                 Reject
                               </label>

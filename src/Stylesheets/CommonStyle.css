@@ -73,19 +73,25 @@ td {
   @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
 }
 .modal-content {
-  @apply flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 text-center relative;
+  @apply flex flex-col justify-center items-center;
 }
 .modal-title-bar {
-  @apply absolute top-0 left-0 w-full h-12 rounded-t-xl z-0 flex justify-between items-center px-4;
+  @apply w-full h-[3rem] rounded-tl-xl rounded-tr-xl bg-navy-blue flex items-center justify-between p-4;
 }
 .modal-title {
-  @apply text-base text-white font-bold;
+  @apply text-base text-white font-bold font-title;
 }
 .modal-btn-close {
-  @apply z-10 transition-all duration-200 hover:bg-red-600 absolute right-0 top-0 bottom-0 w-12 rounded-t-xl flex items-center justify-center;
+  @apply hover:bg-red-600 rounded-full p-1;
 }
-.btn-close-icon {
-  @apply text-3xl text-white;
+.modal-btn-close-icon {
+  @apply text-2xl text-[#fff];
+}
+.modal-form-container {
+  @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-4;
+}
+.modal-form {
+  @apply h-full overflow-y-auto flex-col space-y-2;
 }
 
 /*LOGIN SIGN UP OTP*/
@@ -106,11 +112,14 @@ td {
 }
 
 /* PENDING, SCHEDULED, SETTLED, REJECTED */
-.status-add-btn-container {
-  @apply flex items-center justify-between mt-5 flex-col lg:flex-row;
+.status-add-container {
+  @apply flex justify-between mt-5 flex-col sm:flex-row md:flex-row;
 }
 .status-container {
   @apply flex flex-row gap-x-3 mt-5;
+}
+.add-container {
+  @apply flex items-center w-auto space-x-2 mt-5 cursor-pointer text-btn-color-blue sm:justify-start;
 }
 .status-text {
   @apply cursor-pointer text-base font-bold;

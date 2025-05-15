@@ -204,51 +204,32 @@ function CreateCertificate({ resID, onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[30rem] ">
-            <div className="modal-title-bar bg-navy-blue">
+          <div className="modal-content w-[30rem] h-[15rem] ">
+            <div className="modal-title-bar">
               <h1 className="modal-title">Create Certificate</h1>
               <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
+                <IoClose
+                  className="modal-btn-close-icon"
+                  onClick={handleClose}
+                />
               </button>
             </div>
 
             <form
-              className="employee-form-container"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="employee-form-group">
-                <label for="typeofcertificate" className="form-label">
-                  Type of Certificate<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="typeofcertificate"
-                  name="typeofcertificate"
-                  onChange={handleDropdownChange}
-                  required
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {certificates.map((element) => (
-                    <option value={element.name}>{element.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              {["Barangay Indigency", "Barangay Clearance"].includes(
-                certificateForm.typeofcertificate
-              ) && (
+              <div className="modal-form">
                 <div className="employee-form-group">
-                  <label htmlFor="purpose" className="form-label">
-                    Purpose<span className="text-red-600">*</span>
+                  <label for="typeofcertificate" className="form-label">
+                    Type of Certificate<label className="text-red-600">*</label>
                   </label>
                   <select
-                    id="purpose"
-                    name="purpose"
+                    id="typeofcertificate"
+                    name="typeofcertificate"
                     onChange={handleDropdownChange}
                     required
                     className="form-input h-[30px]"
@@ -256,39 +237,22 @@ function CreateCertificate({ resID, onClose }) {
                     <option value="" disabled selected hidden>
                       Select
                     </option>
-                    {purpose.map((element, index) => (
-                      <option key={index} value={element}>
-                        {element}
-                      </option>
+                    {certificates.map((element) => (
+                      <option value={element.name}>{element.name}</option>
                     ))}
                   </select>
                 </div>
-              )}
 
-              {certificateForm.typeofcertificate ===
-                "Barangay Business Clearance" && (
-                <>
-                  {certificateForm.street &&
-                    certificateForm.street !== "Resident's Address" && (
-                      <div className="employee-form-group">
-                        <label className="form-label">Address Number</label>
-                        <input
-                          type="text"
-                          id="addressnumber"
-                          name="addressnumber"
-                          onChange={handleInputChange}
-                          className="form-input h-[30px]"
-                        />
-                      </div>
-                    )}
-
+                {["Barangay Indigency", "Barangay Clearance"].includes(
+                  certificateForm.typeofcertificate
+                ) && (
                   <div className="employee-form-group">
-                    <label htmlFor="street" className="form-label">
-                      Street <span className="text-red-600">*</span>
+                    <label htmlFor="purpose" className="form-label">
+                      Purpose<span className="text-red-600">*</span>
                     </label>
                     <select
-                      id="street"
-                      name="street"
+                      id="purpose"
+                      name="purpose"
                       onChange={handleDropdownChange}
                       required
                       className="form-input h-[30px]"
@@ -296,59 +260,105 @@ function CreateCertificate({ resID, onClose }) {
                       <option value="" disabled selected hidden>
                         Select
                       </option>
-                      {streetList.map((element, index) => (
+                      {purpose.map((element, index) => (
                         <option key={index} value={element}>
                           {element}
                         </option>
                       ))}
                     </select>
                   </div>
+                )}
 
-                  <div className="employee-form-group">
-                    <label className="form-label">
-                      Business Name <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="businessname"
-                      name="businessname"
-                      onChange={handleInputChange}
-                      className="form-input h-[30px]"
-                    />
-                  </div>
+                {certificateForm.typeofcertificate ===
+                  "Barangay Business Clearance" && (
+                  <>
+                    {certificateForm.street &&
+                      certificateForm.street !== "Resident's Address" && (
+                        <div className="employee-form-group">
+                          <label className="form-label">Address Number</label>
+                          <input
+                            type="text"
+                            id="addressnumber"
+                            name="addressnumber"
+                            onChange={handleInputChange}
+                            className="form-input h-[30px]"
+                          />
+                        </div>
+                      )}
 
-                  <div className="employee-form-group">
-                    <label className="form-label">
-                      Line of Business <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="lineofbusiness"
-                      name="lineofbusiness"
-                      onChange={handleInputChange}
-                      className="form-input h-[30px]"
-                    />
-                  </div>
-                </>
-              )}
+                    <div className="employee-form-group">
+                      <label htmlFor="street" className="form-label">
+                        Street <span className="text-red-600">*</span>
+                      </label>
+                      <select
+                        id="street"
+                        name="street"
+                        onChange={handleDropdownChange}
+                        required
+                        className="form-input h-[30px]"
+                      >
+                        <option value="" disabled selected hidden>
+                          Select
+                        </option>
+                        {streetList.map((element, index) => (
+                          <option key={index} value={element}>
+                            {element}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-              <div className="employee-form-group">
-                <label className="form-label">
-                  Amount <label className="text-red-600"></label>
-                </label>
+                    <div className="employee-form-group">
+                      <label className="form-label">
+                        Business Name <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="businessname"
+                        name="businessname"
+                        onChange={handleInputChange}
+                        className="form-input h-[30px]"
+                      />
+                    </div>
 
-                <input
-                  type="text"
-                  id="amount"
-                  name="amount"
-                  value={certificateForm.amount}
-                  readOnly
-                  className="form-input h-[30px]"
-                />
+                    <div className="employee-form-group">
+                      <label className="form-label">
+                        Line of Business <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="lineofbusiness"
+                        name="lineofbusiness"
+                        onChange={handleInputChange}
+                        className="form-input h-[30px]"
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="employee-form-group">
+                  <label className="form-label">
+                    Amount <label className="text-red-600"></label>
+                  </label>
+
+                  <input
+                    type="text"
+                    id="amount"
+                    name="amount"
+                    value={certificateForm.amount}
+                    readOnly
+                    className="form-input h-[30px]"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
-              <button type="submit" className="actions-btn bg-btn-color-blue">
-                Submit
-              </button>
             </form>
           </div>
         </div>

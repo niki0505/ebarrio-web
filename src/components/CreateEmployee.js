@@ -172,132 +172,87 @@ function CreateEmployee({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[20rem] ">
-            <div className="modal-title-bar bg-navy-blue">
-              <h1 className="modal-title">Add New Employee</h1>
+          <div className="modal-content h-[15rem] w-[30rem]">
+            <div className="modal-title-bar">
+              <div className="modal-title">Add New Employee</div>
               <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
+                <IoClose
+                  className="modal-btn-close-icon"
+                  onClick={handleClose}
+                />
               </button>
             </div>
 
             <form
-              className="employee-form-container"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="employee-form-group">
-                <label for="resID" className="form-label">
-                  Name<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="resID"
-                  name="resID"
-                  onChange={handleDropdownChange}
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {residents
-                    .filter((res) => !res.empID)
-                    .map((element) => (
-                      <option value={element._id}>
-                        {element.middlename
-                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                          : `${element.firstname} ${element.lastname}`}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="employee-form-group">
-                <label for="position" className="form-label">
-                  Position<label className="text-red-600">*</label>
-                </label>
-                <select
-                  id="position"
-                  name="position"
-                  onChange={handleDropdownChange}
-                  className="form-input h-[30px]"
-                >
-                  <option value="" disabled selected hidden>
-                    Select
-                  </option>
-                  {availablePositions.map((element) => (
-                    <option value={element}>{element}</option>
-                  ))}
-                </select>
-              </div>
-
-              {employeeForm.position === "Kagawad" && (
+              <div className="modal-form">
                 <div className="employee-form-group">
-                  <label for="chairmanship" className="form-label">
-                    Chairmanship<label className="text-red-600">*</label>
+                  <label for="resID" className="form-label">
+                    Name<label className="text-red-600">*</label>
                   </label>
                   <select
-                    id="chairmanship"
-                    name="chairmanship"
+                    id="resID"
+                    name="resID"
                     onChange={handleDropdownChange}
                     className="form-input h-[30px]"
                   >
                     <option value="" disabled selected hidden>
                       Select
                     </option>
-                    {chairmanshipList
-                      .filter(
-                        (chairmanship) =>
-                          !getUsedChairmanships().includes(chairmanship)
-                      )
+                    {residents
+                      .filter((res) => !res.empID)
                       .map((element) => (
-                        <option value={element}>{element}</option>
+                        <option value={element._id}>
+                          {element.middlename
+                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                            : `${element.firstname} ${element.lastname}`}
+                        </option>
                       ))}
                   </select>
                 </div>
-              )}
 
-              {employeeForm.position === "Justice" && (
                 <div className="employee-form-group">
-                  <label for="assignedweeks" className="form-label">
-                    Assigned Weeks<label className="text-red-600">*</label>
+                  <label for="position" className="form-label">
+                    Position<label className="text-red-600">*</label>
                   </label>
                   <select
-                    id="assignedweeks"
-                    name="assignedweeks"
+                    id="position"
+                    name="position"
                     onChange={handleDropdownChange}
                     className="form-input h-[30px]"
                   >
                     <option value="" disabled selected hidden>
                       Select
                     </option>
-                    {availableWeeks.map((element) => (
+                    {availablePositions.map((element) => (
                       <option value={element}>{element}</option>
                     ))}
                   </select>
                 </div>
-              )}
-              {employeeForm.position === "Justice" &&
-                employeeForm.assignedweeks && (
+
+                {employeeForm.position === "Kagawad" && (
                   <div className="employee-form-group">
-                    <label for="assignedday" className="form-label">
-                      Assigned Day<label className="text-red-600">*</label>
+                    <label for="chairmanship" className="form-label">
+                      Chairmanship<label className="text-red-600">*</label>
                     </label>
                     <select
-                      id="assignedday"
-                      name="assignedday"
+                      id="chairmanship"
+                      name="chairmanship"
                       onChange={handleDropdownChange}
                       className="form-input h-[30px]"
                     >
                       <option value="" disabled selected hidden>
                         Select
                       </option>
-                      {assignedDay
+                      {chairmanshipList
                         .filter(
-                          (day) =>
-                            !getUsedDaysForSelectedWeek(
-                              employeeForm.assignedweeks
-                            ).includes(day)
+                          (chairmanship) =>
+                            !getUsedChairmanships().includes(chairmanship)
                         )
                         .map((element) => (
                           <option value={element}>{element}</option>
@@ -306,9 +261,64 @@ function CreateEmployee({ onClose }) {
                   </div>
                 )}
 
-              <button type="submit" className="actions-btn bg-btn-color-blue">
-                Submit
-              </button>
+                {employeeForm.position === "Justice" && (
+                  <div className="employee-form-group">
+                    <label for="assignedweeks" className="form-label">
+                      Assigned Weeks<label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="assignedweeks"
+                      name="assignedweeks"
+                      onChange={handleDropdownChange}
+                      className="form-input h-[30px]"
+                    >
+                      <option value="" disabled selected hidden>
+                        Select
+                      </option>
+                      {availableWeeks.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {employeeForm.position === "Justice" &&
+                  employeeForm.assignedweeks && (
+                    <div className="employee-form-group">
+                      <label for="assignedday" className="form-label">
+                        Assigned Day<label className="text-red-600">*</label>
+                      </label>
+                      <select
+                        id="assignedday"
+                        name="assignedday"
+                        onChange={handleDropdownChange}
+                        className="form-input h-[30px]"
+                      >
+                        <option value="" disabled selected hidden>
+                          Select
+                        </option>
+                        {assignedDay
+                          .filter(
+                            (day) =>
+                              !getUsedDaysForSelectedWeek(
+                                employeeForm.assignedweeks
+                              ).includes(day)
+                          )
+                          .map((element) => (
+                            <option value={element}>{element}</option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>

@@ -47,17 +47,14 @@
   @apply text-sm font-semibold w-full h-full rounded-md font-subTitle;
 }
 .announcement-heart {
-  @apply mt-2 text-btn-color-red text-sm;
+  @apply text-btn-color-red text-xs;
 }
 .create-announcement-attachment {
-  @apply w-full border border-solid border-gray-300 p-4;
+  @apply w-full border border-solid border-gray-300 p-4 rounded-[15px];
 }
 .create-announcement-fixed-btns {
   @apply flex flex-row items-center justify-between border p-3 w-full rounded-[15px] border-btn-color-gray mb-4;
 }
 .create-announcement-event-details {
-  @apply flex flex-col absolute top-[60px] left-[260px] z-10 w-[14rem] h-[22rem] bg-white rounded-xl shadow-lg p-5 text-center;
-}
-.create-announcement-event-input {
-  @apply mt-[10px] w-[180px] p-[5px] rounded-[4px] border border-[#ccc] text-[14px];
+  @apply w-[30rem] h-[20rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border border-navy-blue rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
 }

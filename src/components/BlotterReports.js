@@ -120,7 +120,7 @@ function BlotterReports({ isCollapsed }) {
 
         <SearchBar searchValue={search} handleSearch={handleSearch} />
 
-        <div className="status-add-btn-container">
+        <div className="status-add-container">
           <div className="status-container">
             <p
               onClick={handleMenu1}
@@ -152,7 +152,7 @@ function BlotterReports({ isCollapsed }) {
             </p>
           </div>
 
-          <button className="add-btn" onClick={handleAdd}>
+          <button className="add-container" onClick={handleAdd}>
             <MdPersonAddAlt1 className=" text-xl" />
             <span className="font-bold">Add new blotter</span>
           </button>
