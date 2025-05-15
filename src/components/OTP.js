@@ -11,7 +11,7 @@ function OTP() {
   const navigation = useNavigate();
   const { sendOTP, verifyOTP } = useContext(OtpContext);
   const { setIsAuthenticated } = useContext(AuthContext);
-  // const { username, mobilenumber } = location.state;
+  const { username, mobilenumber } = location.state;
   const [resendTimer, setResendTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
@@ -37,42 +37,42 @@ function OTP() {
   }, [isResendDisabled]);
 
   const handleResend = async () => {
-    // if (resendCount < 3) {
-    //   try {
-    //     sendOTP(username, mobilenumber);
-    //     setResendTimer(30);
-    //     setIsResendDisabled(true);
-    //     setResendCount((prevCount) => prevCount + 1);
-    //     console.log("New OTP is generated");
-    //   } catch (error) {
-    //     console.error("Error sending OTP:", error);
-    //     alert("Something went wrong while sending OTP");
-    //   }
-    // } else {
-    //   alert("You can only resend OTP 3 times.");
-    // }
+    if (resendCount < 3) {
+      try {
+        sendOTP(username, mobilenumber);
+        setResendTimer(30);
+        setIsResendDisabled(true);
+        setResendCount((prevCount) => prevCount + 1);
+        console.log("New OTP is generated");
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        alert("Something went wrong while sending OTP");
+      }
+    } else {
+      alert("You can only resend OTP 3 times.");
+    }
   };
 
   const handleVerify = async () => {
-    // try {
-    //   const result = await verifyOTP(username, OTP);
-    //   alert(result.message);
-    //   try {
-    //     await api.put(`/login/${username}`);
-    //     setIsAuthenticated(true);
-    //   } catch (error) {
-    //     console.log("Error logging in", error);
-    //   }
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      const result = await verifyOTP(username, OTP);
+      alert(result.message);
+      try {
+        await api.put(`/login/${username}`);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log("Error logging in", error);
+      }
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   useEffect(() => {
@@ -106,8 +106,7 @@ function OTP() {
           <div className="mb-4">
             <h1 className="header-text">Account Verification</h1>
             <label className="text-[#ACACAC] font-subTitle font-semibold">
-              {/* Enter the 6 digit code sent to {mobilenumber} */}
-              Enter the 6 digit code sent to
+              Enter the 6 digit code sent to {mobilenumber}
             </label>
           </div>
 
