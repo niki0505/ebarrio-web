@@ -13,6 +13,7 @@ const Navbar = ({ isCollapsed }) => {
   const [profileDropdown, setprofileDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState(null);
   const [name, setName] = useState(null);
 

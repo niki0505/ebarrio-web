@@ -9,6 +9,7 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
+import EditAccount from "./EditAccount";
 
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
@@ -21,7 +22,10 @@ function Accounts({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
+  const [isEditClicked, setEditClicked] = useState(false);
   const [search, setSearch] = useState("");
+  const [selectedUserID, setSelectedUserID] = useState(null);
+  const [selectedUsername, setSelectedUsername] = useState(null);
 
   const handleAdd = () => {
     setCreateClicked(true);
@@ -30,6 +34,12 @@ function Accounts({ isCollapsed }) {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleEdit = (userID, username) => {
+    setEditClicked(true);
+    setSelectedUserID(userID);
+    setSelectedUsername(username);
+  };
 
   useEffect(() => {
     const otherUsers = users.filter((u) => u._id !== user.userID);
@@ -188,7 +198,11 @@ function Accounts({ isCollapsed }) {
                   <td></td>
                   <td className="flex justify-between gap-x-8">
                     <div className="table-actions-container">
-                      <button type="button" className="table-actions-btn">
+                      <button
+                        type="button"
+                        className="table-actions-btn"
+                        onClick={() => handleEdit(user._id, user.username)}
+                      >
                         <FaEdit className="text-lg text-[#06D001]" />
                         <label className="text-xs font-semibold text-[#06D001]">
                           Edit
@@ -244,6 +258,13 @@ function Accounts({ isCollapsed }) {
 
         {isCreateClicked && (
           <CreateAccount onClose={() => setCreateClicked(false)} />
+        )}
+        {isEditClicked && (
+          <EditAccount
+            onClose={() => setEditClicked(false)}
+            userID={selectedUserID}
+            userUsername={selectedUsername}
+          />
         )}
       </main>
     </>
