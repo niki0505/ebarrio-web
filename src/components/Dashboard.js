@@ -39,6 +39,7 @@ function Dashboard({ isCollapsed }) {
 
   useEffect(() => {
     const announcementEvents = (announcements || [])
+      .filter((a) => a.status !== "Archived")
       .filter((a) => a.eventStart && a.eventEnd)
       .map((a) => ({
         title: a.title,

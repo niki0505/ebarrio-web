@@ -37,168 +37,183 @@ import PrivateRoute from "./components/PrivateRoute";
 import { ConfirmProvider } from "./context/ConfirmContext";
 import PublicRoute from "./components/PublicRoute";
 import AppLayout from "./AppLayout";
+import { SocketProvider } from "./context/SocketContext";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <OtpProvider>
-          <ConfirmProvider>
-            <InfoProvider>
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route
-                  path="/login"
-                  element={<PublicRoute element={<Login />} />}
+        <SocketProvider>
+          <OtpProvider>
+            <ConfirmProvider>
+              <InfoProvider>
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
                 />
-                <Route
-                  path="/signup"
-                  element={<PublicRoute element={<Signup />} />}
-                />
-                <Route
-                  path="/otp"
-                  element={<PublicRoute element={<OTP />} />}
-                />
-                <Route
-                  path="/set-password"
-                  element={<PublicRoute element={<SetPassword />} />}
-                />
-                <Route
-                  path="/forgot-password"
-                  element={<PublicRoute element={<ForgotPassword />} />}
-                />
-                <Route path="/" element={<AppLayout />}>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/login" replace />} />
                   <Route
-                    path="residents"
-                    element={
-                      <PrivateRoute
-                        element={<Residents />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
+                    path="/login"
+                    element={<PublicRoute element={<Login />} />}
                   />
                   <Route
-                    path="create-resident"
-                    element={
-                      <PrivateRoute
-                        element={<CreateResident />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
+                    path="/signup"
+                    element={<PublicRoute element={<Signup />} />}
                   />
                   <Route
-                    path="edit-resident"
-                    element={
-                      <PrivateRoute
-                        element={<EditResident />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
+                    path="/otp"
+                    element={<PublicRoute element={<OTP />} />}
                   />
                   <Route
-                    path="employees"
-                    element={
-                      <PrivateRoute
-                        element={<Employees />}
-                        allowedRoles={["Secretary"]}
-                      />
-                    }
+                    path="/set-password"
+                    element={<PublicRoute element={<SetPassword />} />}
                   />
                   <Route
-                    path="accounts"
-                    element={
-                      <PrivateRoute
-                        element={<Accounts />}
-                        allowedRoles={["Secretary"]}
-                      />
-                    }
+                    path="/forgot-password"
+                    element={<PublicRoute element={<ForgotPassword />} />}
                   />
-                  <Route
-                    path="certificate-requests"
-                    element={
-                      <PrivateRoute
-                        element={<CertificateRequests />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="emergency-hotlines"
-                    element={
-                      <PrivateRoute
-                        element={<EmergencyHotlines />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="announcements"
-                    element={
-                      <PrivateRoute
-                        element={<Announcements />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="dashboard"
-                    element={
-                      <PrivateRoute
-                        element={<Dashboard />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="court-reservations"
-                    element={
-                      <PrivateRoute
-                        element={<CourtReservations />}
-                        allowedRoles={["Secretary", "Clerk"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="blotter-reports"
-                    element={
-                      <PrivateRoute
-                        element={<BlotterReports />}
-                        allowedRoles={["Justice"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="create-blotter"
-                    element={
-                      <PrivateRoute
-                        element={<CreateBlotter />}
-                        allowedRoles={["Justice"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="settle-blotter"
-                    element={
-                      <PrivateRoute
-                        element={<SettleBlotter />}
-                        allowedRoles={["Justice"]}
-                      />
-                    }
-                  />
-                  <Route
-                    path="account"
-                    element={
-                      <PrivateRoute
-                        element={<AccountSettings />}
-                        allowedRoles={["Secretary", "Clerk", "Justice"]}
-                      />
-                    }
-                  />
-                </Route>
-              </Routes>
-            </InfoProvider>
-          </ConfirmProvider>
-        </OtpProvider>
+                  <Route path="/" element={<AppLayout />}>
+                    <Route
+                      path="residents"
+                      element={
+                        <PrivateRoute
+                          element={<Residents />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="create-resident"
+                      element={
+                        <PrivateRoute
+                          element={<CreateResident />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="edit-resident"
+                      element={
+                        <PrivateRoute
+                          element={<EditResident />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="employees"
+                      element={
+                        <PrivateRoute
+                          element={<Employees />}
+                          allowedRoles={["Secretary"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="accounts"
+                      element={
+                        <PrivateRoute
+                          element={<Accounts />}
+                          allowedRoles={["Secretary"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="certificate-requests"
+                      element={
+                        <PrivateRoute
+                          element={<CertificateRequests />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="emergency-hotlines"
+                      element={
+                        <PrivateRoute
+                          element={<EmergencyHotlines />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="announcements"
+                      element={
+                        <PrivateRoute
+                          element={<Announcements />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="dashboard"
+                      element={
+                        <PrivateRoute
+                          element={<Dashboard />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="court-reservations"
+                      element={
+                        <PrivateRoute
+                          element={<CourtReservations />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="blotter-reports"
+                      element={
+                        <PrivateRoute
+                          element={<BlotterReports />}
+                          allowedRoles={["Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="create-blotter"
+                      element={
+                        <PrivateRoute
+                          element={<CreateBlotter />}
+                          allowedRoles={["Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="settle-blotter"
+                      element={
+                        <PrivateRoute
+                          element={<SettleBlotter />}
+                          allowedRoles={["Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="account"
+                      element={
+                        <PrivateRoute
+                          element={<AccountSettings />}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                        />
+                      }
+                    />
+                  </Route>
+                </Routes>
+              </InfoProvider>
+            </ConfirmProvider>
+          </OtpProvider>
+        </SocketProvider>
       </AuthProvider>
     </Router>
   );
