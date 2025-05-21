@@ -7,7 +7,7 @@ const PrivateRoute = ({ element, allowedRoles }) => {
   console.log(isAuthenticated);
 
   if (isAuthenticated === null) {
-    return null;
+    return <LoadingScreen />;
   }
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
