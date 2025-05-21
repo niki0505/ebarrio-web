@@ -20,31 +20,20 @@ export const AuthProvider = ({ children }) => {
   }, [userStatus]);
 
   useEffect(() => {
-    const checkRefreshToken = async () => {
-      try {
-        const response = await api.get("/checkrefreshtoken", {
-          withCredentials: true,
-        });
+    axios
+      .get("https://ebarrio-web-backend.onrender.com/api/checkrefreshtoken", {
+        withCredentials: true,
+      })
+      .then((response) => {
         console.log("You have a token");
         setUser(response.data.decoded);
         setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Axios error:", error.message);
+      })
+      .catch(() => {
+        console.log("You don't have a token");
         setIsAuthenticated(false);
-      }
-    };
-    checkRefreshToken();
-  }, []);
-
-  // useEffect(() => {
-  //   api
-  //     .get("/checkrefreshtoken")
-  //     .then((res) => {
-  //       setUser(res.data.decoded);
-  //       setIsAuthenticated(true);
-  //     })
-  //     .catch(() => setIsAuthenticated(false));
-  // }, []);
+      });
+  }, [navigation]);
 
   const autologout = async () => {
     try {
@@ -59,8 +48,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const res = await api.post(
-        "/logout",
+      const res = await axios.post(
+        "http://localhost:5000/api/logout",
         {
           userID: user.userID,
         },
