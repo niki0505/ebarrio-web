@@ -26,13 +26,15 @@ const Navbar = ({ isCollapsed }) => {
   }, []);
 
   useEffect(() => {
-    residents.map((res) => {
-      if (res.empID?._id === user.empID) {
-        setProfilePic(res.picture);
-        setName(`${res.firstname} ${res.lastname}`);
-      }
-    });
-  }, [residents]);
+    if (isAuthenticated && residents) {
+      residents.map((res) => {
+        if (res.empID?._id === user.empID) {
+          setProfilePic(res.picture);
+          setName(`${res.firstname} ${res.lastname}`);
+        }
+      });
+    }
+  }, [isAuthenticated, residents]);
 
   if (!user) return null;
 
