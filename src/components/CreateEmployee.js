@@ -14,8 +14,8 @@ function CreateEmployee({ onClose }) {
     resID: "",
     position: "",
     chairmanship: "",
-    assignedweeks: "",
-    assignedday: "",
+    // assignedweeks: "",
+    // assignedday: "",
   });
   const [showModal, setShowModal] = useState(true);
 
@@ -94,12 +94,12 @@ function CreateEmployee({ onClose }) {
     Justice: 10,
   };
 
-  const assignedWeeks = {
-    "1st & 3rd Week": 5,
-    "2nd & 4th Week": 5,
-  };
+  // const assignedWeeks = {
+  //   "1st & 3rd Week": 5,
+  //   "2nd & 4th Week": 5,
+  // };
 
-  const assignedDay = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  // const assignedDay = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   const chairmanshipList = [
     "Budget and Appropriation",
@@ -131,31 +131,31 @@ function CreateEmployee({ onClose }) {
     fetchAvailablePositions();
   }, []);
 
-  useEffect(() => {
-    const fetchAvailableWeeks = async () => {
-      try {
-        const response = await api.get("/weekscount");
-        const counts = response.data;
+  // useEffect(() => {
+  //   const fetchAvailableWeeks = async () => {
+  //     try {
+  //       const response = await api.get("/weekscount");
+  //       const counts = response.data;
 
-        const remainingWeeks = Object.entries(assignedWeeks)
-          .filter(([pos, limit]) => {
-            const lowerPos = pos.toLowerCase();
-            return (counts[lowerPos] || 0) < limit;
-          })
-          .map(([pos]) => pos);
-        setAvailableWeeks(remainingWeeks);
-      } catch (err) {
-        console.error("Failed to fetch available weeks", err);
-      }
-    };
-    fetchAvailableWeeks();
-  }, []);
+  //       const remainingWeeks = Object.entries(assignedWeeks)
+  //         .filter(([pos, limit]) => {
+  //           const lowerPos = pos.toLowerCase();
+  //           return (counts[lowerPos] || 0) < limit;
+  //         })
+  //         .map(([pos]) => pos);
+  //       setAvailableWeeks(remainingWeeks);
+  //     } catch (err) {
+  //       console.error("Failed to fetch available weeks", err);
+  //     }
+  //   };
+  //   fetchAvailableWeeks();
+  // }, []);
 
-  const getUsedDaysForSelectedWeek = (week) => {
-    return employees
-      .filter((emp) => emp.position === "Justice" && emp.assignedweeks === week)
-      .map((emp) => emp.assignedday);
-  };
+  // const getUsedDaysForSelectedWeek = (week) => {
+  //   return employees
+  //     .filter((emp) => emp.position === "Justice" && emp.assignedweeks === week)
+  //     .map((emp) => emp.assignedday);
+  // };
 
   const getUsedChairmanships = () => {
     return employees
@@ -261,7 +261,7 @@ function CreateEmployee({ onClose }) {
                   </div>
                 )}
 
-                {employeeForm.position === "Justice" && (
+                {/* {employeeForm.position === "Justice" && (
                   <div className="employee-form-group">
                     <label for="assignedweeks" className="form-label">
                       Assigned Weeks<label className="text-red-600">*</label>
@@ -308,7 +308,7 @@ function CreateEmployee({ onClose }) {
                           ))}
                       </select>
                     </div>
-                  )}
+                  )} */}
 
                 <div className="flex justify-center">
                   <button

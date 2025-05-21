@@ -566,14 +566,14 @@ function Employees({ isCollapsed }) {
               <th>Mobile No.</th>
               <th>Address</th>
               <th>Position</th>
-              <th>Schedule</th>
+              {/* <th>Schedule</th> */}
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredEmployees.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={5}>No results found</td>
+                <td colSpan={4}>No results found</td>
               </tr>
             ) : (
               filteredEmployees.map((emp) => (
@@ -589,7 +589,7 @@ function Employees({ isCollapsed }) {
                     }}
                   >
                     {expandedRow === emp._id ? (
-                      <td colSpan={5}>
+                      <td colSpan={4}>
                         {/* Additional Information for the resident */}
                         <div className="profile-container">
                           <img
@@ -678,7 +678,7 @@ function Employees({ isCollapsed }) {
                         <td>{emp.resID.mobilenumber}</td>
                         <td>{emp.resID.address}</td>
                         <td>{emp.position}</td>
-                        {emp.position === "Justice" && (
+                        {/* {emp.position === "Justice" && (
                           <td>
                             {emp.assignedweeks} - {emp.assignedday}
                           </td>
@@ -689,7 +689,7 @@ function Employees({ isCollapsed }) {
                           <td>Monday - Friday</td>
                         )}
                         {(emp.position === "Kagawad" ||
-                          emp.position === "Tanod") && <td>On-Call</td>}
+                          emp.position === "Tanod") && <td>On-Call</td>} */}
                       </>
                     )}
                   </tr>
