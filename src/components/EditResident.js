@@ -83,17 +83,19 @@ function EditResident({ isCollapsed }) {
         ? residentForm.children.length
         : 0;
 
-      const firstWord = residentInfo.address.trim().split(" ")[0];
+      const address = residentForm.address || "";
+
+      const firstWord = address.trim().split(" ")[0];
       const isNumber = !isNaN(firstWord);
 
       if (isNumber) {
         houseNumber = firstWord;
-        const preStreetName = residentInfo.address.split("Aniban")[0].trim();
+        const preStreetName = address.split("Aniban")[0].trim();
         const streetWords = preStreetName.split(" ");
         streetWords.shift();
         streetName = streetWords.join(" ");
       } else {
-        streetName = residentInfo.address.split("Aniban")[0].trim();
+        streetName = address.split("Aniban")[0].trim();
         houseNumber = "";
       }
 
