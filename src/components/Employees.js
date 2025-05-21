@@ -11,6 +11,7 @@ import EmployeeIDFront from "../assets/employeeidfront.png";
 import EmployeeIDBack from "../assets/employeeidback.png";
 import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
+import EditEmployee from "./EditEmployee";
 import api from "../api";
 
 function Employees({ isCollapsed }) {
@@ -674,7 +675,7 @@ function Employees({ isCollapsed }) {
                           <button
                             className="actions-btn bg-btn-color-blue"
                             type="submit"
-                            onClick={() =>
+                            onClick={(e) =>
                               editBtn(
                                 e,
                                 emp._id,
