@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import LoadingScreen from "./LoadingScreen";
 
 const PrivateRoute = ({ element, allowedRoles }) => {
   const { isAuthenticated, user } = useContext(AuthContext);
