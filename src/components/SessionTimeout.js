@@ -65,7 +65,7 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[15rem] ">
             <h2>Session Expired</h2>
