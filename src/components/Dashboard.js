@@ -174,9 +174,9 @@ function Dashboard({ isCollapsed }) {
   }, [blotterreports]);
 
   // Check the structure
-  // console.log(documentData);
-  // console.log(reservationData);
-  // console.log(blotterData);
+  console.log("Document Requests", documentData);
+  console.log("Reservation Requests", reservationData);
+  console.log("Blotters", blotterData);
 
   useEffect(() => {
     if (user.role === "Secretary" || user.role === "Clerk") {
