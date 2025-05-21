@@ -24,7 +24,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   if (!user) return null;
 
   const Menus = [
-    (user.role === "Secretary" || user.role === "Clerk") && {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "Dashboard",
       icon: <MdDashboard />,
       path: "/dashboard",

@@ -10,11 +10,12 @@ const PublicRoute = ({ element }) => {
   }
 
   if (isAuthenticated) {
-    if (user?.role === "Justice") {
-      return <Navigate to="/blotter-reports" replace />;
-    } else {
-      return <Navigate to="/dashboard" replace />;
-    }
+    return <Navigate to="/dashboard" replace />;
+    // if (user?.role === "Justice") {
+    //   return <Navigate to="/blotter-reports" replace />;
+    // } else {
+    //   return <Navigate to="/dashboard" replace />;
+    // }
   }
 
   return element;

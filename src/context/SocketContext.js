@@ -13,7 +13,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!user?.userID) return;
 
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io("https://ebarrio-web-backend.onrender.com", {
       withCredentials: true,
     });
 

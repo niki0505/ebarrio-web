@@ -20,20 +20,31 @@ export const AuthProvider = ({ children }) => {
   }, [userStatus]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/checkrefreshtoken", {
-        withCredentials: true,
-      })
-      .then((response) => {
+    const checkRefreshToken = async () => {
+      try {
+        const response = await api.get("/checkrefreshtoken", {
+          withCredentials: true,
+        });
         console.log("You have a token");
         setUser(response.data.decoded);
         setIsAuthenticated(true);
-      })
-      .catch(() => {
-        console.log("You don't have a token");
+      } catch (error) {
+        console.error("Axios error:", error.message);
         setIsAuthenticated(false);
-      });
-  }, [navigation]);
+      }
+    };
+    checkRefreshToken();
+  }, []);
+
+  // useEffect(() => {
+  //   api
+  //     .get("/checkrefreshtoken")
+  //     .then((res) => {
+  //       setUser(res.data.decoded);
+  //       setIsAuthenticated(true);
+  //     })
+  //     .catch(() => setIsAuthenticated(false));
+  // }, []);
 
   const autologout = async () => {
     try {
@@ -48,8 +59,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/logout",
+      const res = await api.post(
+        "/logout",
         {
           userID: user.userID,
         },
