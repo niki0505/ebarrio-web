@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const res = await axios.post(
-        "https://ebarrio-web-backend.onrender.com/logout",
+        "https://ebarrio-web-backend.onrender.com/api/logout",
         {
           userID: user.userID,
         },
