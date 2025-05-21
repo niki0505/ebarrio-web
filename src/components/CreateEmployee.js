@@ -9,7 +9,6 @@ import api from "../api";
 function CreateEmployee({ onClose }) {
   const { fetchResidents, residents, employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
-  const [availableWeeks, setAvailableWeeks] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",

@@ -19,6 +19,8 @@ function Employees({ isCollapsed }) {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCreateClicked, setCreateClicked] = useState(false);
+  const [isEditClicked, setEditClicked] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState({});
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
@@ -486,6 +488,18 @@ function Employees({ isCollapsed }) {
     }
   };
 
+  const editBtn = async (e, empID, position, chairmanship) => {
+    e.stopPropagation();
+    setEditClicked(true);
+
+    const selected = {
+      empID,
+      position,
+      ...(chairmanship && { chairmanship }),
+    };
+    setSelectedEmployee(selected);
+  };
+
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
     const formattedText = sanitizedText
@@ -657,15 +671,20 @@ function Employees({ isCollapsed }) {
                           >
                             EMPLOYEE ID
                           </button>
-                          {emp.position === "Justice" && (
-                            <button
-                              className="actions-btn bg-btn-color-blue"
-                              type="submit"
-                              // onClick={() => editBtn(emp._id)}
-                            >
-                              EDIT SCHEDULE
-                            </button>
-                          )}
+                          <button
+                            className="actions-btn bg-btn-color-blue"
+                            type="submit"
+                            onClick={() =>
+                              editBtn(
+                                e,
+                                emp._id,
+                                emp.position,
+                                emp.chairmanship ?? null
+                              )
+                            }
+                          >
+                            EDIT POSITION
+                          </button>
                         </div>
                       </td>
                     ) : (
@@ -700,6 +719,13 @@ function Employees({ isCollapsed }) {
         </table>
         {isCreateClicked && (
           <CreateEmployee onClose={() => setCreateClicked(false)} />
+        )}
+
+        {isEditClicked && (
+          <EditEmployee
+            onClose={() => setEditClicked(false)}
+            employeeDetails={selectedEmployee}
+          />
         )}
       </main>
     </>
