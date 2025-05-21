@@ -43,7 +43,7 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
       return;
     }
     try {
-      await api.post("/checkcredentials", {
+      const res = await api.post("/checkcredentials", {
         username: user.username,
         password: password,
       });
