@@ -47,8 +47,10 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
         username: user.username,
         password: password,
       });
-      setShowModal(false);
-      resetTimer();
+      if (res.status === 200) {
+        setShowModal(false);
+        resetTimer();
+      }
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
@@ -87,7 +89,7 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
               </label>
             )}
             <button>Log Out</button>
-            <button>Stay Logged In</button>
+            <button onClick={handleConfirm}>Stay Logged In</button>
           </div>
         </div>
       )}
