@@ -9,10 +9,8 @@ function EditEmployee({ onClose, employeeDetails }) {
   const confirm = useConfirm();
   const { employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
-  const [position, setPosition] = useState(employeeDetails.position);
-  const [chairmanship, setChairmanship] = useState(
-    employeeDetails.chairmanship || ""
-  );
+  const [position, setPosition] = useState();
+  const [chairmanship, setChairmanship] = useState();
   const [showModal, setShowModal] = useState(true);
 
   const handleSubmit = async () => {
@@ -127,8 +125,7 @@ function EditEmployee({ onClose, employeeDetails }) {
                   </select>
                 </div>
 
-                {(employeeDetails.position === "Kagawad" ||
-                  position === "Kagawad") && (
+                {position === "Kagawad" && (
                   <div className="employee-form-group">
                     <label for="chairmanship" className="form-label">
                       Chairmanship<label className="text-red-600">*</label>
