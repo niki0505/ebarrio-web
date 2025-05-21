@@ -1,11 +1,13 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
 import { AuthContext } from "../context/AuthContext";
+import api from "../api";
 
 function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
   const timerRef = useRef(null);
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [showModal, setShowModal] = useState(() => {
     return localStorage.getItem("sessionTimedOut") === "true";
   });
@@ -35,7 +37,29 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
     }
   }, [showModal]);
 
-  const handleConfirm = () => {};
+  const handleConfirm = async () => {
+    if (!password) {
+      setPasswordError("Password is required");
+      return;
+    }
+    try {
+      await api.post("/checkcredentials", {
+        username: user.username,
+        password: password,
+      });
+      setShowModal(false);
+      resetTimer();
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        setPasswordError(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        setPasswordError("An unexpected error occurred.");
+      }
+    }
+  };
 
   return (
     <>
@@ -57,6 +81,11 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
               }}
               placeholder="Enter your password"
             />
+            {passwordError && (
+              <label className="text-[12px] text-red-600 m-0">
+                {passwordError}
+              </label>
+            )}
             <button>Log Out</button>
             <button>Stay Logged In</button>
           </div>
