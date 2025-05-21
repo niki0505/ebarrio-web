@@ -101,6 +101,7 @@ function EditResident({ isCollapsed }) {
         street: streetName,
         housenumber: houseNumber,
       }));
+      console.log(streetName);
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
     }
