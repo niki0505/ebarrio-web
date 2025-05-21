@@ -48,6 +48,8 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
         password: password,
       });
       if (res.data.status === 200) {
+        setPassword("");
+        setPasswordError("");
         setShowModal(false);
         resetTimer();
       }
