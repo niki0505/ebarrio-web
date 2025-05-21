@@ -47,7 +47,7 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
         username: user.username,
         password: password,
       });
-      if (res.status === 200) {
+      if (res.data.status === 200) {
         setShowModal(false);
         resetTimer();
       }
