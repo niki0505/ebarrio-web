@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("https://ebarrio-web-backend.onrender.com/api/checkrefreshtoken", {
+      .get("/api/checkrefreshtoken", {
         withCredentials: true,
       })
       .then((response) => {
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const res = await axios.post(
-        "https://ebarrio-web-backend.onrender.com/api/logout",
+        "/api/logout",
         {
           userID: user.userID,
         },
