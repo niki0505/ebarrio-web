@@ -4,7 +4,6 @@ import { AuthContext } from "../context/AuthContext";
 
 function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
   const { logout } = useContext(AuthContext);
-  const navigation = useNavigate();
   const timerRef = useRef(null);
   const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(() => {
