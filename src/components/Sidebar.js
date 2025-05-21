@@ -41,7 +41,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <IoIosPeople />,
       path: "/residents",
     },
-    user.role === "Justice" && {
+    (user.role === "Justice" || user.role === "Secretary") && {
       title: "Blotter Reports",
       icon: <MdEditDocument />,
       path: "/blotter-reports",

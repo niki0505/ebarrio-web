@@ -21,7 +21,7 @@ function Employees({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState({});
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
@@ -489,16 +489,10 @@ function Employees({ isCollapsed }) {
     }
   };
 
-  const editBtn = async (e, empID, position, chairmanship) => {
+  const editBtn = async (e, empID) => {
     e.stopPropagation();
     setEditClicked(true);
-
-    const selected = {
-      empID,
-      position,
-      ...(chairmanship && { chairmanship }),
-    };
-    setSelectedEmployee(selected);
+    setSelectedEmployee(empID);
   };
 
   const handleSearch = (text) => {
@@ -675,14 +669,7 @@ function Employees({ isCollapsed }) {
                           <button
                             className="actions-btn bg-btn-color-blue"
                             type="submit"
-                            onClick={(e) =>
-                              editBtn(
-                                e,
-                                emp._id,
-                                emp.position,
-                                emp.chairmanship ?? null
-                              )
-                            }
+                            onClick={(e) => editBtn(e, emp._id)}
                           >
                             EDIT POSITION
                           </button>
@@ -725,7 +712,7 @@ function Employees({ isCollapsed }) {
         {isEditClicked && (
           <EditEmployee
             onClose={() => setEditClicked(false)}
-            employeeDetails={selectedEmployee}
+            empID={selectedEmployee}
           />
         )}
       </main>

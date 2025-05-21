@@ -9,8 +9,8 @@ function EditEmployee({ onClose, employeeDetails }) {
   const confirm = useConfirm();
   const { employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
-  const [position, setPosition] = useState();
-  const [chairmanship, setChairmanship] = useState();
+  const [position, setPosition] = useState("");
+  const [chairmanship, setChairmanship] = useState("");
   const [showModal, setShowModal] = useState(true);
 
   const handleSubmit = async () => {
@@ -22,15 +22,15 @@ function EditEmployee({ onClose, employeeDetails }) {
       return;
     }
     onClose();
-    // try {
-    //   const response = await api.post(`/editemergencyhotlines/${emergencyID}`, {
-    //     name,
-    //     contactNumber,
-    //   });
-    //   alert("Emergency contact successfully updated!");
-    // } catch (error) {
-    //   console.log("Error updating emergency contact", error);
-    // }
+    try {
+      const response = await api.post(`/editemployee/${empID}`, {
+        position,
+        chairmanship,
+      });
+      alert("Employee position successfully updated!");
+    } catch (error) {
+      console.log("Error updating employee position", error);
+    }
   };
   const handleClose = () => {
     setShowModal(false);

@@ -177,7 +177,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<BlotterReports />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -186,7 +186,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateBlotter />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -195,7 +195,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<SettleBlotter />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />

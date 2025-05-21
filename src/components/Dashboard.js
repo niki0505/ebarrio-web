@@ -351,7 +351,9 @@ function Dashboard({ isCollapsed }) {
             <>{/* Bar Graph of Certificates & Reservations */}</>
           )}
 
-          {user.role === "Justice" && <>{/* Bar Graph of Blotters */}</>}
+          {(user.role === "Justice" || user.role === "Secretary") && (
+            <>{/* Bar Graph of Blotters */}</>
+          )}
         </div>
 
         <div className="mt-8">
