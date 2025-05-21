@@ -51,13 +51,12 @@ const Login = () => {
       );
 
       if (res.status === 200) {
-        setIsAuthenticated(true);
-        // try {
-        //   await api.put(`/login/${username}`);
-        //   setIsAuthenticated(true);
-        // } catch (error) {
-        //   console.log("Error logging in", error);
-        // }
+        try {
+          await api.put(`/login/${username}`);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.log("Error logging in", error);
+        }
         // if (res.data.message === "Credentials verified") {
         //   try {
         //     const response = await api.get(`/getmobilenumber/${username}`);
