@@ -76,20 +76,20 @@ function EditResident({ isCollapsed }) {
     if (residentInfo) {
       let houseNumber = "";
       let streetName = "";
-      const siblingsLength = residentForm.siblings.length;
-      const childrenLength = residentForm.children.length;
+      const siblingsLength = residentInfo.siblings.length;
+      const childrenLength = residentInfo.children.length;
 
-      const firstWord = residentForm.address.trim().split(" ")[0];
+      const firstWord = residentInfo.address.trim().split(" ")[0];
       const isNumber = !isNaN(firstWord);
 
       if (isNumber) {
         houseNumber = firstWord;
-        const preStreetName = residentForm.address.split("Aniban")[0].trim();
+        const preStreetName = residentInfo.address.split("Aniban")[0].trim();
         const streetWords = preStreetName.split(" ");
         streetWords.shift();
         streetName = streetWords.join(" ");
       } else {
-        streetName = residentForm.address.split("Aniban")[0].trim();
+        streetName = residentInfo.address.split("Aniban")[0].trim();
         houseNumber = "";
       }
 
