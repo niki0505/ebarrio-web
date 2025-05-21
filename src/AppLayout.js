@@ -9,7 +9,7 @@ const AppLayout = () => {
 
   return (
     <div className={`page-grid ${isCollapsed ? "collapsed" : ""}`}>
-      <SessionTimeout timeout={1 * 60 * 1000} />
+      <SessionTimeout timeout={15 * 60 * 1000} />
       <Sidebar
         isCollapsed={isCollapsed}
         toggleSidebar={() => setIsCollapsed(!isCollapsed)}

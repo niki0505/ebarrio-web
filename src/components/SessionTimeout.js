@@ -3,7 +3,7 @@ import "../Stylesheets/CommonStyle.css";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 
-function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
+function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   const { logout, user } = useContext(AuthContext);
   const timerRef = useRef(null);
   const [password, setPassword] = useState("");
