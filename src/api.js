@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: "https://ebarrio-web-backend.onrender.com/api",
   withCredentials: true,
 });
 
@@ -18,9 +18,12 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.get("/api/refreshtoken", {
-          withCredentials: true,
-        });
+        await axios.get(
+          "https://ebarrio-web-backend.onrender.com/api/refreshtoken",
+          {
+            withCredentials: true,
+          }
+        );
 
         return api(originalRequest);
       } catch (refreshError) {
