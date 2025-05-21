@@ -76,8 +76,12 @@ function EditResident({ isCollapsed }) {
     if (residentInfo) {
       let houseNumber = "";
       let streetName = "";
-      const siblingsLength = residentInfo.siblings.length;
-      const childrenLength = residentInfo.children.length;
+      const siblingsLength = residentForm.siblings
+        ? residentForm.siblings.length
+        : 0;
+      const childrenLength = residentForm.children
+        ? residentForm.children.length
+        : 0;
 
       const firstWord = residentInfo.address.trim().split(" ")[0];
       const isNumber = !isNaN(firstWord);
