@@ -5,7 +5,7 @@ import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
 
-function EditEmployee({ onClose, employeeDetails }) {
+function EditEmployee({ onClose, empID }) {
   const confirm = useConfirm();
   const { employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
