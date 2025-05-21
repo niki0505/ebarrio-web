@@ -896,7 +896,7 @@ function Residents({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div className="status-add-btn-container">
+        <div className="status-add-container">
           <div className="status-container">
             <p
               onClick={handleMenu1}
@@ -914,7 +914,7 @@ function Residents({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-btn" onClick={handleAdd}>
+            <button className="add-container" onClick={handleAdd}>
               <MdPersonAddAlt1 className=" text-xl" />
               <span className="font-bold">Add new resident</span>
             </button>
@@ -1017,28 +1017,28 @@ function Residents({ isCollapsed }) {
                         </div>
                         <div className="btn-container">
                           <button
-                            className="actions-btn bg-btn-color-red"
+                            className="actions-btn bg-btn-color-red hover:bg-red-700"
                             type="submit"
                             onClick={(e) => archiveBtn(e, res._id)}
                           >
                             ARCHIVE
                           </button>
                           <button
-                            className="actions-btn bg-btn-color-blue"
+                            className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                             type="submit"
                             onClick={(e) => handleBRGYID(e, res._id)}
                           >
                             BRGY ID
                           </button>
                           <button
-                            className="actions-btn bg-btn-color-blue"
+                            className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                             type="submit"
                             onClick={(e) => certBtn(e, res._id)}
                           >
                             CERTIFICATE
                           </button>
                           <button
-                            className="actions-btn bg-btn-color-blue"
+                            className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                             type="submit"
                             onClick={() => editBtn(res._id)}
                           >

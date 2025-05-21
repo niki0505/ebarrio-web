@@ -38,50 +38,60 @@ function CreateContact({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[20rem] h-[16rem] ">
-            <div className="modal-title-bar bg-navy-blue">
-              <h1 className="modal-title">Add New Contact</h1>
+          <div className="modal-content h-[15rem] w-[30rem]">
+            <div className="modal-title-bar">
+              <div className="modal-title">Add New Contact</div>
               <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
+                <IoClose
+                  className="modal-btn-close-icon"
+                  onClick={handleClose}
+                />
               </button>
             </div>
 
             <form
-              className="employee-form-container"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="employee-form-group">
-                <label for="resID" className="form-label">
-                  Name<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="form-input h-[30px]"
-                />
+              <div className="modal-form">
+                <div className="employee-form-group">
+                  <label for="resID" className="form-label">
+                    Name<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="form-input h-[30px]"
+                  />
+                </div>
+                <div className="employee-form-group">
+                  <label className="form-label">
+                    Contact Number<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    type="text"
+                    id="contactnumber"
+                    name="contactnumber"
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value)}
+                    className="form-input h-[30px]"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    type="submit"
+                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
-              <div className="employee-form-group">
-                <label className="form-label">
-                  Contact Number<label className="text-red-600">*</label>
-                </label>
-                <input
-                  type="text"
-                  id="contactnumber"
-                  name="contactnumber"
-                  value={contactNumber}
-                  onChange={(e) => setContactNumber(e.target.value)}
-                  className="form-input h-[30px]"
-                />
-              </div>
-              <button type="submit" className="actions-btn bg-btn-color-blue">
-                Submit
-              </button>
             </form>
           </div>
         </div>

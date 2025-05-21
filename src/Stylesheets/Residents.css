@@ -1,6 +1,6 @@
 /*CREATE-RESIDENT*/
 .section-title {
-  @apply font-[650] text-base;
+  @apply font-bold text-lg;
 }
 .section-divider {
   @apply border-t-[1.5px] border-[#C1C0C0] my-1;
@@ -27,13 +27,13 @@
   @apply flex justify-end;
 }
 .upload-btn {
-  @apply bg-btn-color-blue text-white px-4 py-2 rounded;
+  @apply bg-btn-color-blue text-white px-4 py-2 rounded hover:bg-[#0A7A9D];
 }
 .upload-img {
   @apply w-full h-full object-contain;
 }
 .form-label {
-  @apply text-[14px] block text-navy-blue font-title font-normal;
+  @apply text-[14px] block text-navy-blue font-title font-medium;
 }
 .form-grid {
   @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4;

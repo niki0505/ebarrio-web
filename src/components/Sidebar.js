@@ -24,7 +24,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   if (!user) return null;
 
   const Menus = [
-    (user.role === "Secretary" || user.role === "Clerk") && {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "Dashboard",
       icon: <MdDashboard />,
       path: "/dashboard",
@@ -93,9 +95,21 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           onClick={toggleSidebar}
         >
           {isCollapsed ? (
-            <BiMenu className="text-xl" />
+            <div className="block">
+              <BiMenu className="text-xl" />
+            </div>
           ) : (
-            <BiMenuAltLeft className="text-xl" />
+            <>
+              {/* For smaller screens*/}
+              <div className="block sm:block md:hidden lg:hidden ml-3 mb-2">
+                <BiMenu className="text-xl" />
+              </div>
+
+              {/* For medium and large screens*/}
+              <div className="hidden sm:hidden md:block lg:block">
+                <BiMenuAltLeft className="text-xl" />
+              </div>
+            </>
           )}
         </div>
 
@@ -116,8 +130,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
               isCollapsed ? "hidden" : "block"
             }`}
           >
-            <label className="font-title font-bold text-[24px]">eBarrio</label>
-            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold">
+            <h1 className="sidebar-app-name">eBarrio</h1>
+            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold hidden md:block lg:block">
               Barangay Management <br /> Disaster Response System
             </label>
           </span>

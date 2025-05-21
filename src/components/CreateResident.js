@@ -1262,10 +1262,16 @@ function CreateResident({ isCollapsed }) {
           </div>
 
           <div className="function-btn-container mt-4">
-            <button type="button" className="actions-btn  bg-btn-color-gray">
+            <button
+              type="button"
+              className="actions-btn bg-btn-color-gray hover:bg-gray-400"
+            >
               Clear
             </button>
-            <button type="submit" className="actions-btn  bg-btn-color-blue ">
+            <button
+              type="submit"
+              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+            >
               Submit
             </button>
           </div>

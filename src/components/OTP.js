@@ -2,17 +2,16 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 function OTP() {
   const location = useLocation();
   const navigation = useNavigate();
   const { sendOTP, verifyOTP } = useContext(OtpContext);
   const { setIsAuthenticated } = useContext(AuthContext);
-  // const { username, mobilenumber } = location.state;
+  const { username, mobilenumber } = location.state;
   const [resendTimer, setResendTimer] = useState(30);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
@@ -38,42 +37,42 @@ function OTP() {
   }, [isResendDisabled]);
 
   const handleResend = async () => {
-    // if (resendCount < 3) {
-    //   try {
-    //     sendOTP(username, mobilenumber);
-    //     setResendTimer(30);
-    //     setIsResendDisabled(true);
-    //     setResendCount((prevCount) => prevCount + 1);
-    //     console.log("New OTP is generated");
-    //   } catch (error) {
-    //     console.error("Error sending OTP:", error);
-    //     alert("Something went wrong while sending OTP");
-    //   }
-    // } else {
-    //   alert("You can only resend OTP 3 times.");
-    // }
+    if (resendCount < 3) {
+      try {
+        sendOTP(username, mobilenumber);
+        setResendTimer(30);
+        setIsResendDisabled(true);
+        setResendCount((prevCount) => prevCount + 1);
+        console.log("New OTP is generated");
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        alert("Something went wrong while sending OTP");
+      }
+    } else {
+      alert("You can only resend OTP 3 times.");
+    }
   };
 
   const handleVerify = async () => {
-    // try {
-    //   const result = await verifyOTP(username, OTP);
-    //   alert(result.message);
-    //   try {
-    //     await api.put(`/login/${username}`);
-    //     setIsAuthenticated(true);
-    //   } catch (error) {
-    //     console.log("Error logging in", error);
-    //   }
-    // } catch (error) {
-    //   const response = error.response;
-    //   if (response && response.data) {
-    //     console.log("❌ Error status:", response.status);
-    //     alert(response.data.message || "Something went wrong.");
-    //   } else {
-    //     console.log("❌ Network or unknown error:", error.message);
-    //     alert("An unexpected error occurred.");
-    //   }
-    // }
+    try {
+      const result = await verifyOTP(username, OTP);
+      alert(result.message);
+      try {
+        await api.put(`/login/${username}`);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log("Error logging in", error);
+      }
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   useEffect(() => {
@@ -92,52 +91,55 @@ function OTP() {
 
   return (
     <>
-      <div className="login-container">
-        <div
-          className="left-login-container"
-          style={{ backgroundImage: `url(${blueBg})` }}
-        >
-          <img src={applogo} alt="App Logo" className="w-[256px] h-[256px]" />
-        </div>
-
-        <div className="right-login-container">
-          <div className="login-form-container">
-            <span className="login-title">Account Verification</span>
-            <span className="text-base font-bold text-gray-400">
-              {/* Enter the 6 digit code sent to {mobilenumber} */}
-              Enter the 6 digit code sent to
-            </span>
-            <div style={{ width: "100%" }}>
-              <OtpInput
-                value={OTP}
-                onChange={handleOTPChange}
-                numInputs={6}
-                inputType="tel"
-                isInputNum
-                shouldAutoFocus
-                renderSeparator={<span>-</span>}
-                renderInput={(props) => (
-                  <input
-                    {...props}
-                    className="w-full h-[70px] mx-2 text-lg text-center border border-gray-300 rounded-[15px] focus:outline-none bg-[#EBEBEB] font-medium"
-                    style={{ maxWidth: "100%" }}
-                  />
-                )}
-              />
-            </div>
-            {isResendDisabled ? (
-              <p className="text-gray-400 mt-10 font-bold text-base">
-                Resend OTP in {resendTimer} second{resendTimer !== 1 ? "s" : ""}
-              </p>
-            ) : (
-              <p
-                onClick={handleResend}
-                className="text-gray-400 font-bold text-base cursor-pointer mt-10"
-              >
-                Resend OTP
-              </p>
-            )}
+      <div
+        className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+        style={{
+          backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+        }}
+      >
+        <img
+          src={AppLogo}
+          alt="App Logo"
+          className="w-[312px] h-[312px] translate-x-[-20vw]"
+        />
+        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
+          <div className="mb-4">
+            <h1 className="header-text">Account Verification</h1>
+            <label className="text-[#ACACAC] font-subTitle font-semibold">
+              Enter the 6 digit code sent to {mobilenumber}
+            </label>
           </div>
+
+          <div style={{ width: "100%" }}>
+            <OtpInput
+              value={OTP}
+              onChange={handleOTPChange}
+              numInputs={6}
+              inputType="tel"
+              isInputNum
+              shouldAutoFocus
+              renderSeparator={<span>-</span>}
+              renderInput={(props) => (
+                <input
+                  {...props}
+                  className="w-full h-[70px] mx-2 text-lg text-center border border-gray-300 rounded-[15px] focus:outline-none bg-[#EBEBEB] font-medium"
+                  style={{ maxWidth: "100%" }}
+                />
+              )}
+            />
+          </div>
+          {isResendDisabled ? (
+            <p className="text-gray-400 mt-5 font-bold text-base">
+              Resend OTP in {resendTimer} second{resendTimer !== 1 ? "s" : ""}
+            </p>
+          ) : (
+            <p
+              onClick={handleResend}
+              className="text-gray-400 font-bold text-base cursor-pointer mt-5"
+            >
+              Resend OTP
+            </p>
+          )}
         </div>
       </div>
     </>

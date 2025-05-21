@@ -106,7 +106,7 @@ function EmergencyHotlines({ isCollapsed }) {
         <div className="header-text">Emergency Hotlines</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <div className="status-add-btn-container">
+        <div className="status-add-container">
           <div className="status-container">
             <p
               onClick={handleMenu1}
@@ -124,7 +124,7 @@ function EmergencyHotlines({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-btn" onClick={handleAdd}>
+            <button className="add-container" onClick={handleAdd}>
               <MdPersonAddAlt1 className=" text-xl" />
               <span className="font-bold">Add new contact</span>
             </button>
@@ -173,7 +173,7 @@ function EmergencyHotlines({ isCollapsed }) {
                           )
                         }
                       >
-                        <FaEdit className="text-xl text-[#06D001]" />
+                        <FaEdit className="text-lg text-[#06D001]" />
                         <label className="text-xs font-semibold text-[#06D001]">
                           Edit
                         </label>
@@ -186,7 +186,7 @@ function EmergencyHotlines({ isCollapsed }) {
                         className="table-actions-btn"
                         onClick={() => handleArchive(emergency._id)}
                       >
-                        <FaArchive className="text-xl text-btn-color-red" />
+                        <FaArchive className="text-lg text-btn-color-red" />
                         <label className="text-xs font-semibold text-btn-color-red">
                           Archive
                         </label>

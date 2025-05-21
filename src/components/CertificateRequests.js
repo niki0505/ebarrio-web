@@ -307,24 +307,24 @@ function CertificateRequests({ isCollapsed }) {
                                 {cert.status === "Pending" ? (
                                   <>
                                     <button
-                                      className="actions-btn bg-btn-color-blue"
-                                      type="submit"
-                                      onClick={(e) => certBtn(e, cert._id)}
-                                    >
-                                      ISSUE
-                                    </button>
-                                    <button
-                                      className="actions-btn bg-btn-color-red"
+                                      className="actions-btn bg-btn-color-red hover:bg-red-700"
                                       type="submit"
                                       onClick={(e) => rejectBtn(e, cert._id)}
                                     >
                                       REJECT
                                     </button>
+                                    <button
+                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      ISSUE
+                                    </button>
                                   </>
                                 ) : cert.status === "Issued" ? (
                                   <>
                                     <button
-                                      className="actions-btn bg-btn-color-blue"
+                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                       type="submit"
                                       onClick={(e) => certBtn(e, cert._id)}
                                     >
@@ -381,24 +381,24 @@ function CertificateRequests({ isCollapsed }) {
                               {cert.status === "Pending" ? (
                                 <>
                                   <button
-                                    className="actions-btn bg-btn-color-blue"
-                                    type="submit"
-                                    onClick={(e) => certBtn(e, cert._id)}
-                                  >
-                                    ISSUE
-                                  </button>
-                                  <button
-                                    className="actions-btn bg-btn-color-red"
+                                    className="actions-btn bg-btn-color-red hover:bg-red-700"
                                     type="submit"
                                     onClick={(e) => rejectBtn(e, cert._id)}
                                   >
                                     REJECT
                                   </button>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => certBtn(e, cert._id)}
+                                  >
+                                    ISSUE
+                                  </button>
                                 </>
                               ) : (
                                 <>
                                   <button
-                                    className="actions-btn bg-btn-color-blue"
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                     type="submit"
                                     onClick={(e) => certBtn(e, cert._id)}
                                   >

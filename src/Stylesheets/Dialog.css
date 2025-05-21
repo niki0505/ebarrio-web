@@ -1,18 +1,21 @@
 .dialog-title-bar {
-  @apply absolute top-0 left-0 w-full rounded-t-xl z-0;
+  @apply w-full h-[3rem] rounded-tl-xl rounded-tr-xl bg-[#fff] flex items-center justify-between p-4;
 }
 .dialog-title-bar-items {
   @apply flex flex-row justify-between items-center h-12 px-4;
 }
 .dialog-title-bar-title {
-  @apply text-base font-bold text-gray-400;
+  @apply text-base font-bold text-gray-400 font-title;
 }
 .dialog-title-bar-icon {
-  @apply absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl font-bold;
+  @apply text-2xl text-gray-400 hover:text-red-600;
 }
 .dialog-line {
-  @apply w-full border-t-2 border-gray-200 mt-0;
+  @apply w-full border-t-2 border-gray-200;
+}
+.dialog-question {
+  @apply font-bold text-base mb-2 text-center mt-2 font-title text-navy-blue;
 }
 .dialog-message {
-  @apply w-[350px] font-bold text-base mb-2 text-center mt-2;
+  @apply text-[#ACACAC] text-sm mb-4 font-subTitle font-semibold w-[350px] text-center;
 }
