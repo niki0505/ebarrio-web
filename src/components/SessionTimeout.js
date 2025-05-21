@@ -47,7 +47,8 @@ function SessionTimeout({ timeout = 1 * 60 * 1000 }) {
         username: user.username,
         password: password,
       });
-      if (res.data.status === 200) {
+      console.log(res.status);
+      if (res.status === 200) {
         setPassword("");
         setPasswordError("");
         setShowModal(false);
