@@ -23,7 +23,7 @@ function EditEmployee({ onClose, empID }) {
     }
     onClose();
     try {
-      const response = await api.post(`/editemployee/${empID}`, {
+      const response = await api.put(`/editemployee/${empID}`, {
         position,
         chairmanship,
       });
