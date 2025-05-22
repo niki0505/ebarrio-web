@@ -190,34 +190,39 @@ function ForgotPassword() {
               alt="App Logo"
               className="w-[312px] h-[312px] translate-x-[-20vw]"
             />
-            <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
-              <div className="mb-4">
+            <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-8">
+              <div>
                 <h1 className="header-text">Forgot Password</h1>
-                <label className="text-[#ACACAC] font-subTitle font-semibold">
+                <label className="text-[#808080] font-subTitle font-semibold">
                   Please enter your username to begin the password <br /> reset
                   process.
                 </label>
               </div>
 
-              <input
-                type="text"
-                placeholder="Enter your username"
-                onChange={(e) => setUsername(e.target.value)}
-                className="form-input h-[35px]"
-              />
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
-              >
-                Submit
-              </button>
-              <a
-                href="/login"
-                className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-              >
-                Remember your password?
-              </a>
+              <div className="flex flex-col gap-4">
+                <input
+                  type="text"
+                  placeholder="Enter your username"
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="form-input"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="submit"
+                  onClick={handleSubmit}
+                  className="actions-btn bg-btn-color-blue font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
+                >
+                  Submit
+                </button>
+                <a
+                  href="/login"
+                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+                >
+                  Remember your password?
+                </a>
+              </div>
             </div>
           </div>
         </>
@@ -249,7 +254,7 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             Reset Password
                           </h1>
-                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
+                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
                             Enter your new password and confirm it to complete
                             the reset process.
                           </span>
@@ -260,20 +265,20 @@ function ForgotPassword() {
                             type="password"
                             placeholder="Enter new password"
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="form-input h-[35px]"
+                            className="form-input"
                           />
                           <input
                             type="password"
                             placeholder="Confirm new password"
                             onChange={(e) => setReNewPassword(e.target.value)}
-                            className="form-input h-[35px]"
+                            className="form-input"
                           />
                         </div>
 
                         <button
                           type="button"
                           onClick={handleSuccessful}
-                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px]"
+                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Submit
                         </button>
@@ -306,7 +311,7 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             One-Time Password
                           </h1>
-                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
+                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
                             Enter the 6 digit code sent to{" "}
                             {user.empID.resID.mobilenumber}
                           </span>
@@ -331,14 +336,14 @@ function ForgotPassword() {
                           />
                         </div>
                         {isResendDisabled ? (
-                          <p className="text-[#ACACAC] font-subTitle font-bold text-[14px] mt-5 text-end text-[14px]">
+                          <p className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end text-[14px]">
                             Resend OTP in {resendTimer} second
                             {resendTimer !== 1 ? "s" : ""}
                           </p>
                         ) : (
                           <p
                             onClick={handleResend}
-                            className="cursor-pointer mt-5 text-end text-[#ACACAC] font-subTitle font-bold text-[14px]"
+                            className="cursor-pointer mt-5 text-end text-[#808080] font-subTitle font-bold text-[14px]"
                           >
                             Resend OTP
                           </p>
@@ -372,7 +377,7 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             Security Questions
                           </h1>
-                          <span className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
+                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
                             To verify your identity, please answer the security
                             question below.
                           </span>
@@ -380,7 +385,7 @@ function ForgotPassword() {
                         <div className="mt-5 flex flex-col gap-y-4">
                           <select
                             onChange={handleInputChange}
-                            className="form-input h-[30px]"
+                            className="form-input"
                             name="question"
                           >
                             <option value="" disabled selected hidden>
@@ -397,14 +402,14 @@ function ForgotPassword() {
                             placeholder="Enter answer"
                             name="answer"
                             onChange={handleInputChange}
-                            className="form-input h-[35px]"
+                            className="form-input"
                           />
                         </div>
 
                         <button
                           type="button"
                           onClick={handleQuestionVerify}
-                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px]"
+                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Next
                         </button>
@@ -438,7 +443,7 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             Verification Method
                           </h1>
-                          <label className="text-[#ACACAC] font-subTitle font-semibold text-[14px]">
+                          <label className="text-[#808080] font-subTitle font-semibold text-[14px]">
                             Please choose a method to verify your identity and
                             continue resetting your password
                           </label>

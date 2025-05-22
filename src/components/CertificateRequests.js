@@ -271,35 +271,56 @@ function CertificateRequests({ isCollapsed }) {
                             <>
                               <div className="profile-container">
                                 <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {cert.resID.middlename
-                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                  </p>
-                                  <p>
-                                    <strong>Type of Certificate:</strong>{" "}
-                                    {cert.typeofcertificate}
-                                  </p>
-                                  <p>
-                                    <strong>Purpose of Request:</strong>{" "}
-                                    {cert.purpose}
-                                  </p>
-                                  <p>
-                                    <strong>Amount: </strong>
-                                    {cert.amount}
-                                  </p>
-                                  <p>
-                                    <strong>Date Requested: </strong>
-                                    {cert.createdAt.substring(
-                                      0,
-                                      cert.createdAt.indexOf(" at")
-                                    )}
-                                  </p>
-                                  {cert.status === "Rejected" && (
-                                    <p>
-                                      <strong>Remarks: </strong> {cert.remarks}
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">Name:</h1>
+                                    <p className="font-medium">
+                                      {cert.resID.middlename
+                                        ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                        : `${cert.resID.firstname} ${cert.resID.lastname}`}
                                     </p>
+                                  </div>
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Type of Certificate:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.typeofcertificate}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Purpose of Request:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.purpose}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">Amount:</h1>
+                                    <p className="font-medium">{cert.amount}</p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Date Requested:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.createdAt.substring(
+                                        0,
+                                        cert.createdAt.indexOf(" at")
+                                      )}
+                                    </p>
+                                  </div>
+
+                                  {cert.status === "Rejected" && (
+                                    <div className="flex flex-row gap-x-2">
+                                      <h1 className="font-bold">Remarks:</h1>
+                                      <p className="font-medium">
+                                        {cert.remarks}
+                                      </p>
+                                    </div>
                                   )}
                                 </div>
                               </div>

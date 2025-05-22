@@ -605,50 +605,74 @@ function Employees({ isCollapsed }) {
                             src={emp.resID.picture}
                             className="profile-img"
                           />
-                          <div className="ml-5 text-xs">
-                            <p>
-                              <strong>Name: </strong>
-                              {emp.resID.middlename
-                                ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                            </p>
-                            <p>
-                              <strong>Age:</strong> {emp.resID.age}
-                            </p>
-                            <p>
-                              <strong>Sex:</strong> {emp.resID.sex}
-                            </p>
-                            <p>
-                              <strong>Civil Status: </strong>{" "}
-                              {emp.resID.civilstatus}
-                            </p>
-                            <p>
-                              <strong>Mobile Number: </strong>{" "}
-                              {emp.resID.mobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong> {emp.resID.address}
-                            </p>
-                            <p>
-                              <strong>Position: </strong> {emp.position}
-                            </p>
+                          <div className="ml-5 mr-28 text-xs">
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">
+                                {emp.resID.middlename
+                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                              </p>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Age: </h1>
+                              <p className="font-medium">{emp.resID.age}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Sex: </h1>
+                              <p className="font-medium">{emp.resID.sex}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Civil Status: </h1>
+                              <p className="font-medium">
+                                {emp.resID.civilstatus}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile Number: </h1>
+                              <p className="font-medium">
+                                {emp.resID.mobilenumber}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">{emp.resID.address}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Position: </h1>
+                              <p className="font-medium">{emp.position}</p>
+                            </div>
                           </div>
-                          <div className="ml-5 text-xs">
-                            <p>
-                              <strong>Emergency Contact:</strong>
-                            </p>
-                            <p>
-                              <strong>Name: </strong>
-                              {emp.resID.emergencyname}
-                            </p>
-                            <p>
-                              <strong>Mobile: </strong>
-                              {emp.resID.emergencymobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong>
-                              {emp.resID.emergencyaddress}
-                            </p>
+                          <div className="text-xs">
+                            <div className="mb-2">
+                              <h1 className="font-bold text-sm">
+                                EMERGENCY CONTACT{" "}
+                              </h1>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencyname}
+                              </p>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencymobilenumber}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencyaddress}
+                              </p>
+                            </div>
                           </div>
                         </div>
                         <div className="btn-container">

@@ -16,6 +16,7 @@ import {
   BiSolidMegaphone,
   BiSolidCctv,
 } from "react-icons/bi";
+import { MdOutlineUpdate } from "react-icons/md";
 import { useState } from "react";
 import AppLogo from "../assets/applogo-darkbg.png";
 
@@ -47,7 +48,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       path: "/blotter-reports",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Certificate Requests",
+      title: "Document Requests",
       icon: <IoDocumentTextSharp />,
       path: "/certificate-requests",
     },
@@ -64,14 +65,21 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
       user.role === "Justice") && {
-      title: "SOS Reports",
+      title: "SOS Requests",
       icon: <IoLocation />,
       path: "/sos-reports",
     },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
       user.role === "Justice") && {
-      title: "CCTV Footage",
+      title: "SOS Update Reports",
+      icon: <MdOutlineUpdate />,
+      path: "/sos-update-reports",
+    },
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
+      title: "River Snapshots",
       icon: <BiSolidCctv />,
       path: "/flood-footage",
     },

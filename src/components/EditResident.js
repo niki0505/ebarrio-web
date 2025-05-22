@@ -140,7 +140,7 @@ function EditResident({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             value={residentForm.siblings[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -174,7 +174,7 @@ function EditResident({ isCollapsed }) {
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
             value={residentForm.children[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -680,7 +680,7 @@ function EditResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter first name"
                 required
-                className="form-input h-[30px] input-box"
+                className="form-input input-box"
               />
             </div>
             <div className="form-group">
@@ -690,7 +690,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.middlename}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -703,7 +703,7 @@ function EditResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter last name"
                 required
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -715,7 +715,7 @@ function EditResident({ isCollapsed }) {
                 name="suffix"
                 onChange={handleDropdownChange}
                 value={residentForm.suffix}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -732,7 +732,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.alias}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter alias"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -744,7 +744,7 @@ function EditResident({ isCollapsed }) {
                 name="salutation"
                 onChange={handleDropdownChange}
                 value={residentForm.salutation}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -757,7 +757,7 @@ function EditResident({ isCollapsed }) {
             </div>
             <div className="form-group">
               <label for="sex" className="form-label">
-                Sex:<label className="text-red-600">*</label>
+                Sex<label className="text-red-600">*</label>
               </label>
               <select
                 id="sex"
@@ -765,7 +765,7 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 required
                 value={residentForm.sex}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -784,7 +784,7 @@ function EditResident({ isCollapsed }) {
                 name="gender"
                 onChange={handleDropdownChange}
                 value={residentForm.gender}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -812,7 +812,7 @@ function EditResident({ isCollapsed }) {
                 placeholder="Enter birthdate"
                 min="1900-01-01"
                 required
-                className="form-input h-[30px]"
+                className="form-input p-2"
               />
             </div>
 
@@ -823,7 +823,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.birthplace}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter birthplace"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -836,7 +836,7 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 required
                 value={residentForm.civilstatus}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -855,7 +855,7 @@ function EditResident({ isCollapsed }) {
                 name="bloodtype"
                 onChange={handleDropdownChange}
                 value={residentForm.bloodtype}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -875,7 +875,7 @@ function EditResident({ isCollapsed }) {
                 name="religion"
                 onChange={handleDropdownChange}
                 value={residentForm.religion}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -895,7 +895,7 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 required
                 value={residentForm.nationality}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -908,26 +908,28 @@ function EditResident({ isCollapsed }) {
 
             <div className="form-group space-x-5">
               <label className="form-label ">Registered Voter</label>
-              <label>
-                <input
-                  type="radio"
-                  name="voter"
-                  onChange={handleRadioChange}
-                  value="Yes"
-                  checked={residentForm.voter === "Yes"}
-                />
-                Yes
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="voter"
-                  onChange={handleRadioChange}
-                  value="No"
-                  checked={residentForm.voter === "No"}
-                />
-                No
-              </label>
+              <div className="flex flex-row space-x-10">
+                <div className="flex flex-row justify-center gap-1">
+                  <input
+                    type="radio"
+                    name="voter"
+                    onChange={handleRadioChange}
+                    value="Yes"
+                    checked={residentForm.voter === "Yes"}
+                  />
+                  <h1>Yes</h1>
+                </div>
+                <div className="flex flex-row justify-center gap-1">
+                  <input
+                    type="radio"
+                    name="voter"
+                    onChange={handleRadioChange}
+                    value="No"
+                    checked={residentForm.voter === "No"}
+                  />
+                  <h1>No</h1>
+                </div>
+              </div>
             </div>
 
             <div className="form-group">
@@ -937,32 +939,34 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.precinct}
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter precinct"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
 
             <div className="form-group space-x-5">
-              <label className="form-label">Deceased:</label>
-              <label>
-                <input
-                  type="radio"
-                  name="deceased"
-                  onChange={handleRadioChange}
-                  value="Yes"
-                  checked={residentForm.deceased === "Yes"}
-                />
-                Yes
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="deceased"
-                  onChange={handleRadioChange}
-                  value="No"
-                  checked={residentForm.deceased === "No"}
-                />
-                No
-              </label>
+              <label className="form-label">Deceased</label>
+              <div className="flex flex-row space-x-10">
+                <div className="flex flex-row justify-center gap-1">
+                  <input
+                    type="radio"
+                    name="deceased"
+                    onChange={handleRadioChange}
+                    value="Yes"
+                    checked={residentForm.deceased === "Yes"}
+                  />
+                  <h1>Yes</h1>
+                </div>
+                <div className="flex flex-row justify-center gap-1">
+                  <input
+                    type="radio"
+                    name="deceased"
+                    onChange={handleRadioChange}
+                    value="No"
+                    checked={residentForm.deceased === "No"}
+                  />
+                  <h1>No</h1>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -978,7 +982,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.email}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -992,7 +996,7 @@ function EditResident({ isCollapsed }) {
                 placeholder="Enter mobile number"
                 required
                 maxLength={11}
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -1002,7 +1006,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.telephone}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter telephone"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -1012,7 +1016,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.facebook}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter facebook"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
           </div>
@@ -1031,7 +1035,7 @@ function EditResident({ isCollapsed }) {
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter name"
                 required
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -1045,7 +1049,7 @@ function EditResident({ isCollapsed }) {
                 placeholder="Enter mobile number"
                 required
                 maxLength={11}
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -1058,7 +1062,7 @@ function EditResident({ isCollapsed }) {
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter address"
                 required
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
           </div>
@@ -1077,7 +1081,7 @@ function EditResident({ isCollapsed }) {
                 name="mother"
                 onChange={handleDropdownChange}
                 value={residentForm.mother}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1101,7 +1105,7 @@ function EditResident({ isCollapsed }) {
                 name="father"
                 onChange={handleDropdownChange}
                 value={residentInfo.father}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1124,7 +1128,7 @@ function EditResident({ isCollapsed }) {
                 name="spouse"
                 onChange={handleDropdownChange}
                 value={residentInfo.spouse}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1147,7 +1151,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.numberofsiblings}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
-                className="form-input h-[30px] "
+                className="form-input"
               />
             </div>
           </div>
@@ -1157,13 +1161,13 @@ function EditResident({ isCollapsed }) {
 
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label mt-4 ">Children</label>
+              <label className="form-label mt-4">Children</label>
               <input
                 name="numberofchildren"
                 value={residentForm.numberofchildren}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
           </div>
@@ -1184,7 +1188,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.housenumber}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter house number"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
             <div className="form-group">
@@ -1197,7 +1201,7 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 required
                 value={residentForm.street}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1216,7 +1220,7 @@ function EditResident({ isCollapsed }) {
                 name="HOAname"
                 onChange={handleDropdownChange}
                 value={residentForm.HOAname}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1241,7 +1245,7 @@ function EditResident({ isCollapsed }) {
                 name="employmentstatus"
                 onChange={handleDropdownChange}
                 value={residentForm.employmentstatus}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1259,7 +1263,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.occupation}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter occupation"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
 
@@ -1272,7 +1276,7 @@ function EditResident({ isCollapsed }) {
                 name="monthlyincome"
                 onChange={handleDropdownChange}
                 value={residentForm.monthlyincome}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1288,8 +1292,8 @@ function EditResident({ isCollapsed }) {
           <h3 className="section-title mt-8">Educational Information</h3>
           <hr class="section-divider" />
 
-          <div className="form-grid">
-            <div className="form-group ">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <div className="form-group">
               <label for="educationalattainment" className="form-label">
                 Highest Educational Attainment
               </label>
@@ -1298,7 +1302,7 @@ function EditResident({ isCollapsed }) {
                 name="educationalattainment"
                 onChange={handleDropdownChange}
                 value={residentForm.educationalattainment}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1317,7 +1321,7 @@ function EditResident({ isCollapsed }) {
                 name="typeofschool"
                 onChange={handleDropdownChange}
                 value={residentForm.typeofschool}
-                className="form-input h-[30px]"
+                className="form-input"
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -1333,7 +1337,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.course}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter course"
-                className="form-input h-[30px]"
+                className="form-input"
               />
             </div>
           </div>

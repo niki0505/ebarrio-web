@@ -274,14 +274,17 @@ function EditAnnouncement({ onClose, announcementID }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Edit Announcement</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Edit Announcement</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -292,7 +295,7 @@ function EditAnnouncement({ onClose, announcementID }) {
               }}
             >
               <div className="h-full flex flex-col gap-2">
-                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2">
+                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2 mb-4">
                   {/*UPLOADER - DETAILS*/}
                   <div className="flex items-center w-full">
                     <img
@@ -351,7 +354,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                       name="content"
                       value={announcementForm.content}
                       onChange={handleInputChange}
-                      className="form-input h-[140px]"
+                      className="block w-full h-[140px] rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                     />
                   </div>
                   {/* Event Details */}
@@ -482,9 +485,9 @@ function EditAnnouncement({ onClose, announcementID }) {
                   <button
                     onClick={handleSubmit}
                     type="submit"
-                    className="actions-btn bg-btn-color-blue w-full"
+                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
-                    Submit
+                    Update
                   </button>
                 </div>
               </div>

@@ -211,25 +211,28 @@ function CreateAnnouncement({ onClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Add New Announcement</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Announcement</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
-              className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-4"
+              className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
               <div className="h-full flex flex-col gap-2">
-                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2">
+                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2 mb-4">
                   {/*UPLOADER - DETAILS*/}
                   <div className="flex items-center w-full">
                     <img
@@ -247,7 +250,7 @@ function CreateAnnouncement({ onClose }) {
                     </div>
                   </div>
                   {/*CATEGORY, TITLE, CONTENT*/}
-                  <div className="flex flex-row w-full">
+                  <div className="flex flex-row w-full gap-x-4">
                     <div className="employee-form-group">
                       <label for="resID" className="form-label">
                         Category<label className="text-red-600">*</label>
@@ -285,7 +288,7 @@ function CreateAnnouncement({ onClose }) {
                       name="content"
                       value={announcementForm.content}
                       onChange={handleInputChange}
-                      className="form-input h-[140px]"
+                      className="block w-full h-[140px] rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                     />
                   </div>
                   {/* Event Details */}
@@ -350,15 +353,18 @@ function CreateAnnouncement({ onClose }) {
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="create-announcement-event-details">
-                          <div className="modal-title-bar">
-                            <div className="modal-title">Event Detail</div>
-                            <button className="modal-btn-close">
-                              <IoClose
-                                className="modal-btn-close-icon"
-                                onClick={handleCancel}
-                              />
-                            </button>
+                        <div className="modal-content w-[30rem] h-[15rem]">
+                          <div className="dialog-title-bar">
+                            <div className="flex flex-col w-full">
+                              <div className="dialog-title-bar-items">
+                                <h1 className="modal-title">Event Details</h1>
+                                <IoClose
+                                  onClick={handleCancel}
+                                  class="dialog-title-bar-icon"
+                                ></IoClose>
+                              </div>
+                              <hr className="dialog-line" />
+                            </div>
                           </div>
 
                           <div className="modal-form-container">
@@ -415,7 +421,7 @@ function CreateAnnouncement({ onClose }) {
                   <button
                     onClick={handleSubmit}
                     type="submit"
-                    className="actions-btn bg-btn-color-blue w-full"
+                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
                     Submit
                   </button>

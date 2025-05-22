@@ -953,66 +953,88 @@ function Residents({ isCollapsed }) {
                         {/* Additional Information for the resident */}
                         <div className="profile-container">
                           <img src={res.picture} className="profile-img" />
-                          <div className="ml-5 text-xs">
-                            <p>
-                              <strong>Name: </strong>
-                              {res.middlename
-                                ? `${res.firstname} ${res.middlename} ${res.lastname}`
-                                : `${res.firstname} ${res.lastname}`}
-                            </p>
-                            <p>
-                              <strong>Age:</strong> {res.age}
-                            </p>
-                            <p>
-                              <strong>Sex:</strong> {res.sex}
-                            </p>
-                            <p>
-                              <strong>Civil Status: </strong> {res.civilstatus}
-                            </p>
-                            <p>
-                              <strong>Mobile Number: </strong>
-                              {res.mobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong> {res.address}
-                            </p>
+                          <div className="ml-10 mr-28 text-xs">
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">
+                                {res.middlename
+                                  ? `${res.firstname} ${res.middlename} ${res.lastname}`
+                                  : `${res.firstname} ${res.lastname}`}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Age: </h1>
+                              <p className="font-medium">{res.age}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Sex: </h1>
+                              <p className="font-medium">{res.sex}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Civil Status: </h1>
+                              <p className="font-medium">{res.civilstatus}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile Number: </h1>
+                              <p className="font-medium">{res.mobilenumber}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">{res.address}</p>
+                            </div>
                           </div>
-                          <div className="ml-5 text-xs">
+                          <div className="text-xs">
                             {res.voter === "Yes" ? (
                               <>
-                                <p>
-                                  <strong>Status: </strong>
-                                  Voter
-                                </p>
-                                <p>
-                                  <strong>Precinct: </strong>
-                                  {res.precinct ? res.precinct : "N/A"}
-                                </p>
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Status: </h1>
+                                  <p className="font-medium">Voter</p>
+                                </div>
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Precinct: </h1>
+                                  <p className="font-medium">
+                                    {res.precinct ? res.precinct : "N/A"}
+                                  </p>
+                                </div>
                               </>
                             ) : (
                               <>
-                                <p>
-                                  <strong>Status: </strong>
-                                  Not Voter
-                                </p>
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Status: </h1>
+                                  <p className="font-medium">Not Voter</p>
+                                </div>
                               </>
                             )}
 
-                            <p>
-                              <strong>Emergency Contact:</strong>
-                            </p>
-                            <p>
-                              <strong>Name: </strong>
-                              {res.emergencyname}
-                            </p>
-                            <p>
-                              <strong>Mobile: </strong>
-                              {res.emergencymobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong>
-                              {res.emergencyaddress}
-                            </p>
+                            <div className="mt-4 mb-2">
+                              <h1 className="font-bold text-sm">
+                                EMERGENCY CONTACT{" "}
+                              </h1>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">{res.emergencyname}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile: </h1>
+                              <p className="font-medium">
+                                {res.emergencymobilenumber}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">
+                                {res.emergencyaddress}
+                              </p>
+                            </div>
                           </div>
                         </div>
                         <div className="btn-container">

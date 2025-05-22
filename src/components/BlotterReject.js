@@ -41,15 +41,19 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[20rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Reject Blotter Report</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Reject Blotter Report</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
+
             <div className="modal-form-container">
               <div className="modal-form">
                 <textarea
@@ -59,7 +63,7 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[12rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold"
+                  className="w-full h-[9rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
                 ></textarea>
                 <div
                   style={{ fontSize: "12px", color: "gray", textAlign: "end" }}

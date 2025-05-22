@@ -153,15 +153,18 @@ function CreateAccount({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[20rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Add New User</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content h-[25rem] w-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New User</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -213,6 +216,7 @@ function CreateAccount({ onClose }) {
                     onChange={handleInputChange}
                     readOnly
                     className="form-input h-[30px]"
+                    placeholder="Enter role"
                   />
                 </div>
 
@@ -227,6 +231,7 @@ function CreateAccount({ onClose }) {
                     onChange={usernameValidation}
                     required
                     className="form-input h-[30px]"
+                    placeholder="Enter username"
                   />
                   <div className="text-start">
                     {usernameErrors.length > 0 && (
@@ -253,6 +258,7 @@ function CreateAccount({ onClose }) {
                       value={userForm.password}
                       required
                       className="form-input h-[30px]"
+                      placeholder="Enter password"
                     />
                     <div className="text-start">
                       {passwordErrors.length > 0 && (
@@ -268,7 +274,7 @@ function CreateAccount({ onClose }) {
                       className="absolute right-2 top-1/2 transform -translate-y-1/2"
                       onClick={generatePassword}
                     >
-                      <FaEyeSlash className="text-gray-500" />
+                      <FaEyeSlash className="text-gray-500 mr-1" />
                     </button>
                   </div>
                 </div>

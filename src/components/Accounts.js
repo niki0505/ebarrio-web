@@ -196,7 +196,7 @@ function Accounts({ isCollapsed }) {
                   <td>{user.role}</td>
                   <td>{user.status}</td>
                   <td></td>
-                  <td className="flex justify-between gap-x-8">
+                  <td className="flex justify-between gap-x-3 px-5">
                     <div className="table-actions-container">
                       <button
                         type="button"

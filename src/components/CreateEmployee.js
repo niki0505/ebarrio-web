@@ -172,14 +172,17 @@ function CreateEmployee({ onClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content h-[15rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Add New Employee</div>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Employee</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -198,7 +201,7 @@ function CreateEmployee({ onClose }) {
                     id="resID"
                     name="resID"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] appearance-none"
                   >
                     <option value="" disabled selected hidden>
                       Select
@@ -223,7 +226,7 @@ function CreateEmployee({ onClose }) {
                     id="position"
                     name="position"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] appearance-none"
                   >
                     <option value="" disabled selected hidden>
                       Select

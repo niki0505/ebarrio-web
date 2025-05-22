@@ -39,14 +39,17 @@ function CreateContact({ onClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content h-[15rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Add New Contact</div>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Contact</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form

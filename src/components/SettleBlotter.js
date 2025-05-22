@@ -397,7 +397,7 @@ function SettleBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 readOnly
-                className="form-input h-[10rem]"
+                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>
@@ -418,7 +418,7 @@ function SettleBlotter({ isCollapsed }) {
                 id="agreementdetails"
                 name="agreementdetails"
                 value={settleForm.agreementdetails}
-                className="form-input h-[10rem]"
+                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">
                 {settleForm.agreementdetails.length}/1000

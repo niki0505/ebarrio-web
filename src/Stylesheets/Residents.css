@@ -42,7 +42,7 @@
   @apply col-span-1;
 }
 .form-input {
-  @apply block w-full rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm;
+  @apply block w-full h-[35px] rounded-[8px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm appearance-none;
 }
 
 .function-btn-container {

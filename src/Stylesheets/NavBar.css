@@ -23,19 +23,20 @@
     mr-2;
 }
 .navbar-icon {
-  @apply text-2xl sm:text-3xl 
-    mr-3 
-    cursor-pointer;
+  @apply text-2xl sm:text-2xl 
+    cursor-pointer
+    text-[#04384E];
 }
 .navbar-user-info {
   @apply flex 
     flex-col 
     items-end 
+    -space-y-1
     text-sm 
     sm:text-base;
 }
 .navbar-profile-img {
-  @apply w-12 h-12 object-contain sm:w-10 sm:h-10 
+  @apply w-9 h-9 object-contain
     cursor-pointer 
     rounded-full;
 }
