@@ -21,9 +21,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/checkrefreshtoken", {
-        withCredentials: true,
-      })
+      .get(
+        "https://ebarrio-web-backend-test.onrender.com/api/checkrefreshtoken",
+        {
+          withCredentials: true,
+        }
+      )
       .then((response) => {
         console.log("You have a token");
         setUser(response.data.decoded);
@@ -49,7 +52,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/logout",
+        "https://ebarrio-web-backend-test.onrender.com/api/logout",
         {
           userID: user.userID,
         },
