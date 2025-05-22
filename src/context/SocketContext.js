@@ -21,6 +21,7 @@ export const SocketProvider = ({ children }) => {
       newSocket.emit("register", user.userID);
       if (user?.role === "Secretary" || user?.role === "Clerk") {
         newSocket.emit("join_announcements");
+        newSocket.emit("join_certificates");
       }
     });
 

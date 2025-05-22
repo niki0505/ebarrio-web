@@ -121,10 +121,7 @@ export const InfoProvider = ({ children }) => {
         setEmployees(updatedData.data);
       } else if (updatedData.type === "users") {
         setUsers(updatedData.data);
-      } else if (
-        updatedData.type === "certificates" &&
-        updatedData.source === "adminWatcher"
-      ) {
+      } else if (updatedData.type === "certificates") {
         console.log(updatedData.data);
         setCertificates(updatedData.data);
       } else if (updatedData.type === "emergencyhotlines") {
