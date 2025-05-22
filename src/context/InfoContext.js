@@ -111,6 +111,9 @@ export const InfoProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!socket) {
+      return;
+    }
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
         setResidents(updatedData.data);
@@ -135,7 +138,7 @@ export const InfoProvider = ({ children }) => {
     return () => {
       socket.off("dbChange");
     };
-  }, []);
+  }, [socket]);
 
   return (
     <InfoContext.Provider
