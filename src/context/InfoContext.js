@@ -3,17 +3,14 @@ import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { useRouteError } from "react-router-dom";
+import { SocketContext } from "./SocketContext";
 
 // Create a context for socket connection
-export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const socket = io("https://ebarrio-web-backend-test.onrender.com", {
-  withCredentials: true,
-});
-
 export const InfoProvider = ({ children }) => {
+  const { socket } = useContext(SocketContext);
   const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -141,29 +138,27 @@ export const InfoProvider = ({ children }) => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
-      <InfoContext.Provider
-        value={{
-          residents,
-          employees,
-          users,
-          certificates,
-          emergencyhotlines,
-          announcements,
-          courtreservations,
-          blotterreports,
-          fetchResidents,
-          fetchEmployees,
-          fetchUsers,
-          fetchCertificates,
-          fetchEmergencyHotlines,
-          fetchAnnouncements,
-          fetchReservations,
-          fetchBlotterReports,
-        }}
-      >
-        {children}
-      </InfoContext.Provider>
-    </SocketContext.Provider>
+    <InfoContext.Provider
+      value={{
+        residents,
+        employees,
+        users,
+        certificates,
+        emergencyhotlines,
+        announcements,
+        courtreservations,
+        blotterreports,
+        fetchResidents,
+        fetchEmployees,
+        fetchUsers,
+        fetchCertificates,
+        fetchEmergencyHotlines,
+        fetchAnnouncements,
+        fetchReservations,
+        fetchBlotterReports,
+      }}
+    >
+      {children}
+    </InfoContext.Provider>
   );
 };
