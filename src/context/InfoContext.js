@@ -3,7 +3,7 @@ import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { useRouteError } from "react-router-dom";
-import { SocketContext } from "./AuthContext";
+import { SocketContext } from "./SocketContext";
 
 // Create a context for socket connection
 
