@@ -3,14 +3,14 @@ import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { useRouteError } from "react-router-dom";
-import { useSocket } from "./SocketContext";
+import { SocketContext } from "./AuthContext";
 
 // Create a context for socket connection
 
 export const InfoContext = createContext(undefined);
 
 export const InfoProvider = ({ children }) => {
-  const { socket } = useSocket();
+  const { socket } = useContext(SocketContext);
   const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);

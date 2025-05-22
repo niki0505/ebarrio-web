@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const SocketContext = createContext();
+export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -40,5 +40,3 @@ export const SocketProvider = ({ children }) => {
     <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
 };
-
-export const useSocket = () => useContext(SocketContext);
