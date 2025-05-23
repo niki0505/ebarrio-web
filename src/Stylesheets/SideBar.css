@@ -46,7 +46,7 @@
 }
 .sidebar-menu {
   @apply h-[40px]
-    mt-3;
+    mt-5;
 }
 .sidebar-menu-item {
   @apply flex 

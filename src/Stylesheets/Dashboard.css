@@ -1,5 +1,5 @@
 .demog-card-container {
-  @apply bg-white rounded-[10px] h-20 p-3 shadow-md flex items-center p-4 relative;
+  @apply h-20 flex items-center relative bg-[#fff] rounded-[10px] p-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
 }
 
 .demog-card-left-border {
@@ -22,4 +22,11 @@
 
 .fc .fc-button:hover {
   @apply bg-[#0A7A9D];
+}
+
+.fc-event-title {
+  @apply font-title text-xs text-[#fff];
+}
+.fc-event-time {
+  @apply font-subTitle text-base text-[#fff];
 }

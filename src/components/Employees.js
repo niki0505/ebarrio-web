@@ -13,6 +13,8 @@ import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import EditEmployee from "./EditEmployee";
 import api from "../api";
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -25,6 +27,10 @@ function Employees({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleRowClick = (residentId) => {
     setExpandedRow(expandedRow === residentId ? null : residentId);
@@ -536,6 +542,16 @@ function Employees({ isCollapsed }) {
     setActiveClicked(false);
   };
 
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredEmployees.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -585,7 +601,7 @@ function Employees({ isCollapsed }) {
                 <td colSpan={4}>No results found</td>
               </tr>
             ) : (
-              filteredEmployees.map((emp) => (
+              currentRows.map((emp) => (
                 <React.Fragment key={emp._id}>
                   <tr
                     onClick={() => handleRowClick(emp._id)}
@@ -605,50 +621,74 @@ function Employees({ isCollapsed }) {
                             src={emp.resID.picture}
                             className="profile-img"
                           />
-                          <div className="ml-5 text-xs">
-                            <p>
-                              <strong>Name: </strong>
-                              {emp.resID.middlename
-                                ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                            </p>
-                            <p>
-                              <strong>Age:</strong> {emp.resID.age}
-                            </p>
-                            <p>
-                              <strong>Sex:</strong> {emp.resID.sex}
-                            </p>
-                            <p>
-                              <strong>Civil Status: </strong>{" "}
-                              {emp.resID.civilstatus}
-                            </p>
-                            <p>
-                              <strong>Mobile Number: </strong>{" "}
-                              {emp.resID.mobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong> {emp.resID.address}
-                            </p>
-                            <p>
-                              <strong>Position: </strong> {emp.position}
-                            </p>
+                          <div className="ml-5 mr-28 text-xs">
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">
+                                {emp.resID.middlename
+                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                              </p>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Age: </h1>
+                              <p className="font-medium">{emp.resID.age}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Sex: </h1>
+                              <p className="font-medium">{emp.resID.sex}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Civil Status: </h1>
+                              <p className="font-medium">
+                                {emp.resID.civilstatus}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile Number: </h1>
+                              <p className="font-medium">
+                                {emp.resID.mobilenumber}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">{emp.resID.address}</p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Position: </h1>
+                              <p className="font-medium">{emp.position}</p>
+                            </div>
                           </div>
-                          <div className="ml-5 text-xs">
-                            <p>
-                              <strong>Emergency Contact:</strong>
-                            </p>
-                            <p>
-                              <strong>Name: </strong>
-                              {emp.resID.emergencyname}
-                            </p>
-                            <p>
-                              <strong>Mobile: </strong>
-                              {emp.resID.emergencymobilenumber}
-                            </p>
-                            <p>
-                              <strong>Address: </strong>
-                              {emp.resID.emergencyaddress}
-                            </p>
+                          <div className="text-xs">
+                            <div className="mb-2">
+                              <h1 className="font-bold text-sm">
+                                EMERGENCY CONTACT{" "}
+                              </h1>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Name: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencyname}
+                              </p>
+                            </div>
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Mobile: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencymobilenumber}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-row gap-x-2">
+                              <h1 className="font-bold">Address: </h1>
+                              <p className="font-medium">
+                                {emp.resID.emergencyaddress}
+                              </p>
+                            </div>
                           </div>
                         </div>
                         <div className="btn-container">
@@ -705,6 +745,53 @@ function Employees({ isCollapsed }) {
             )}
           </tbody>
         </table>
+        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
+          <div className="flex items-center space-x-1">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+                <MdArrowDropDown size={18} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+            </button>
+          </div>
+        </div>
         {isCreateClicked && (
           <CreateEmployee onClose={() => setCreateClicked(false)} />
         )}

@@ -102,7 +102,7 @@ const Login = () => {
       <img
         src={AppLogo}
         alt="App Logo"
-        className={`w-[312px] h-[312px] absolute transition-all duration-[2000ms] ease-in-out
+        className={`w-[350px] h-[350px] absolute transition-all duration-[2000ms] ease-in-out
           ${animateScale ? "scale-100 opacity-100" : "scale-50 opacity-0"}
           ${animateMove ? "translate-x-[-20vw]" : "translate-x-0"}
         `}
@@ -120,38 +120,45 @@ const Login = () => {
             }
           `}
         >
-          <div className="mb-4">
-            <h1 className="header-text">Welcome!</h1>
-            <label className="text-[#ACACAC] font-subTitle font-semibold">
-              Please enter your credentials to log in.
-            </label>
-          </div>
+          <div className="flex flex-col gap-8">
+            <div>
+              <h1 className="header-text">Welcome!</h1>
+              <label className="text-[#808080] font-subTitle font-semibold">
+                Please enter your credentials to log in.
+              </label>
+            </div>
 
-          <input
-            type="text"
-            placeholder="Enter username"
-            onChange={(e) => setUsername(e.target.value)}
-            className="form-input h-[35px]"
-          />
-          <input
-            type="password"
-            placeholder="Enter password"
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-input h-[35px]"
-          />
-          <button
-            onClick={handleLogin}
-            type="submit"
-            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
-          >
-            Login
-          </button>
-          <a
-            href="/forgot-password"
-            className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-          >
-            Forgot password?
-          </a>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                placeholder="Enter username"
+                onChange={(e) => setUsername(e.target.value)}
+                className="form-input"
+              />
+              <input
+                type="password"
+                placeholder="Enter password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleLogin}
+                type="submit"
+                className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
+              >
+                Login
+              </button>
+              <a
+                href="/forgot-password"
+                className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+              >
+                Forgot password?
+              </a>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -13,6 +13,7 @@ import { storage } from "../firebase";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+import { GrNext } from "react-icons/gr";
 
 function SettleBlotter({ isCollapsed }) {
   const location = useLocation();
@@ -246,7 +247,16 @@ function SettleBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Settle Agreement Form</div>
+        <div className="flex flex-row gap-x-3 items-center">
+          <h1
+            onClick={() => navigation("/blotter-reports")}
+            className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+          >
+            Blotter Reports
+          </h1>
+          <GrNext className="text-[#7D7979] text-lg font-bold" />
+          <h1 className="header-text">Settle Agreement</h1>
+        </div>
 
         <div className="white-bg-container">
           {/*Complainant Information*/}
@@ -397,7 +407,7 @@ function SettleBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 readOnly
-                className="form-input h-[10rem]"
+                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>
@@ -418,7 +428,7 @@ function SettleBlotter({ isCollapsed }) {
                 id="agreementdetails"
                 name="agreementdetails"
                 value={settleForm.agreementdetails}
-                className="form-input h-[10rem]"
+                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">
                 {settleForm.agreementdetails.length}/1000

@@ -3,7 +3,7 @@
 }
 
 .modal-image {
-  @apply h-[400px] max-w-full rounded-xl;
+  @apply h-[400px] max-w-full rounded-xl mb-4;
 }
 
 .success-message {

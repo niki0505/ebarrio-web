@@ -8,19 +8,19 @@
   @apply font-bold mb-2;
 }
 .announcement-left-container {
-  @apply bg-gray-200 rounded-[15px];
+  @apply bg-gray-200 rounded-md mt-2;
 }
 .announcement-center-panel {
   @apply w-2/5 p-4;
 }
 .announcement-create {
-  @apply flex flex-row p-2 rounded-md shadow-md mb-4 bg-white;
+  @apply flex flex-row p-3 rounded-md shadow-md mb-4 bg-white;
 }
 .announcement-create-button {
   @apply border border-btn-color-gray rounded-[15px] w-full text-start;
 }
 .announcement-card {
-  @apply relative bg-white p-2 mb-4 rounded-md shadow-md;
+  @apply relative bg-white p-3 mb-4 rounded-md shadow-md;
 }
 .announcement-menu {
   @apply absolute bg-white border shadow-md right-0 mt-6 w-24;
@@ -29,7 +29,7 @@
   @apply rounded-full w-10 h-10 mr-2 object-contain;
 }
 .announcement-info-label {
-  @apply text-[#ACACAC] text-sm font-subTitle font-bold;
+  @apply text-[#808080] text-sm font-subTitle font-bold;
 }
 .announcement-info-value {
   @apply text-sm font-subTitle font-bold;
@@ -38,10 +38,10 @@
   @apply p-4 border-l w-full lg:w-2/5;
 }
 .announcement-sort-container {
-  @apply flex ml-auto border border-btn-color-gray bg-white w-[5rem] h-[2rem] mb-4 rounded-md shadow-md;
+  @apply flex ml-auto border border-btn-color-gray bg-white w-[6rem] h-[2rem] mb-4 rounded-md shadow-md px-2;
 }
 .announcement-pin-date-menu {
-  @apply absolute top-2 right-2 flex flex-col sm:flex-row gap-2;
+  @apply absolute top-3 right-3 flex flex-col sm:flex-row gap-2;
 }
 .announcement-sort-dropdown {
   @apply text-sm font-semibold w-full h-full rounded-md font-subTitle;
@@ -53,8 +53,8 @@
   @apply w-full border border-solid border-gray-300 p-4 rounded-[15px];
 }
 .create-announcement-fixed-btns {
-  @apply flex flex-row items-center justify-between border p-3 w-full rounded-[15px] border-btn-color-gray mb-4;
+  @apply flex flex-row items-center justify-between border p-3 w-full rounded-[8px] border-btn-color-gray mb-4;
 }
 .create-announcement-event-details {
-  @apply w-[30rem] h-[20rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 border border-navy-blue rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
+  @apply w-[30rem] h-[20rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
 }

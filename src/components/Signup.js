@@ -217,87 +217,90 @@ function Signup() {
           alt="App Logo"
           className="w-[312px] h-[312px] translate-x-[-20vw]"
         />
-        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
-          <span className="header-text">Create your account</span>
-          <input
-            type="text"
-            placeholder="First Name"
-            onChange={(e) => firstnameValidation(e.target.value)}
-            value={firstname}
-            className="form-input h-[35px]"
-          />
-          {fnameError ? (
-            <p className="error-input-message">{fnameError}</p>
-          ) : null}
+        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-8">
+          <h1 className="header-text">Create your account</h1>
 
-          <input
-            type="text"
-            placeholder="Last Name"
-            onChange={(e) => lastnameValidation(e.target.value)}
-            value={lastname}
-            className="form-input h-[35px]"
-          />
-          {lnameError ? (
-            <p className="error-input-message">{lnameError}</p>
-          ) : null}
+          <div className="flex flex-col gap-4">
+            <input
+              type="text"
+              placeholder="First Name"
+              onChange={(e) => firstnameValidation(e.target.value)}
+              value={firstname}
+              className="form-input"
+            />
+            {fnameError ? (
+              <p className="error-input-message">{fnameError}</p>
+            ) : null}
 
-          <input
-            type="text"
-            placeholder="Mobile Number"
-            onChange={(e) => mobilenumValidation(e.target.value)}
-            value={mobilenumber}
-            maxLength={11}
-            className="form-input h-[35px]"
-          />
-          {mobilenumError ? (
-            <p className="error-input-message">{mobilenumError}</p>
-          ) : null}
+            <input
+              type="text"
+              placeholder="Last Name"
+              onChange={(e) => lastnameValidation(e.target.value)}
+              value={lastname}
+              className="form-input"
+            />
+            {lnameError ? (
+              <p className="error-input-message">{lnameError}</p>
+            ) : null}
 
-          <input
-            type="text"
-            placeholder="Username"
-            onChange={(e) => usernameValidation(e.target.value)}
-            value={username}
-            className="form-input h-[35px]"
-          />
+            <input
+              type="text"
+              placeholder="Mobile Number"
+              onChange={(e) => mobilenumValidation(e.target.value)}
+              value={mobilenumber}
+              maxLength={11}
+              className="form-input"
+            />
+            {mobilenumError ? (
+              <p className="error-input-message">{mobilenumError}</p>
+            ) : null}
 
-          {usernameErrors.length > 0 &&
-            usernameErrors.map((error, index) => (
-              <p key={index} className="error-input-message">
-                {error}
-              </p>
-            ))}
+            <input
+              type="text"
+              placeholder="Username"
+              onChange={(e) => usernameValidation(e.target.value)}
+              value={username}
+              className="form-input"
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => passwordValidation(e.target.value)}
-            value={password}
-            className="form-input h-[35px]"
-          />
+            {usernameErrors.length > 0 &&
+              usernameErrors.map((error, index) => (
+                <p key={index} className="error-input-message">
+                  {error}
+                </p>
+              ))}
 
-          {passwordErrors.length > 0 &&
-            passwordErrors.map((error, index) => (
-              <p key={index} className="error-input-message">
-                {error}
-              </p>
-            ))}
+            <input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => passwordValidation(e.target.value)}
+              value={password}
+              className="form-input"
+            />
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            onChange={(e) => password2Validation(e.target.value)}
-            value={password2}
-            className="form-input h-[35px]"
-          />
-          {password2Errors ? (
-            <p className="error-input-message">{password2Errors}</p>
-          ) : null}
+            {passwordErrors.length > 0 &&
+              passwordErrors.map((error, index) => (
+                <p key={index} className="error-input-message">
+                  {error}
+                </p>
+              ))}
+
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              onChange={(e) => password2Validation(e.target.value)}
+              value={password2}
+              className="form-input"
+            />
+            {password2Errors ? (
+              <p className="error-input-message">{password2Errors}</p>
+            ) : null}
+          </div>
 
           <button
             onClick={handleSignUp}
             type="submit"
-            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
+            className="px-8 py-3 rounded-[8px] items-center text-[#fff] shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue font-bold text-[20px] hover:bg-[#0A7A9D]"
           >
             Sign up
           </button>

@@ -62,32 +62,40 @@ function OpenCamera({ onDone, onClose }) {
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
           <div className="modal-content h-[30rem] w-[45rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Picture</div>
-              <button className="modal-btn-close">
-                <IoClose className="modal-btn-close-icon" onClick={onClose} />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Picture</h1>
+                  <IoClose
+                    onClick={onClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <div className="modal-form-container flex flex-col items-center justify-center">
-              {hasCamera ? (
-                imageSrc ? (
-                  <img className="modal-image" src={imageSrc} />
-                ) : (
-                  !loading && (
-                    <Webcam
-                      className="modal-image"
-                      ref={webRef}
-                      screenshotFormat="image/png"
-                    />
+              <div>
+                {hasCamera ? (
+                  imageSrc ? (
+                    <img className="modal-image" src={imageSrc} />
+                  ) : (
+                    !loading && (
+                      <Webcam
+                        className="modal-image"
+                        ref={webRef}
+                        screenshotFormat="image/png/jpg"
+                      />
+                    )
                   )
-                )
-              ) : (
-                <p>
-                  No camera detected. Please ensure it's connected or installed
-                  properly.
-                </p>
-              )}
+                ) : (
+                  <p className="mb-5">
+                    No camera detected. Please ensure it's connected or
+                    installed properly.
+                  </p>
+                )}
+              </div>
 
               {imageSrc && !loading && (
                 <p className="success-message">
@@ -95,7 +103,7 @@ function OpenCamera({ onDone, onClose }) {
                 </p>
               )}
 
-              <div className="flex flex-row gap-5">
+              <div className="flex flex-row gap-x-5">
                 {imageSrc && !loading ? (
                   <button
                     className="actions-btn bg-btn-color-blue"
@@ -135,7 +143,7 @@ function OpenCamera({ onDone, onClose }) {
                     className={
                       hasCamera
                         ? "actions-btn bg-btn-color-blue"
-                        : "actions-btn bg-btn-color-blue cursor-not-allowed mt-5"
+                        : "actions-btn bg-btn-color-blue cursor-not-allowed"
                     }
                     onClick={capture}
                     disabled={!hasCamera}
@@ -148,7 +156,7 @@ function OpenCamera({ onDone, onClose }) {
                   className={
                     imageSrc
                       ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
-                      : "actions-btn bg-btn-color-gray cursor-not-allowed mt-5"
+                      : "actions-btn bg-btn-color-gray cursor-not-allowed"
                   }
                   onClick={handleDoneClick}
                   disabled={!imageSrc}

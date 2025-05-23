@@ -105,7 +105,7 @@ function OTP() {
         <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
           <div className="mb-4">
             <h1 className="header-text">Account Verification</h1>
-            <label className="text-[#ACACAC] font-subTitle font-semibold">
+            <label className="text-[#808080] font-subTitle font-semibold">
               Enter the 6 digit code sent to {mobilenumber}
             </label>
           </div>
