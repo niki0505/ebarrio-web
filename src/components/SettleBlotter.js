@@ -13,6 +13,7 @@ import { storage } from "../firebase";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+import { GrNext } from "react-icons/gr";
 
 function SettleBlotter({ isCollapsed }) {
   const location = useLocation();
@@ -246,7 +247,16 @@ function SettleBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Settle Agreement Form</div>
+        <div className="flex flex-row gap-x-3 items-center">
+          <h1
+            onClick={() => navigation("/blotter-reports")}
+            className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+          >
+            Blotter Reports
+          </h1>
+          <GrNext className="text-[#7D7979] text-lg font-bold" />
+          <h1 className="header-text">Settle Agreement</h1>
+        </div>
 
         <div className="white-bg-container">
           {/*Complainant Information*/}

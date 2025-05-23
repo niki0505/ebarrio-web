@@ -223,7 +223,7 @@ function CreateReservation({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[30rem] w-[30rem]">
+          <div className="modal-content h-[32rem] w-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -293,7 +293,7 @@ function CreateReservation({ onClose }) {
                     type="date"
                     id="date"
                     name="date"
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     onChange={handleDateChange}
                     min={new Date().toISOString().split("T")[0]}
                   />
@@ -307,7 +307,7 @@ function CreateReservation({ onClose }) {
                     id="starttime"
                     name="starttime"
                     onChange={handleStartTimeChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     value={
                       reservationForm.starttime
                         ? new Date(reservationForm.starttime)
@@ -326,7 +326,7 @@ function CreateReservation({ onClose }) {
                     id="endtime"
                     name="endtime"
                     onChange={handleEndTimeChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     value={
                       reservationForm.endtime
                         ? new Date(reservationForm.endtime)

@@ -292,6 +292,60 @@ function Dashboard({ isCollapsed }) {
     }
   };
 
+  //To set the frequency (y-axis) of graph
+  const maxDocumentFrequency = Math.max(
+    ...documentChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Issued || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  const maxReservationFrequency = Math.max(
+    ...reservationChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Issued || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  const maxBlotterFrequency = Math.max(
+    ...blotterChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Scheduled || 0,
+      d.Settled || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  function roundUp(value, step) {
+    return Math.ceil(value / step) * step;
+  }
+
+  // to generate even ticks
+  function generateTicks(maxValue, numberOfTicks = 6) {
+    if (maxValue === 0) return [0];
+
+    const interval = maxValue / (numberOfTicks - 1);
+    const ticks = [];
+
+    for (let i = 0; i < numberOfTicks; i++) {
+      ticks.push(Math.round(interval * i));
+    }
+
+    // Rounded to remove duplicate
+    return [...new Set(ticks)].sort((a, b) => a - b);
+  }
+
+  // Round up max frequencies to nearest 5
+  const roundedMaxDocumentFrequency = roundUp(maxDocumentFrequency, 5);
+  const roundedMaxReservationFrequency = roundUp(maxReservationFrequency, 5);
+  const roundedMaxBlotterFrequency = roundUp(maxBlotterFrequency, 5);
+
+  const documentYTicks = generateTicks(roundedMaxDocumentFrequency);
+  const reservationYTicks = generateTicks(roundedMaxReservationFrequency);
+  const blotterYTicks = generateTicks(roundedMaxBlotterFrequency);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -433,7 +487,11 @@ function Dashboard({ isCollapsed }) {
                             )}
                           />
 
-                          <YAxis />
+                          <YAxis
+                            domain={[0, roundedMaxDocumentFrequency]}
+                            ticks={documentYTicks}
+                          />
+
                           <Tooltip />
                           <Legend
                             wrapperStyle={{
@@ -501,7 +559,10 @@ function Dashboard({ isCollapsed }) {
                               </text>
                             )}
                           />
-                          <YAxis />
+                          <YAxis
+                            domain={[0, roundedMaxReservationFrequency]}
+                            ticks={reservationYTicks}
+                          />
                           <Tooltip />
                           <Legend
                             wrapperStyle={{
@@ -573,19 +634,8 @@ function Dashboard({ isCollapsed }) {
                           )}
                         />
                         <YAxis
-                          tick={({ x, y, payload }) => (
-                            <text
-                              x={x}
-                              y={y}
-                              textAnchor="middle"
-                              fontSize={14}
-                              fontFamily="Quicksand"
-                              fill="#04384E"
-                              fontWeight="600"
-                            >
-                              {payload.value}
-                            </text>
-                          )}
+                          domain={[0, roundedMaxBlotterFrequency]}
+                          ticks={blotterYTicks}
                         />
 
                         <Tooltip />
@@ -656,7 +706,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#FA7020] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#FFB200] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Public Safety & Emergency
                   </span>

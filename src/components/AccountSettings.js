@@ -1400,7 +1400,7 @@ function AccountSettings({ isCollapsed }) {
                           </select>
                         </div>
                       </div>
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4">Siblings</label>
                           <input
@@ -1418,7 +1418,7 @@ function AccountSettings({ isCollapsed }) {
                         </div>
                       )}
 
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4 ">Children</label>
                           <input
@@ -1634,7 +1634,7 @@ function AccountSettings({ isCollapsed }) {
                 <div className="header-text">Change Username</div>
                 <div className="p-4">
                   <div>
-                    <label>Current Username</label>
+                    <label className="form-label">Current Username</label>
                     <div>
                       <label className="text-[#808080]">{user.username}</label>
                     </div>

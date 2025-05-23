@@ -86,7 +86,7 @@ function EditEmployee({ onClose, empID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[10rem] ">
+          <div className="modal-content w-[30rem] h-[12rem] ">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">

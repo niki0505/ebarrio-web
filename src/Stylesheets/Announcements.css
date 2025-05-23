@@ -29,7 +29,7 @@
   @apply rounded-full w-10 h-10 mr-2 object-contain;
 }
 .announcement-info-label {
-  @apply text-[#ACACAC] text-sm font-subTitle font-bold;
+  @apply text-[#808080] text-sm font-subTitle font-bold;
 }
 .announcement-info-value {
   @apply text-sm font-subTitle font-bold;

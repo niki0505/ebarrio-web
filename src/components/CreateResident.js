@@ -9,6 +9,7 @@ import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { BiSolidImageAlt } from "react-icons/bi";
+import { GrNext } from "react-icons/gr";
 
 function CreateResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -517,7 +518,16 @@ function CreateResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <h1 className="header-text">Create Resident</h1>
+      <div className="flex flex-row gap-x-3 items-center">
+        <h1
+          onClick={() => navigation("/residents")}
+          className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+        >
+          Residents
+        </h1>
+        <GrNext className="text-[#7D7979] text-lg font-bold" />
+        <h1 className="header-text">Create Resident</h1>
+      </div>
 
       {/* Personal Information */}
       <div className="white-bg-container">
@@ -1272,7 +1282,7 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="function-btn-container mt-4">
+          <div className="function-btn-container">
             <button
               type="button"
               className="actions-btn bg-btn-color-gray hover:bg-gray-400"

@@ -9,6 +9,7 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { useConfirm } from "../context/ConfirmContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { GrNext } from "react-icons/gr";
 
 function EditResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -583,7 +584,16 @@ function EditResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <h1 className="header-text">Edit Resident</h1>
+      <div className="flex flex-row gap-x-3 items-center">
+        <h1
+          onClick={() => navigation("/residents")}
+          className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+        >
+          Residents
+        </h1>
+        <GrNext className="text-[#7D7979] text-lg font-bold" />
+        <h1 className="header-text">Edit Resident</h1>
+      </div>
 
       {/* Personal Information */}
       <div className="white-bg-container">
@@ -1143,7 +1153,7 @@ function EditResident({ isCollapsed }) {
               </select>
             </div>
           </div>
-          <div className="form-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label mt-4">Siblings</label>
               <input
@@ -1159,7 +1169,7 @@ function EditResident({ isCollapsed }) {
             <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
           )}
 
-          <div className="form-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label mt-4">Children</label>
               <input
@@ -1342,10 +1352,10 @@ function EditResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="function-btn-container">
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="actions-btn bg-btn-color-blue mt-4"
+              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
             >
               Submit
             </button>

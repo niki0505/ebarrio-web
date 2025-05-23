@@ -139,7 +139,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
             }`}
           >
             <h1 className="sidebar-app-name">eBarrio</h1>
-            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#ACACAC] font-subTitle font-semibold hidden md:block lg:block">
+            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#808080] font-subTitle font-semibold hidden md:block lg:block">
               Barangay Management <br /> Disaster Response System
             </label>
           </span>

@@ -212,7 +212,7 @@ function ForgotPassword() {
                 <button
                   type="submit"
                   onClick={handleSubmit}
-                  className="actions-btn bg-btn-color-blue font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
+                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
                 >
                   Submit
                 </button>
@@ -278,7 +278,7 @@ function ForgotPassword() {
                         <button
                           type="button"
                           onClick={handleSuccessful}
-                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
+                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full mt-5 text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Submit
                         </button>
@@ -409,7 +409,7 @@ function ForgotPassword() {
                         <button
                           type="button"
                           onClick={handleQuestionVerify}
-                          className="actions-btn bg-btn-color-blue w-full mt-5 font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
+                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full mt-5 text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Next
                         </button>

@@ -314,7 +314,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                   </div>
 
                   {/*CATEGORY, TITLE, CONTENT*/}
-                  <div className="flex flex-row w-full">
+                  <div className="flex flex-row w-full gap-x-4">
                     <div className="employee-form-group">
                       <label for="resID" className="form-label">
                         Category<label className="text-red-600">*</label>
@@ -420,14 +420,17 @@ function EditAnnouncement({ onClose, announcementID }) {
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
                         <div className="create-announcement-event-details">
-                          <div className="modal-title-bar">
-                            <h1 className="modal-title">Event Details</h1>
-                            <button className="modal-btn-close">
-                              <IoClose
-                                className="modal-btn-close-icon"
-                                onClick={handleCancel}
-                              />
-                            </button>
+                          <div className="dialog-title-bar">
+                            <div className="flex flex-col w-full">
+                              <div className="dialog-title-bar-items">
+                                <h1 className="modal-title">Event Details</h1>
+                                <IoClose
+                                  onClick={handleCancel}
+                                  class="dialog-title-bar-icon"
+                                ></IoClose>
+                              </div>
+                              <hr className="dialog-line" />
+                            </div>
                           </div>
 
                           <div className="modal-form-container">
@@ -440,7 +443,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                                   value={announcementForm.eventDate}
                                   name="eventDate"
                                   onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
+                                  className="form-input h-[30px] text-base pr-2"
                                 />
                               </div>
 
@@ -451,7 +454,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                                   name="eventStartTime"
                                   value={announcementForm.eventStartTime}
                                   onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
+                                  className="form-input h-[30px] text-base pr-2"
                                 />
                               </div>
 
@@ -462,7 +465,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                                   name="eventEndTime"
                                   value={announcementForm.eventEndTime}
                                   onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
+                                  className="form-input h-[30px] text-base pr-2"
                                 />
                               </div>
 

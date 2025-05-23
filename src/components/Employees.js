@@ -13,6 +13,8 @@ import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import EditEmployee from "./EditEmployee";
 import api from "../api";
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -25,6 +27,10 @@ function Employees({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleRowClick = (residentId) => {
     setExpandedRow(expandedRow === residentId ? null : residentId);
@@ -536,6 +542,16 @@ function Employees({ isCollapsed }) {
     setActiveClicked(false);
   };
 
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredEmployees.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -585,7 +601,7 @@ function Employees({ isCollapsed }) {
                 <td colSpan={4}>No results found</td>
               </tr>
             ) : (
-              filteredEmployees.map((emp) => (
+              currentRows.map((emp) => (
                 <React.Fragment key={emp._id}>
                   <tr
                     onClick={() => handleRowClick(emp._id)}
@@ -729,6 +745,53 @@ function Employees({ isCollapsed }) {
             )}
           </tbody>
         </table>
+        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
+          <div className="flex items-center space-x-1">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+                <MdArrowDropDown size={18} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+            </button>
+          </div>
+        </div>
         {isCreateClicked && (
           <CreateEmployee onClose={() => setCreateClicked(false)} />
         )}

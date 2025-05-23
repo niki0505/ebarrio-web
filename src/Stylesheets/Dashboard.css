@@ -23,3 +23,10 @@
 .fc .fc-button:hover {
   @apply bg-[#0A7A9D];
 }
+
+.fc-event-title {
+  @apply font-title text-xs text-[#fff];
+}
+.fc-event-time {
+  @apply font-subTitle text-base text-[#fff];
+}

@@ -300,7 +300,7 @@ function Signup() {
           <button
             onClick={handleSignUp}
             type="submit"
-            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px] hover:bg-[#0A7A9D]"
+            className="px-8 py-3 rounded-[8px] items-center text-[#fff] shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue font-bold text-[20px] hover:bg-[#0A7A9D]"
           >
             Sign up
           </button>

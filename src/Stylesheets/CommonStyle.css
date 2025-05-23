@@ -18,7 +18,7 @@
   mt-[theme('spacing.navbar-height')];
 }
 .header-text {
-  @apply text-[30px] font-extrabold font-title text-navy-blue;
+  @apply text-[30px] font-bold font-title text-navy-blue;
 }
 .subHeader-text {
   @apply font-subTitle text-navy-blue;
@@ -36,7 +36,7 @@
   @apply p-5 flex justify-end gap-4 mt-[-20px];
 }
 .actions-btn {
-  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap;
+  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
 }
 
 /*TABLE*/
