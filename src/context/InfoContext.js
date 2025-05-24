@@ -113,32 +113,32 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    socket.on("dbChange", (updatedData) => {
-      if (updatedData.type === "residents") {
-        setResidents(updatedData.data);
-      } else if (updatedData.type === "employees") {
-        setEmployees(updatedData.data);
-      } else if (updatedData.type === "users") {
-        setUsers(updatedData.data);
-      } else if (updatedData.type === "certificates") {
-        console.log(updatedData.data);
-        setCertificates(updatedData.data);
-      } else if (updatedData.type === "emergencyhotlines") {
-        setEmergencyHotlines(updatedData.data);
-      } else if (updatedData.type === "announcements") {
-        setAnnouncements(updatedData.data);
-      } else if (updatedData.type === "courtreservations") {
-        setCourtReservations(updatedData.data);
-      } else if (updatedData.type === "blotterreports") {
-        setBlotterReports(updatedData.data);
-      }
-    });
+  // useEffect(() => {
+  //   socket.on("dbChange", (updatedData) => {
+  //     if (updatedData.type === "residents") {
+  //       setResidents(updatedData.data);
+  //     } else if (updatedData.type === "employees") {
+  //       setEmployees(updatedData.data);
+  //     } else if (updatedData.type === "users") {
+  //       setUsers(updatedData.data);
+  //     } else if (updatedData.type === "certificates") {
+  //       console.log(updatedData.data);
+  //       setCertificates(updatedData.data);
+  //     } else if (updatedData.type === "emergencyhotlines") {
+  //       setEmergencyHotlines(updatedData.data);
+  //     } else if (updatedData.type === "announcements") {
+  //       setAnnouncements(updatedData.data);
+  //     } else if (updatedData.type === "courtreservations") {
+  //       setCourtReservations(updatedData.data);
+  //     } else if (updatedData.type === "blotterreports") {
+  //       setBlotterReports(updatedData.data);
+  //     }
+  //   });
 
-    return () => {
-      socket.off("dbChange");
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("dbChange");
+  //   };
+  // }, []);
 
   return (
     <SocketContext.Provider value={{ socket }}>

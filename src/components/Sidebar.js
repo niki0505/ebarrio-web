@@ -50,7 +50,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Document Requests",
       icon: <IoDocumentTextSharp />,
-      path: "/certificate-requests",
+      path: "/document-requests",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Court Reservations",

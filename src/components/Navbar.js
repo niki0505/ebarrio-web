@@ -7,21 +7,27 @@ import { AuthContext } from "../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { InfoContext } from "../context/InfoContext";
 import { IoNotifications } from "react-icons/io5";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { IoIosArrowDown } from "react-icons/io";
-
+import api from "../api";
+import { SocketContext } from "../context/SocketContext";
 const Navbar = ({ isCollapsed }) => {
+  dayjs.extend(relativeTime);
   const location = useLocation();
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
   const [notificationDropdown, setnotificatioDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
+  const { fetchNotifications, notifications } = useContext(SocketContext);
   const { isAuthenticated } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState(null);
   const [name, setName] = useState(null);
 
   useEffect(() => {
     fetchResidents();
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
@@ -45,6 +51,15 @@ const Navbar = ({ isCollapsed }) => {
     setnotificatioDropdown(!notificationDropdown);
   };
 
+  const handleNotif = async (notifID, redirectTo) => {
+    try {
+      await api.put(`/readnotification/${notifID}`);
+      navigation(redirectTo);
+    } catch (error) {
+      console.log("Error in reading notification", error);
+    }
+  };
+
   return (
     <>
       <header
@@ -59,6 +74,26 @@ const Navbar = ({ isCollapsed }) => {
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-white shadow-md rounded-md w-[16rem] h-[20rem] overflow-y-auto hide-scrollbar">
                 <ul className="w-full inline-flex py-2 cursor-pointer items-center"></ul>
+                {[...notifications]
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                  .map((notif, index) => {
+                    return (
+                      <div
+                        onClick={() => handleNotif(notif._id, notif.redirectTo)}
+                        style={{ cursor: "pointer" }}
+                        key={index}
+                      >
+                        <label>
+                          {!notif.read ? (
+                            <label style={{ color: "blue" }}>Blue Circle</label>
+                          ) : null}
+                        </label>
+                        <label>{notif.title}</label>
+                        <label>{notif.message}</label>
+                        <label>{dayjs(notif.createdAt).fromNow()}</label>
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>
