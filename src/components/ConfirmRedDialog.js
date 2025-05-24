@@ -5,7 +5,7 @@ import "../Stylesheets/Dialog.css";
 const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="modal-container">
-      <div className="modal-content h-[15rem] w-[30rem]">
+      <div className="modal-content h-[18rem] w-[30rem]">
         <div className="dialog-title-bar">
           <div className="flex flex-col w-full">
             <div className="dialog-title-bar-items">

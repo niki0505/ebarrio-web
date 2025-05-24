@@ -2,6 +2,8 @@ import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
+import { IoClose } from "react-icons/io5";
+import { MdOutlineQuestionMark } from "react-icons/md";
 
 function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   const { logout, user } = useContext(AuthContext);
@@ -69,30 +71,59 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   return (
     <>
       {showModal && (
-        <div className="modal-container">
+        <div className="h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-95 z-50">
           <div className="modal-content w-[30rem] h-[15rem] ">
-            <h2>Session Expired</h2>
-            <p>You've been inactive for 15 minutes.</p>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleConfirm();
-                }
-              }}
-              placeholder="Enter your password"
-            />
-            {passwordError && (
-              <label className="text-[12px] text-red-600 m-0">
-                {passwordError}
-              </label>
-            )}
-            <button>Log Out</button>
-            <button onClick={handleConfirm}>Stay Logged In</button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="dialog-title-bar-title">Session Expired</h1>
+                </div>
+                <hr className="dialog-line" />
+              </div>
+            </div>
+
+            <div className="modal-form-container flex flex-col items-center justify-center">
+              <div class="bg-[rgba(4,56,78,0.3)] p-3 rounded-full">
+                <MdOutlineQuestionMark className="text-white text-4xl" />
+              </div>
+
+              <h2>Session Expired</h2>
+              <p>You've been inactive for 15 minutes.</p>
+
+              <div className="mt-4">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleConfirm();
+                    }
+                  }}
+                  placeholder="Enter your password"
+                  className="form-input"
+                />
+                {passwordError && (
+                  <label className="text-[12px] text-red-600 m-0">
+                    {passwordError}
+                  </label>
+                )}
+              </div>
+
+              <div className="flex gap-x-4">
+                <button className="actions-btn bg-btn-color-red hover:bg-red-700">
+                  Log Out
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                >
+                  Stay Logged In
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

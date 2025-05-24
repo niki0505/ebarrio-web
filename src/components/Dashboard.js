@@ -6,6 +6,16 @@ import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "../Stylesheets/Dashboard.css";
 import api from "../api";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
+import { ResponsiveContainer } from "recharts";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
@@ -189,17 +199,17 @@ function Dashboard({ isCollapsed }) {
           end: a.eventEnd,
           backgroundColor:
             a.category === "General"
-              ? "#E3DE48"
-              : a.category === "Public Safety & Emergency"
-              ? "#FA7020"
+              ? "#FF0000"
               : a.category === "Health & Sanitation"
-              ? "#E3DE48"
-              : a.category === "Social Services"
-              ? "#50C700"
-              : a.category === "Infrastructure"
-              ? "#0E94D3"
+              ? "#FA7020"
+              : a.category === "Public Safety & Emergency"
+              ? "#FFB200"
               : a.category === "Education & Youth"
-              ? "#1E0ED3"
+              ? "#0E94D3"
+              : a.category === "Social Services"
+              ? "#CF0ED3"
+              : a.category === "Infrastructure"
+              ? "#06D001"
               : "#3174ad",
         }));
 
@@ -238,6 +248,103 @@ function Dashboard({ isCollapsed }) {
 
     return parsedDate.toISOString();
   }
+
+  //To render the document requests, reservation requests, and blotters in bar graph
+  const documentChartData = Object.entries(documentData).map(
+    ([month, counts]) => ({
+      month,
+      ...counts,
+    })
+  );
+
+  const reservationChartData = Object.entries(reservationData).map(
+    ([month, counts]) => ({
+      month,
+      ...counts,
+    })
+  );
+
+  const blotterChartData = Object.entries(blotterData).map(
+    ([month, counts]) => ({
+      month,
+      ...counts,
+    })
+  );
+
+  //To show single graph per status when click
+  const allDocumentStatuses = ["Pending", "Issued", "Rejected"];
+  const allReservationStatuses = ["Pending", "Approved", "Rejected"];
+  const allBlotterStatuses = ["Pending", "Scheduled", "Rejected", "Settled"];
+
+  const [activeDocumentKeys, setActiveDocumentKeys] =
+    useState(allDocumentStatuses);
+  const [activeReservationKeys, setActiveReservationKeys] = useState(
+    allReservationStatuses
+  );
+  const [activeBlotterKeys, setActiveBlotterKeys] =
+    useState(allBlotterStatuses);
+
+  const handleLegendClick = (dataKey, activeKeys, setActiveKeys, allKeys) => {
+    if (activeKeys.length === 1 && activeKeys[0] === dataKey) {
+      setActiveKeys(allKeys);
+    } else {
+      setActiveKeys([dataKey]);
+    }
+  };
+
+  //To set the frequency (y-axis) of graph
+  const maxDocumentFrequency = Math.max(
+    ...documentChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Issued || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  const maxReservationFrequency = Math.max(
+    ...reservationChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Issued || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  const maxBlotterFrequency = Math.max(
+    ...blotterChartData.flatMap((d) => [
+      d.Pending || 0,
+      d.Scheduled || 0,
+      d.Settled || 0,
+      d.Rejected || 0,
+    ])
+  );
+
+  function roundUp(value, step) {
+    return Math.ceil(value / step) * step;
+  }
+
+  // to generate even ticks
+  function generateTicks(maxValue, numberOfTicks = 6) {
+    if (maxValue === 0) return [0];
+
+    const interval = maxValue / (numberOfTicks - 1);
+    const ticks = [];
+
+    for (let i = 0; i < numberOfTicks; i++) {
+      ticks.push(Math.round(interval * i));
+    }
+
+    // Rounded to remove duplicate
+    return [...new Set(ticks)].sort((a, b) => a - b);
+  }
+
+  // Round up max frequencies to nearest 5
+  const roundedMaxDocumentFrequency = roundUp(maxDocumentFrequency, 5);
+  const roundedMaxReservationFrequency = roundUp(maxReservationFrequency, 5);
+  const roundedMaxBlotterFrequency = roundUp(maxBlotterFrequency, 5);
+
+  const documentYTicks = generateTicks(roundedMaxDocumentFrequency);
+  const reservationYTicks = generateTicks(roundedMaxReservationFrequency);
+  const blotterYTicks = generateTicks(roundedMaxBlotterFrequency);
 
   return (
     <>
@@ -347,25 +454,244 @@ function Dashboard({ isCollapsed }) {
 
         <div className="mt-8">
           <h1 className="text-[20px] font-title font-semibold">Reports</h1>
-          {(user.role === "Secretary" || user.role === "Clerk") && (
-            <>{/* Bar Graph of Certificates & Reservations */}</>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+            {(user.role === "Secretary" || user.role === "Clerk") && (
+              <>
+                {/* Document Requests */}
+                <div className="col-span-1 white-bg-container">
+                  <h2 className="text-base font-medium text-center text-navy-blue">
+                    Document Requests
+                  </h2>
+                  {documentChartData.length > 0 ? (
+                    <div className="w-full h-[18rem]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={documentChartData}
+                          margin={{ top: 20, right: 30, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis
+                            dataKey="month"
+                            tick={({ x, y, payload }) => (
+                              <text
+                                x={x}
+                                y={y + 15}
+                                textAnchor="middle"
+                                fontSize={14}
+                                fontFamily="Quicksand"
+                                fill="#04384E"
+                                fontWeight="600"
+                              >
+                                {payload.value}
+                              </text>
+                            )}
+                          />
 
-          {(user.role === "Justice" || user.role === "Secretary") && (
-            <>{/* Bar Graph of Blotters */}</>
-          )}
+                          <YAxis
+                            domain={[0, roundedMaxDocumentFrequency]}
+                            ticks={documentYTicks}
+                          />
+
+                          <Tooltip />
+                          <Legend
+                            wrapperStyle={{
+                              fontSize: "14px",
+                              fontWeight: 600,
+                              color: "#04384E",
+                              fontFamily: "Quicksand",
+                            }}
+                            onClick={(e) =>
+                              handleLegendClick(
+                                e.dataKey,
+                                activeDocumentKeys,
+                                setActiveDocumentKeys,
+                                allDocumentStatuses
+                              )
+                            }
+                          />
+                          {activeDocumentKeys.includes("Pending") && (
+                            <Bar dataKey="Pending" fill="#FFC107" />
+                          )}
+                          {activeDocumentKeys.includes("Issued") && (
+                            <Bar dataKey="Issued" fill="#4CAF50" />
+                          )}
+                          {activeDocumentKeys.includes("Rejected") && (
+                            <Bar dataKey="Rejected" fill="#F63131" />
+                          )}
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="w-full h-[18rem] flex items-center justify-center">
+                      <h1 className="text-center text-gray-600">
+                        No document request data available.
+                      </h1>
+                    </div>
+                  )}
+                </div>
+
+                {/* Court Reservations */}
+                <div className="col-span-1 white-bg-container">
+                  <h2 className="text-base font-medium text-center text-navy-blue">
+                    Court Reservation
+                  </h2>
+                  {reservationChartData.length > 0 ? (
+                    <div className="w-full h-[18rem]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={reservationChartData}
+                          margin={{ top: 20, right: 30, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis
+                            dataKey="month"
+                            tick={({ x, y, payload }) => (
+                              <text
+                                x={x}
+                                y={y + 15}
+                                textAnchor="middle"
+                                fontSize={14}
+                                fontFamily="Quicksand"
+                                fill="#04384E"
+                                fontWeight="600"
+                              >
+                                {payload.value}
+                              </text>
+                            )}
+                          />
+                          <YAxis
+                            domain={[0, roundedMaxReservationFrequency]}
+                            ticks={reservationYTicks}
+                          />
+                          <Tooltip />
+                          <Legend
+                            wrapperStyle={{
+                              fontSize: "14px",
+                              fontWeight: 600,
+                              color: "#04384E",
+                              fontFamily: "Quicksand",
+                            }}
+                            onClick={(e) =>
+                              handleLegendClick(
+                                e.dataKey,
+                                activeReservationKeys,
+                                setActiveReservationKeys,
+                                allReservationStatuses
+                              )
+                            }
+                          />
+                          {activeReservationKeys.includes("Pending") && (
+                            <Bar dataKey="Pending" fill="#FFC107" />
+                          )}
+                          {activeReservationKeys.includes("Approved") && (
+                            <Bar dataKey="Approved" fill="#4CAF50" />
+                          )}
+                          {activeReservationKeys.includes("Rejected") && (
+                            <Bar dataKey="Rejected" fill="#F63131" />
+                          )}
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="w-full h-[18rem] flex items-center justify-center">
+                      <h1 className="text-center text-gray-600">
+                        No court reservation data available.
+                      </h1>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Blotter Reports */}
+            {(user.role === "Justice" || user.role === "Secretary") && (
+              <div className="col-span-2 white-bg-container">
+                <h2 className="text-base font-medium text-center text-navy-blue">
+                  Blotter Reports
+                </h2>
+                {blotterChartData.length > 0 ? (
+                  <div className="w-full h-[18rem]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={blotterChartData}
+                        margin={{ top: 20, right: 30, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="month"
+                          tick={({ x, y, payload }) => (
+                            <text
+                              x={x}
+                              y={y + 15}
+                              textAnchor="middle"
+                              fontSize={14}
+                              fontFamily="Quicksand"
+                              fill="#04384E"
+                              fontWeight="600"
+                            >
+                              {payload.value}
+                            </text>
+                          )}
+                        />
+                        <YAxis
+                          domain={[0, roundedMaxBlotterFrequency]}
+                          ticks={blotterYTicks}
+                        />
+
+                        <Tooltip />
+                        <Legend
+                          wrapperStyle={{
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: "#04384E",
+                            fontFamily: "Quicksand",
+                          }}
+                          onClick={(e) =>
+                            handleLegendClick(
+                              e.dataKey,
+                              activeBlotterKeys,
+                              setActiveBlotterKeys,
+                              allBlotterStatuses
+                            )
+                          }
+                        />
+                        {activeBlotterKeys.includes("Pending") && (
+                          <Bar dataKey="Pending" fill="#FFC107" />
+                        )}
+                        {activeBlotterKeys.includes("Scheduled") && (
+                          <Bar dataKey="Scheduled" fill="#0096FF" />
+                        )}
+                        {activeBlotterKeys.includes("Settled") && (
+                          <Bar dataKey="Settled" fill="#4CAF50" />
+                        )}
+                        {activeBlotterKeys.includes("Rejected") && (
+                          <Bar dataKey="Rejected" fill="#F63131" />
+                        )}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="w-full h-[18rem] flex items-center justify-center">
+                    <h1 className="text-center text-gray-600">
+                      No blotter report data available.
+                    </h1>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-8">
           <h1 className="text-[20px] font-title font-semibold">
             Events Calendar
           </h1>
-          <div className="bg-white p-2 rounded-md">
+          <div className="white-bg-container">
             <div className="form-grid mt-4 mb-4">
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
                     General
                   </span>
                 </div>
@@ -373,47 +699,47 @@ function Dashboard({ isCollapsed }) {
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#FA7020] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
-                    Public Safety & Emergency
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#E3DE48] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
                     Health & Sanitation
                   </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#50C700] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
-                    Social Services
+                  <div className="bg-[#FFB200] w-4 h-4 rounded-md"></div>
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
+                    Public Safety & Emergency
                   </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
                   <div className="bg-[#0E94D3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
-                    Infrastructure
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#1E0ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
                     Education & Youth
                   </span>
                 </div>
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
+                  <div className="bg-[#CF0ED3] w-4 h-4 rounded-md"></div>
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
+                    Social Services
+                  </span>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="flex flex-row items-center">
+                  <div className="bg-[#06D001] w-4 h-4 rounded-md"></div>
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
+                    Infrastructure
+                  </span>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="flex flex-row items-center">
                   <div className="bg-[#770ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-[14px] font-title font-medium">
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
                     Court Reservation
                   </span>
                 </div>
