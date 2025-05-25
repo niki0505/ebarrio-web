@@ -18,9 +18,9 @@ function ViewBlotter({ onClose, blotterID }) {
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [showModal, setShowModal] = useState(true);
   const [scheduleForm, setScheduleForm] = useState({
-    date: null,
-    starttime: null,
-    endtime: null,
+    date: "",
+    starttime: "",
+    endtime: "",
   });
   const [expandedDetails, setExpandedDetails] = useState([]);
 
@@ -69,136 +69,117 @@ function ViewBlotter({ onClose, blotterID }) {
   };
 
   const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    const dateParts = selectedDate.split("-");
-    const newDate = new Date(
-      Date.UTC(
-        Number(dateParts[0]),
-        Number(dateParts[1]) - 1,
-        Number(dateParts[2])
-      )
-    );
+    const newDateStr = e.target.value;
 
-    const prevStartTime = new Date(scheduleForm.starttime);
-    const prevEndTime = new Date(scheduleForm.endtime);
-
-    const updatedStarttime = new Date(newDate);
-    updatedStarttime.setHours(prevStartTime.getHours());
-    updatedStarttime.setMinutes(prevStartTime.getMinutes());
-
-    const updatedEndtime = new Date(newDate);
-    updatedEndtime.setHours(prevEndTime.getHours());
-    updatedEndtime.setMinutes(prevEndTime.getMinutes());
-
-    setScheduleForm((prev) => ({
-      ...prev,
-      date: newDate.toISOString().split("T")[0],
-      starttime: null,
-      endtime: null,
-    }));
+    setScheduleForm((prev) => {
+      return {
+        ...prev,
+        date: newDateStr,
+        starttime: "",
+        endtime: "",
+      };
+    });
   };
 
   const checkIfTimeSlotIsAvailable = (startTime, endTime) => {
     const selectedStartTime = new Date(startTime);
     const selectedEndTime = new Date(endTime);
 
-    return blotterreports
+    const parseCustomDate = (dateStr) => {
+      const [datePart, timePart] = dateStr.split(" at ");
+      return new Date(`${datePart} ${timePart}`);
+    };
+
+    if (
+      isNaN(selectedStartTime.getTime()) ||
+      isNaN(selectedEndTime.getTime())
+    ) {
+      console.warn("Invalid selected time range");
+      return { isAvailable: false, conflict: null };
+    }
+
+    const conflict = blotterreports
       .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-      .every((blot) => {
-        const reservedStart = new Date(blot.starttime);
-        const reservedEnd = new Date(blot.endtime);
-        if (
-          (selectedStartTime >= reservedStart &&
-            selectedStartTime < reservedEnd) ||
-          (selectedEndTime > reservedStart && selectedEndTime <= reservedEnd)
-        ) {
-          return false;
+      .find((blot) => {
+        const reservedStart = parseCustomDate(blot.starttime);
+        const reservedEnd = parseCustomDate(blot.endtime);
+
+        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
+          return false; // skip invalid records
         }
+
         return (
-          selectedEndTime <= reservedStart || selectedStartTime >= reservedEnd
+          selectedStartTime < reservedEnd && selectedEndTime > reservedStart
         );
       });
+
+    if (conflict) {
+      return {
+        isAvailable: false,
+        conflict: {
+          start: parseCustomDate(conflict.starttime),
+          end: parseCustomDate(conflict.endtime),
+        },
+      };
+    }
+
+    return { isAvailable: true, conflict: null };
   };
 
   const handleStartTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
+    const newStartTime = new Date(`${scheduleForm.date}T${time}:00`);
 
-    const newStartTime = new Date(scheduleForm.date || new Date());
-    newStartTime.setHours(Number(hours));
-    newStartTime.setMinutes(Number(minutes));
-
-    if (!checkIfTimeSlotIsAvailable(newStartTime, scheduleForm.endtime)) {
-      const conflictingBlotter = blotterreports
-        .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-        .find((blot) => {
-          const reservedStart = new Date(blot.starttime);
-          const reservedEnd = new Date(blot.endtime);
-
-          return (
-            (newStartTime >= reservedStart && newStartTime < reservedEnd) ||
-            (newStartTime < reservedStart &&
-              scheduleForm.endtime > reservedStart)
-          );
-        });
-
-      if (conflictingBlotter) {
-        const newStartTimeAfterConflict = new Date(conflictingBlotter.endtime);
-        alert(
-          `The time slot overlaps with an existing blotter. Your start time has been updated to ${newStartTimeAfterConflict.toLocaleTimeString()} (the end time of the previous blotter).`
-        );
-
-        setScheduleForm((prev) => ({
-          ...prev,
-          starttime: newStartTimeAfterConflict.toISOString(),
-          endtime: null,
-        }));
-      }
+    if (!scheduleForm.date) {
+      alert("Please select a date first.");
       return;
     }
 
     setScheduleForm((prev) => ({
       ...prev,
       starttime: newStartTime.toISOString(),
-      endtime: null,
+      endtime: "",
     }));
   };
 
   const handleEndTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
-
-    const newEndTime = new Date(scheduleForm.date || new Date());
-    newEndTime.setHours(Number(hours));
-    newEndTime.setMinutes(Number(minutes));
-
+    const newEndTime = new Date(`${scheduleForm.date}T${time}:00`);
     const startTime = new Date(scheduleForm.starttime);
+    if (!scheduleForm.date) {
+      alert("Please select a date first.");
+      return;
+    }
+    if (!scheduleForm.starttime) {
+      alert("Please select a start time first.");
+      return;
+    }
 
     if (newEndTime <= startTime) {
       alert("End time must be after the start time.");
       return;
     }
 
-    if (!checkIfTimeSlotIsAvailable(startTime, newEndTime)) {
-      const conflictingBlotter = blotterreports
-        .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-        .find((blot) => {
-          const reservedStart = new Date(blot.starttime);
-          const reservedEnd = new Date(blot.endtime);
+    const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
+      startTime,
+      newEndTime
+    );
 
-          return startTime < reservedEnd && newEndTime > reservedStart;
-        });
-
-      if (conflictingBlotter) {
-        const suggestedEndTime = new Date(conflictingBlotter.starttime);
-        alert(
-          `The selected end time overlaps with another reservation. It should end before ${suggestedEndTime.toLocaleTimeString()}.`
-        );
-        setScheduleForm((prev) => ({
-          ...prev,
-          endtime: suggestedEndTime.toISOString(),
-        }));
-      }
+    if (!isAvailable) {
+      const conflictInfo = conflict
+        ? `This time slot overlaps with an existing schedule of ${conflict.start.toLocaleTimeString(
+            [],
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )} - ${conflict.end.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`
+        : "This time slot overlaps with another schedule.";
+      alert(conflictInfo);
+      setScheduleForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
 
@@ -285,6 +266,14 @@ function ViewBlotter({ onClose, blotterID }) {
         )}
       </div>
     );
+  };
+
+  const formatTimeToHHMM = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -382,7 +371,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     <div className="col-span-1">
                       <label className="form-label">Type of the Incident</label>
                       <label className="text-sm font-regular">
-                        {blotter.type}
+                        {blotter.typeofthecomplaint}
                       </label>
                     </div>
                     <div className="col-span-3">
@@ -423,13 +412,7 @@ function ViewBlotter({ onClose, blotterID }) {
                             name="starttime"
                             className="form-input h-[30px] pr-2"
                             onChange={handleStartTimeChange}
-                            value={
-                              scheduleForm.starttime
-                                ? new Date(scheduleForm.starttime)
-                                    .toTimeString()
-                                    .slice(0, 5)
-                                : ""
-                            }
+                            value={formatTimeToHHMM(scheduleForm.starttime)}
                           />
                         </div>
                         <div>
@@ -440,13 +423,7 @@ function ViewBlotter({ onClose, blotterID }) {
                             name="endtime"
                             className="form-input h-[30px] pr-2"
                             onChange={handleEndTimeChange}
-                            value={
-                              scheduleForm.endtime
-                                ? new Date(scheduleForm.endtime)
-                                    .toTimeString()
-                                    .slice(0, 5)
-                                : ""
-                            }
+                            value={formatTimeToHHMM(scheduleForm.endtime)}
                           />
                         </div>
                       </div>

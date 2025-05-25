@@ -257,14 +257,14 @@ function Accounts({ isCollapsed }) {
                       </div>
                     )}
 
-                    <div className="table-actions-container">
+                    {/* <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">
                         <FaArchive className="text-lg text-btn-color-blue" />
                         <label className="text-xs font-semibold text-btn-color-blue">
                           Archive
                         </label>
                       </button>
-                    </div>
+                    </div> */}
                   </td>
                 </tr>
               ))

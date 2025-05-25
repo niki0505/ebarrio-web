@@ -5,7 +5,7 @@ import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
@@ -25,6 +25,8 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
+  const location = useLocation();
+  const { cancelled } = location.state || {};
   const navigation = useNavigate();
   const { fetchReservations, courtreservations } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
@@ -41,6 +43,15 @@ function CourtReservations({ isCollapsed }) {
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  useEffect(() => {
+    if (cancelled) {
+      setRejectedClicked(true);
+      setPendingClicked(false);
+      setApprovedClicked(false);
+    }
+    console.log(cancelled);
+  }, [cancelled]);
 
   useEffect(() => {
     fetchReservations();
@@ -69,7 +80,7 @@ function CourtReservations({ isCollapsed }) {
       );
     } else if (isRejectedClicked) {
       filtered = courtreservations.filter(
-        (court) => court.status === "Rejected"
+        (court) => court.status === "Rejected" || court.status === "Cancelled"
       );
     }
     if (search) {
@@ -166,9 +177,14 @@ function CourtReservations({ isCollapsed }) {
   };
 
   //For Pagination
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+
+  const sortedFilteredCourt = [...filteredReservations].sort(
+    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
+  );
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredReservations.slice(
+  const currentRows = sortedFilteredCourt.slice(
     indexOfFirstRow,
     indexOfLastRow
   );
@@ -207,7 +223,7 @@ function CourtReservations({ isCollapsed }) {
                 isRejectedClicked ? "status-line" : ""
               }`}
             >
-              Rejected
+              Cancelled/Rejected
             </p>
           </div>
           <button className="add-container" onClick={handleAdd}>
@@ -248,7 +264,7 @@ function CourtReservations({ isCollapsed }) {
                 );
 
                 return (
-                  <tr key={court.resID._id}>
+                  <tr key={court._id}>
                     <td className="p-2">
                       {court.resID.middlename
                         ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
@@ -288,9 +304,11 @@ function CourtReservations({ isCollapsed }) {
                         </>
                       </td>
                     )}
-                    {isRejectedClicked && court.status == "Rejected" && (
-                      <td>{court.remarks}</td>
-                    )}
+                    {isRejectedClicked &&
+                      (court.status == "Rejected" ||
+                        court.status == "Cancelled") && (
+                        <td>{court.remarks}</td>
+                      )}
                   </tr>
                 );
               })

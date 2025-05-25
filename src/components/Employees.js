@@ -15,6 +15,7 @@ import EditEmployee from "./EditEmployee";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import EmployeeID from "./id/EmployeeID";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -75,195 +76,10 @@ function Employees({ isCollapsed }) {
           try {
             const response = await api.get(`/getemployee/${empID}`);
             const response2 = await api.get(`/getcaptain/`);
-            const printContent = (
-              <div id="printContent">
-                <div className="id-page">
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "65px",
-                      left: "60px",
-                      width: "80px",
-                      height: "75px",
-                    }}
-                  >
-                    <img
-                      style={{ width: "100%", height: "100%" }}
-                      src={response.data.resID.picture}
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "150px",
-                      left: "28px",
-                      width: "150px",
-                      height: "40px",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "11px",
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {response.data.resID.middlename
-                        ? `${
-                            response.data.resID.firstname
-                          } ${response.data.resID.middlename.substring(
-                            0,
-                            1
-                          )}. ${response.data.resID.lastname}`
-                        : `${response.data.resID.firstname} ${response.data.resID.lastname}`}
-                    </p>
-                    <p style={{ fontSize: "11px", textAlign: "center" }}>
-                      {response.data.position}
-                    </p>
-                  </div>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "220px",
-                      left: "41px",
-                      width: "40px",
-                      height: "40px",
-                    }}
-                  >
-                    <img
-                      style={{ width: "100%", height: "100%" }}
-                      src={response.data.employeeID[0]?.qrCode}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "266px",
-                      left: "41px",
-                      width: "70px",
-                      height: "10px",
-                    }}
-                  >
-                    <p style={{ fontSize: "8px" }}>
-                      {response.data.resID.brgyID[0]?.idNumber}
-                    </p>
-                  </div>
-                  <img className="id-img" src={EmployeeIDFront} />
-                </div>
-                <div className="id-page">
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "467px",
-                      left: "30px",
-                      width: "150px",
-                      height: "70px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "flex-end",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <img
-                      style={{
-                        position: "absolute",
-                        width: "80px",
-                        height: "80px",
-                      }}
-                      src={response2.data.resID.signature}
-                    />
-                    <p
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                      }}
-                    >
-                      {response2.data.resID.firstname}{" "}
-                      {response2.data.resID.lastname}
-                    </p>
-                  </div>
-                  <img className="id-img" src={EmployeeIDBack} />
-                </div>
-              </div>
-            );
-
-            const printDiv = document.createElement("div");
-            document.body.appendChild(printDiv);
-
-            const root = ReactDOM.createRoot(printDiv);
-            root.render(printContent);
-
-            const printStyle = document.createElement("style");
-            printStyle.innerHTML = `
-                  @page {
-                    size: 54mm 86mm;
-                    margin: 0;
-                  }
-            
-                 @media screen {
-                  #printContent, #printContent * {
-                    display: none;
-                  }
-                }
-                  @media print {
-                    html, body {
-                      margin: 0 !important;
-                      padding: 0 !important;
-                      width: 54mm !important;
-                      height: 86mm !important;
-                      overflow: hidden !important;
-                    }
-            
-                    body * {
-                      visibility: hidden;
-                    }
-            
-                    #printContent, #printContent * {
-                      visibility: visible;
-                    }
-            
-                    #printContent {
-                      position: absolute;
-                      top: 0;
-                      left: 0;
-                      width: 54mm;
-                      height: 86mm;
-                    }
-            
-                    .id-page {
-                      width: 54mm;
-                      height: 86mm;
-                      overflow: hidden;
-                      margin: 0;
-                      padding: 0;
-                      page-break-after: avoid;
-                    }
-            
-                    .id-img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    display: block;
-                  }
-            
-                `;
-
-            document.head.appendChild(printStyle);
-
-            window.onbeforeprint = () => {
-              console.log("Barangay ID is generated.");
-            };
-            window.onafterprint = () => {
-              console.log("Barangay ID is issued.");
-              document.body.removeChild(printDiv);
-              document.head.removeChild(printStyle);
-            };
-
-            setTimeout(() => {
-              window.print();
-            }, 1000);
+            EmployeeID({
+              empData: response.data,
+              captainData: response2.data,
+            });
           } catch (error) {
             console.log("Error viewing current employee ID", error);
           }
@@ -277,194 +93,10 @@ function Employees({ isCollapsed }) {
       try {
         const response = await api.get(`/getemployee/${empID}`);
         const response2 = await api.get(`/getcaptain/`);
-        const printContent = (
-          <div id="printContent">
-            <div className="id-page">
-              <div
-                style={{
-                  position: "absolute",
-                  top: "65px",
-                  left: "60px",
-                  width: "80px",
-                  height: "75px",
-                }}
-              >
-                <img
-                  style={{ width: "100%", height: "100%" }}
-                  src={response.data.resID.picture}
-                />
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  top: "150px",
-                  left: "28px",
-                  width: "150px",
-                  height: "40px",
-                }}
-              >
-                <p
-                  style={{
-                    fontSize: "11px",
-                    textAlign: "center",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {response.data.resID.middlename
-                    ? `${
-                        response.data.resID.firstname
-                      } ${response.data.resID.middlename.substring(0, 1)}. ${
-                        response.data.resID.lastname
-                      }`
-                    : `${response.data.resID.firstname} ${response.data.resID.lastname}`}
-                </p>
-                <p style={{ fontSize: "11px", textAlign: "center" }}>
-                  {response.data.position}
-                </p>
-              </div>
-              <div
-                style={{
-                  position: "absolute",
-                  top: "220px",
-                  left: "41px",
-                  width: "40px",
-                  height: "40px",
-                }}
-              >
-                <img
-                  style={{ width: "100%", height: "100%" }}
-                  src={response.data.employeeID[0]?.qrCode}
-                />
-              </div>
-              <div
-                style={{
-                  position: "absolute",
-                  top: "266px",
-                  left: "41px",
-                  width: "70px",
-                  height: "10px",
-                }}
-              >
-                <p style={{ fontSize: "8px" }}>
-                  {response.data.employeeID[0]?.idNumber}
-                </p>
-              </div>
-              <img className="id-img" src={EmployeeIDFront} />
-            </div>
-            <div className="id-page">
-              <div
-                style={{
-                  position: "absolute",
-                  top: "467px",
-                  left: "30px",
-                  width: "150px",
-                  height: "70px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-end",
-                  flexDirection: "column",
-                }}
-              >
-                <img
-                  style={{
-                    position: "absolute",
-                    width: "80px",
-                    height: "80px",
-                  }}
-                  src={response2.data.resID.signature}
-                />
-                <p
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                  }}
-                >
-                  {response2.data.resID.firstname}{" "}
-                  {response2.data.resID.lastname}
-                </p>
-              </div>
-              <img className="id-img" src={EmployeeIDBack} />
-            </div>
-          </div>
-        );
-
-        const printDiv = document.createElement("div");
-        document.body.appendChild(printDiv);
-
-        const root = ReactDOM.createRoot(printDiv);
-        root.render(printContent);
-
-        const printStyle = document.createElement("style");
-        printStyle.innerHTML = `
-              @page {
-                size: 54mm 86mm;
-                margin: 0;
-              }
-        
-             @media screen {
-              #printContent, #printContent * {
-                display: none;
-              }
-            }
-              @media print {
-                html, body {
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  width: 54mm !important;
-                  height: 86mm !important;
-                  overflow: hidden !important;
-                }
-        
-                body * {
-                  visibility: hidden;
-                }
-        
-                #printContent, #printContent * {
-                  visibility: visible;
-                }
-        
-                #printContent {
-                  position: absolute;
-                  top: 0;
-                  left: 0;
-                  width: 54mm;
-                  height: 86mm;
-                }
-        
-                .id-page {
-                  width: 54mm;
-                  height: 86mm;
-                  overflow: hidden;
-                  margin: 0;
-                  padding: 0;
-                  page-break-after: avoid;
-                }
-        
-                .id-img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-              }
-        
-            `;
-
-        document.head.appendChild(printStyle);
-
-        window.onbeforeprint = () => {
-          console.log("Barangay ID is generated.");
-        };
-        window.onafterprint = () => {
-          console.log("Barangay ID is issued.");
-          document.body.removeChild(printDiv);
-          document.head.removeChild(printStyle);
-        };
-
-        setTimeout(() => {
-          window.print();
-        }, 1000);
+        EmployeeID({
+          empData: response.data,
+          captainData: response2.data,
+        });
       } catch (error) {
         console.log("Error viewing current employee ID", error);
       }
@@ -601,147 +233,151 @@ function Employees({ isCollapsed }) {
                 <td colSpan={4}>No results found</td>
               </tr>
             ) : (
-              currentRows.map((emp) => (
-                <React.Fragment key={emp._id}>
-                  <tr
-                    onClick={() => handleRowClick(emp._id)}
-                    className="border-t transition-colors duration-300 ease-in-out"
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f0f0f0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                    }}
-                  >
-                    {expandedRow === emp._id ? (
-                      <td colSpan={4}>
-                        {/* Additional Information for the resident */}
-                        <div className="profile-container">
-                          <img
-                            src={emp.resID.picture}
-                            className="profile-img"
-                          />
-                          <div className="ml-5 mr-28 text-xs">
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Name: </h1>
-                              <p className="font-medium">
-                                {emp.resID.middlename
-                                  ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                  : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                              </p>
-                            </div>
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Age: </h1>
-                              <p className="font-medium">{emp.resID.age}</p>
-                            </div>
+              currentRows
+                .sort((a, b) => {
+                  const nameA = `${a.resID.lastname}`.toLowerCase();
+                  const nameB = `${b.resID.lastname}`.toLowerCase();
+                  return nameA.localeCompare(nameB);
+                })
+                .map((emp) => (
+                  <React.Fragment key={emp._id}>
+                    <tr
+                      onClick={() => handleRowClick(emp._id)}
+                      className="border-t transition-colors duration-300 ease-in-out"
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                      }}
+                    >
+                      {expandedRow === emp._id ? (
+                        <td colSpan={4}>
+                          {/* Additional Information for the resident */}
+                          <div className="profile-container">
+                            <img
+                              src={emp.resID.picture}
+                              className="profile-img"
+                            />
+                            <div className="ml-5 mr-28 text-xs">
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Name: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.middlename
+                                    ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                    : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                </p>
+                              </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Age: </h1>
+                                <p className="font-medium">{emp.resID.age}</p>
+                              </div>
 
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Sex: </h1>
-                              <p className="font-medium">{emp.resID.sex}</p>
-                            </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Sex: </h1>
+                                <p className="font-medium">{emp.resID.sex}</p>
+                              </div>
 
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Civil Status: </h1>
-                              <p className="font-medium">
-                                {emp.resID.civilstatus}
-                              </p>
-                            </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Civil Status: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.civilstatus}
+                                </p>
+                              </div>
 
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Mobile Number: </h1>
-                              <p className="font-medium">
-                                {emp.resID.mobilenumber}
-                              </p>
-                            </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Mobile Number: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.mobilenumber}
+                                </p>
+                              </div>
 
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Address: </h1>
-                              <p className="font-medium">{emp.resID.address}</p>
-                            </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Address: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.address}
+                                </p>
+                              </div>
 
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Position: </h1>
-                              <p className="font-medium">{emp.position}</p>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Position: </h1>
+                                <p className="font-medium">{emp.position}</p>
+                              </div>
+                              {emp.position === "Kagawad" && (
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Chairmanship: </h1>
+                                  <p className="font-medium">
+                                    {emp.chairmanship}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs">
+                              <div className="mb-2">
+                                <h1 className="font-bold text-sm">
+                                  EMERGENCY CONTACT{" "}
+                                </h1>
+                              </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Name: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.emergencyname}
+                                </p>
+                              </div>
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Mobile: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.emergencymobilenumber}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-row gap-x-2">
+                                <h1 className="font-bold">Address: </h1>
+                                <p className="font-medium">
+                                  {emp.resID.emergencyaddress}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-xs">
-                            <div className="mb-2">
-                              <h1 className="font-bold text-sm">
-                                EMERGENCY CONTACT{" "}
-                              </h1>
-                            </div>
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Name: </h1>
-                              <p className="font-medium">
-                                {emp.resID.emergencyname}
-                              </p>
-                            </div>
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Mobile: </h1>
-                              <p className="font-medium">
-                                {emp.resID.emergencymobilenumber}
-                              </p>
-                            </div>
-
-                            <div className="flex flex-row gap-x-2">
-                              <h1 className="font-bold">Address: </h1>
-                              <p className="font-medium">
-                                {emp.resID.emergencyaddress}
-                              </p>
-                            </div>
+                          <div className="btn-container">
+                            <button
+                              className="actions-btn bg-btn-color-red hover:bg-red-700"
+                              type="submit"
+                              onClick={(e) => archiveBtn(e, emp._id)}
+                            >
+                              ARCHIVE
+                            </button>
+                            <button
+                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                              type="submit"
+                              onClick={(e) => handleEmployeeID(e, emp._id)}
+                            >
+                              EMPLOYEE ID
+                            </button>
+                            <button
+                              className="actions-btn bg-btn-color-blue"
+                              type="submit"
+                              onClick={(e) => editBtn(e, emp._id)}
+                            >
+                              EDIT POSITION
+                            </button>
                           </div>
-                        </div>
-                        <div className="btn-container">
-                          <button
-                            className="actions-btn bg-btn-color-red hover:bg-red-700"
-                            type="submit"
-                            onClick={(e) => archiveBtn(e, emp._id)}
-                          >
-                            ARCHIVE
-                          </button>
-                          <button
-                            className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                            type="submit"
-                            onClick={(e) => handleEmployeeID(e, emp._id)}
-                          >
-                            EMPLOYEE ID
-                          </button>
-                          <button
-                            className="actions-btn bg-btn-color-blue"
-                            type="submit"
-                            onClick={(e) => editBtn(e, emp._id)}
-                          >
-                            EDIT POSITION
-                          </button>
-                        </div>
-                      </td>
-                    ) : (
-                      <>
-                        <td>
-                          {emp.resID.middlename
-                            ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                            : `${emp.resID.lastname} ${emp.resID.firstname}`}
                         </td>
-                        <td>{emp.resID.mobilenumber}</td>
-                        <td>{emp.resID.address}</td>
-                        <td>{emp.position}</td>
-                        {/* {emp.position === "Justice" && (
+                      ) : (
+                        <>
                           <td>
-                            {emp.assignedweeks} - {emp.assignedday}
+                            {emp.resID.middlename
+                              ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                              : `${emp.resID.lastname} ${emp.resID.firstname}`}
                           </td>
-                        )}
-                        {(emp.position === "Secretary" ||
-                          emp.position === "Clerk" ||
-                          emp.position === "Captain") && (
-                          <td>Monday - Friday</td>
-                        )}
-                        {(emp.position === "Kagawad" ||
-                          emp.position === "Tanod") && <td>On-Call</td>} */}
-                      </>
-                    )}
-                  </tr>
-                </React.Fragment>
-              ))
+                          <td>{emp.resID.mobilenumber}</td>
+                          <td>{emp.resID.address}</td>
+                          <td>{emp.position}</td>
+                        </>
+                      )}
+                    </tr>
+                  </React.Fragment>
+                ))
             )}
           </tbody>
         </table>

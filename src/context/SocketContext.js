@@ -48,7 +48,17 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("announcement", (announcement) => {
-      toast.info(announcement.message || "You have a new announcement!");
+      toast.info(
+        <>
+          <div
+            onClick={() => navigation("/announcements")}
+            style={{ cursor: "pointer" }}
+          >
+            <strong>{announcement.title}</strong>
+            <div>{announcement.message}</div>
+          </div>
+        </>
+      );
     });
 
     newSocket.on("notificationUpdate", (updatedNotifications) => {
@@ -59,10 +69,17 @@ export const SocketProvider = ({ children }) => {
       toast.info(
         <>
           <div
-            onClick={() => navigation("/document-requests")}
+            onClick={() =>
+              navigation("/document-requests", {
+                state:
+                  certificate.cancelled !== undefined
+                    ? { cancelled: certificate.cancelled }
+                    : undefined,
+              })
+            }
             style={{ cursor: "pointer" }}
           >
-            <strong>📄 {certificate.title}</strong>
+            <strong>{certificate.title}</strong>
             <div>{certificate.message}</div>
           </div>
         </>
@@ -78,6 +95,27 @@ export const SocketProvider = ({ children }) => {
           >
             <strong>📄 {blotter.title}</strong>
             <div>{blotter.message}</div>
+          </div>
+        </>
+      );
+    });
+
+    newSocket.on("courtreservations", (court) => {
+      toast.info(
+        <>
+          <div
+            onClick={() =>
+              navigation("/court-reservations", {
+                state:
+                  court.cancelled !== undefined
+                    ? { cancelled: court.cancelled }
+                    : undefined,
+              })
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <strong>{court.title}</strong>
+            <div>{court.message}</div>
           </div>
         </>
       );

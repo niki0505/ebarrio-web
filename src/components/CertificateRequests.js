@@ -5,7 +5,7 @@ import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
@@ -23,6 +23,8 @@ import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function CertificateRequests({ isCollapsed }) {
+  const location = useLocation();
+  const { cancelled } = location.state || {};
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchCertificates, certificates } = useContext(InfoContext);
@@ -54,6 +56,19 @@ function CertificateRequests({ isCollapsed }) {
   };
 
   useEffect(() => {
+    console.log("location.state:", location.state);
+  }, []);
+
+  useEffect(() => {
+    if (cancelled) {
+      setRejectedClicked(true);
+      setPendingClicked(false);
+      setIssuedClicked(false);
+    }
+    console.log(cancelled);
+  }, [cancelled]);
+
+  useEffect(() => {
     fetchCertificates();
   }, []);
 
@@ -65,7 +80,9 @@ function CertificateRequests({ isCollapsed }) {
     } else if (isIssuedClicked) {
       filtered = certificates.filter((cert) => cert.status === "Issued");
     } else if (isRejectedClicked) {
-      filtered = certificates.filter((cert) => cert.status === "Rejected");
+      filtered = certificates.filter(
+        (cert) => cert.status === "Rejected" || cert.status === "Cancelled"
+      );
     }
     if (search) {
       filtered = filtered.filter((cert) => {
@@ -205,12 +222,14 @@ function CertificateRequests({ isCollapsed }) {
   };
 
   //For Pagination
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+
+  const sortedFilteredCert = [...filteredCertificates].sort(
+    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
+  );
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredCertificates.slice(
-    indexOfFirstRow,
-    indexOfLastRow
-  );
+  const currentRows = sortedFilteredCert.slice(indexOfFirstRow, indexOfLastRow);
   const totalRows = filteredCertificates.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
 
@@ -246,7 +265,7 @@ function CertificateRequests({ isCollapsed }) {
               isRejectedClicked ? "border-b-4 border-btn-color-blue" : ""
             }`}
           >
-            Rejected
+            Cancelled/Rejected
           </p>
         </div>
         <hr className="mt-4 border border-gray-300" />
@@ -259,7 +278,7 @@ function CertificateRequests({ isCollapsed }) {
               <th>Amount</th>
               {isPendingClicked && <th>Date Requested</th>}
               {isIssuedClicked && <th>Date Issued</th>}
-              {isRejectedClicked && <th>Date Rejected</th>}
+              {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
             </tr>
           </thead>
 
@@ -332,7 +351,8 @@ function CertificateRequests({ isCollapsed }) {
                                     </p>
                                   </div>
 
-                                  {cert.status === "Rejected" && (
+                                  {(cert.status === "Rejected" ||
+                                    cert.status === "Cancelled") && (
                                     <div className="flex flex-row gap-x-2">
                                       <h1 className="font-bold">Remarks:</h1>
                                       <p className="font-medium">

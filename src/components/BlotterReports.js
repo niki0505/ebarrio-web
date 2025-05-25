@@ -69,7 +69,7 @@ function BlotterReports({ isCollapsed }) {
     }
 
     if (search) {
-      filtered = blotterreports.filter((blot) => {
+      filtered = filtered.filter((blot) => {
         const first = blot.complainantID?.firstname || "";
         const middle = blot.complainantID?.middlename || "";
         const last = blot.complainantID?.lastname || "";
@@ -120,9 +120,15 @@ function BlotterReports({ isCollapsed }) {
   };
 
   //For Pagination
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+
+  const sortedFilteredReports = [...filteredBlotterReports].sort(
+    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
+  );
+
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredBlotterReports.slice(
+  const currentRows = sortedFilteredReports.slice(
     indexOfFirstRow,
     indexOfLastRow
   );

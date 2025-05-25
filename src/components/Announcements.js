@@ -243,7 +243,8 @@ function Announcements({ isCollapsed }) {
                       >
                         <BsPinAngle />
                       </button>
-                      {announcement.uploadedby._id === user.empID && (
+                      {(user.role === "Secretary" ||
+                        announcement.uploadedby._id === user.empID) && (
                         <button
                           onClick={() => toggleMenu(announcement._id)}
                           className="mr-1"
@@ -356,7 +357,8 @@ function Announcements({ isCollapsed }) {
                     >
                       <BsPinAngleFill />
                     </button>
-                    {announcement.uploadedby?._id === user.empID && (
+                    {(user.role === "Secretary" ||
+                      announcement.uploadedby?._id === user.empID) && (
                       <button
                         onClick={() => toggleMenu(announcement._id)}
                         className="mr-1"
