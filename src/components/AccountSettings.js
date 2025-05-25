@@ -4,7 +4,6 @@ import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
-
 import { InfoContext } from "../context/InfoContext";
 import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
@@ -13,6 +12,7 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
+import { BiSolidImageAlt } from "react-icons/bi";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
@@ -327,7 +327,7 @@ function AccountSettings({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             value={residentForm.siblings[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -361,7 +361,7 @@ function AccountSettings({ isCollapsed }) {
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
             value={residentForm.children[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -775,8 +775,8 @@ function AccountSettings({ isCollapsed }) {
               onClick={handleMenu1}
               className={`cursor-pointer text-base font-bold ${
                 isProfileClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  : "p-2 font-medium"
               }`}
             >
               Profile
@@ -785,8 +785,8 @@ function AccountSettings({ isCollapsed }) {
               onClick={handleMenu2}
               className={`cursor-pointer text-base font-bold ${
                 isUsernameClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  : "p-2 font-medium"
               }`}
             >
               Change Username
@@ -795,8 +795,8 @@ function AccountSettings({ isCollapsed }) {
               onClick={handleMenu3}
               className={`cursor-pointer text-base font-bold ${
                 isPasswordClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  : "p-2 font-medium"
               }`}
             >
               Change Password
@@ -805,8 +805,8 @@ function AccountSettings({ isCollapsed }) {
               onClick={handleMenu4}
               className={`cursor-pointer text-base font-bold ${
                 isQuestionsClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  : "p-2 font-medium"
               }`}
             >
               Edit Security Questions
@@ -844,7 +844,10 @@ function AccountSettings({ isCollapsed }) {
                                   className="w-full h-full object-contain bg-white"
                                 />
                               ) : (
-                                <p>No Picture Attached</p>
+                                <div className="flex flex-col items-center">
+                                  <BiSolidImageAlt className="w-16 h-16" />
+                                  <p>Attach Image</p>
+                                </div>
                               )}
                             </div>
 
@@ -887,7 +890,10 @@ function AccountSettings({ isCollapsed }) {
                                   className="w-full h-full object-contain bg-white"
                                 />
                               ) : (
-                                <p>No Picture Attached</p>
+                                <div className="flex flex-col items-center">
+                                  <BiSolidImageAlt className="w-16 h-16" />
+                                  <p>Attach Image</p>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -922,7 +928,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter first name"
                             required
-                            className="form-input h-[30px] input-box"
+                            className="form-input input-box"
                           />
                         </div>
                         <div className="form-group">
@@ -932,7 +938,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.middlename}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter middle name"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -945,7 +951,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter last name"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -957,7 +963,7 @@ function AccountSettings({ isCollapsed }) {
                             name="suffix"
                             onChange={handleDropdownChange}
                             value={residentForm.suffix}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -974,7 +980,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.alias}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter alias"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -986,7 +992,7 @@ function AccountSettings({ isCollapsed }) {
                             name="salutation"
                             onChange={handleDropdownChange}
                             value={residentForm.salutation}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -999,7 +1005,7 @@ function AccountSettings({ isCollapsed }) {
                         </div>
                         <div className="form-group">
                           <label for="sex" className="form-label">
-                            Sex:<label className="text-red-600">*</label>
+                            Sex<label className="text-red-600">*</label>
                           </label>
                           <select
                             id="sex"
@@ -1007,7 +1013,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.sex}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1026,7 +1032,7 @@ function AccountSettings({ isCollapsed }) {
                             name="gender"
                             onChange={handleDropdownChange}
                             value={residentForm.gender}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1054,7 +1060,7 @@ function AccountSettings({ isCollapsed }) {
                             placeholder="Enter birthdate"
                             min="1900-01-01"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input p-2"
                           />
                         </div>
 
@@ -1065,7 +1071,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.birthplace}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter birthplace"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1079,7 +1085,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.civilstatus}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1098,7 +1104,7 @@ function AccountSettings({ isCollapsed }) {
                             name="bloodtype"
                             onChange={handleDropdownChange}
                             value={residentForm.bloodtype}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1118,7 +1124,7 @@ function AccountSettings({ isCollapsed }) {
                             name="religion"
                             onChange={handleDropdownChange}
                             value={residentForm.religion}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1138,7 +1144,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.nationality}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1153,26 +1159,28 @@ function AccountSettings({ isCollapsed }) {
                           <label className="form-label ">
                             Registered Voter
                           </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="voter"
-                              onChange={handleRadioChange}
-                              value="Yes"
-                              checked={residentForm.voter === "Yes"}
-                            />
-                            Yes
-                          </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="voter"
-                              onChange={handleRadioChange}
-                              value="No"
-                              checked={residentForm.voter === "No"}
-                            />
-                            No
-                          </label>
+                          <div className="flex flex-row space-x-10">
+                            <div className="flex flex-row justify-center gap-1">
+                              <input
+                                type="radio"
+                                name="voter"
+                                onChange={handleRadioChange}
+                                value="Yes"
+                                checked={residentForm.voter === "Yes"}
+                              />
+                              <h1>Yes</h1>
+                            </div>
+                            <div className="flex flex-row justify-center gap-1">
+                              <input
+                                type="radio"
+                                name="voter"
+                                onChange={handleRadioChange}
+                                value="No"
+                                checked={residentForm.voter === "No"}
+                              />
+                              <h1>No</h1>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="form-group">
@@ -1182,32 +1190,34 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.precinct}
                             onChange={lettersNumbersAndSpaceOnly}
                             placeholder="Enter precinct"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
 
                         <div className="form-group space-x-5">
-                          <label className="form-label">Deceased:</label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="deceased"
-                              onChange={handleRadioChange}
-                              value="Yes"
-                              checked={residentForm.deceased === "Yes"}
-                            />
-                            Yes
-                          </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="deceased"
-                              onChange={handleRadioChange}
-                              value="No"
-                              checked={residentForm.deceased === "No"}
-                            />
-                            No
-                          </label>
+                          <label className="form-label">Deceased</label>
+                          <div className="flex flex-row space-x-10">
+                            <div className="flex flex-row justify-center gap-1">
+                              <input
+                                type="radio"
+                                name="deceased"
+                                onChange={handleRadioChange}
+                                value="Yes"
+                                checked={residentForm.deceased === "Yes"}
+                              />
+                              <h1>Yes</h1>
+                            </div>
+                            <div className="flex flex-row justify-center gap-1">
+                              <input
+                                type="radio"
+                                name="deceased"
+                                onChange={handleRadioChange}
+                                value="No"
+                                checked={residentForm.deceased === "No"}
+                              />
+                              <h1>No</h1>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -1225,7 +1235,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.email}
                             onChange={stringsAndNoSpaceOnly}
                             placeholder="Enter email"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1240,7 +1250,7 @@ function AccountSettings({ isCollapsed }) {
                             placeholder="Enter mobile number"
                             required
                             maxLength={11}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1250,7 +1260,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.telephone}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter telephone"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1260,7 +1270,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.facebook}
                             onChange={stringsAndNoSpaceOnly}
                             placeholder="Enter facebook"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1281,7 +1291,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter name"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1296,7 +1306,7 @@ function AccountSettings({ isCollapsed }) {
                             placeholder="Enter mobile number"
                             required
                             maxLength={11}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1309,7 +1319,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersNumbersAndSpaceOnly}
                             placeholder="Enter address"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1328,7 +1338,7 @@ function AccountSettings({ isCollapsed }) {
                             name="mother"
                             onChange={handleDropdownChange}
                             value={residentForm.mother}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1352,7 +1362,7 @@ function AccountSettings({ isCollapsed }) {
                             name="father"
                             onChange={handleDropdownChange}
                             value={residentInfo.father}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1375,7 +1385,7 @@ function AccountSettings({ isCollapsed }) {
                             name="spouse"
                             onChange={handleDropdownChange}
                             value={residentInfo.spouse}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1390,7 +1400,7 @@ function AccountSettings({ isCollapsed }) {
                           </select>
                         </div>
                       </div>
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4">Siblings</label>
                           <input
@@ -1398,7 +1408,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.numberofsiblings}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter number of siblings"
-                            className="form-input h-[30px] "
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1408,7 +1418,7 @@ function AccountSettings({ isCollapsed }) {
                         </div>
                       )}
 
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4 ">Children</label>
                           <input
@@ -1416,7 +1426,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.numberofchildren}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter number of siblings"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1441,7 +1451,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.housenumber}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter house number"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1454,7 +1464,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.street}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1473,7 +1483,7 @@ function AccountSettings({ isCollapsed }) {
                             name="HOAname"
                             onChange={handleDropdownChange}
                             value={residentForm.HOAname}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1502,7 +1512,7 @@ function AccountSettings({ isCollapsed }) {
                             name="employmentstatus"
                             onChange={handleDropdownChange}
                             value={residentForm.employmentstatus}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1520,7 +1530,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.occupation}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter occupation"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
 
@@ -1533,7 +1543,7 @@ function AccountSettings({ isCollapsed }) {
                             name="monthlyincome"
                             onChange={handleDropdownChange}
                             value={residentForm.monthlyincome}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1564,7 +1574,7 @@ function AccountSettings({ isCollapsed }) {
                             name="educationalattainment"
                             onChange={handleDropdownChange}
                             value={residentForm.educationalattainment}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1583,7 +1593,7 @@ function AccountSettings({ isCollapsed }) {
                             name="typeofschool"
                             onChange={handleDropdownChange}
                             value={residentForm.typeofschool}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1599,7 +1609,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.course}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter course"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1624,9 +1634,9 @@ function AccountSettings({ isCollapsed }) {
                 <div className="header-text">Change Username</div>
                 <div className="p-4">
                   <div>
-                    <label>Current Username</label>
+                    <label className="form-label">Current Username</label>
                     <div>
-                      <label>{user.username}</label>
+                      <label className="text-[#808080]">{user.username}</label>
                     </div>
                   </div>
 
@@ -1643,7 +1653,7 @@ function AccountSettings({ isCollapsed }) {
                       onChange={(e) =>
                         setUsername(e.target.value.toLowerCase())
                       }
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
                   <div className="employee-form-group mt-4">
@@ -1657,7 +1667,7 @@ function AccountSettings({ isCollapsed }) {
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
 
@@ -1690,7 +1700,7 @@ function AccountSettings({ isCollapsed }) {
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
                   <div className="employee-form-group mt-4">
@@ -1704,7 +1714,7 @@ function AccountSettings({ isCollapsed }) {
                       name="newpassword"
                       value={newpassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
                   <div className="employee-form-group mt-4">
@@ -1718,7 +1728,7 @@ function AccountSettings({ isCollapsed }) {
                       name="renewpassword"
                       value={renewpassword}
                       onChange={(e) => setRenewPassword(e.target.value)}
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
                   <div className="function-btn-container">
@@ -1745,7 +1755,7 @@ function AccountSettings({ isCollapsed }) {
                       onChange={(e) =>
                         handleSecurityChange(0, "question", e.target.value)
                       }
-                      className="form-input h-[30px] mb-2"
+                      className="form-input mb-2"
                       value={securityquestions[0].question}
                     >
                       <option value="" disabled selected hidden>
@@ -1779,7 +1789,7 @@ function AccountSettings({ isCollapsed }) {
                       onChange={(e) =>
                         handleSecurityChange(1, "question", e.target.value)
                       }
-                      className="form-input h-[30px] mb-2"
+                      className="form-input mb-2"
                       value={securityquestions[1].question}
                     >
                       <option value="" disabled selected hidden>
@@ -1818,7 +1828,7 @@ function AccountSettings({ isCollapsed }) {
                       name="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
+                      className="form-input"
                     />
                   </div>
                   <div className="function-btn-container">

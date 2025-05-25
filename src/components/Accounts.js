@@ -14,6 +14,8 @@ import EditAccount from "./EditAccount";
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
 import { FaUserXmark } from "react-icons/fa6";
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function Accounts({ isCollapsed }) {
   const confirm = useConfirm();
@@ -26,6 +28,10 @@ function Accounts({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState(null);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleAdd = () => {
     setCreateClicked(true);
@@ -113,6 +119,16 @@ function Accounts({ isCollapsed }) {
     }
   };
 
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredUsers.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredUsers.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -146,7 +162,7 @@ function Accounts({ isCollapsed }) {
                 <td colSpan={6}>No results found</td>
               </tr>
             ) : (
-              filteredUsers.map((user) => (
+              currentRows.map((user) => (
                 <tr
                   key={user._id}
                   style={{
@@ -196,7 +212,7 @@ function Accounts({ isCollapsed }) {
                   <td>{user.role}</td>
                   <td>{user.status}</td>
                   <td></td>
-                  <td className="flex justify-between gap-x-8">
+                  <td className="flex justify-between gap-x-3 px-5">
                     <div className="table-actions-container">
                       <button
                         type="button"
@@ -241,21 +257,67 @@ function Accounts({ isCollapsed }) {
                       </div>
                     )}
 
-                    <div className="table-actions-container">
+                    {/* <div className="table-actions-container">
                       <button type="button" className="table-actions-btn">
                         <FaArchive className="text-lg text-btn-color-blue" />
                         <label className="text-xs font-semibold text-btn-color-blue">
                           Archive
                         </label>
                       </button>
-                    </div>
+                    </div> */}
                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
+          <div className="flex items-center space-x-1">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+                <MdArrowDropDown size={18} />
+              </div>
+            </div>
+          </div>
 
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+            </button>
+          </div>
+        </div>
         {isCreateClicked && (
           <CreateAccount onClose={() => setCreateClicked(false)} />
         )}

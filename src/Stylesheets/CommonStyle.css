@@ -18,14 +18,14 @@
   mt-[theme('spacing.navbar-height')];
 }
 .header-text {
-  @apply text-[30px] font-extrabold font-title text-navy-blue;
+  @apply text-[30px] font-bold font-title text-navy-blue;
 }
 .subHeader-text {
   @apply font-subTitle text-navy-blue;
 }
 
 .white-bg-container {
-  @apply bg-[#fff] rounded-[10px] p-3 mt-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
+  @apply bg-[#fff] rounded-[10px] p-4 mt-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
 }
 
 /*BUTTONS*/
@@ -33,10 +33,10 @@
   @apply flex ml-auto items-center w-auto justify-end space-x-2 mt-5 cursor-pointer text-btn-color-blue;
 }
 .btn-container {
-  @apply p-5 flex justify-end gap-4 mt-[-45px];
+  @apply p-5 flex justify-end gap-4 mt-[-20px];
 }
 .actions-btn {
-  @apply px-4 py-1.5 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title;
+  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
 }
 
 /*TABLE*/
@@ -44,10 +44,10 @@ table {
   @apply overflow-y-auto mt-4 h-auto min-w-full table-auto border border-[#C1C0C0];
 }
 thead {
-  @apply bg-[#DCDCDC];
+  @apply bg-[#04384E];
 }
 th {
-  @apply text-center font-[750px] text-sm p-3;
+  @apply text-center font-[750px] text-sm p-3 text-[#fff];
 }
 tr {
   @apply border-t transition-colors duration-300 ease-in-out;
@@ -79,7 +79,7 @@ td {
   @apply w-full h-[3rem] rounded-tl-xl rounded-tr-xl bg-navy-blue flex items-center justify-between p-4;
 }
 .modal-title {
-  @apply text-base text-white font-bold font-title;
+  @apply text-base text-navy-blue font-bold font-title;
 }
 .modal-btn-close {
   @apply hover:bg-red-600 rounded-full p-1;
@@ -88,10 +88,10 @@ td {
   @apply text-2xl text-[#fff];
 }
 .modal-form-container {
-  @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-4;
+  @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6;
 }
 .modal-form {
-  @apply h-full overflow-y-auto flex-col space-y-2;
+  @apply h-full overflow-y-auto flex-col space-y-2 pr-4;
 }
 
 /*LOGIN SIGN UP OTP*/
@@ -116,7 +116,7 @@ td {
   @apply flex justify-between mt-5 flex-col sm:flex-row md:flex-row;
 }
 .status-container {
-  @apply flex flex-row gap-x-3 mt-5;
+  @apply flex flex-row gap-x-5 mt-5;
 }
 .add-container {
   @apply flex items-center w-auto space-x-2 mt-5 cursor-pointer text-btn-color-blue sm:justify-start;

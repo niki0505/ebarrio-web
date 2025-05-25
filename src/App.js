@@ -128,7 +128,7 @@ function App() {
                       }
                     />
                     <Route
-                      path="certificate-requests"
+                      path="document-requests"
                       element={
                         <PrivateRoute
                           element={<CertificateRequests />}

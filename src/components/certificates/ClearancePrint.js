@@ -279,7 +279,7 @@ const ClearancePrint = ({
 
   setTimeout(() => {
     window.print();
-  }, 2000);
+  }, 3000);
 
   return null;
 };

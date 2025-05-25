@@ -171,7 +171,7 @@ function Announcements({ isCollapsed }) {
           {/* LEFT - CATEGORY */}
           <div className="announcement-category-panel ">
             <label className="announcement-subheader">Category</label>
-            <div className="announcement-left-container font-subTitle font-medium text-black">
+            <div className="announcement-left-container font-subTitle font-medium text-[#5A5A5A]">
               {[
                 "All Announcement",
                 "General",
@@ -183,7 +183,7 @@ function Announcements({ isCollapsed }) {
               ].map((cat) => (
                 <div
                   key={cat}
-                  className={`cursor-pointer p-2 ${
+                  className={`cursor-pointer px-3 py-2 ${
                     selectedCategory === cat ? "text-navy-blue font-bold" : ""
                   }`}
                   onClick={() => setSelectedCategory(cat)}
@@ -207,7 +207,7 @@ function Announcements({ isCollapsed }) {
                 onClick={handleAdd}
                 className="announcement-create-button"
               >
-                <label className="ml-3 font-subTitle text-[#ACACAC] font-semibold text-[16px]">
+                <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
                   Create Announcement
                 </label>
               </button>
@@ -232,49 +232,54 @@ function Announcements({ isCollapsed }) {
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card">
                   <div className="announcement-pin-date-menu">
-                    <label className="text-[#ACACAC] text-xs font-medium font-subTitle">
+                    <h1 className="text-[#808080] text-xs font-medium font-subTitle">
                       {dayjs(announcement.createdAt).fromNow()}
-                    </label>
+                    </h1>
+
                     <div>
                       <button
                         onClick={() => togglePin(announcement._id)}
-                        className="mr-2"
+                        className="mr-1"
                       >
                         <BsPinAngle />
                       </button>
-                      {announcement.uploadedby._id === user.empID && (
-                        <button onClick={() => toggleMenu(announcement._id)}>
+                      {(user.role === "Secretary" ||
+                        announcement.uploadedby._id === user.empID) && (
+                        <button
+                          onClick={() => toggleMenu(announcement._id)}
+                          className="mr-1"
+                        >
                           <BsThreeDots />
                         </button>
                       )}
                     </div>
-
-                    {/* MENU */}
-                    {menuVisible === announcement._id && (
-                      <div className="announcement-menu">
-                        <ul className="w-full">
-                          <div
-                            className="navbar-dropdown-item justify-start"
-                            onClick={() => handleEdit(announcement._id)}
-                          >
-                            <FaEdit className="ml-2" />
-                            <li className="text-sm font-semibold ml-2 font-subTitle">
-                              Edit
-                            </li>
-                          </div>
-                          <div
-                            className="navbar-dropdown-item justify-start"
-                            onClick={() => handleArchive(announcement._id)}
-                          >
-                            <IoArchiveSharp className="text-red-600 ml-2" />
-                            <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
-                              Archive
-                            </li>
-                          </div>
-                        </ul>
-                      </div>
-                    )}
                   </div>
+
+                  {/* MENU */}
+                  {menuVisible === announcement._id && (
+                    <div className="announcement-menu">
+                      <ul className="w-full">
+                        <div
+                          className="navbar-dropdown-item justify-start"
+                          onClick={() => handleEdit(announcement._id)}
+                        >
+                          <FaEdit className="ml-2" />
+                          <li className="text-sm font-semibold ml-2 font-subTitle">
+                            Edit
+                          </li>
+                        </div>
+                        <div
+                          className="navbar-dropdown-item justify-start"
+                          onClick={() => handleArchive(announcement._id)}
+                        >
+                          <IoArchiveSharp className="text-red-600 ml-2" />
+                          <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
+                            Archive
+                          </li>
+                        </div>
+                      </ul>
+                    </div>
+                  )}
 
                   {/* UPLOADED BY - DETAILS */}
                   <div className="flex items-center mb-4">
@@ -288,7 +293,7 @@ function Announcements({ isCollapsed }) {
                         {announcement.uploadedby?.resID?.firstname}{" "}
                         {announcement.uploadedby?.resID?.lastname}
                       </label>
-                      <label className="text-sm text-[#ACACAC] font-medium font-subTitle">
+                      <label className="text-sm text-[#808080] font-medium font-subTitle">
                         {announcement.uploadedby?.position}
                       </label>
                     </div>
@@ -336,26 +341,28 @@ function Announcements({ isCollapsed }) {
 
           {/* RIGHT - PINNED ANNOUNCEMENTS */}
           <div className="announcement-pinned-panel ">
-            <label className="announcement-subheader">
-              Pinned Announcements
-            </label>
+            <h1 className="font-bold mb-2">Pinned Announcements</h1>
 
             {/* ALL PINNED ANNOUNCEMENTS */}
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="announcement-pin-date-menu">
-                  <label className="text-sm text-gray-500">
+                  <h1 className="text-sm text-gray-500">
                     {dayjs(announcement.createdAt).fromNow()}
-                  </label>
+                  </h1>
                   <div>
                     <button
                       onClick={() => toggleUnpin(announcement._id)}
-                      className="mr-2"
+                      className="mr-1"
                     >
                       <BsPinAngleFill />
                     </button>
-                    {announcement.uploadedby?._id === user.empID && (
-                      <button onClick={() => toggleMenu(announcement._id)}>
+                    {(user.role === "Secretary" ||
+                      announcement.uploadedby?._id === user.empID) && (
+                      <button
+                        onClick={() => toggleMenu(announcement._id)}
+                        className="mr-1"
+                      >
                         <BsThreeDots />
                       </button>
                     )}

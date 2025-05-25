@@ -13,6 +13,8 @@ import api from "../api";
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
 import { IoArchiveSharp } from "react-icons/io5";
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function EmergencyHotlines({ isCollapsed }) {
   const confirm = useConfirm();
@@ -29,6 +31,10 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     fetchEmergencyHotlines();
@@ -100,24 +106,41 @@ function EmergencyHotlines({ isCollapsed }) {
     setActiveClicked(false);
   };
 
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredEmergencyHotlines.slice(
+    indexOfFirstRow,
+    indexOfLastRow
+  );
+  const totalRows = filteredEmergencyHotlines.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Emergency Hotlines</div>
+        <div className="text-[30px] font-extrabold font-title text-[#BC0F0F]">
+          Emergency Hotlines
+        </div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
         <div className="status-add-container">
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isActiveClicked ? "border-b-4 border-[#BC0F0F]" : ""
+              }`}
             >
               Active
             </p>
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isArchivedClicked ? "status-line" : ""
+                isArchivedClicked ? "border-b-4 border-[#BC0F0F]" : ""
               }`}
             >
               Archived
@@ -125,7 +148,7 @@ function EmergencyHotlines({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <button className="add-container" onClick={handleAdd}>
-              <MdPersonAddAlt1 className=" text-xl" />
+              <MdPersonAddAlt1 className="text-xl" />
               <span className="font-bold">Add new contact</span>
             </button>
           )}
@@ -133,7 +156,7 @@ function EmergencyHotlines({ isCollapsed }) {
         <hr className="mt-4 border border-gray-300" />
 
         <table>
-          <thead>
+          <thead className="bg-[#BC0F0F]">
             <tr>
               <th>Public Service Facilities</th>
               <th>Contact Number</th>
@@ -147,7 +170,7 @@ function EmergencyHotlines({ isCollapsed }) {
                 <td colSpan={3}>No results found</td>
               </tr>
             ) : (
-              filteredEmergencyHotlines.map((emergency) => (
+              currentRows.map((emergency) => (
                 <tr
                   key={emergency._id}
                   className="border-t transition-colors duration-300 ease-in-out"
@@ -198,7 +221,53 @@ function EmergencyHotlines({ isCollapsed }) {
             )}
           </tbody>
         </table>
+        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
+          <div className="flex items-center space-x-1">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+                <MdArrowDropDown size={18} />
+              </div>
+            </div>
+          </div>
 
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+            </button>
+          </div>
+        </div>
         {isCreateClicked && (
           <CreateContact onClose={() => setCreateClicked(false)} />
         )}

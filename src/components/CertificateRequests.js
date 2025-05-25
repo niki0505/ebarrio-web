@@ -5,7 +5,7 @@ import axios from "axios";
 import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
@@ -19,8 +19,12 @@ import ClearancePrint from "./certificates/ClearancePrint";
 import { AuthContext } from "../context/AuthContext";
 import Reject from "./Reject";
 import api from "../api";
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function CertificateRequests({ isCollapsed }) {
+  const location = useLocation();
+  const { cancelled } = location.state || {};
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchCertificates, certificates } = useContext(InfoContext);
@@ -35,8 +39,11 @@ function CertificateRequests({ isCollapsed }) {
   const [isPendingClicked, setPendingClicked] = useState(true);
   const [isIssuedClicked, setIssuedClicked] = useState(false);
   const [isRejectedClicked, setRejectedClicked] = useState(false);
-
   const [selectedCertID, setSelectedCertID] = useState(null);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
@@ -47,6 +54,19 @@ function CertificateRequests({ isCollapsed }) {
 
     setSearch(formattedText);
   };
+
+  useEffect(() => {
+    console.log("location.state:", location.state);
+  }, []);
+
+  useEffect(() => {
+    if (cancelled) {
+      setRejectedClicked(true);
+      setPendingClicked(false);
+      setIssuedClicked(false);
+    }
+    console.log(cancelled);
+  }, [cancelled]);
 
   useEffect(() => {
     fetchCertificates();
@@ -60,7 +80,9 @@ function CertificateRequests({ isCollapsed }) {
     } else if (isIssuedClicked) {
       filtered = certificates.filter((cert) => cert.status === "Issued");
     } else if (isRejectedClicked) {
-      filtered = certificates.filter((cert) => cert.status === "Rejected");
+      filtered = certificates.filter(
+        (cert) => cert.status === "Rejected" || cert.status === "Cancelled"
+      );
     }
     if (search) {
       filtered = filtered.filter((cert) => {
@@ -199,6 +221,21 @@ function CertificateRequests({ isCollapsed }) {
     setIssuedClicked(false);
   };
 
+  //For Pagination
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+
+  const sortedFilteredCert = [...filteredCertificates].sort(
+    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
+  );
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = sortedFilteredCert.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredCertificates.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -228,7 +265,7 @@ function CertificateRequests({ isCollapsed }) {
               isRejectedClicked ? "border-b-4 border-btn-color-blue" : ""
             }`}
           >
-            Rejected
+            Cancelled/Rejected
           </p>
         </div>
         <hr className="mt-4 border border-gray-300" />
@@ -241,7 +278,7 @@ function CertificateRequests({ isCollapsed }) {
               <th>Amount</th>
               {isPendingClicked && <th>Date Requested</th>}
               {isIssuedClicked && <th>Date Issued</th>}
-              {isRejectedClicked && <th>Date Rejected</th>}
+              {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
             </tr>
           </thead>
 
@@ -251,7 +288,7 @@ function CertificateRequests({ isCollapsed }) {
                 <td colSpan={5}>No results found</td>
               </tr>
             ) : (
-              filteredCertificates.map((cert) => (
+              currentRows.map((cert) => (
                 <React.Fragment key={cert._id}>
                   <tr
                     onClick={() => handleRowClick(cert._id)}
@@ -271,35 +308,57 @@ function CertificateRequests({ isCollapsed }) {
                             <>
                               <div className="profile-container">
                                 <div className="ml-5 text-xs">
-                                  <p>
-                                    <strong>Name: </strong>
-                                    {cert.resID.middlename
-                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                  </p>
-                                  <p>
-                                    <strong>Type of Certificate:</strong>{" "}
-                                    {cert.typeofcertificate}
-                                  </p>
-                                  <p>
-                                    <strong>Purpose of Request:</strong>{" "}
-                                    {cert.purpose}
-                                  </p>
-                                  <p>
-                                    <strong>Amount: </strong>
-                                    {cert.amount}
-                                  </p>
-                                  <p>
-                                    <strong>Date Requested: </strong>
-                                    {cert.createdAt.substring(
-                                      0,
-                                      cert.createdAt.indexOf(" at")
-                                    )}
-                                  </p>
-                                  {cert.status === "Rejected" && (
-                                    <p>
-                                      <strong>Remarks: </strong> {cert.remarks}
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">Name:</h1>
+                                    <p className="font-medium">
+                                      {cert.resID.middlename
+                                        ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                        : `${cert.resID.firstname} ${cert.resID.lastname}`}
                                     </p>
+                                  </div>
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Type of Certificate:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.typeofcertificate}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Purpose of Request:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.purpose}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">Amount:</h1>
+                                    <p className="font-medium">{cert.amount}</p>
+                                  </div>
+
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">
+                                      Date Requested:
+                                    </h1>
+                                    <p className="font-medium">
+                                      {cert.createdAt.substring(
+                                        0,
+                                        cert.createdAt.indexOf(" at")
+                                      )}
+                                    </p>
+                                  </div>
+
+                                  {(cert.status === "Rejected" ||
+                                    cert.status === "Cancelled") && (
+                                    <div className="flex flex-row gap-x-2">
+                                      <h1 className="font-bold">Remarks:</h1>
+                                      <p className="font-medium">
+                                        {cert.remarks}
+                                      </p>
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -340,41 +399,66 @@ function CertificateRequests({ isCollapsed }) {
                           <>
                             <div className="profile-container">
                               <div className="ml-5 text-xs">
-                                <p>
-                                  <strong>Name: </strong>
-                                  {cert.resID.middlename
-                                    ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                    : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                </p>
-                                <p>
-                                  <strong>Type of Certificate: </strong>
-                                  {cert.typeofcertificate}
-                                </p>
-                                <p>
-                                  <strong>Business Name: </strong>
-                                  {cert.businessname}
-                                </p>
-                                <p>
-                                  <strong>Line of Business: </strong>
-                                  {cert.lineofbusiness}
-                                </p>
-                                <p>
-                                  <strong>Location of Business: </strong>
-                                  {cert.locationofbusiness ===
-                                  "Resident's Address"
-                                    ? `${cert.resID.address}`
-                                    : `${cert.locationofbusiness}`}
-                                </p>
-                                <p>
-                                  <strong>Amount: </strong> {cert.amount}
-                                </p>
-                                <p>
-                                  <strong>Date Requested: </strong>
-                                  {cert.createdAt.substring(
-                                    0,
-                                    cert.createdAt.indexOf(" at")
-                                  )}
-                                </p>
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Name:</h1>
+                                  <p className="font-medium">
+                                    {cert.resID.middlename
+                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">
+                                    Type of Certificate:
+                                  </h1>
+                                  <p className="font-medium">
+                                    {cert.typeofcertificate}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Business Name:</h1>
+                                  <p className="font-medium">
+                                    {cert.businessname}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">
+                                    Line of Business:
+                                  </h1>
+                                  <p className="font-medium">
+                                    {cert.lineofbusiness}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">
+                                    Location of Business:
+                                  </h1>
+                                  <p className="font-medium">
+                                    {cert.locationofbusiness ===
+                                    "Resident's Address"
+                                      ? `${cert.resID.address}`
+                                      : `${cert.locationofbusiness}`}
+                                  </p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Amount:</h1>
+                                  <p className="font-medium">{cert.amount}</p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Date Requested:</h1>
+                                  <p className="font-medium">
+                                    {cert.createdAt.substring(
+                                      0,
+                                      cert.createdAt.indexOf(" at")
+                                    )}
+                                  </p>
+                                </div>
                               </div>
                             </div>
                             <div className="btn-container">
@@ -443,6 +527,54 @@ function CertificateRequests({ isCollapsed }) {
             )}
           </tbody>
         </table>
+        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
+          <div className="flex items-center space-x-1">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+                <MdArrowDropDown size={18} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="px-2 py-1 rounded"
+            >
+              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+            </button>
+          </div>
+        </div>
+
         {isRejectClicked && (
           <Reject
             certID={selectedCertID}

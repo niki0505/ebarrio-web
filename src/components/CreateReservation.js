@@ -82,116 +82,101 @@ function CreateReservation({ onClose }) {
   }, [reservationForm.starttime, reservationForm.endtime]);
 
   const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    const dateParts = selectedDate.split("-");
-    const newDate = new Date(
-      Number(dateParts[0]),
-      Number(dateParts[1]) - 1,
-      Number(dateParts[2])
-    );
+    // const selectedDate = e.target.value;
+    // const dateParts = selectedDate.split("-");
+    // const newDate = new Date(
+    //   Number(dateParts[0]),
+    //   Number(dateParts[1]) - 1,
+    //   Number(dateParts[2])
+    // );
 
-    const prevStartTime = new Date(reservationForm.starttime);
-    const prevEndTime = new Date(reservationForm.endtime);
+    // const prevStartTime = new Date(reservationForm.starttime);
+    // const prevEndTime = new Date(reservationForm.endtime);
 
-    const updatedStarttime = new Date(newDate);
-    updatedStarttime.setHours(prevStartTime.getHours());
-    updatedStarttime.setMinutes(prevStartTime.getMinutes());
+    // const updatedStarttime = new Date(newDate);
+    // updatedStarttime.setHours(prevStartTime.getHours());
+    // updatedStarttime.setMinutes(prevStartTime.getMinutes());
 
-    const updatedEndtime = new Date(newDate);
-    updatedEndtime.setHours(prevEndTime.getHours());
-    updatedEndtime.setMinutes(prevEndTime.getMinutes());
+    // const updatedEndtime = new Date(newDate);
+    // updatedEndtime.setHours(prevEndTime.getHours());
+    // updatedEndtime.setMinutes(prevEndTime.getMinutes());
 
-    setReservationForm((prev) => ({
-      ...prev,
-      date: newDate.toISOString(),
-      starttime: null,
-      endtime: null,
-      amount: "",
-    }));
+    // setReservationForm((prev) => ({
+    //   ...prev,
+    //   date: newDate.toISOString(),
+    //   starttime: null,
+    //   endtime: null,
+    //   amount: "",
+    // }));
+
+    const newDateStr = e.target.value;
+
+    setReservationForm((prev) => {
+      return {
+        ...prev,
+        date: newDateStr,
+        starttime: "",
+        endtime: "",
+      };
+    });
   };
 
   const handleStartTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
+    const newStartTime = new Date(`${reservationForm.date}T${time}:00`);
 
-    const newStartTime = new Date(reservationForm.date || new Date());
-    newStartTime.setHours(Number(hours));
-    newStartTime.setMinutes(Number(minutes));
-
-    if (!checkIfTimeSlotIsAvailable(newStartTime, reservationForm.endtime)) {
-      const conflictingReservation = courtreservations.find((reservation) => {
-        const reservedStart = new Date(reservation.starttime);
-        const reservedEnd = new Date(reservation.endtime);
-
-        return (
-          (newStartTime >= reservedStart && newStartTime < reservedEnd) ||
-          (newStartTime < reservedStart &&
-            reservationForm.endtime > reservedStart)
-        );
-      });
-
-      if (conflictingReservation) {
-        const newStartTimeAfterConflict = new Date(
-          conflictingReservation.endtime
-        );
-        alert(
-          `The time slot overlaps with an existing reservation. Your start time has been updated to ${newStartTimeAfterConflict.toLocaleTimeString()} (the end time of the previous reservation).`
-        );
-
-        setReservationForm((prev) => ({
-          ...prev,
-          starttime: newStartTimeAfterConflict.toISOString(),
-          endtime: null,
-          amount: "",
-        }));
-      }
+    if (!reservationForm.date) {
+      alert("Please select a date first.");
       return;
     }
 
     setReservationForm((prev) => ({
       ...prev,
       starttime: newStartTime.toISOString(),
-      endtime: null,
-      amount: "",
+      endtime: "",
     }));
   };
 
   const handleEndTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
-
-    const newEndTime = new Date(reservationForm.date || new Date());
-    newEndTime.setHours(Number(hours));
-    newEndTime.setMinutes(Number(minutes));
-
+    const newEndTime = new Date(`${reservationForm.date}T${time}:00`);
     const startTime = new Date(reservationForm.starttime);
+    if (!reservationForm.date) {
+      alert("Please select a date first.");
+      return;
+    }
+    if (!reservationForm.starttime) {
+      alert("Please select a start time first.");
+      return;
+    }
 
     if (newEndTime <= startTime) {
       alert("End time must be after the start time.");
       return;
     }
 
-    if (!checkIfTimeSlotIsAvailable(startTime, newEndTime)) {
-      const conflictingReservation = courtreservations.find((reservation) => {
-        const reservedStart = new Date(reservation.starttime);
-        const reservedEnd = new Date(reservation.endtime);
+    const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
+      startTime,
+      newEndTime
+    );
 
-        return startTime < reservedEnd && newEndTime > reservedStart;
-      });
-
-      if (conflictingReservation) {
-        const suggestedEndTime = new Date(conflictingReservation.starttime);
-        alert(
-          `The selected end time overlaps with another reservation. It should end before ${suggestedEndTime.toLocaleTimeString()}.`
-        );
-        setReservationForm((prev) => ({
-          ...prev,
-          endtime: suggestedEndTime.toISOString(),
-        }));
-      }
+    if (!isAvailable) {
+      const conflictInfo = conflict
+        ? `This time slot overlaps with an existing reservation of ${conflict.start.toLocaleTimeString(
+            [],
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )} - ${conflict.end.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`
+        : "This time slot overlaps with another reservation.";
+      alert(conflictInfo);
+      setReservationForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
-
     setReservationForm((prev) => ({
       ...prev,
       endtime: newEndTime.toISOString(),
@@ -202,36 +187,58 @@ function CreateReservation({ onClose }) {
     const selectedStartTime = new Date(startTime);
     const selectedEndTime = new Date(endTime);
 
-    return courtreservations.every((reservation) => {
-      const reservedStart = new Date(reservation.starttime);
-      const reservedEnd = new Date(reservation.endtime);
+    if (
+      isNaN(selectedStartTime.getTime()) ||
+      isNaN(selectedEndTime.getTime())
+    ) {
+      console.warn("Invalid selected time range");
+      return { isAvailable: false, conflict: null };
+    }
 
-      if (
-        (selectedStartTime >= reservedStart &&
-          selectedStartTime < reservedEnd) ||
-        (selectedEndTime > reservedStart && selectedEndTime <= reservedEnd)
-      ) {
-        return false;
-      }
-      return (
-        selectedEndTime <= reservedStart || selectedStartTime >= reservedEnd
-      );
-    });
+    const conflict = courtreservations
+      .filter((court) => court.status === "Approved")
+      .find((court) => {
+        const reservedStart = new Date(court.starttime);
+        const reservedEnd = new Date(court.endtime);
+
+        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
+          return false;
+        }
+
+        return (
+          selectedStartTime < reservedEnd && selectedEndTime > reservedStart
+        );
+      });
+
+    if (conflict) {
+      return {
+        isAvailable: false,
+        conflict: {
+          start: new Date(conflict.starttime),
+          end: new Date(conflict.endtime),
+        },
+      };
+    }
+
+    return { isAvailable: true, conflict: null };
   };
 
   return (
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[30rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Add New Reservation</div>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content h-[32rem] w-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Reservation</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -290,7 +297,7 @@ function CreateReservation({ onClose }) {
                     type="date"
                     id="date"
                     name="date"
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     onChange={handleDateChange}
                     min={new Date().toISOString().split("T")[0]}
                   />
@@ -304,7 +311,7 @@ function CreateReservation({ onClose }) {
                     id="starttime"
                     name="starttime"
                     onChange={handleStartTimeChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     value={
                       reservationForm.starttime
                         ? new Date(reservationForm.starttime)
@@ -323,7 +330,7 @@ function CreateReservation({ onClose }) {
                     id="endtime"
                     name="endtime"
                     onChange={handleEndTimeChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] pr-2"
                     value={
                       reservationForm.endtime
                         ? new Date(reservationForm.endtime)

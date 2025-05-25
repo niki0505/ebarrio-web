@@ -18,9 +18,9 @@ function ViewBlotter({ onClose, blotterID }) {
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [showModal, setShowModal] = useState(true);
   const [scheduleForm, setScheduleForm] = useState({
-    date: null,
-    starttime: null,
-    endtime: null,
+    date: "",
+    starttime: "",
+    endtime: "",
   });
   const [expandedDetails, setExpandedDetails] = useState([]);
 
@@ -69,136 +69,117 @@ function ViewBlotter({ onClose, blotterID }) {
   };
 
   const handleDateChange = (e) => {
-    const selectedDate = e.target.value;
-    const dateParts = selectedDate.split("-");
-    const newDate = new Date(
-      Date.UTC(
-        Number(dateParts[0]),
-        Number(dateParts[1]) - 1,
-        Number(dateParts[2])
-      )
-    );
+    const newDateStr = e.target.value;
 
-    const prevStartTime = new Date(scheduleForm.starttime);
-    const prevEndTime = new Date(scheduleForm.endtime);
-
-    const updatedStarttime = new Date(newDate);
-    updatedStarttime.setHours(prevStartTime.getHours());
-    updatedStarttime.setMinutes(prevStartTime.getMinutes());
-
-    const updatedEndtime = new Date(newDate);
-    updatedEndtime.setHours(prevEndTime.getHours());
-    updatedEndtime.setMinutes(prevEndTime.getMinutes());
-
-    setScheduleForm((prev) => ({
-      ...prev,
-      date: newDate.toISOString().split("T")[0],
-      starttime: null,
-      endtime: null,
-    }));
+    setScheduleForm((prev) => {
+      return {
+        ...prev,
+        date: newDateStr,
+        starttime: "",
+        endtime: "",
+      };
+    });
   };
 
   const checkIfTimeSlotIsAvailable = (startTime, endTime) => {
     const selectedStartTime = new Date(startTime);
     const selectedEndTime = new Date(endTime);
 
-    return blotterreports
+    const parseCustomDate = (dateStr) => {
+      const [datePart, timePart] = dateStr.split(" at ");
+      return new Date(`${datePart} ${timePart}`);
+    };
+
+    if (
+      isNaN(selectedStartTime.getTime()) ||
+      isNaN(selectedEndTime.getTime())
+    ) {
+      console.warn("Invalid selected time range");
+      return { isAvailable: false, conflict: null };
+    }
+
+    const conflict = blotterreports
       .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-      .every((blot) => {
-        const reservedStart = new Date(blot.starttime);
-        const reservedEnd = new Date(blot.endtime);
-        if (
-          (selectedStartTime >= reservedStart &&
-            selectedStartTime < reservedEnd) ||
-          (selectedEndTime > reservedStart && selectedEndTime <= reservedEnd)
-        ) {
-          return false;
+      .find((blot) => {
+        const reservedStart = parseCustomDate(blot.starttime);
+        const reservedEnd = parseCustomDate(blot.endtime);
+
+        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
+          return false; // skip invalid records
         }
+
         return (
-          selectedEndTime <= reservedStart || selectedStartTime >= reservedEnd
+          selectedStartTime < reservedEnd && selectedEndTime > reservedStart
         );
       });
+
+    if (conflict) {
+      return {
+        isAvailable: false,
+        conflict: {
+          start: parseCustomDate(conflict.starttime),
+          end: parseCustomDate(conflict.endtime),
+        },
+      };
+    }
+
+    return { isAvailable: true, conflict: null };
   };
 
   const handleStartTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
+    const newStartTime = new Date(`${scheduleForm.date}T${time}:00`);
 
-    const newStartTime = new Date(scheduleForm.date || new Date());
-    newStartTime.setHours(Number(hours));
-    newStartTime.setMinutes(Number(minutes));
-
-    if (!checkIfTimeSlotIsAvailable(newStartTime, scheduleForm.endtime)) {
-      const conflictingBlotter = blotterreports
-        .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-        .find((blot) => {
-          const reservedStart = new Date(blot.starttime);
-          const reservedEnd = new Date(blot.endtime);
-
-          return (
-            (newStartTime >= reservedStart && newStartTime < reservedEnd) ||
-            (newStartTime < reservedStart &&
-              scheduleForm.endtime > reservedStart)
-          );
-        });
-
-      if (conflictingBlotter) {
-        const newStartTimeAfterConflict = new Date(conflictingBlotter.endtime);
-        alert(
-          `The time slot overlaps with an existing blotter. Your start time has been updated to ${newStartTimeAfterConflict.toLocaleTimeString()} (the end time of the previous blotter).`
-        );
-
-        setScheduleForm((prev) => ({
-          ...prev,
-          starttime: newStartTimeAfterConflict.toISOString(),
-          endtime: null,
-        }));
-      }
+    if (!scheduleForm.date) {
+      alert("Please select a date first.");
       return;
     }
 
     setScheduleForm((prev) => ({
       ...prev,
       starttime: newStartTime.toISOString(),
-      endtime: null,
+      endtime: "",
     }));
   };
 
   const handleEndTimeChange = (e) => {
     const time = e.target.value;
-    const [hours, minutes] = time.split(":");
-
-    const newEndTime = new Date(scheduleForm.date || new Date());
-    newEndTime.setHours(Number(hours));
-    newEndTime.setMinutes(Number(minutes));
-
+    const newEndTime = new Date(`${scheduleForm.date}T${time}:00`);
     const startTime = new Date(scheduleForm.starttime);
+    if (!scheduleForm.date) {
+      alert("Please select a date first.");
+      return;
+    }
+    if (!scheduleForm.starttime) {
+      alert("Please select a start time first.");
+      return;
+    }
 
     if (newEndTime <= startTime) {
       alert("End time must be after the start time.");
       return;
     }
 
-    if (!checkIfTimeSlotIsAvailable(startTime, newEndTime)) {
-      const conflictingBlotter = blotterreports
-        .filter((blot) => blot.status === "Scheduled" && blot._id !== blotterID)
-        .find((blot) => {
-          const reservedStart = new Date(blot.starttime);
-          const reservedEnd = new Date(blot.endtime);
+    const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
+      startTime,
+      newEndTime
+    );
 
-          return startTime < reservedEnd && newEndTime > reservedStart;
-        });
-
-      if (conflictingBlotter) {
-        const suggestedEndTime = new Date(conflictingBlotter.starttime);
-        alert(
-          `The selected end time overlaps with another reservation. It should end before ${suggestedEndTime.toLocaleTimeString()}.`
-        );
-        setScheduleForm((prev) => ({
-          ...prev,
-          endtime: suggestedEndTime.toISOString(),
-        }));
-      }
+    if (!isAvailable) {
+      const conflictInfo = conflict
+        ? `This time slot overlaps with an existing schedule of ${conflict.start.toLocaleTimeString(
+            [],
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )} - ${conflict.end.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`
+        : "This time slot overlaps with another schedule.";
+      alert(conflictInfo);
+      setScheduleForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
 
@@ -287,268 +268,285 @@ function ViewBlotter({ onClose, blotterID }) {
     );
   };
 
+  const formatTimeToHHMM = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
   return (
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="flex flex-col justify-center items-center bg-white rounded-xl shadow-lg p-5 relative w-[45rem] h-[30rem]">
-            <div className="modal-title-bar bg-navy-blue">
-              <h1 className="modal-title">View Blotter</h1>
-              <button className="modal-btn-close">
-                <IoClose className="btn-close-icon" onClick={handleClose} />
-              </button>
+          <div className="modal-content w-[45rem] h-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">View Blotter</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
-            <div className="w-full overflow-y-auto mt-10">
-              <label className="section-title text-start">
-                Complainant Information
-              </label>
-              <hr class="section-divider" />
-              {/*Complainant Information*/}
-              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
+
+            <div className="modal-form-container">
+              <div className="modal-form">
                 <div>
-                  <label className="form-label">Complainant Name</label>
-                  <label className="text-sm font-regular">
-                    {blotter.complainantID
-                      ? `${blotter.complainantID.firstname} ${
-                          blotter.complainantID.middlename || ""
-                        } ${blotter.complainantID.lastname}`.trim()
-                      : blotter.complainantname}
-                  </label>
-                </div>
-
-                <div>
-                  <label className="form-label">Complainant Address </label>
-                  <label className="text-sm font-regular">
-                    {blotter.complainantID
-                      ? blotter.complainantID.address
-                      : blotter.complainantaddress}
-                  </label>
-                </div>
-
-                <div>
-                  <label className="form-label">Complainant Contact No</label>
-                  <label className="text-sm font-regular">
-                    {blotter.complainantID
-                      ? blotter.complainantID.mobilenumber
-                      : blotter.complainantcontactno}
-                  </label>
-                </div>
-              </div>
-
-              {/*Subject of the Complaint Information*/}
-              <label className="section-title text-start">
-                Subject Information
-              </label>
-              <hr class="section-divider" />
-              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
-                <div>
-                  <label className="form-label">Subject Name</label>
-                  <label className="text-sm font-regular">
-                    {blotter.subjectID
-                      ? `${blotter.subjectID.firstname} ${
-                          blotter.subjectID.middlename || ""
-                        } ${blotter.subjectID.lastname}`.trim()
-                      : blotter.subjectname}
-                  </label>
-                </div>
-
-                <div>
-                  <label className="form-label">Subject Address</label>
-                  <label className="text-sm font-regular">
-                    {blotter.subjectID
-                      ? blotter.subjectID.address
-                      : blotter.subjectaddress}
-                  </label>
-                </div>
-              </div>
-
-              {/*Blotter Information*/}
-              <label className="section-title text-start">
-                Blotter Information
-              </label>
-              <hr class="section-divider" />
-              <div className="grid grid-cols-1 gap-4 mt-4 mb-4">
-                <div className="col-span-1">
-                  <label className="form-label">Type of the Incident</label>
-                  <label className="text-sm font-regular">{blotter.type}</label>
-                </div>
-                <div className="col-span-3">
-                  <label className="form-label">Details of the Incident</label>
-                  <label>{renderDetails(blotter)}</label>
-                </div>
-              </div>
-
-              {(blotter.status === "Pending" ||
-                blotter.status === "Scheduled") && (
-                <>
-                  {/*Settlement Proceedings*/}
                   <label className="section-title text-start">
-                    Schedule Information
+                    Complainant Information
                   </label>
                   <hr class="section-divider" />
-                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                  {/*Complainant Information*/}
+                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
                     <div>
-                      <label className="form-label">Date</label>
-                      <input
-                        type="date"
-                        id="date"
-                        name="date"
-                        value={scheduleForm.date ? scheduleForm.date : ""}
-                        onChange={handleDateChange}
-                        className="form-input h-[30px]"
-                        min={new Date().toISOString().split("T")[0]}
-                      />
+                      <label className="form-label">Complainant Name</label>
+                      <label className="text-sm font-regular">
+                        {blotter.complainantID
+                          ? `${blotter.complainantID.firstname} ${
+                              blotter.complainantID.middlename || ""
+                            } ${blotter.complainantID.lastname}`.trim()
+                          : blotter.complainantname}
+                      </label>
                     </div>
 
                     <div>
-                      <label className="form-label">Start Time</label>
-                      <input
-                        type="time"
-                        id="starttime"
-                        name="starttime"
-                        className="form-input h-[30px]"
-                        onChange={handleStartTimeChange}
-                        value={
-                          scheduleForm.starttime
-                            ? new Date(scheduleForm.starttime)
-                                .toTimeString()
-                                .slice(0, 5)
-                            : ""
-                        }
-                      />
+                      <label className="form-label">Complainant Address </label>
+                      <label className="text-sm font-regular">
+                        {blotter.complainantID
+                          ? blotter.complainantID.address
+                          : blotter.complainantaddress}
+                      </label>
                     </div>
+
                     <div>
-                      <label className="form-label">End Time </label>
-                      <input
-                        type="time"
-                        id="endtime"
-                        name="endtime"
-                        className="form-input h-[30px]"
-                        onChange={handleEndTimeChange}
-                        value={
-                          scheduleForm.endtime
-                            ? new Date(scheduleForm.endtime)
-                                .toTimeString()
-                                .slice(0, 5)
-                            : ""
-                        }
-                      />
+                      <label className="form-label">
+                        Complainant Contact No
+                      </label>
+                      <label className="text-sm font-regular">
+                        {blotter.complainantID
+                          ? blotter.complainantID.mobilenumber
+                          : blotter.complainantcontactno}
+                      </label>
                     </div>
                   </div>
-                </>
-              )}
 
-              {blotter.status === "Settled" && (
-                <>
+                  {/*Subject of the Complaint Information*/}
                   <label className="section-title text-start">
-                    Settlement Information
+                    Subject Information
                   </label>
                   <hr class="section-divider" />
-                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
                     <div>
-                      <label className="form-label">Date</label>
+                      <label className="form-label">Subject Name</label>
                       <label className="text-sm font-regular">
-                        {scheduleForm.date}
-                      </label>
-                    </div>
-                    <div>
-                      <label className="form-label">Start Time </label>
-                      <label className="text-sm font-regular">
-                        {new Date(scheduleForm.starttime).toLocaleTimeString(
-                          [],
-                          {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          }
-                        )}
-                      </label>
-                    </div>
-                    <div>
-                      <label className="form-label">End Time </label>
-                      <label className="text-sm font-regular">
-                        {new Date(scheduleForm.endtime).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
+                        {blotter.subjectID
+                          ? `${blotter.subjectID.firstname} ${
+                              blotter.subjectID.middlename || ""
+                            } ${blotter.subjectID.lastname}`.trim()
+                          : blotter.subjectname}
                       </label>
                     </div>
 
-                    <div className="col-span-3">
-                      <label className="form-label">Details </label>
+                    <div>
+                      <label className="form-label">Subject Address</label>
                       <label className="text-sm font-regular">
-                        {blotter.agreementdetails}
+                        {blotter.subjectID
+                          ? blotter.subjectID.address
+                          : blotter.subjectaddress}
                       </label>
                     </div>
+                  </div>
+
+                  {/*Blotter Information*/}
+                  <label className="section-title text-start">
+                    Blotter Information
+                  </label>
+                  <hr class="section-divider" />
+                  <div className="grid grid-cols-1 gap-4 mt-4 mb-4">
                     <div className="col-span-1">
-                      <label className="form-label">Witness </label>
+                      <label className="form-label">Type of the Incident</label>
                       <label className="text-sm font-regular">
-                        {blotter.witnessID
-                          ? `${blotter.witnessID.firstname} ${
-                              blotter.witnessID.middlename || ""
-                            } ${blotter.witnessID.lastname}`
-                          : blotter.witnessname}
+                        {blotter.typeofthecomplaint}
                       </label>
                     </div>
+                    <div className="col-span-3">
+                      <label className="form-label">
+                        Details of the Incident
+                      </label>
+                      <label>{renderDetails(blotter)}</label>
+                    </div>
                   </div>
-                </>
-              )}
 
-              {blotter.status === "Pending" && (
-                <>
-                  <div className="flex justify-center gap-4 mt-4">
-                    <button
-                      type="submit"
-                      onClick={handleSubmit}
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                    >
-                      Schedule
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleReject}
-                      className="actions-btn bg-btn-color-red hover:bg-red-700"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                </>
-              )}
+                  {(blotter.status === "Pending" ||
+                    blotter.status === "Scheduled") && (
+                    <>
+                      {/*Settlement Proceedings*/}
+                      <label className="section-title text-start">
+                        Schedule Information
+                      </label>
+                      <hr class="section-divider" />
+                      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                        <div>
+                          <label className="form-label">Date</label>
+                          <input
+                            type="date"
+                            id="date"
+                            name="date"
+                            value={scheduleForm.date ? scheduleForm.date : ""}
+                            onChange={handleDateChange}
+                            className="form-input h-[30px] pr-2"
+                            min={new Date().toISOString().split("T")[0]}
+                          />
+                        </div>
 
-              {blotter.status === "Scheduled" && (
-                <>
-                  <div className="flex justify-center gap-4 mt-4">
-                    <button
-                      type="button"
-                      onClick={handleEdit}
-                      className="actions-btn bg-btn-color-blue"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSettle}
-                      className="actions-btn bg-[#06D001]"
-                    >
-                      Settle
-                    </button>
-                  </div>
-                </>
-              )}
-              {blotter.status === "Settled" && (
-                <>
-                  <div className="flex justify-center">
-                    <button
-                      type="button"
-                      onClick={handlePrint}
-                      className="actions-btn bg-btn-color-blue "
-                    >
-                      Print
-                    </button>
-                  </div>
-                </>
-              )}
+                        <div>
+                          <label className="form-label">Start Time</label>
+                          <input
+                            type="time"
+                            id="starttime"
+                            name="starttime"
+                            className="form-input h-[30px] pr-2"
+                            onChange={handleStartTimeChange}
+                            value={formatTimeToHHMM(scheduleForm.starttime)}
+                          />
+                        </div>
+                        <div>
+                          <label className="form-label">End Time </label>
+                          <input
+                            type="time"
+                            id="endtime"
+                            name="endtime"
+                            className="form-input h-[30px] pr-2"
+                            onChange={handleEndTimeChange}
+                            value={formatTimeToHHMM(scheduleForm.endtime)}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {blotter.status === "Settled" && (
+                    <>
+                      <label className="section-title text-start">
+                        Settlement Information
+                      </label>
+                      <hr class="section-divider" />
+                      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+                        <div>
+                          <label className="form-label">Date</label>
+                          <label className="text-sm font-regular">
+                            {scheduleForm.date}
+                          </label>
+                        </div>
+                        <div>
+                          <label className="form-label">Start Time </label>
+                          <label className="text-sm font-regular">
+                            {new Date(
+                              scheduleForm.starttime
+                            ).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </label>
+                        </div>
+                        <div>
+                          <label className="form-label">End Time </label>
+                          <label className="text-sm font-regular">
+                            {new Date(scheduleForm.endtime).toLocaleTimeString(
+                              [],
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )}
+                          </label>
+                        </div>
+
+                        <div className="col-span-3">
+                          <label className="form-label">Details </label>
+                          <label className="text-sm font-regular">
+                            {blotter.agreementdetails}
+                          </label>
+                        </div>
+                        <div className="col-span-1">
+                          <label className="form-label">Witness </label>
+                          <label className="text-sm font-regular">
+                            {blotter.witnessID
+                              ? `${blotter.witnessID.firstname} ${
+                                  blotter.witnessID.middlename || ""
+                                } ${blotter.witnessID.lastname}`
+                              : blotter.witnessname}
+                          </label>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div>
+                  {blotter.status === "Pending" && (
+                    <>
+                      <div className="flex justify-center gap-4 mt-4">
+                        <button
+                          type="submit"
+                          onClick={handleSubmit}
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                        >
+                          Schedule
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleReject}
+                          className="actions-btn bg-btn-color-red hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {blotter.status === "Scheduled" && (
+                    <>
+                      <div className="flex justify-center gap-4 mt-4">
+                        <button
+                          type="button"
+                          onClick={handleEdit}
+                          className="actions-btn bg-btn-color-blue"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSettle}
+                          className="actions-btn bg-[#06D001]"
+                        >
+                          Settle
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {blotter.status === "Settled" && (
+                    <>
+                      <div className="flex justify-center">
+                        <button
+                          type="button"
+                          onClick={handlePrint}
+                          className="actions-btn bg-btn-color-blue "
+                        >
+                          Print
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
