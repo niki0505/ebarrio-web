@@ -24,6 +24,13 @@ export const SocketProvider = ({ children }) => {
     }
   };
 
+  const truncateNotifMessage = (message, wordLimit = 25) => {
+    const words = message.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + "..."
+      : message;
+  };
+
   useEffect(() => {
     if (!user?.userID) return;
 
@@ -55,7 +62,7 @@ export const SocketProvider = ({ children }) => {
             style={{ cursor: "pointer" }}
           >
             <strong>{announcement.title}</strong>
-            <div>{announcement.message}</div>
+            <div>{truncateNotifMessage(announcement.message)}</div>
           </div>
         </>
       );
