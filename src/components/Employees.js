@@ -93,6 +93,13 @@ function Employees({ isCollapsed }) {
       try {
         const response = await api.get(`/getemployee/${empID}`);
         const response2 = await api.get(`/getcaptain/`);
+        if (
+          !Array.isArray(response.data.employeeID) ||
+          response.data.employeeID.length === 0
+        ) {
+          alert("This employee has not been issued an ID yet.");
+          return;
+        }
         EmployeeID({
           empData: response.data,
           captainData: response2.data,
@@ -119,10 +126,33 @@ function Employees({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await api.delete(`/archiveemployee/${empID}`);
-        alert("Employee successfully archived");
+        await api.put(`/archiveemployee/${empID}`);
+        alert("Employee has been successfully archived.");
       } catch (error) {
         console.log("Error", error);
+      }
+    }
+  };
+
+  const recoverBtn = async (e, empID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this employee?",
+      "confirmred"
+    );
+    if (isConfirmed) {
+      try {
+        await api.put(`/recoveremployee/${empID}`);
+        alert("Employee has been successfully recovered.");
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
       }
     }
   };
@@ -339,29 +369,39 @@ function Employees({ isCollapsed }) {
                               </div>
                             </div>
                           </div>
-                          <div className="btn-container">
-                            <button
-                              className="actions-btn bg-btn-color-red hover:bg-red-700"
-                              type="submit"
-                              onClick={(e) => archiveBtn(e, emp._id)}
-                            >
-                              ARCHIVE
-                            </button>
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={(e) => handleEmployeeID(e, emp._id)}
-                            >
-                              EMPLOYEE ID
-                            </button>
+                          {emp.status === "Active" ? (
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                type="submit"
+                                onClick={(e) => archiveBtn(e, emp._id)}
+                              >
+                                ARCHIVE
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => handleEmployeeID(e, emp._id)}
+                              >
+                                EMPLOYEE ID
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue"
+                                type="submit"
+                                onClick={(e) => editBtn(e, emp._id)}
+                              >
+                                EDIT POSITION
+                              </button>
+                            </div>
+                          ) : (
                             <button
                               className="actions-btn bg-btn-color-blue"
                               type="submit"
-                              onClick={(e) => editBtn(e, emp._id)}
+                              onClick={(e) => recoverBtn(e, emp._id)}
                             >
-                              EDIT POSITION
+                              RECOVER
                             </button>
-                          </div>
+                          )}
                         </td>
                       ) : (
                         <>

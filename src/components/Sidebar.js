@@ -57,17 +57,12 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
-    (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Announcements",
-      icon: <BiSolidMegaphone />,
-      path: "/announcements",
-    },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
       user.role === "Justice") && {
-      title: "SOS Requests",
-      icon: <IoLocation />,
-      path: "/sos-reports",
+      title: "Announcements",
+      icon: <BiSolidMegaphone />,
+      path: "/announcements",
     },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
@@ -81,7 +76,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       user.role === "Justice") && {
       title: "River Snapshots",
       icon: <BiSolidCctv />,
-      path: "/flood-footage",
+      path: "/river-snapshots",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Emergency Hotlines",

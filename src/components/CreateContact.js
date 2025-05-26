@@ -7,7 +7,7 @@ import { useConfirm } from "../context/ConfirmContext";
 function CreateContact({ onClose }) {
   const confirm = useConfirm();
   const [name, setName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
+  const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
 
   const handleSubmit = async () => {
@@ -18,20 +18,46 @@ function CreateContact({ onClose }) {
     if (!isConfirmed) {
       return;
     }
-    onClose();
     try {
-      const response = await api.post("/createemergencyhotlines", {
+      let formattedNumber = contactNumber;
+      formattedNumber = "0" + contactNumber.slice(3);
+      await api.post("/createemergencyhotlines", {
         name,
-        contactNumber,
+        contactNumber: formattedNumber,
       });
       alert("Emergency contact successfully created!");
+      onClose();
     } catch (error) {
-      console.log("Error creating emergency contact", error);
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {
     setShowModal(false);
     onClose();
+  };
+
+  const mobileInputChange = (e) => {
+    let input = e.target.value;
+    input = input.replace(/\D/g, "");
+
+    if (!input.startsWith("+63")) {
+      input = "+63" + input.replace(/^0+/, "").slice(2);
+    }
+    if (input.length > 13) {
+      input = input.slice(0, 13);
+    }
+    if (input.length >= 4 && input[3] === "0") {
+      return;
+    }
+
+    setContactNumber(input);
   };
 
   return (
@@ -71,6 +97,7 @@ function CreateContact({ onClose }) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="employee-form-group">
@@ -82,8 +109,9 @@ function CreateContact({ onClose }) {
                     id="contactnumber"
                     name="contactnumber"
                     value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
+                    onChange={(e) => mobileInputChange(e)}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="flex justify-center">

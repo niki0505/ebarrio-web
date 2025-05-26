@@ -12,7 +12,7 @@ export const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
   const navigation = useNavigate();
   const [notifications, setNotifications] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { user, isAuthenticated } = useContext(AuthContext);
   const [socket, setSocket] = useState(null);
 
   const fetchNotifications = async () => {
@@ -32,7 +32,7 @@ export const SocketProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!user?.userID) return;
+    if (!isAuthenticated || !user?.userID) return;
 
     const newSocket = io("http://localhost:5000", {
       withCredentials: true,
@@ -129,11 +129,15 @@ export const SocketProvider = ({ children }) => {
     });
 
     setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
   }, [user?.userID, user?.role]);
+
+  useEffect(() => {
+    if (!isAuthenticated && socket && user?.userID) {
+      socket.emit("unregister", user.userID);
+      socket.disconnect();
+      setSocket(null);
+    }
+  }, [isAuthenticated]);
 
   return (
     <SocketContext.Provider
