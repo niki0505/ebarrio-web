@@ -153,7 +153,9 @@ function EmergencyHotlines({ isCollapsed }) {
             <p
               onClick={handleMenu1}
               className={`status-text ${
-                isActiveClicked ? "border-b-4 border-[#BC0F0F]" : ""
+                isActiveClicked
+                  ? "border-b-4 border-[#BC0F0F]"
+                  : "text-[#808080]"
               }`}
             >
               Active
@@ -161,7 +163,9 @@ function EmergencyHotlines({ isCollapsed }) {
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isArchivedClicked ? "border-b-4 border-[#BC0F0F]" : ""
+                isArchivedClicked
+                  ? "border-b-4 border-[#BC0F0F]"
+                  : "text-[#808080]"
               }`}
             >
               Archived

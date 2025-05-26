@@ -242,27 +242,27 @@ function CertificateRequests({ isCollapsed }) {
         <div className="header-text">Document Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <div className="flex flex-row gap-x-3 mt-10">
+        <div className="flex flex-row gap-x-8 mt-10">
           <p
             onClick={handleMenu1}
-            className={`cursor-pointer text-base font-bold ${
-              isPendingClicked ? "border-b-4 border-btn-color-blue" : ""
+            className={`status-text ${
+              isPendingClicked ? "status-line" : "text-[#808080]"
             }`}
           >
             Pending
           </p>
           <p
             onClick={handleMenu2}
-            className={`cursor-pointer text-base font-bold ${
-              isIssuedClicked ? "border-b-4 border-btn-color-blue" : ""
+            className={`status-text ${
+              isIssuedClicked ? "status-line" : "text-[#808080]"
             }`}
           >
             Issued
           </p>
           <p
             onClick={handleMenu3}
-            className={`cursor-pointer text-base font-bold ${
-              isRejectedClicked ? "border-b-4 border-btn-color-blue" : ""
+            className={`status-text ${
+              isRejectedClicked ? "status-line" : "text-[#808080]"
             }`}
           >
             Cancelled/Rejected

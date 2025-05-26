@@ -322,10 +322,14 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             One-Time Password
                           </h1>
-                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
-                            Enter the 6 digit code sent to{" "}
-                            {user.empID.resID.mobilenumber}
-                          </span>
+                          <div className="flex flex-col mt-4">
+                            <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                              Enter the 6 digit code sent to:
+                            </span>
+                            <span className="text-navy-blue font-semibold">
+                              {user.empID.resID.mobilenumber}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="w-full mt-10">

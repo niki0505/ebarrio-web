@@ -235,14 +235,16 @@ function Residents({ isCollapsed }) {
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isActiveClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Active
             </p>
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isArchivedClicked ? "status-line" : ""
+                isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Archived

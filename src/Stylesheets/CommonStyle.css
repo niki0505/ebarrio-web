@@ -116,7 +116,7 @@ td {
   @apply flex justify-between mt-5 flex-col sm:flex-row md:flex-row;
 }
 .status-container {
-  @apply flex flex-row gap-x-5 mt-5;
+  @apply flex flex-row gap-x-8 mt-5;
 }
 .add-container {
   @apply flex items-center w-auto space-x-2 mt-5 cursor-pointer text-btn-color-blue sm:justify-start;
