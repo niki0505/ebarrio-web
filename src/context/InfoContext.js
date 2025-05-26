@@ -9,7 +9,7 @@ export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const socket = io("http://localhost:5000/website", {
+const socket = io("https://api.ebarrio.online/website", {
   withCredentials: true,
 });
 
