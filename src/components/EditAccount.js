@@ -35,7 +35,7 @@ function EditAccount({ onClose, userID, userUsername }) {
       }
       console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
-      alert("User updated successfully");
+      alert("User has been successfully updated.");
       onClose();
     } catch (error) {
       const response = error.response;

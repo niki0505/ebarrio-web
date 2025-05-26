@@ -22,7 +22,7 @@ function CreateResident({ isCollapsed }) {
   const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
-  const [residentForm, setResidentForm] = useState({
+  const initialForm = {
     firstname: "",
     middlename: "",
     lastname: "",
@@ -41,11 +41,11 @@ function CreateResident({ isCollapsed }) {
     precinct: "",
     deceased: "",
     email: "",
-    mobilenumber: "",
-    telephone: "",
+    mobilenumber: "+63",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
-    emergencymobilenumber: "",
+    emergencymobilenumber: "+63",
     emergencyaddress: "",
     housenumber: "",
     street: "",
@@ -65,7 +65,8 @@ function CreateResident({ isCollapsed }) {
     educationalattainment: "",
     typeofschool: "",
     course: "",
-  });
+  };
+  const [residentForm, setResidentForm] = useState(initialForm);
 
   useEffect(() => {
     fetchResidents();
@@ -429,6 +430,9 @@ function CreateResident({ isCollapsed }) {
   const handleClose = () => {
     setIsCameraOpen(false);
   };
+  const handleReset = () => {
+    setResidentForm(initialForm);
+  };
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileName = `id_images/${Date.now()}_${randomString}.png`;
@@ -460,9 +464,28 @@ function CreateResident({ isCollapsed }) {
         const idPicture = await uploadToFirebase(id);
         const signaturePicture = await uploadToFirebase(signature);
 
+        let formattedMobileNumber = residentForm.mobilenumber;
+        formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+        let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+        formattedEmergencyMobileNumber =
+          "0" + residentForm.emergencymobilenumber.slice(3);
+
+        let formattedTelephone = residentForm.telephone;
+        if (residentForm.telephone) {
+          formattedTelephone = "0" + residentForm.telephone.slice(3);
+          delete residentForm.telephone;
+        }
+
+        delete residentForm.mobilenumber;
+        delete residentForm.emergencymobilenumber;
+
         const updatedResidentForm = {
           ...residentForm,
           address: fulladdress,
+          mobilenumber: formattedMobileNumber,
+          emergencymobilenumber: formattedEmergencyMobileNumber,
+          telephone: formattedTelephone,
         };
 
         const response = await api.post("/createresident", {
@@ -514,6 +537,40 @@ function CreateResident({ isCollapsed }) {
         setIsSignProcessing(false);
       }
     }
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -940,10 +997,10 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="mobilenumber"
                 value={residentForm.mobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
             </div>
@@ -952,7 +1009,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="telephone"
                 value={residentForm.telephone}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={telephoneInputChange}
                 placeholder="Enter telephone"
                 className="form-input"
               />
@@ -995,10 +1052,10 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="emergencymobilenumber"
                 value={residentForm.emergencymobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
             </div>
@@ -1263,7 +1320,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" disabled selected hidden>
                   Select
                 </option>
                 <option value="Public">Public</option>
@@ -1285,6 +1342,7 @@ function CreateResident({ isCollapsed }) {
           <div className="function-btn-container">
             <button
               type="button"
+              onClick={handleReset}
               className="actions-btn bg-btn-color-gray hover:bg-gray-400"
             >
               Clear

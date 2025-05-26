@@ -29,6 +29,10 @@ function Accounts({ isCollapsed }) {
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState(null);
 
+  const [isCurrentClicked, setCurrentClicked] = useState(true);
+  const [isPendingClicked, setPendingClicked] = useState(false);
+  const [isArchivedClicked, setArchivedClicked] = useState(false);
+
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -48,9 +52,21 @@ function Accounts({ isCollapsed }) {
   };
 
   useEffect(() => {
-    const otherUsers = users.filter((u) => u._id !== user.userID);
+    let otherUsers = users.filter((u) => u._id !== user.userID);
+    if (isCurrentClicked) {
+      otherUsers = users.filter(
+        (emp) =>
+          emp.status === "Active" ||
+          emp.status === "Inactive" ||
+          emp.status === "Deactivated"
+      );
+    } else if (isPendingClicked) {
+      otherUsers = users.filter((emp) => emp.status === "Password Not Set");
+    } else if (isArchivedClicked) {
+      otherUsers = users.filter((emp) => emp.status === "Archived");
+    }
     if (search) {
-      const filtered = otherUsers.filter((user) => {
+      otherUsers = otherUsers.filter((user) => {
         const resFirst = user.resID?.firstname || "";
         const resMiddle = user.resID?.middlename || "";
         const resLast = user.resID?.lastname || "";
@@ -71,11 +87,9 @@ function Accounts({ isCollapsed }) {
           username.toLowerCase().includes(lowerSearch)
         );
       });
-      setFilteredUsers(filtered);
-    } else {
-      setFilteredUsers(otherUsers);
     }
-  }, [search, users]);
+    setFilteredUsers(otherUsers);
+  }, [search, users, isCurrentClicked, isPendingClicked, isArchivedClicked]);
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
@@ -119,6 +133,23 @@ function Accounts({ isCollapsed }) {
     }
   };
 
+  const handleMenu1 = () => {
+    setCurrentClicked(true);
+    setPendingClicked(false);
+    setArchivedClicked(false);
+  };
+  const handleMenu2 = () => {
+    setPendingClicked(true);
+    setCurrentClicked(false);
+    setArchivedClicked(false);
+  };
+
+  const handleMenu3 = () => {
+    setArchivedClicked(true);
+    setCurrentClicked(false);
+    setPendingClicked(false);
+  };
+
   //For Pagination
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -132,16 +163,40 @@ function Accounts({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Users</div>
+        <div className="header-text">Accounts</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
-        <button
-          className="flex items-center w-auto space-x-2 mt-10 cursor-pointer text-btn-color-blue ml-0 sm:ml-auto"
-          onClick={handleAdd}
-        >
-          <MdPersonAddAlt1 className="text-xl" />
-          <span className="font-bold">Add new user</span>
-        </button>
+
+        <div className="status-add-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${isCurrentClicked ? "status-line" : ""}`}
+            >
+              Current
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+            >
+              Pending
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`status-text ${
+                isArchivedClicked ? "status-line" : ""
+              }`}
+            >
+              Archived
+            </p>
+          </div>
+          {isCurrentClicked && (
+            <button className="add-container" onClick={handleAdd}>
+              <MdPersonAddAlt1 className="text-xl" />
+              <span className="font-bold">Add new user</span>
+            </button>
+          )}
+        </div>
 
         <hr className="mt-4 border border-gray-300" />
         <table>
@@ -152,14 +207,14 @@ function Accounts({ isCollapsed }) {
               <th>User Role</th>
               <th>Status</th>
               <th>Date Created</th>
-              <th>Action</th>
+              {(isPendingClicked || isCurrentClicked) && <th>Action</th>}
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={6}>No results found</td>
+                <td colSpan={isArchivedClicked ? 5 : 6}>No results found</td>
               </tr>
             ) : (
               currentRows.map((user) => (
@@ -212,60 +267,57 @@ function Accounts({ isCollapsed }) {
                   <td>{user.role}</td>
                   <td>{user.status}</td>
                   <td></td>
-                  <td className="flex justify-between gap-x-3 px-5">
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() => handleEdit(user._id, user.username)}
-                      >
-                        <FaEdit className="text-lg text-[#06D001]" />
-                        <label className="text-xs font-semibold text-[#06D001]">
-                          Edit
-                        </label>
-                      </button>
-                    </div>
+                  {!isArchivedClicked && (
+                    <td className="flex justify-between gap-x-3 px-5">
+                      {(user.status === "Inactive" ||
+                        user.status === "Active" ||
+                        user.status === "Password Not Set") && (
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() => handleEdit(user._id, user.username)}
+                          >
+                            <FaEdit className="text-lg text-[#06D001]" />
+                            <label className="text-xs font-semibold text-[#06D001]">
+                              Edit
+                            </label>
+                          </button>
+                        </div>
+                      )}
 
-                    {(user.status === "Inactive" ||
-                      user.status === "Active") && (
-                      <div className="table-actions-container">
-                        <button
-                          type="button"
-                          className="table-actions-btn"
-                          onClick={() => handleDeactivate(user._id)}
-                        >
-                          <FaUserXmark className="text-lg text-btn-color-red" />
-                          <label className="text-xs font-semibold text-btn-color-red">
-                            Deactivate
-                          </label>
-                        </button>
-                      </div>
-                    )}
+                      {(user.status === "Inactive" ||
+                        user.status === "Active") && (
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() => handleDeactivate(user._id)}
+                          >
+                            <FaUserXmark className="text-lg text-btn-color-red" />
+                            <label className="text-xs font-semibold text-btn-color-red">
+                              Deactivate
+                            </label>
+                          </button>
+                        </div>
+                      )}
 
-                    {user.status === "Deactivated" && (
-                      <div className="table-actions-container">
-                        <button
-                          type="button"
-                          className="table-actions-btn"
-                          onClick={() => handleActivate(user._id)}
-                        >
-                          <FaUserXmark className="text-lg text-btn-color-red" />
-                          <label className="text-xs font-semibold text-btn-color-red">
-                            Activate
-                          </label>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* <div className="table-actions-container">
-                      <button type="button" className="table-actions-btn">
-                        <FaArchive className="text-lg text-btn-color-blue" />
-                        <label className="text-xs font-semibold text-btn-color-blue">
-                          Archive
-                        </label>
-                      </button>
-                    </div> */}
-                  </td>
+                      {user.status === "Deactivated" && (
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() => handleActivate(user._id)}
+                          >
+                            <FaUserXmark className="text-lg text-btn-color-red" />
+                            <label className="text-xs font-semibold text-btn-color-red">
+                              Activate
+                            </label>
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))
             )}

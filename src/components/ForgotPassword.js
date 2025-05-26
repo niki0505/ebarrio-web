@@ -36,6 +36,17 @@ function ForgotPassword() {
     }));
   };
 
+  const handleQuestionsClicked = () => {
+    if (
+      Array.isArray(user.securityquestions) &&
+      user.securityquestions.length === 0
+    ) {
+      alert("It looks like you haven't set up your security questions yet.");
+      return;
+    }
+    setQuestionsClicked(true);
+  };
+
   const handleSubmit = async () => {
     try {
       const response = await api.get(`/checkuser/${username}`);
@@ -463,7 +474,7 @@ function ForgotPassword() {
 
                           <button
                             type="button"
-                            onClick={() => setQuestionsClicked(true)}
+                            onClick={handleQuestionsClicked}
                             className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
                           >
                             <RiQuestionnaireFill className="text-3xl text-navy-blue" />
