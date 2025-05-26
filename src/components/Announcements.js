@@ -195,7 +195,7 @@ function Announcements({ isCollapsed }) {
           </div>
 
           {/* CENTER - ANNOUNCEMENTS */}
-          <div className="w-full lg:w-2/5 p-4">
+          <div className="w-full lg:w-2/5">
             {/* CREATE ANNOUNCEMENT */}
             <div className="announcement-create">
               <img
@@ -347,7 +347,7 @@ function Announcements({ isCollapsed }) {
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="announcement-pin-date-menu">
-                  <h1 className="text-sm text-gray-500">
+                  <h1 className="text-[#808080] text-xs font-medium font-subTitle">
                     {dayjs(announcement.createdAt).fromNow()}
                   </h1>
                   <div>

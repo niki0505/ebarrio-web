@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings } from "react-icons/io";
@@ -24,6 +24,35 @@ const Navbar = ({ isCollapsed }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState(null);
   const [name, setName] = useState(null);
+
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target) &&
+        notificationDropdown
+      ) {
+        setnotificatioDropdown(false);
+      }
+
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target) &&
+        profileDropdown
+      ) {
+        setprofileDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationDropdown, profileDropdown]);
 
   useEffect(() => {
     fetchResidents();
@@ -54,10 +83,18 @@ const Navbar = ({ isCollapsed }) => {
   const handleNotif = async (notifID, redirectTo) => {
     try {
       await api.put(`/readnotification/${notifID}`);
+      setnotificatioDropdown(false);
       navigation(redirectTo);
     } catch (error) {
       console.log("Error in reading notification", error);
     }
+  };
+
+  const truncateNotifMessage = (message, wordLimit = 25) => {
+    const words = message.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + " ..."
+      : message;
   };
 
   return (
@@ -66,34 +103,53 @@ const Navbar = ({ isCollapsed }) => {
         className={`navbar ${isCollapsed ? "left-[5rem]" : "left-[18rem]"}`}
       >
         <div className="navbar-right">
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <IoNotifications
               className="navbar-icon"
               onClick={toggleNotificationDropdown}
             />
             {notificationDropdown && (
-              <div className="absolute right-0 mt-4 bg-white shadow-md rounded-md w-[16rem] h-[20rem] overflow-y-auto hide-scrollbar">
-                <ul className="w-full inline-flex py-2 cursor-pointer items-center"></ul>
+              <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[22rem] h-[20rem] overflow-y-auto hide-scrollbar border border-[#C1C0C0]">
+                <h1 className="text-navy-blue text-lg font-bold p-3">
+                  Notifications
+                </h1>
+
                 {[...notifications]
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((notif, index) => {
                     return (
                       <div
                         onClick={() => handleNotif(notif._id, notif.redirectTo)}
-                        style={{ cursor: "pointer" }}
                         key={index}
+                        className="flex flex-col border-t border-[#C1C0C0] hover:bg-gray-200"
                       >
-                        <label>
-                          {!notif.read ? (
-                            <label style={{ color: "blue" }}>Blue Circle</label>
-                          ) : null}
-                        </label>
-                        <label>{notif.title}</label>
-                        <label>{notif.message}</label>
-                        <label>{dayjs(notif.createdAt).fromNow()}</label>
+                        <div className="flex items-center my-2">
+                          <div
+                            className={`rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 ${
+                              notif.read ? "bg-transparent" : "bg-blue-500"
+                            } `}
+                          ></div>
+
+                          <div className="flex flex-col">
+                            <label className="text-navy-blue font-subTitle text-[12px] font-bold">
+                              {notif.title}
+                            </label>
+                            <label className="text-navy-blue font-subTitle text-[12px] font-semibold">
+                              {truncateNotifMessage(notif.message)}
+                            </label>
+
+                            <label className="text-[#808080] text-[12px] font-subTitle font-semibold">
+                              {dayjs(notif.createdAt).fromNow()}
+                            </label>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
+
+                <h1 className="text-navy-blue text-xs font-semibold p-3 border-t border-[#C1C0C0]">
+                  Mark all as read
+                </h1>
               </div>
             )}
           </div>
@@ -108,7 +164,7 @@ const Navbar = ({ isCollapsed }) => {
             </h2>
           </div>
           {/* Profile Image and Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <IoIosArrowDown onClick={toggleProfileDropdown} />
             {profileDropdown && (
               <div className="navbar-dropdown">
@@ -117,7 +173,10 @@ const Navbar = ({ isCollapsed }) => {
                     <IoMdSettings className="account-icon" />
                     <li
                       className="account-text"
-                      onClick={() => navigation("/account")}
+                      onClick={() => {
+                        setprofileDropdown(false);
+                        navigation("/account");
+                      }}
                     >
                       Account
                     </li>
