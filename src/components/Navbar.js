@@ -104,7 +104,7 @@ const Navbar = ({ isCollapsed }) => {
         <div className="navbar-right">
           <div className="relative" ref={notifRef}>
             {notifications.some((n) => n.read === false) && (
-              <div className="rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 bg-blue-500"></div>
+              <div className="absolute left-1 rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 bg-blue-500"></div>
             )}
 
             <IoNotifications
@@ -113,9 +113,15 @@ const Navbar = ({ isCollapsed }) => {
             />
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[22rem] h-[20rem] overflow-y-auto hide-scrollbar border border-[#C1C0C0]">
-                <h1 className="text-navy-blue text-lg font-bold p-3">
-                  Notifications
-                </h1>
+                <div className="flex flex-row justify-end items-center">
+                  <h1 className="text-navy-blue text-lg font-bold p-3">
+                    Notifications
+                  </h1>
+
+                  <h1 className="text-navy-blue text-xs font-semibold p-3">
+                    Mark all as read
+                  </h1>
+                </div>
 
                 {[...notifications]
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -149,10 +155,6 @@ const Navbar = ({ isCollapsed }) => {
                       </div>
                     );
                   })}
-
-                <h1 className="text-navy-blue text-xs font-semibold p-3 border-t border-[#C1C0C0]">
-                  Mark all as read
-                </h1>
               </div>
             )}
           </div>

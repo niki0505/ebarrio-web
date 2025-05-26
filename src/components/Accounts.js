@@ -171,20 +171,24 @@ function Accounts({ isCollapsed }) {
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isCurrentClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isCurrentClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Current
             </p>
             <p
               onClick={handleMenu2}
-              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Pending
             </p>
             <p
               onClick={handleMenu3}
               className={`status-text ${
-                isArchivedClicked ? "status-line" : ""
+                isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Archived

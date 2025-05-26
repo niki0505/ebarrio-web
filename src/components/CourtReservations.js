@@ -205,14 +205,16 @@ function CourtReservations({ isCollapsed }) {
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Pending
             </p>
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isApprovedClicked ? "status-line" : ""
+                isApprovedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Approved
@@ -220,7 +222,7 @@ function CourtReservations({ isCollapsed }) {
             <p
               onClick={handleMenu3}
               className={`status-text ${
-                isRejectedClicked ? "status-line" : ""
+                isRejectedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Cancelled/Rejected
