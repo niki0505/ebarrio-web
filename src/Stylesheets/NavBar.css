@@ -30,7 +30,7 @@
 .navbar-user-info {
   @apply flex 
     flex-col 
-    items-end 
+    items-start 
     -space-y-1
     text-sm 
     sm:text-base;

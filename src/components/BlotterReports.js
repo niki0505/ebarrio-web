@@ -149,28 +149,32 @@ function BlotterReports({ isCollapsed }) {
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isPendingClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Pending
             </p>
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isScheduledClicked ? "status-line" : ""
+                isScheduledClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Scheduled
             </p>
             <p
               onClick={handleMenu3}
-              className={`status-text ${isSettledClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isSettledClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Settled
             </p>
             <p
               onClick={handleMenu4}
               className={`status-text ${
-                isRejectedClicked ? "status-line" : ""
+                isRejectedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Rejected
