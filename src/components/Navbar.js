@@ -14,7 +14,6 @@ import api from "../api";
 import { SocketContext } from "../context/SocketContext";
 const Navbar = ({ isCollapsed }) => {
   dayjs.extend(relativeTime);
-  const location = useLocation();
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
   const [notificationDropdown, setnotificatioDropdown] = useState(false);
@@ -104,6 +103,10 @@ const Navbar = ({ isCollapsed }) => {
       >
         <div className="navbar-right">
           <div className="relative" ref={notifRef}>
+            {notifications.some((n) => n.read === false) && (
+              <div className="rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 bg-blue-500"></div>
+            )}
+
             <IoNotifications
               className="navbar-icon"
               onClick={toggleNotificationDropdown}
