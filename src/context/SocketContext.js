@@ -12,7 +12,7 @@ export const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
   const navigation = useNavigate();
   const [notifications, setNotifications] = useState([]);
-  const { user } = useContext(AuthContext);
+  const { user, isAuthenticated } = useContext(AuthContext);
   const [socket, setSocket] = useState(null);
 
   const fetchNotifications = async () => {
@@ -24,8 +24,15 @@ export const SocketProvider = ({ children }) => {
     }
   };
 
+  const truncateNotifMessage = (message, wordLimit = 25) => {
+    const words = message.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + "..."
+      : message;
+  };
+
   useEffect(() => {
-    if (!user?.userID) return;
+    if (!isAuthenticated || !user?.userID) return;
 
     const newSocket = io("https://api.ebarrio.online", {
       withCredentials: true,
@@ -55,7 +62,7 @@ export const SocketProvider = ({ children }) => {
             style={{ cursor: "pointer" }}
           >
             <strong>{announcement.title}</strong>
-            <div>{announcement.message}</div>
+            <div>{truncateNotifMessage(announcement.message)}</div>
           </div>
         </>
       );
@@ -122,11 +129,15 @@ export const SocketProvider = ({ children }) => {
     });
 
     setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
   }, [user?.userID, user?.role]);
+
+  useEffect(() => {
+    if (!isAuthenticated && socket && user?.userID) {
+      socket.emit("unregister", user.userID);
+      socket.disconnect();
+      setSocket(null);
+    }
+  }, [isAuthenticated]);
 
   return (
     <SocketContext.Provider

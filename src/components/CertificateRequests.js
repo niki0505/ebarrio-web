@@ -239,7 +239,7 @@ function CertificateRequests({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Certificate Requests</div>
+        <div className="header-text">Document Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
         <div className="flex flex-row gap-x-3 mt-10">

@@ -270,7 +270,9 @@ function CreateAnnouncement({ onClose }) {
                       </select>
                     </div>
                     <div className="employee-form-group">
-                      <label className="form-label">Title</label>
+                      <label className="form-label">
+                        Title<label className="text-red-600">*</label>
+                      </label>
                       <input
                         type="text"
                         id="title"
@@ -281,7 +283,9 @@ function CreateAnnouncement({ onClose }) {
                     </div>
                   </div>
                   <div className="employee-form-group">
-                    <label className="form-label">Content</label>
+                    <label className="form-label">
+                      Content<label className="text-red-600">*</label>
+                    </label>
                     <textarea
                       type="text"
                       id="content"

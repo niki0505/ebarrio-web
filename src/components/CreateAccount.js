@@ -137,11 +137,18 @@ function CreateAccount({ onClose }) {
       return;
     }
     try {
-      const response = await api.post("/createuser", userForm);
-      alert("User successfully created!");
+      await api.post("/createuser", userForm);
+      alert("Account has been created successfully.");
       onClose();
     } catch (error) {
-      console.log("Error creating user");
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {

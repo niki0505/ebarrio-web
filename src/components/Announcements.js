@@ -194,24 +194,24 @@ function Announcements({ isCollapsed }) {
             </div>
           </div>
 
-          {/* CENTER - ANNOUNCEMENTS */}
           <div className="w-full lg:w-2/5 p-4">
-            {/* CREATE ANNOUNCEMENT */}
-            <div className="announcement-create">
-              <img
-                src={user.picture}
-                alt="Profile"
-                className="announcement-profile-img"
-              />
-              <button
-                onClick={handleAdd}
-                className="announcement-create-button"
-              >
-                <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
-                  Create Announcement
-                </label>
-              </button>
-            </div>
+            {(user.role === "Secretary" || user.role === "Clerk") && (
+              <div className="announcement-create">
+                <img
+                  src={user.picture}
+                  alt="Profile"
+                  className="announcement-profile-img"
+                />
+                <button
+                  onClick={handleAdd}
+                  className="announcement-create-button"
+                >
+                  <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
+                    Create Announcement
+                  </label>
+                </button>
+              </div>
+            )}
 
             {/* SORT OPTIONS - NEWEST, LATEST */}
 
@@ -237,12 +237,15 @@ function Announcements({ isCollapsed }) {
                     </h1>
 
                     <div>
-                      <button
-                        onClick={() => togglePin(announcement._id)}
-                        className="mr-1"
-                      >
-                        <BsPinAngle />
-                      </button>
+                      {(user.role === "Secretary" || user.role === "Clerk") && (
+                        <button
+                          onClick={() => togglePin(announcement._id)}
+                          className="mr-1"
+                        >
+                          <BsPinAngle />
+                        </button>
+                      )}
+
                       {(user.role === "Secretary" ||
                         announcement.uploadedby._id === user.empID) && (
                         <button
@@ -347,16 +350,18 @@ function Announcements({ isCollapsed }) {
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="announcement-pin-date-menu">
-                  <h1 className="text-sm text-gray-500">
+                  <h1 className="text-[#808080] text-xs font-medium font-subTitle">
                     {dayjs(announcement.createdAt).fromNow()}
                   </h1>
                   <div>
-                    <button
-                      onClick={() => toggleUnpin(announcement._id)}
-                      className="mr-1"
-                    >
-                      <BsPinAngleFill />
-                    </button>
+                    {(user.role === "Secretary" || user.role === "Clerk") && (
+                      <button
+                        onClick={() => toggleUnpin(announcement._id)}
+                        className="mr-1"
+                      >
+                        <BsPinAngleFill />
+                      </button>
+                    )}
                     {(user.role === "Secretary" ||
                       announcement.uploadedby?._id === user.empID) && (
                       <button

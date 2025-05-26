@@ -53,12 +53,33 @@ function EmergencyHotlines({ isCollapsed }) {
       return;
     }
     try {
-      const response = await api.delete(
-        `/archiveemergencyhotlines/${emergencyID}`
-      );
-      alert("Emergency contact successfully archived!");
+      await api.put(`/archiveemergencyhotlines/${emergencyID}`);
+      alert("Emergency hotline has been successfully archived.");
     } catch (error) {
       console.log("Error archiving emergency contact", error);
+    }
+  };
+
+  const handleRecover = async (emergencyID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this emergency contact?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/recoveremergencyhotlines/${emergencyID}`);
+      alert("Emergency hotline has been successfully recovered.");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
 
@@ -184,37 +205,54 @@ function EmergencyHotlines({ isCollapsed }) {
                   <td>{emergency.name}</td>
                   <td>{emergency.contactnumber}</td>
                   <td className="flex justify-center gap-x-8">
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() =>
-                          handleEdit(
-                            emergency._id,
-                            emergency.name,
-                            emergency.contactnumber
-                          )
-                        }
-                      >
-                        <FaEdit className="text-lg text-[#06D001]" />
-                        <label className="text-xs font-semibold text-[#06D001]">
-                          Edit
-                        </label>
-                      </button>
-                    </div>
+                    {emergency.status === "Active" ? (
+                      <>
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() =>
+                              handleEdit(
+                                emergency._id,
+                                emergency.name,
+                                emergency.contactnumber
+                              )
+                            }
+                          >
+                            <FaEdit className="text-lg text-[#06D001]" />
+                            <label className="text-xs font-semibold text-[#06D001]">
+                              Edit
+                            </label>
+                          </button>
+                        </div>
 
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() => handleArchive(emergency._id)}
-                      >
-                        <FaArchive className="text-lg text-btn-color-red" />
-                        <label className="text-xs font-semibold text-btn-color-red">
-                          Archive
-                        </label>
-                      </button>
-                    </div>
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() => handleArchive(emergency._id)}
+                          >
+                            <FaArchive className="text-lg text-btn-color-red" />
+                            <label className="text-xs font-semibold text-btn-color-red">
+                              Archive
+                            </label>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="table-actions-container">
+                        <button
+                          type="button"
+                          className="table-actions-btn"
+                          onClick={() => handleRecover(emergency._id)}
+                        >
+                          <FaArchive className="text-lg text-btn-color-red" />
+                          <label className="text-xs font-semibold text-btn-color-red">
+                            Recover
+                          </label>
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

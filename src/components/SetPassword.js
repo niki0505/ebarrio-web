@@ -29,9 +29,8 @@ function SetPassword() {
     try {
       await api.put(`/resetpassword/${username}`, {
         password,
-        securityquestions,
       });
-      alert("Password reset successfully!");
+      alert("Your password has been successfully set.");
       setTimeout(() => {
         navigation("/login");
       }, 2000);
@@ -71,7 +70,7 @@ function SetPassword() {
               onChange={(e) => setRePassword(e.target.value)}
               className="form-input h-[35px]"
             />
-            <label>Security Questions</label>
+            {/* <label>Security Questions</label>
             <select
               onChange={(e) =>
                 handleSecurityChange(0, "question", e.target.value)
@@ -117,7 +116,7 @@ function SetPassword() {
                 handleSecurityChange(1, "answer", e.target.value.toLowerCase())
               }
               className="form-input h-[35px]"
-            />
+            /> */}
             <button
               type="submit"
               onClick={handleSubmit}

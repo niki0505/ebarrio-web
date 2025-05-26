@@ -95,6 +95,13 @@ function Residents({ isCollapsed }) {
       try {
         const response = await api.get(`/getresident/${resID}`);
         const response2 = await api.get(`/getcaptain/`);
+        if (
+          !Array.isArray(response.data.brgyID) ||
+          response.data.brgyID.length === 0
+        ) {
+          alert("This resident has not been issued an ID yet.");
+          return;
+        }
         BarangayID({
           resData: response.data,
           captainData: response2.data,
@@ -136,11 +143,33 @@ function Residents({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await api.delete(`/archiveresident/${resID}`);
-        alert("Resident successfully archived");
-        window.location.reload();
+        await api.put(`/archiveresident/${resID}`);
+        alert("Resident has been successfully archived.");
       } catch (error) {
         console.log("Error", error);
+      }
+    }
+  };
+
+  const recoverBtn = async (e, resID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this resident?",
+      "confirmred"
+    );
+    if (isConfirmed) {
+      try {
+        await api.put(`/recoverresident/${resID}`);
+        alert("Resident has been successfully recovered.");
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
       }
     }
   };
@@ -353,36 +382,46 @@ function Residents({ isCollapsed }) {
                               </div>
                             </div>
                           </div>
-                          <div className="btn-container">
-                            <button
-                              className="actions-btn bg-btn-color-red hover:bg-red-700"
-                              type="submit"
-                              onClick={(e) => archiveBtn(e, res._id)}
-                            >
-                              ARCHIVE
-                            </button>
+                          {res.status === "Active" ? (
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                type="submit"
+                                onClick={(e) => archiveBtn(e, res._id)}
+                              >
+                                ARCHIVE
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => handleBRGYID(e, res._id)}
+                              >
+                                BRGY ID
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => certBtn(e, res._id)}
+                              >
+                                CERTIFICATE
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={() => editBtn(res._id)}
+                              >
+                                EDIT
+                              </button>
+                            </div>
+                          ) : (
                             <button
                               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                               type="submit"
-                              onClick={(e) => handleBRGYID(e, res._id)}
+                              onClick={(e) => recoverBtn(e, res._id)}
                             >
-                              BRGY ID
+                              RECOVER
                             </button>
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={(e) => certBtn(e, res._id)}
-                            >
-                              CERTIFICATE
-                            </button>
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={() => editBtn(res._id)}
-                            >
-                              EDIT
-                            </button>
-                          </div>
+                          )}
                         </td>
                       ) : (
                         <>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (userStatus && userStatus === "Deactivated") {
       autologout();
+    } else if (userStatus && userStatus === "Archived") {
+      autologout2();
     }
   }, [userStatus]);
 
@@ -38,7 +40,22 @@ export const AuthProvider = ({ children }) => {
   const autologout = async () => {
     try {
       await api.post(`/deactivateduser/${user.userID}`);
-      alert("You have been deactivated");
+      alert(
+        "You've been logged out because your account has been deactivated. If this is unexpected, please contact the admin."
+      );
+      setIsAuthenticated(false);
+      navigation("/login");
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const autologout2 = async () => {
+    try {
+      await api.post(`/archiveduser`);
+      alert(
+        "You've been logged out because your account has been archived. If this is unexpected, please contact the admin."
+      );
       setIsAuthenticated(false);
       navigation("/login");
     } catch (error) {

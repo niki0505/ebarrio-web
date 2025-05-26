@@ -25,6 +25,7 @@ function EditResident({ isCollapsed }) {
   const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
+
   const [residentForm, setResidentForm] = useState({
     firstname: "",
     middlename: "",
@@ -73,6 +74,7 @@ function EditResident({ isCollapsed }) {
   useEffect(() => {
     fetchResidents();
   }, []);
+
   useEffect(() => {
     if (residentInfo) {
       let houseNumber = "";
@@ -100,6 +102,22 @@ function EditResident({ isCollapsed }) {
         houseNumber = "";
       }
 
+      let formattedNumber =
+        residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
+          ? "+63" + residentInfo.mobilenumber.slice(1)
+          : "";
+
+      let formattedEmergencyNumber =
+        residentInfo.emergencymobilenumber &&
+        residentInfo.emergencymobilenumber.length > 0
+          ? "+63" + residentInfo.emergencymobilenumber.slice(1)
+          : "";
+
+      let formattedTelephone =
+        residentInfo.telephone && residentInfo.telephone.length > 0
+          ? "+63" + residentInfo.telephone.slice(1)
+          : "";
+
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
@@ -107,8 +125,10 @@ function EditResident({ isCollapsed }) {
         numberofchildren: childrenLength,
         street: streetName,
         housenumber: houseNumber,
+        mobilenumber: formattedNumber,
+        emergencymobilenumber: formattedEmergencyNumber,
+        telephone: formattedTelephone,
       }));
-      console.log(streetName);
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
     }
@@ -548,17 +568,34 @@ function EditResident({ isCollapsed }) {
       } else {
         signaturePicture = residentInfo.signature;
       }
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone) {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+
       const updatedResidentForm = {
         ...residentForm,
         picture: idPicture,
         signature: signaturePicture,
         address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
       };
 
-      const response = await api.put(
-        `/updateresident/${resID}`,
-        updatedResidentForm
-      );
+      await api.put(`/updateresident/${resID}`, updatedResidentForm);
       alert("Resident successfully updated!");
       navigation("/residents");
     } catch (error) {
@@ -580,6 +617,40 @@ function EditResident({ isCollapsed }) {
         setIsSignProcessing(false);
       }
     }
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -1002,10 +1073,10 @@ function EditResident({ isCollapsed }) {
               <input
                 name="mobilenumber"
                 value={residentForm.mobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
             </div>
@@ -1014,9 +1085,10 @@ function EditResident({ isCollapsed }) {
               <input
                 name="telephone"
                 value={residentForm.telephone}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={telephoneInputChange}
                 placeholder="Enter telephone"
                 className="form-input"
+                maxLength={11}
               />
             </div>
             <div className="form-group">
@@ -1055,10 +1127,10 @@ function EditResident({ isCollapsed }) {
               <input
                 name="emergencymobilenumber"
                 value={residentForm.emergencymobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
             </div>
