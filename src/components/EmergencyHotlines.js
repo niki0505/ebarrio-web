@@ -208,7 +208,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
               {exportDropdown && (
                 <div
-                  className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md"
+                  className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md"
                   style={{ marginLeft: "-70px" }}
                 >
                   <ul className="w-full">

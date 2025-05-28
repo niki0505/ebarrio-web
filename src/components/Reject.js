@@ -30,11 +30,11 @@ function Reject({ onClose, certID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[20rem]">
+          <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Reject Certificate Request</h1>
+                  <h1 className="modal-title">Reject Document Request</h1>
                   <IoClose
                     onClick={handleClose}
                     class="dialog-title-bar-icon"
@@ -53,7 +53,7 @@ function Reject({ onClose, certID }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[9rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                  className="w-full h-[11rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
                 ></textarea>
                 <div
                   style={{ fontSize: "12px", color: "gray", textAlign: "end" }}

@@ -575,7 +575,7 @@ function CreateResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <div className="flex flex-row gap-x-3 items-center">
+      <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
           className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"

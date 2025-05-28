@@ -41,15 +41,21 @@ function CourtReservations({ isCollapsed }) {
   const [isRejectedClicked, setRejectedClicked] = useState(false);
 
   const exportRef = useRef(null);
+  const filterRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
+  const [filterDropdown, setfilterDropdown] = useState(false);
 
   const toggleExportDropdown = () => {
     setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
   };
 
   useEffect(() => {
@@ -207,12 +213,20 @@ function CourtReservations({ isCollapsed }) {
       ) {
         setexportDropdown(false);
       }
+
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [exportDropdown]);
+  }, [exportDropdown, filterDropdown]);
 
   return (
     <>
@@ -264,7 +278,7 @@ function CourtReservations({ isCollapsed }) {
               </div>
 
               {exportDropdown && (
-                <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
                       <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
@@ -274,6 +288,38 @@ function CourtReservations({ isCollapsed }) {
                     <div className="navbar-dropdown-item">
                       <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
                         Export as PDF
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="relative" ref={filterRef}>
+              {/* Filter Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleFilterDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Filter
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
+              </div>
+
+              {filterDropdown && (
+                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Newest
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Oldest
                       </li>
                     </div>
                   </ul>
