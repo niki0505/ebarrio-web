@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
 import React from "react";
@@ -27,10 +27,17 @@ function BlotterReports({ isCollapsed }) {
   const [isRejectedClicked, setRejectedClicked] = useState(false);
 
   const [search, setSearch] = useState("");
+  const exportRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
 
   useEffect(() => {
     fetchBlotterReports();
@@ -138,6 +145,23 @@ function BlotterReports({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -181,10 +205,48 @@ function BlotterReports({ isCollapsed }) {
             </p>
           </div>
 
-          <button className="add-container" onClick={handleAdd}>
-            <MdPersonAddAlt1 className=" text-xl" />
-            <span className="font-bold">Add new blotter</span>
-          </button>
+          <div className="flex flex-row gap-x-2 mt-4">
+            <div className="relative" ref={exportRef}>
+              {/* Export Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleExportDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Export
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
+              </div>
+
+              {exportDropdown && (
+                <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Export as CSV
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Export as PDF
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+              onClick={handleAdd}
+            >
+              <h1 className="font-medium text-sm text-[#fff] m-0">
+                Add New Blotter
+              </h1>
+            </div>
+          </div>
         </div>
 
         <hr className="mt-4 border border-gray-300" />
@@ -267,7 +329,7 @@ function BlotterReports({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -275,8 +337,8 @@ function BlotterReports({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1 text-[#0E94D3]">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -291,7 +353,7 @@ function BlotterReports({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -300,7 +362,7 @@ function BlotterReports({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>

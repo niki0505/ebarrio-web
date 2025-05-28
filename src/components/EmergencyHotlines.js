@@ -32,9 +32,17 @@ function EmergencyHotlines({ isCollapsed }) {
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
 
+  const exportRef = useRef(null);
+
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
 
   useEffect(() => {
     fetchEmergencyHotlines();
@@ -140,6 +148,23 @@ function EmergencyHotlines({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -172,10 +197,40 @@ function EmergencyHotlines({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-container" onClick={handleAdd}>
-              <MdPersonAddAlt1 className="text-xl" />
-              <span className="font-bold">Add new contact</span>
-            </button>
+            <div className="relative mt-4" ref={exportRef}>
+              {/* Export Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleExportDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Export
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
+              </div>
+
+              {exportDropdown && (
+                <div
+                  className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md"
+                  style={{ marginLeft: "-70px" }}
+                >
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Export as CSV
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        Export as PDF
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
         </div>
         <hr className="mt-4 border border-gray-300" />
@@ -273,7 +328,7 @@ function EmergencyHotlines({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -282,7 +337,7 @@ function EmergencyHotlines({ isCollapsed }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -297,7 +352,7 @@ function EmergencyHotlines({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -306,7 +361,7 @@ function EmergencyHotlines({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>

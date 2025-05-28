@@ -16,7 +16,7 @@ const Navbar = ({ isCollapsed }) => {
   dayjs.extend(relativeTime);
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
-  const [notificationDropdown, setnotificatioDropdown] = useState(false);
+  const [notificationDropdown, setnotificationDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
   const { fetchNotifications, notifications } = useContext(SocketContext);
@@ -35,7 +35,7 @@ const Navbar = ({ isCollapsed }) => {
         !notifRef.current.contains(event.target) &&
         notificationDropdown
       ) {
-        setnotificatioDropdown(false);
+        setnotificationDropdown(false);
       }
 
       if (
@@ -76,13 +76,13 @@ const Navbar = ({ isCollapsed }) => {
   };
 
   const toggleNotificationDropdown = () => {
-    setnotificatioDropdown(!notificationDropdown);
+    setnotificationDropdown(!notificationDropdown);
   };
 
   const handleNotif = async (notifID, redirectTo) => {
     try {
       await api.put(`/readnotification/${notifID}`);
-      setnotificatioDropdown(false);
+      setnotificationDropdown(false);
       navigation(redirectTo);
     } catch (error) {
       console.log("Error in reading notification", error);
@@ -113,7 +113,7 @@ const Navbar = ({ isCollapsed }) => {
             />
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[22rem] h-[20rem] overflow-y-auto hide-scrollbar border border-[#C1C0C0]">
-                <div className="flex flex-row justify-end items-center">
+                <div className="flex flex-row justify-between items-center">
                   <h1 className="text-navy-blue text-lg font-bold p-3">
                     Notifications
                   </h1>
