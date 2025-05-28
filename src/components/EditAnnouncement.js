@@ -354,7 +354,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                       name="content"
                       value={announcementForm.content}
                       onChange={handleInputChange}
-                      className="block w-full h-[140px] rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
+                      className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                     />
                   </div>
                   {/* Event Details */}
@@ -419,64 +419,68 @@ function EditAnnouncement({ onClose, announcementID }) {
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="create-announcement-event-details">
-                          <div className="dialog-title-bar">
-                            <div className="flex flex-col w-full">
-                              <div className="dialog-title-bar-items">
-                                <h1 className="modal-title">Event Details</h1>
-                                <IoClose
-                                  onClick={handleCancel}
-                                  class="dialog-title-bar-icon"
-                                ></IoClose>
+                        <div className="modal-container">
+                          <div className="create-announcement-event-details">
+                            <div className="dialog-title-bar">
+                              <div className="flex flex-col w-full">
+                                <div className="dialog-title-bar-items">
+                                  <h1 className="modal-title">Event Details</h1>
+                                  <IoClose
+                                    onClick={handleCancel}
+                                    class="dialog-title-bar-icon"
+                                  ></IoClose>
+                                </div>
+                                <hr className="dialog-line" />
                               </div>
-                              <hr className="dialog-line" />
                             </div>
-                          </div>
 
-                          <div className="modal-form-container">
-                            <div className="modal-form">
-                              <div className="employee-form-group">
-                                <label className="form-label">Date</label>
-                                <input
-                                  type="date"
-                                  min={new Date().toISOString().split("T")[0]}
-                                  value={announcementForm.eventDate}
-                                  name="eventDate"
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base pr-2"
-                                />
-                              </div>
+                            <div className="modal-form-container">
+                              <div className="modal-form">
+                                <div className="employee-form-group">
+                                  <label className="form-label">Date</label>
+                                  <input
+                                    type="date"
+                                    min={new Date().toISOString().split("T")[0]}
+                                    value={announcementForm.eventDate}
+                                    name="eventDate"
+                                    onChange={handleInputChange}
+                                    className="form-input h-[30px] text-base pr-2"
+                                  />
+                                </div>
 
-                              <div className="employee-form-group">
-                                <label className="form-label">Start Time</label>
-                                <input
-                                  type="time"
-                                  name="eventStartTime"
-                                  value={announcementForm.eventStartTime}
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base pr-2"
-                                />
-                              </div>
+                                <div className="employee-form-group">
+                                  <label className="form-label">
+                                    Start Time
+                                  </label>
+                                  <input
+                                    type="time"
+                                    name="eventStartTime"
+                                    value={announcementForm.eventStartTime}
+                                    onChange={handleInputChange}
+                                    className="form-input h-[30px] text-base pr-2"
+                                  />
+                                </div>
 
-                              <div className="employee-form-group">
-                                <label className="form-label">End Time</label>
-                                <input
-                                  type="time"
-                                  name="eventEndTime"
-                                  value={announcementForm.eventEndTime}
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base pr-2"
-                                />
-                              </div>
+                                <div className="employee-form-group">
+                                  <label className="form-label">End Time</label>
+                                  <input
+                                    type="time"
+                                    name="eventEndTime"
+                                    value={announcementForm.eventEndTime}
+                                    onChange={handleInputChange}
+                                    className="form-input h-[30px] text-base pr-2"
+                                  />
+                                </div>
 
-                              <div className="flex justify-center">
-                                <button
-                                  onClick={handleOK}
-                                  type="button"
-                                  className="actions-btn bg-btn-color-blue"
-                                >
-                                  OK
-                                </button>
+                                <div className="flex justify-center">
+                                  <button
+                                    onClick={handleOK}
+                                    type="button"
+                                    className="actions-btn bg-btn-color-blue"
+                                  >
+                                    OK
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>

@@ -13,7 +13,7 @@ import EditAccount from "./EditAccount";
 
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
-import { FaUserXmark } from "react-icons/fa6";
+import { FaUserXmark, FaUserCheck } from "react-icons/fa6";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -34,15 +34,21 @@ function Accounts({ isCollapsed }) {
   const [isArchivedClicked, setArchivedClicked] = useState(false);
 
   const exportRef = useRef(null);
+  const filterRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
+  const [filterDropdown, setfilterDropdown] = useState(false);
 
   const toggleExportDropdown = () => {
     setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
   };
 
   const handleAdd = () => {
@@ -178,12 +184,20 @@ function Accounts({ isCollapsed }) {
       ) {
         setexportDropdown(false);
       }
+
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [exportDropdown]);
+  }, [exportDropdown, filterDropdown]);
 
   return (
     <>
@@ -236,7 +250,7 @@ function Accounts({ isCollapsed }) {
                 </div>
 
                 {exportDropdown && (
-                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
@@ -246,6 +260,38 @@ function Accounts({ isCollapsed }) {
                       <div className="navbar-dropdown-item">
                         <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
                           Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={filterRef}>
+                {/* Filter Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleFilterDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Filter
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {filterDropdown && (
+                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Newest
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Oldest
                         </li>
                       </div>
                     </ul>
@@ -332,10 +378,26 @@ function Accounts({ isCollapsed }) {
                   </td>
                   <td>{user.username}</td>
                   <td>{user.role}</td>
-                  <td>{user.status}</td>
+                  <td>
+                    <span
+                      className={`text-xs font-semibold px-2 py-1 rounded-full
+                      ${
+                        user.status === "Inactive"
+                          ? "bg-red-100 text-red-800"
+                          : user.status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : user.status === "Deactivated"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : ""
+                      }`}
+                    >
+                      {user.status}
+                    </span>
+                  </td>
+
                   <td></td>
                   {!isArchivedClicked && (
-                    <td className="flex justify-between gap-x-3 px-5">
+                    <td className="flex justify-center gap-x-8">
                       {(user.status === "Inactive" ||
                         user.status === "Active" ||
                         user.status === "Password Not Set") && (
@@ -376,8 +438,8 @@ function Accounts({ isCollapsed }) {
                             className="table-actions-btn"
                             onClick={() => handleActivate(user._id)}
                           >
-                            <FaUserXmark className="text-lg text-btn-color-red" />
-                            <label className="text-xs font-semibold text-btn-color-red">
+                            <FaUserCheck className="text-lg text-[#06D001]" />
+                            <label className="text-xs font-semibold text-[#06D001]">
                               Activate
                             </label>
                           </button>

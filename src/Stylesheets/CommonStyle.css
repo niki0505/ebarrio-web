@@ -128,6 +128,16 @@ td {
   @apply border-b-4 border-btn-color-blue;
 }
 
+/* Hide default eye icon in some browsers */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
 /*RESPONSIVE*/
 @media (max-width: 640px) {
 }

@@ -28,7 +28,7 @@ function CourtReject({ onClose, reservationID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[20rem] ">
+          <div className="modal-content w-[30rem] h-[22rem] ">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -53,7 +53,7 @@ function CourtReject({ onClose, reservationID }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[9rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                  className="w-full h-[11rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
                 ></textarea>
                 <div
                   style={{

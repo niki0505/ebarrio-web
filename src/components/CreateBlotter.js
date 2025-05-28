@@ -218,7 +218,7 @@ function CreateBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="flex flex-row gap-x-3 items-center">
+        <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
           <h1
             onClick={() => navigation("/blotter-reports")}
             className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
@@ -419,7 +419,7 @@ function CreateBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 onChange={handleInputChange}
-                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                className="w-full h-[15rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>

@@ -33,6 +33,7 @@ function Announcements({ isCollapsed }) {
   const [menuVisible, setMenuVisible] = useState(null);
   const [expandedAnnouncements, setExpandedAnnouncements] = useState([]);
   const [sortOption, setSortOption] = useState("Newest");
+  const menuRef = useRef(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -188,6 +189,22 @@ function Announcements({ isCollapsed }) {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        menuVisible
+      ) {
+        setMenuVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuVisible]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -292,7 +309,7 @@ function Announcements({ isCollapsed }) {
 
                   {/* MENU */}
                   {menuVisible === announcement._id && (
-                    <div className="announcement-menu">
+                    <div className="announcement-menu" ref={menuRef}>
                       <ul className="w-full">
                         {sortOption === "Archived" ? (
                           <div
@@ -421,7 +438,7 @@ function Announcements({ isCollapsed }) {
 
                   {/* MENU */}
                   {menuVisible === announcement._id && (
-                    <div className="announcement-menu">
+                    <div className="announcement-menu" ref={menuRef}>
                       <ul className="w-full">
                         <div className="navbar-dropdown-item justify-start">
                           <FaEdit className="ml-2" />

@@ -761,6 +761,18 @@ function Dashboard({ isCollapsed }) {
                 center: "title",
                 right: "dayGridMonth,timeGridWeek,timeGridDay",
               }}
+              datesSet={(viewInfo) => {
+                document.body.classList.remove(
+                  "fc-month-view",
+                  "fc-week-view",
+                  "fc-day-view"
+                );
+                if (viewInfo.view.type === "dayGridMonth") {
+                  document.body.classList.add("fc-month-view");
+                } else {
+                  document.body.classList.add("fc-week-view"); // or fc-day-view
+                }
+              }}
             />
           </div>
         </div>

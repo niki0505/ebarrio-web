@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const { setUser, setIsAuthenticated } = useContext(AuthContext);
@@ -11,6 +12,7 @@ const Login = () => {
   const navigation = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const location = useLocation();
 
@@ -135,12 +137,23 @@ const Login = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="form-input"
               />
-              <input
-                type="password"
-                placeholder="Enter password"
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input"
-              />
+              <div className="relative w-full">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-input w-full"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <FaEye /> : <FaEyeSlash />}
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

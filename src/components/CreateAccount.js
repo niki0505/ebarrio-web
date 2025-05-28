@@ -6,6 +6,7 @@ import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+import { MdAutorenew } from "react-icons/md";
 
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
@@ -281,7 +282,7 @@ function CreateAccount({ onClose }) {
                       className="absolute right-2 top-1/2 transform -translate-y-1/2"
                       onClick={generatePassword}
                     >
-                      <FaEyeSlash className="text-gray-500 mr-1" />
+                      <MdAutorenew className="text-gray-500 mr-1" />
                     </button>
                   </div>
                 </div>
