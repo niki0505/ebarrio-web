@@ -267,7 +267,7 @@ function BlotterReports({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -275,8 +275,8 @@ function BlotterReports({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1 text-[#0E94D3]">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -291,7 +291,7 @@ function BlotterReports({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -300,7 +300,7 @@ function BlotterReports({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>
