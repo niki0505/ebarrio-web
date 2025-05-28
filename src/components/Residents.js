@@ -183,13 +183,8 @@ function Residents({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    const sanitizedText = text.replace(/[^a-zA-Z0-9\s]/g, "");
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -200,14 +195,19 @@ function Residents({ isCollapsed }) {
       filtered = residents.filter((res) => res.status === "Archived");
     }
     if (search) {
+      const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((resident) => {
         const first = resident.firstname || "";
         const middle = resident.middlename || "";
         const last = resident.lastname || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search);
+        return searchParts.every(
+          (part) =>
+            fullName.includes(part) ||
+            resident.address.toLowerCase().includes(part)
+        );
       });
     }
     setFilteredResidents(filtered);

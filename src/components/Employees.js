@@ -174,13 +174,8 @@ function Employees({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    const sanitizedText = text.replace(/[^a-zA-Z0-9\s]/g, "");
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -191,15 +186,20 @@ function Employees({ isCollapsed }) {
       filtered = employees.filter((emp) => emp.status === "Archived");
     }
     if (search) {
+      const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((emp) => {
         const first = emp.resID.firstname || "";
         const middle = emp.resID.middlename || "";
         const last = emp.resID.lastname || "";
         const position = emp.position || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search) || position.includes(search);
+        return searchParts.every(
+          (part) =>
+            fullName.includes(part) ||
+            emp.resID.address.toLowerCase().includes(part)
+        );
       });
     }
     setFilteredEmployees(filtered);

@@ -62,13 +62,20 @@ function Announcements({ isCollapsed }) {
   );
 
   /* SORTED ANNOUNCEMENTS */
-  const sortedAnnouncements = [...filteredAnnouncements].sort((a, b) => {
-    if (sortOption === "Newest") {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    } else {
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    }
-  });
+  let sortedAnnouncements;
+  if (sortOption === "Newest") {
+    sortedAnnouncements = [...filteredAnnouncements].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  } else if (sortOption === "Oldest") {
+    sortedAnnouncements = [...filteredAnnouncements].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+  } else if (sortOption === "Archived") {
+    sortedAnnouncements = filteredAnnouncements.filter(
+      (item) => item.status === "Archived"
+    );
+  }
 
   /* PIN ANNOUNCEMENT */
   const togglePin = async (announcementID) => {
@@ -159,7 +166,26 @@ function Announcements({ isCollapsed }) {
     }
     try {
       await api.put(`/archiveannouncement/${announcementID}`);
-    } catch (error) {}
+      alert("The announcement has been successfully archived.");
+    } catch (error) {
+      console.log("Error in archiving announcement", error);
+    }
+  };
+
+  const handleRecover = async (announcementID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this announcement?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/recoverannouncement/${announcementID}`);
+      alert("The announcement has been successfully recovered.");
+    } catch (error) {
+      console.log("Error in recovering announcement", error);
+    }
   };
 
   return (
@@ -223,12 +249,17 @@ function Announcements({ isCollapsed }) {
               >
                 <option value="Newest">Newest</option>
                 <option value="Oldest">Oldest</option>
+                <option value="Archived">Archived</option>
               </select>
             </div>
 
             {/* ALL ANNOUNCEMENTS */}
             {sortedAnnouncements
-              .filter((announcement) => announcement.status === "Not Pinned")
+              .filter((announcement) =>
+                sortOption === "Archived"
+                  ? announcement.status === "Archived"
+                  : announcement.status === "Not Pinned"
+              )
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card">
                   <div className="announcement-pin-date-menu">
@@ -237,14 +268,15 @@ function Announcements({ isCollapsed }) {
                     </h1>
 
                     <div>
-                      {(user.role === "Secretary" || user.role === "Clerk") && (
-                        <button
-                          onClick={() => togglePin(announcement._id)}
-                          className="mr-1"
-                        >
-                          <BsPinAngle />
-                        </button>
-                      )}
+                      {(user.role === "Secretary" || user.role === "Clerk") &&
+                        sortOption !== "Archived" && (
+                          <button
+                            onClick={() => togglePin(announcement._id)}
+                            className="mr-1"
+                          >
+                            <BsPinAngle />
+                          </button>
+                        )}
 
                       {(user.role === "Secretary" ||
                         announcement.uploadedby._id === user.empID) && (
@@ -262,24 +294,38 @@ function Announcements({ isCollapsed }) {
                   {menuVisible === announcement._id && (
                     <div className="announcement-menu">
                       <ul className="w-full">
-                        <div
-                          className="navbar-dropdown-item justify-start"
-                          onClick={() => handleEdit(announcement._id)}
-                        >
-                          <FaEdit className="ml-2" />
-                          <li className="text-sm font-semibold ml-2 font-subTitle">
-                            Edit
-                          </li>
-                        </div>
-                        <div
-                          className="navbar-dropdown-item justify-start"
-                          onClick={() => handleArchive(announcement._id)}
-                        >
-                          <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
-                            Archive
-                          </li>
-                        </div>
+                        {sortOption === "Archived" ? (
+                          <div
+                            className="navbar-dropdown-item justify-start"
+                            onClick={() => handleRecover(announcement._id)}
+                          >
+                            <FaEdit className="ml-2" />
+                            <li className="text-sm font-semibold ml-2 font-subTitle">
+                              Recover
+                            </li>
+                          </div>
+                        ) : (
+                          <>
+                            <div
+                              className="navbar-dropdown-item justify-start"
+                              onClick={() => handleEdit(announcement._id)}
+                            >
+                              <FaEdit className="ml-2" />
+                              <li className="text-sm font-semibold ml-2 font-subTitle">
+                                Edit
+                              </li>
+                            </div>
+                            <div
+                              className="navbar-dropdown-item justify-start"
+                              onClick={() => handleArchive(announcement._id)}
+                            >
+                              <IoArchiveSharp className="text-red-600 ml-2" />
+                              <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
+                                Archive
+                              </li>
+                            </div>
+                          </>
+                        )}
                       </ul>
                     </div>
                   )}

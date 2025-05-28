@@ -286,7 +286,7 @@ function CreateAnnouncement({ onClose }) {
                     <label className="form-label">
                       Content<label className="text-red-600">*</label>
                     </label>
-                    <textarea
+                    <input
                       type="text"
                       id="content"
                       name="content"

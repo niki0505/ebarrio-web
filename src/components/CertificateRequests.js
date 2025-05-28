@@ -54,12 +54,7 @@ function CertificateRequests({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -99,7 +94,7 @@ function CertificateRequests({ isCollapsed }) {
 
         const fullName = `${first} ${middle} ${last}`.trim();
 
-        return fullName.includes(search);
+        return fullName.toLowerCase().includes(search.toLowerCase());
       });
     }
     setFilteredCertificates(filtered);
@@ -139,11 +134,6 @@ function CertificateRequests({ isCollapsed }) {
     let response3 = await api.get(`/getcertificate/${certID}`);
     const response4 = await api.get(`/getcaptain/`);
     const response5 = await api.get(`/getprepared/${user.userID}`);
-
-    console.log("Cert Data", response3.data);
-    console.log("Captain Data", response4.data);
-    console.log("Prepared By Data", response5.data);
-    console.log("Updated At", response3.data.updatedAt);
 
     if (response3.data.typeofcertificate === "Barangay Indigency") {
       if (response3.data.status === "Pending") {

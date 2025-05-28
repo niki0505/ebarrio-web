@@ -67,12 +67,7 @@ function CourtReservations({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -97,9 +92,9 @@ function CourtReservations({ isCollapsed }) {
         const middle = court.resID.middlename || "";
         const last = court.resID.lastname || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search);
+        return fullName.includes(search.toLowerCase());
       });
     }
     setFilteredReservations(filtered);

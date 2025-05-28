@@ -99,12 +99,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -120,7 +115,7 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     if (search) {
       filtered = filtered.filter((emergency) => {
-        return emergency.name.includes(search);
+        return emergency.name.toLowerCase().includes(search.toLowerCase());
       });
     }
     setFilteredEmergencyHotlines(filtered);

@@ -1,20 +1,15 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
-import { useConfirm } from "../context/ConfirmContext";
-import { AuthContext } from "../context/AuthContext";
-import api from "../api";
 import ViewBlotter from "./ViewBlotter";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 function BlotterReports({ isCollapsed }) {
-  const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchBlotterReports, blotterreports } = useContext(InfoContext);
   const [filteredBlotterReports, setFilteredBlotterReports] = useState([]);
@@ -49,12 +44,7 @@ function BlotterReports({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   const handleRowClick = (blotterID) => {
@@ -87,7 +77,7 @@ function BlotterReports({ isCollapsed }) {
             ? `${first} ${middle} ${last}`.trim()
             : complainantname;
 
-        return fullName.includes(search);
+        return fullName.toLowerCase().includes(search.toLowerCase());
       });
     }
     setFilteredBlotterReports(filtered);
@@ -257,7 +247,7 @@ function BlotterReports({ isCollapsed }) {
               <th>Blotter No.</th>
               <th>Complainant</th>
               <th>Subject of the Complaint</th>
-              <th>Incident Type</th>
+              <th>Type of the Incident</th>
               {isPendingClicked && <th>Date Submitted</th>}
               {isScheduledClicked && <th>Date Scheduled</th>}
               {isSettledClicked && <th>Date Settled</th>}
@@ -299,7 +289,7 @@ function BlotterReports({ isCollapsed }) {
                           } ${blot.subjectID.middlename || ""}`.trim()
                         : blot.subjectname}
                     </td>
-                    <td className="p-2">{blot.type}</td>
+                    <td className="p-2">{blot.typeofthecomplaint}</td>
                     {isPendingClicked && (
                       <td className="p-2">{blot.createdAt.split(" at ")[0]}</td>
                     )}

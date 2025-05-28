@@ -12,7 +12,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { IoIosArrowDown } from "react-icons/io";
 import api from "../api";
 import { SocketContext } from "../context/SocketContext";
+import { useConfirm } from "../context/ConfirmContext";
 const Navbar = ({ isCollapsed }) => {
+  const confirm = useConfirm();
   dayjs.extend(relativeTime);
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
@@ -96,6 +98,25 @@ const Navbar = ({ isCollapsed }) => {
       : message;
   };
 
+  const handleLogout = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to log out?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    logout();
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await api.put("/readnotifications");
+    } catch (error) {
+      console.log("Error in marking all as read", error);
+    }
+  };
+
   return (
     <>
       <header
@@ -114,11 +135,22 @@ const Navbar = ({ isCollapsed }) => {
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[22rem] h-[20rem] overflow-y-auto hide-scrollbar border border-[#C1C0C0]">
                 <div className="flex flex-row justify-between items-center">
+                  <label>
+                    {notifications.reduce(
+                      (count, notification) =>
+                        notification.read ? count : count + 1,
+                      0
+                    )}
+                  </label>
+
                   <h1 className="text-navy-blue text-lg font-bold p-3">
                     Notifications
                   </h1>
 
-                  <h1 className="text-navy-blue text-xs font-semibold p-3">
+                  <h1
+                    onClick={markAllAsRead}
+                    className="text-navy-blue text-xs font-semibold p-3 cursor-pointer"
+                  >
                     Mark all as read
                   </h1>
                 </div>
@@ -188,8 +220,8 @@ const Navbar = ({ isCollapsed }) => {
                   </div>
                   <div className="navbar-dropdown-item ">
                     <PiSignOutBold className="signout-icon" />
-                    <li className="signout-text" onClick={logout}>
-                      Sign Out
+                    <li className="signout-text" onClick={handleLogout}>
+                      Log Out
                     </li>
                   </div>
                 </ul>

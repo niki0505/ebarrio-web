@@ -88,6 +88,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <FaUsersCog />,
       path: "/accounts",
     },
+    user.role === "Secretary" && {
+      title: "Activity Logs",
+      icon: <FaUsersCog />,
+      path: "/activity-logs",
+    },
   ].filter(Boolean);
 
   return (

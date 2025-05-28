@@ -183,11 +183,6 @@ function Dashboard({ isCollapsed }) {
     fetchBlotterData();
   }, [blotterreports]);
 
-  // Check the structure
-  console.log("Document Requests", documentData);
-  console.log("Reservation Requests", reservationData);
-  console.log("Blotters", blotterData);
-
   useEffect(() => {
     if (user.role === "Secretary" || user.role === "Clerk") {
       const announcementEvents = (announcements || [])
@@ -750,15 +745,21 @@ function Dashboard({ isCollapsed }) {
 
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="timeGridWeek"
+              initialView="dayGridMonth"
               slotEventOverlap={false}
               dayMaxEventRows={true}
+              allDaySlot={false}
               events={events}
               height="auto"
               eventTimeFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
+              }}
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
               }}
             />
           </div>
