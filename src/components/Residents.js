@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
 import React from "react";
@@ -8,15 +8,15 @@ import SearchBar from "./SearchBar";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIDBack from "../assets/brgyidback.png";
-import BrgyIDFront from "../assets/brgyidfront.png";
-import ReactDOM from "react-dom/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateCertificate from "./CreateCertificate";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import BarangayID from "./id/BarangayID";
+import { AuthContext } from "../context/AuthContext";
 
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
@@ -25,10 +25,9 @@ function Residents({ isCollapsed }) {
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
-  const [isBrgyIDClicked, setBrgyIDClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
-
+  const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
 
@@ -224,6 +223,86 @@ function Residents({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = () => {
+    const title = "Barangay Aniban 2 Residents";
+    const now = new Date().toLocaleString();
+    const headers = ["Name", "Age", "Sex", "Mobile No.", "Address"];
+    const rows = filteredResidents
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((res) => {
+        const fullname = res.middlename
+          ? `${res.lastname} ${res.middlename} ${res.firstname}`
+          : `${res.lastname} ${res.firstname}`;
+
+        return [
+          fullname,
+          res.age,
+          res.sex,
+          `"${res.mobilenumber.replace(/"/g, '""')}"`,
+          `"${res.address.replace(/"/g, '""')}"`,
+        ];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${title.replace(" ", "_")}_by_${user.name.replace(" ", "_")}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportPDF = () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+    const title = "Barangay Aniban 2 Residents";
+    doc.text(`${title}`, 14, 10);
+    doc.text(`Exported by: ${user.name}`, 14, 18);
+    doc.text(`Exported on: ${now}`, 14, 26);
+
+    const rows = filteredResidents
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((res) => {
+        const fullname = res.middlename
+          ? `${res.lastname} ${res.middlename} ${res.firstname}`
+          : `${res.lastname} ${res.firstname}`;
+
+        return [fullname, res.age, res.sex, res.mobilenumber, res.address];
+      });
+
+    autoTable(doc, {
+      head: [["Name", "Age", "Sex", "Mobile No.", "Address"]],
+      body: rows,
+      startY: 30,
+    });
+
+    doc.save(
+      `${title.replace(" ", "_")}_by_${user.name.replace(" ", "_")}.pdf`
+    );
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -262,6 +341,8 @@ function Residents({ isCollapsed }) {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Age</th>
+              <th>Sex</th>
               <th>Mobile No.</th>
               <th>Address</th>
             </tr>
@@ -270,7 +351,7 @@ function Residents({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredResidents.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={3}>No results found</td>
+                <td colSpan={5}>No results found</td>
               </tr>
             ) : (
               currentRows
@@ -292,7 +373,7 @@ function Residents({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === res._id ? (
-                        <td colSpan={3}>
+                        <td colSpan={5}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img src={res.picture} className="profile-img" />
@@ -432,6 +513,8 @@ function Residents({ isCollapsed }) {
                               ? `${res.lastname} ${res.middlename} ${res.firstname}`
                               : `${res.lastname} ${res.firstname}`}
                           </td>
+                          <td>{res.age}</td>
+                          <td>{res.sex}</td>
                           <td>{res.mobilenumber}</td>
                           <td>{res.address}</td>
                         </>
@@ -489,6 +572,17 @@ function Residents({ isCollapsed }) {
             </button>
           </div>
         </div>
+        {isActiveClicked && (
+          <>
+            <button type="button" onClick={exportCSV}>
+              Export as CSV
+            </button>
+            <button type="button" onClick={exportPDF}>
+              Export as PDF
+            </button>
+          </>
+        )}
+
         {isCertClicked && (
           <CreateCertificate
             resID={selectedResID}

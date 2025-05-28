@@ -7,15 +7,15 @@ import { MdPersonAddAlt1 } from "react-icons/md";
 import "../Stylesheets/Employees.css";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import EmployeeIDFront from "../assets/employeeidfront.png";
-import EmployeeIDBack from "../assets/employeeidback.png";
-import ReactDOM from "react-dom/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
 import EditEmployee from "./EditEmployee";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import EmployeeID from "./id/EmployeeID";
+import { AuthContext } from "../context/AuthContext";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -24,6 +24,7 @@ function Employees({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
+  const { user } = useContext(AuthContext);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
@@ -214,6 +215,94 @@ function Employees({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = () => {
+    const title = "Barangay Aniban 2 Employees";
+    const now = new Date().toLocaleString();
+    const headers = ["Name", "Age", "Sex", "Mobile No.", "Address", "Position"];
+    const rows = filteredEmployees
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((emp) => {
+        const fullname = emp.resID.middlename
+          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+
+        return [
+          fullname,
+          emp.resID.age,
+          emp.resID.sex,
+          `"${emp.resID.mobilenumber.replace(/"/g, '""')}"`,
+          `"${emp.resID.address.replace(/"/g, '""')}"`,
+          emp.position,
+        ];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${title.replace(" ", "_")}_by_${user.name.replace(" ", "_")}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportPDF = () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+    const title = "Barangay Aniban 2 Employees";
+    doc.text(`${title}`, 14, 10);
+    doc.text(`Exported by: ${user.name}`, 14, 18);
+    doc.text(`Exported on: ${now}`, 14, 26);
+
+    const rows = filteredEmployees
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((emp) => {
+        const fullname = emp.resID.middlename
+          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+
+        return [
+          fullname,
+          emp.resID.age,
+          emp.resID.sex,
+          emp.resID.mobilenumber,
+          emp.resID.address,
+          emp.position,
+        ];
+      });
+
+    autoTable(doc, {
+      head: [["Name", "Age", "Sex", "Mobile No.", "Address", "Position"]],
+      body: rows,
+      startY: 30,
+    });
+
+    doc.save(
+      `${title.replace(" ", "_")}_by_${user.name.replace(" ", "_")}.pdf`
+    );
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -252,17 +341,18 @@ function Employees({ isCollapsed }) {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Age</th>
+              <th>Sex</th>
               <th>Mobile No.</th>
               <th>Address</th>
               <th>Position</th>
-              {/* <th>Schedule</th> */}
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredEmployees.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={4}>No results found</td>
+                <td colSpan={6}>No results found</td>
               </tr>
             ) : (
               currentRows
@@ -284,7 +374,7 @@ function Employees({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === emp._id ? (
-                        <td colSpan={4}>
+                        <td colSpan={6}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img
@@ -412,6 +502,8 @@ function Employees({ isCollapsed }) {
                               ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
                               : `${emp.resID.lastname} ${emp.resID.firstname}`}
                           </td>
+                          <td>{emp.resID.age}</td>
+                          <td>{emp.resID.sex}</td>
                           <td>{emp.resID.mobilenumber}</td>
                           <td>{emp.resID.address}</td>
                           <td>{emp.position}</td>
@@ -470,6 +562,17 @@ function Employees({ isCollapsed }) {
             </button>
           </div>
         </div>
+
+        {isActiveClicked && (
+          <>
+            <button type="button" onClick={exportCSV}>
+              Export as CSV
+            </button>
+            <button type="button" onClick={exportPDF}>
+              Export as PDF
+            </button>
+          </>
+        )}
         {isCreateClicked && (
           <CreateEmployee onClose={() => setCreateClicked(false)} />
         )}

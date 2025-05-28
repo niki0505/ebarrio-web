@@ -275,7 +275,6 @@ function CertificateRequests({ isCollapsed }) {
             <tr>
               <th>Name</th>
               <th>Type of Certificate</th>
-              <th>Amount</th>
               {isPendingClicked && <th>Date Requested</th>}
               {isIssuedClicked && <th>Date Issued</th>}
               {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
@@ -285,7 +284,7 @@ function CertificateRequests({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredCertificates.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={5}>No results found</td>
+                <td colSpan={4}>No results found</td>
               </tr>
             ) : (
               currentRows.map((cert) => (
@@ -301,7 +300,7 @@ function CertificateRequests({ isCollapsed }) {
                     }}
                   >
                     {expandedRow === cert._id ? (
-                      <td colSpan={5}>
+                      <td colSpan={4}>
                         {/* Additional Information for the resident */}
                         {cert.typeofcertificate === "Barangay Clearance" ||
                           (cert.typeofcertificate === "Barangay Indigency" && (
@@ -332,11 +331,6 @@ function CertificateRequests({ isCollapsed }) {
                                     <p className="font-medium">
                                       {cert.purpose}
                                     </p>
-                                  </div>
-
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Amount:</h1>
-                                    <p className="font-medium">{cert.amount}</p>
                                   </div>
 
                                   <div className="flex flex-row gap-x-2">
@@ -446,11 +440,6 @@ function CertificateRequests({ isCollapsed }) {
                                 </div>
 
                                 <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Amount:</h1>
-                                  <p className="font-medium">{cert.amount}</p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
                                   <h1 className="font-bold">Date Requested:</h1>
                                   <p className="font-medium">
                                     {cert.createdAt.substring(
@@ -502,7 +491,6 @@ function CertificateRequests({ isCollapsed }) {
                             : `${cert.resID.lastname} ${cert.resID.firstname}`}
                         </td>
                         <td>{cert.typeofcertificate}</td>
-                        <td>{cert.amount}</td>
                         {isPendingClicked && (
                           <td>
                             {cert.createdAt.substring(

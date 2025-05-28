@@ -242,7 +242,6 @@ function CourtReservations({ isCollapsed }) {
               <th>Name</th>
               <th>Purpose</th>
               <th>Date & Time</th>
-              <th>Amount</th>
               {isRejectedClicked && <th>Remarks</th>}
               {isPendingClicked && <th>Action</th>}
             </tr>
@@ -252,7 +251,7 @@ function CourtReservations({ isCollapsed }) {
             {filteredReservations.length === 0 ? (
               <tr className="bg-white">
                 <td
-                  colSpan={isApprovedClicked ? 4 : 5}
+                  colSpan={isApprovedClicked ? 3 : 4}
                   className="text-center p-2"
                 >
                   No results found
@@ -274,7 +273,6 @@ function CourtReservations({ isCollapsed }) {
                     </td>
                     <td className="p-2">{court.purpose}</td>
                     <td className="p-2">{formattedDatetime}</td>
-                    <td className="p-2">{court.amount}</td>
                     {isPendingClicked && court.status == "Pending" && (
                       <td className="flex justify-center gap-x-8">
                         <>
