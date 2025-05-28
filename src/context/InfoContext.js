@@ -24,6 +24,86 @@ export const InfoProvider = ({ children }) => {
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
 
+  const residentInitialForm = {
+    id: "",
+    signature: "",
+    firstname: "",
+    middlename: "",
+    lastname: "",
+    suffix: "",
+    alias: "",
+    salutation: "",
+    sex: "",
+    gender: "",
+    birthdate: "",
+    birthplace: "",
+    civilstatus: "",
+    bloodtype: "",
+    religion: "",
+    nationality: "",
+    voter: "",
+    precinct: "",
+    deceased: "",
+    email: "",
+    mobilenumber: "+63",
+    telephone: "+63",
+    facebook: "",
+    emergencyname: "",
+    emergencymobilenumber: "+63",
+    emergencyaddress: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
+    mother: "",
+    father: "",
+    spouse: "",
+    siblings: [],
+    children: [],
+    numberofsiblings: "",
+    numberofchildren: "",
+    employmentstatus: "",
+    employmentfield: "",
+    occupation: "",
+    monthlyincome: "",
+    educationalattainment: "",
+    typeofschool: "",
+    course: "",
+  };
+  const blotterInitialForm = {
+    complainantID: "",
+    complainantname: "",
+    complainantaddress: "",
+    complainantcontactno: "",
+    complainantsignature: "",
+    subjectID: "",
+    subjectname: "",
+    subjectaddress: "",
+    typeofthecomplaint: "",
+    details: "",
+    date: "",
+    starttime: "",
+    endtime: "",
+  };
+
+  const [residentForm, setResidentForm] = useState(() => {
+    const savedForm = localStorage.getItem("residentForm");
+    return savedForm ? JSON.parse(savedForm) : residentInitialForm;
+  });
+
+  const [blotterForm, setBlotterForm] = useState(() => {
+    const savedForm = localStorage.getItem("blotterForm");
+    return savedForm ? JSON.parse(savedForm) : blotterInitialForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("residentForm", JSON.stringify(residentForm));
+  }, [residentForm]);
+
+  useEffect(() => {
+    localStorage.setItem("blotterForm", JSON.stringify(blotterForm));
+  }, [blotterForm]);
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchUsers();
@@ -152,6 +232,10 @@ export const InfoProvider = ({ children }) => {
           announcements,
           courtreservations,
           blotterreports,
+          residentForm,
+          blotterForm,
+          setBlotterForm,
+          setResidentForm,
           fetchResidents,
           fetchEmployees,
           fetchUsers,

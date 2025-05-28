@@ -4,10 +4,14 @@ import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import ViewBlotter from "./ViewBlotter";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { AuthContext } from "../context/AuthContext";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function BlotterReports({ isCollapsed }) {
   const navigation = useNavigate();
@@ -15,7 +19,7 @@ function BlotterReports({ isCollapsed }) {
   const [filteredBlotterReports, setFilteredBlotterReports] = useState([]);
   const [isBlotterClicked, setBlotterClicked] = useState(false);
   const [selectedBlotter, setSelectedBlotter] = useState(null);
-
+  const { user } = useContext(AuthContext);
   const [isPendingClicked, setPendingClicked] = useState(true);
   const [isScheduledClicked, setScheduledClicked] = useState(false);
   const [isSettledClicked, setSettledClicked] = useState(false);
@@ -141,6 +145,183 @@ function BlotterReports({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = () => {
+    const title = "Barangay Aniban 2 Blotter Reports";
+    const now = new Date().toLocaleString();
+    const headers = [
+      "No.",
+      "Complainant",
+      "Subject of the Complaint",
+      "Type of Incident",
+      "Witness",
+      "Date Settled",
+    ];
+    const rows = filteredBlotterReports
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((blot) => {
+        const complainant = blot.complainantID
+          ? `${blot.complainantID.lastname} ${blot.complainantID.firstname} ${
+              blot.complainantID.middlename || ""
+            }`.trim()
+          : blot.complainantname;
+        const subject = blot.subjectID
+          ? `${blot.subjectID.lastname} ${blot.subjectID.firstname} ${
+              blot.subjectID.middlename || ""
+            }`.trim()
+          : blot.subjectname;
+        const witness = blot.witnessID
+          ? `${blot.witnessID.lastname} ${blot.witnessID.firstname} ${
+              blot.witnessID.middlename || ""
+            }`.trim()
+          : blot.witnessname;
+        const settledDate = blot.updatedAt.split(" at ")[0];
+
+        return [
+          blot.blotterno,
+          complainant,
+          subject,
+          blot.typeofthecomplaint,
+          witness,
+          `${settledDate.replace(",", "")}`,
+        ];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_Blotter_Reports_by_${user.name.replace(/ /g, "_")}.csv`
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+  };
+
+  const exportPDF = () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text("Blotter Reports", pageWidth / 2, 55, {
+      align: "center",
+    });
+
+    // Table
+    const rows = filteredBlotterReports
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((blot) => {
+        const complainant = blot.complainantID
+          ? `${blot.complainantID.lastname} ${blot.complainantID.firstname} ${
+              blot.complainantID.middlename || ""
+            }`.trim()
+          : blot.complainantname;
+        const subject = blot.subjectID
+          ? `${blot.subjectID.lastname} ${blot.subjectID.firstname} ${
+              blot.subjectID.middlename || ""
+            }`.trim()
+          : blot.subjectname;
+        const witness = blot.witnessID
+          ? `${blot.witnessID.lastname} ${blot.witnessID.firstname} ${
+              blot.witnessID.middlename || ""
+            }`.trim()
+          : blot.witnessname;
+        const settledDate = blot.updatedAt.split(" at ")[0];
+
+        return [
+          blot.blotterno,
+          complainant,
+          subject,
+          blot.typeofthecomplaint,
+          witness,
+          `${settledDate.replace(",", "")}`,
+        ];
+      });
+
+    autoTable(doc, {
+      head: [
+        [
+          "No.",
+          "Complainant",
+          "Subject of the Complaint",
+          "Type of the Complaint",
+          "Witness",
+          "Date Settled",
+        ],
+      ],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_Blotter_Reports_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+  };
+
   //To handle close when click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -209,71 +390,82 @@ function BlotterReports({ isCollapsed }) {
             </p>
           </div>
 
-          <div className="flex flex-row gap-x-2 mt-4">
-            <div className="relative" ref={exportRef}>
-              {/* Export Button */}
-              <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleExportDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Export
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
-                </div>
-              </div>
+          {isSettledClicked && (
+            <div className="flex flex-row gap-x-2 mt-4">
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
 
-              {exportDropdown && (
-                <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as CSV
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as PDF
-                      </li>
-                    </div>
-                  </ul>
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
                 </div>
-              )}
+
+                {exportDropdown && (
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportCSV}
+                        >
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="relative" ref={filterRef}>
+            {/* Filter Button */}
+            <div
+              className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+              onClick={toggleFilterDropdown}
+            >
+              <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                Filter
+              </h1>
+              <div className="pointer-events-none flex text-gray-600">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
+              </div>
             </div>
 
-            <div className="relative" ref={filterRef}>
-              {/* Filter Button */}
-              <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleFilterDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Filter
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
-                </div>
+            {filterDropdown && (
+              <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                <ul className="w-full">
+                  <div className="navbar-dropdown-item">
+                    <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                      Newest
+                    </li>
+                  </div>
+                  <div className="navbar-dropdown-item">
+                    <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                      Oldest
+                    </li>
+                  </div>
+                </ul>
               </div>
+            )}
+          </div>
 
-              {filterDropdown && (
-                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Newest
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Oldest
-                      </li>
-                    </div>
-                  </ul>
-                </div>
-              )}
-            </div>
-
+          {isScheduledClicked && (
             <div
               className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
               onClick={handleAdd}
@@ -282,7 +474,7 @@ function BlotterReports({ isCollapsed }) {
                 Add New Blotter
               </h1>
             </div>
-          </div>
+          )}
         </div>
 
         <hr className="mt-4 border border-gray-300" />
@@ -290,12 +482,13 @@ function BlotterReports({ isCollapsed }) {
         <table>
           <thead>
             <tr>
-              <th>Blotter No.</th>
+              {isSettledClicked && <th>No.</th>}
               <th>Complainant</th>
               <th>Subject of the Complaint</th>
               <th>Type of the Incident</th>
               {isPendingClicked && <th>Date Submitted</th>}
               {isScheduledClicked && <th>Date Scheduled</th>}
+              {isSettledClicked && <th>Witness</th>}
               {isSettledClicked && <th>Date Settled</th>}
             </tr>
           </thead>
@@ -303,7 +496,10 @@ function BlotterReports({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredBlotterReports.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={5} className="text-center p-2">
+                <td
+                  colSpan={isSettledClicked ? 6 : 4}
+                  className="text-center p-2"
+                >
                   No results found
                 </td>
               </tr>
@@ -320,7 +516,10 @@ function BlotterReports({ isCollapsed }) {
                       e.currentTarget.style.backgroundColor = "";
                     }}
                   >
-                    <td className="p-2">{blot.blotterno}</td>
+                    {isSettledClicked && (
+                      <td className="p-2">{blot.blotterno}</td>
+                    )}
+
                     <td className="p-2">
                       {blot.complainantID
                         ? `${blot.complainantID.lastname} ${
@@ -344,6 +543,15 @@ function BlotterReports({ isCollapsed }) {
                         {blot.starttime?.split(" at ")[0]},{" "}
                         {blot.starttime?.split(" at ")[1]} -{" "}
                         {blot.endtime?.split(" at ")[1]}
+                      </td>
+                    )}
+                    {isSettledClicked && (
+                      <td className="p-2">
+                        {blot.witnessID
+                          ? `${blot.witnessID.lastname} ${
+                              blot.witnessID.firstname
+                            } ${blot.witnessID.middlename || ""}`.trim()
+                          : blot.witnessname}
                       </td>
                     )}
                     {isSettledClicked && (

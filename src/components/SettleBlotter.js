@@ -36,7 +36,7 @@ function SettleBlotter({ isCollapsed }) {
     subjectID: "",
     subjectname: "",
     subjectaddress: "",
-    type: "",
+    typeofthecomplaint: "",
     details: "",
   });
 
@@ -83,7 +83,7 @@ function SettleBlotter({ isCollapsed }) {
           subjectaddress: response.data.subjectID
             ? response.data.subjectID.address
             : response.data.subjectaddress,
-          type: response.data.type,
+          typeofthecomplaint: response.data.typeofthecomplaint,
           details: response.data.details,
         }));
       } catch (error) {
@@ -381,9 +381,9 @@ function SettleBlotter({ isCollapsed }) {
                 Type of the Incident
               </label>
               <select
-                id="type"
-                name="type"
-                value={blotterForm.type}
+                id="typeofthecomplaint"
+                name="typeofthecomplaint"
+                value={blotterForm.typeofthecomplaint}
                 className="form-input h-[30px]"
                 readOnly
               >

@@ -5,7 +5,6 @@ import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import jsPDF from "jspdf";
@@ -241,19 +240,20 @@ function Residents({ isCollapsed }) {
   const exportCSV = () => {
     const title = "Barangay Aniban 2 Residents";
     const now = new Date().toLocaleString();
-    const headers = ["Name", "Age", "Sex", "Mobile No.", "Address"];
+    const headers = ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"];
     const rows = filteredResidents
       .sort((a, b) => {
         const nameA = `${a.lastname}`.toLowerCase();
         const nameB = `${b.lastname}`.toLowerCase();
         return nameA.localeCompare(nameB);
       })
-      .map((res) => {
+      .map((res, index) => {
         const fullname = res.middlename
           ? `${res.lastname} ${res.middlename} ${res.firstname}`
           : `${res.lastname} ${res.firstname}`;
 
         return [
+          index + 1,
           fullname,
           res.age,
           res.sex,
@@ -297,7 +297,7 @@ function Residents({ isCollapsed }) {
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor Cavite City", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
       align: "center",
     });
 
@@ -308,17 +308,25 @@ function Residents({ isCollapsed }) {
     // Table
     const rows = filteredResidents
       .sort((a, b) => a.lastname.localeCompare(b.lastname))
-      .map((res) => {
+      .map((res, index) => {
         const fullname = res.middlename
           ? `${res.lastname} ${res.middlename} ${res.firstname}`
           : `${res.lastname} ${res.firstname}`;
-        return [fullname, res.age, res.sex, res.mobilenumber, res.address];
+        return [
+          index + 1,
+          fullname,
+          res.age,
+          res.sex,
+          res.mobilenumber,
+          res.address,
+        ];
       });
 
     autoTable(doc, {
-      head: [["Name", "Age", "Sex", "Mobile No.", "Address"]],
+      head: [["No", "Name", "Age", "Sex", "Mobile No.", "Address"]],
       body: rows,
       startY: 65,
+      margin: { bottom: 30 },
       didDrawPage: function (data) {
         const pageHeight = doc.internal.pageSize.height;
 

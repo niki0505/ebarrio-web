@@ -292,7 +292,7 @@ function Employees({ isCollapsed }) {
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor Cavite City", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
       align: "center",
     });
 
@@ -302,8 +302,8 @@ function Employees({ isCollapsed }) {
 
     const rows = filteredEmployees
       .sort((a, b) => {
-        const nameA = `${a.lastname}`.toLowerCase();
-        const nameB = `${b.lastname}`.toLowerCase();
+        const nameA = `${a.resID.lastname}`.toLowerCase();
+        const nameB = `${b.resID.lastname}`.toLowerCase();
         return nameA.localeCompare(nameB);
       })
       .map((emp) => {
@@ -325,6 +325,7 @@ function Employees({ isCollapsed }) {
       head: [["Name", "Age", "Sex", "Mobile No.", "Address", "Position"]],
       body: rows,
       startY: 65,
+      margin: { bottom: 30 },
       didDrawPage: function (data) {
         const pageHeight = doc.internal.pageSize.height;
 

@@ -1,19 +1,14 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import IndigencyPrint from "./certificates/IndigencyPrint";
-import CreateCertificate from "./CreateCertificate";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
 import { AuthContext } from "../context/AuthContext";
@@ -21,15 +16,17 @@ import Reject from "./Reject";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function CertificateRequests({ isCollapsed }) {
   const location = useLocation();
   const { cancelled } = location.state || {};
   const confirm = useConfirm();
-  const navigation = useNavigate();
   const { fetchCertificates, certificates } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
-  //   const [certificates, setCertificates] = useState([]);
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [search, setSearch] = useState("");
@@ -62,10 +59,6 @@ function CertificateRequests({ isCollapsed }) {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
     setSearch(sanitizedText);
   };
-
-  useEffect(() => {
-    console.log("location.state:", location.state);
-  }, []);
 
   useEffect(() => {
     if (cancelled) {
@@ -155,6 +148,8 @@ function CertificateRequests({ isCollapsed }) {
         });
         response3 = await api.get(`/getcertificate/${certID}`);
       }
+      setIssuedClicked(true);
+      setPendingClicked(false);
       IndigencyPrint({
         certData: response3.data,
         captainData: response4.data,
@@ -177,6 +172,8 @@ function CertificateRequests({ isCollapsed }) {
         });
         response3 = await api.get(`/getcertificate/${certID}`);
       }
+      setIssuedClicked(true);
+      setPendingClicked(false);
       ClearancePrint({
         certData: response3.data,
         captainData: response4.data,
@@ -199,6 +196,8 @@ function CertificateRequests({ isCollapsed }) {
         });
         response3 = await api.get(`/getcertificate/${certID}`);
       }
+      setIssuedClicked(true);
+      setPendingClicked(false);
       BusinessClearancePrint({
         certData: response3.data,
         captainData: response4.data,
@@ -238,6 +237,142 @@ function CertificateRequests({ isCollapsed }) {
 
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
+
+  const exportCSV = () => {
+    const title = "Barangay Aniban 2 Document Requests Reports";
+    const now = new Date().toLocaleString();
+    const headers = ["Name", "Type of Certificate", "Date Issued"];
+    const rows = filteredCertificates
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((cert) => {
+        const fullname = cert.resID.middlename
+          ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
+          : `${cert.resID.lastname} ${cert.resID.firstname}`;
+        const issuedDate = cert.updatedAt.substring(
+          0,
+          cert.updatedAt.indexOf(" at")
+        );
+
+        return [
+          fullname,
+          cert.typeofcertificate,
+          `${issuedDate.replace(",", "")}`,
+        ];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_Document_Requests_by_${user.name.replace(
+        / /g,
+        "_"
+      )}.csv`
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+  };
+
+  const exportPDF = () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text("Document Requests Reports", pageWidth / 2, 55, {
+      align: "center",
+    });
+
+    // Table
+    const rows = filteredCertificates
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((cert) => {
+        const fullname = cert.resID.middlename
+          ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
+          : `${cert.resID.lastname} ${cert.resID.firstname}`;
+        const issuedDate = cert.updatedAt.substring(
+          0,
+          cert.updatedAt.indexOf(" at")
+        );
+
+        return [cert.certno, fullname, cert.typeofcertificate, issuedDate];
+      });
+
+    autoTable(doc, {
+      head: [["No.", "Name", "Type of Certificate", "Date Issued"]],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_Document_Requests_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+  };
 
   //To handle close when click outside
   useEffect(() => {
@@ -298,74 +433,82 @@ function CertificateRequests({ isCollapsed }) {
             </p>
           </div>
 
-          <div className="flex flex-row gap-x-2 mt-4">
-            <div className="relative" ref={exportRef}>
-              {/* Export Button */}
-              <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleExportDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Export
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
-                </div>
-              </div>
-
-              {exportDropdown && (
+          {isIssuedClicked && (
+            <div className="flex flex-row gap-x-2 mt-4">
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
                 <div
-                  className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md"
-                  style={{ marginLeft: "-70px" }}
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
                 >
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as CSV
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as PDF
-                      </li>
-                    </div>
-                  </ul>
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
                 </div>
-              )}
-            </div>
 
-            <div className="relative" ref={filterRef}>
-              {/* Filter Button */}
-              <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleFilterDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Filter
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
-                </div>
+                {exportDropdown && (
+                  <div
+                    className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md"
+                    style={{ marginLeft: "-70px" }}
+                  >
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportCSV}
+                        >
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              {filterDropdown && (
-                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Newest
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Oldest
-                      </li>
-                    </div>
-                  </ul>
+              <div className="relative" ref={filterRef}>
+                {/* Filter Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleFilterDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Filter
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
                 </div>
-              )}
+
+                {filterDropdown && (
+                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Newest
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Oldest
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <hr className="mt-4 border border-gray-300" />
@@ -373,6 +516,7 @@ function CertificateRequests({ isCollapsed }) {
         <table>
           <thead>
             <tr>
+              {isIssuedClicked && <th>No.</th>}
               <th>Name</th>
               <th>Type of Certificate</th>
               {isPendingClicked && <th>Date Requested</th>}
@@ -384,7 +528,7 @@ function CertificateRequests({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredCertificates.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={4}>No results found</td>
+                <td colSpan={isIssuedClicked ? 5 : 4}>No results found</td>
               </tr>
             ) : (
               currentRows.map((cert) => (
@@ -400,7 +544,7 @@ function CertificateRequests({ isCollapsed }) {
                     }}
                   >
                     {expandedRow === cert._id ? (
-                      <td colSpan={4}>
+                      <td colSpan={isIssuedClicked ? 5 : 4}>
                         {/* Additional Information for the resident */}
                         {cert.typeofcertificate === "Barangay Clearance" ||
                           (cert.typeofcertificate === "Barangay Indigency" && (
@@ -585,6 +729,7 @@ function CertificateRequests({ isCollapsed }) {
                       </td>
                     ) : (
                       <>
+                        {isIssuedClicked && <td>{cert.certno}</td>}
                         <td>
                           {cert.resID.middlename
                             ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
