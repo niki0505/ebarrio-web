@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import CreateEmployee from "./CreateEmployee";
@@ -31,6 +31,7 @@ function Employees({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const exportRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -264,11 +265,13 @@ function Employees({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `${title.replace(" ", "_")}_by_${user.name.replace(" ", "_")}.csv`
+      `Barangay_Aniban_2_Employees_by_${user.name.replace(/ /g, "_")}.csv`
     );
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setexportDropdown(false);
   };
 
   const exportPDF = () => {
@@ -348,7 +351,25 @@ function Employees({ isCollapsed }) {
       "_"
     )}.pdf`;
     doc.save(filename);
+    setexportDropdown(false);
   };
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown]);
 
   return (
     <>
@@ -378,7 +399,7 @@ function Employees({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="flex flex-row gap-x-2 mt-4">
-              <div className="relative">
+              <div className="relative" ref={exportRef}>
                 {/* Export Button */}
                 <div
                   className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"

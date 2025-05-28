@@ -16,7 +16,7 @@ const Navbar = ({ isCollapsed }) => {
   dayjs.extend(relativeTime);
   const navigation = useNavigate();
   const [profileDropdown, setprofileDropdown] = useState(false);
-  const [notificationDropdown, setnotificatioDropdown] = useState(false);
+  const [notificationDropdown, setnotificationDropdown] = useState(false);
   const { logout, user } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
   const { fetchNotifications, notifications } = useContext(SocketContext);
@@ -35,7 +35,7 @@ const Navbar = ({ isCollapsed }) => {
         !notifRef.current.contains(event.target) &&
         notificationDropdown
       ) {
-        setnotificatioDropdown(false);
+        setnotificationDropdown(false);
       }
 
       if (
@@ -76,13 +76,13 @@ const Navbar = ({ isCollapsed }) => {
   };
 
   const toggleNotificationDropdown = () => {
-    setnotificatioDropdown(!notificationDropdown);
+    setnotificationDropdown(!notificationDropdown);
   };
 
   const handleNotif = async (notifID, redirectTo) => {
     try {
       await api.put(`/readnotification/${notifID}`);
-      setnotificatioDropdown(false);
+      setnotificationDropdown(false);
       navigation(redirectTo);
     } catch (error) {
       console.log("Error in reading notification", error);
