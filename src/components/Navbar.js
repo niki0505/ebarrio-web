@@ -113,7 +113,7 @@ const Navbar = ({ isCollapsed }) => {
             />
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[22rem] h-[20rem] overflow-y-auto hide-scrollbar border border-[#C1C0C0]">
-                <div className="flex flex-row justify-end items-center">
+                <div className="flex flex-row justify-between items-center">
                   <h1 className="text-navy-blue text-lg font-bold p-3">
                     Notifications
                   </h1>
