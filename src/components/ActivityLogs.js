@@ -69,6 +69,7 @@ function ActivityLogs({ isCollapsed }) {
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
+                        justifyContent: "center",
                         gap: 10,
                         textAlign: "left",
                       }}

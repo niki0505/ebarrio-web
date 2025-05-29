@@ -113,6 +113,14 @@ function CourtReservations({ isCollapsed }) {
   ]);
 
   const formatDateRange = (startDate, endDate) => {
+    if (!startDate || !endDate) return "Invalid date";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Check if dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return "Invalid date";
+
     const options = {
       year: "numeric",
       month: "long",
@@ -128,13 +136,9 @@ function CourtReservations({ isCollapsed }) {
       hour12: true,
     };
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
     const startFormatted = new Intl.DateTimeFormat("en-US", options).format(
       start
     );
-
     const endFormatted = new Intl.DateTimeFormat("en-US", timeOptions).format(
       end
     );
@@ -376,7 +380,19 @@ function CourtReservations({ isCollapsed }) {
                         : `${court.resID.lastname} ${court.resID.firstname}`}
                     </td>
                     <td className="p-2">{court.purpose}</td>
-                    <td className="p-2">{formattedDatetime}</td>
+                    <td>
+                      {court.times && Object.entries(court.times).length > 0 ? (
+                        Object.entries(court.times).map(
+                          ([dateKey, time], index) => (
+                            <div key={index}>
+                              {formatDateRange(time.starttime, time.endtime)}
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <div>No times available</div>
+                      )}
+                    </td>
                     {isPendingClicked && court.status == "Pending" && (
                       <td className="flex justify-center gap-x-8">
                         <>

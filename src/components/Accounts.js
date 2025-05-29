@@ -512,6 +512,7 @@ function Accounts({ isCollapsed }) {
                         flexDirection: "row",
                         alignItems: "center",
                         gap: 10,
+                        paddingLeft: "40px",
                       }}
                     >
                       <img

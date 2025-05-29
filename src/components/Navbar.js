@@ -72,17 +72,14 @@ const Navbar = ({ isCollapsed }) => {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && residents) {
-      residents.map((res) => {
-        if (res.empID?._id === user.empID) {
-          setProfilePic(res.picture);
-          setName(`${res.firstname} ${res.lastname}`);
-        }
-      });
+    if (isAuthenticated && Array.isArray(residents) && user) {
+      const match = residents.find((res) => res?.empID?._id === user.empID);
+      if (match) {
+        setProfilePic(match.picture);
+        setName(`${match.firstname} ${match.lastname}`);
+      }
     }
-  }, [isAuthenticated, residents]);
-
-  if (!user) return null;
+  }, [isAuthenticated, residents, user]);
 
   const toggleProfileDropdown = () => {
     setprofileDropdown(!profileDropdown);
@@ -245,9 +242,11 @@ const Navbar = ({ isCollapsed }) => {
           {/* User Information */}
           <div className="navbar-user-info">
             <h2 className="text-navy-blue font-bold text-base">{name}</h2>
-            <h2 className="text-[#808080] text-sm font-semibold font-subTitle">
-              {user.role}
-            </h2>
+            {user?.role && (
+              <h2 className="text-[#808080] text-sm font-semibold font-subTitle">
+                {user.role}
+              </h2>
+            )}
           </div>
           {/* Profile Image and Dropdown */}
           <div className="relative" ref={profileRef}>

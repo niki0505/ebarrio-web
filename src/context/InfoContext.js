@@ -2,8 +2,6 @@ import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
-import { useRouteError } from "react-router-dom";
-
 // Create a context for socket connection
 export const SocketContext = createContext();
 
@@ -24,6 +22,16 @@ export const InfoProvider = ({ children }) => {
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
+
+  const announcementInitialForm = {
+    category: "",
+    title: "",
+    content: "",
+    picture: "",
+    date: [],
+    times: {},
+    eventdetails: "",
+  };
 
   const residentInitialForm = {
     id: "",
@@ -97,6 +105,11 @@ export const InfoProvider = ({ children }) => {
     return savedForm ? JSON.parse(savedForm) : blotterInitialForm;
   });
 
+  const [announcementForm, setAnnouncementForm] = useState(() => {
+    const savedForm = localStorage.getItem("announcementForm");
+    return savedForm ? JSON.parse(savedForm) : announcementInitialForm;
+  });
+
   useEffect(() => {
     localStorage.setItem("residentForm", JSON.stringify(residentForm));
   }, [residentForm]);
@@ -104,6 +117,10 @@ export const InfoProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("blotterForm", JSON.stringify(blotterForm));
   }, [blotterForm]);
+
+  useEffect(() => {
+    localStorage.setItem("announcementForm", JSON.stringify(announcementForm));
+  }, [announcementForm]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -246,6 +263,8 @@ export const InfoProvider = ({ children }) => {
           blotterreports,
           residentForm,
           blotterForm,
+          announcementForm,
+          setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
           setBlotterForm,

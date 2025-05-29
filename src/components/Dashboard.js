@@ -187,37 +187,40 @@ function Dashboard({ isCollapsed }) {
     if (user.role === "Secretary" || user.role === "Clerk") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
-        .filter((a) => a.eventStart && a.eventEnd)
-        .map((a) => ({
-          title: a.title,
-          start: a.eventStart,
-          end: a.eventEnd,
-          backgroundColor:
-            a.category === "General"
-              ? "#FF0000"
-              : a.category === "Health & Sanitation"
-              ? "#FFB200"
-              : a.category === "Public Safety & Emergency"
-              ? "#2600FF"
-              : a.category === "Education & Youth"
-              ? "#770ED3"
-              : a.category === "Social Services"
-              ? "#FA7020"
-              : a.category === "Infrastructure"
-              ? "#FA7020"
-              : a.category === "Court Reservations"
-              ? "#CF0ED3"
-              : "#3174ad",
-        }));
-
+        .filter((a) => a.times)
+        .flatMap((a) =>
+          Object.entries(a.times).map(([dateKey, timeObj]) => ({
+            title: a.title,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor:
+              a.category === "General"
+                ? "#FF0000"
+                : a.category === "Health & Sanitation"
+                ? "#FFB200"
+                : a.category === "Public Safety & Emergency"
+                ? "#2600FF"
+                : a.category === "Education & Youth"
+                ? "#770ED3"
+                : a.category === "Social Services"
+                ? "#FA7020"
+                : a.category === "Infrastructure"
+                ? "#FA7020"
+                : a.category === "Court Reservations"
+                ? "#CF0ED3"
+                : "#3174ad",
+          }))
+        );
       const approvedReservationEvents = (courtreservations || [])
         .filter((r) => r.status === "Approved")
-        .map((r) => ({
-          title: `${r.resID?.lastname}, ${r.resID?.firstname}`,
-          start: r.starttime,
-          end: r.endtime,
-          backgroundColor: "#770ED3",
-        }));
+        .flatMap((r) =>
+          Object.entries(r.times || {}).map(([dateKey, timeObj]) => ({
+            title: `${r.resID?.lastname}, ${r.resID?.firstname} - ${r.purpose}`,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor: "#770ED3",
+          }))
+        );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
     } else if (user.role === "Justice") {

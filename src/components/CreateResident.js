@@ -18,8 +18,6 @@ function CreateResident({ isCollapsed }) {
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  // const [id, setId] = useState(null);
-  // const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
   const initialForm = {
