@@ -1,14 +1,12 @@
 import axios from "axios";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
-import { useLocation, useNavigate } from "react-router-dom";
+import { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const navigation = useNavigate();
-  const location = useLocation();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [userStatus, setUserStatus] = useState(null);
@@ -18,6 +16,8 @@ export const AuthProvider = ({ children }) => {
       autologout();
     } else if (userStatus && userStatus === "Archived") {
       autologout2();
+    } else if (userStatus && userStatus === "Password Not Set") {
+      autologout3();
     }
   }, [userStatus]);
 
@@ -55,6 +55,19 @@ export const AuthProvider = ({ children }) => {
       await api.post(`/archiveduser`);
       alert(
         "You've been logged out because your account has been archived. If this is unexpected, please contact the admin."
+      );
+      setIsAuthenticated(false);
+      navigation("/login");
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const autologout3 = async () => {
+    try {
+      await api.post(`/updateduser`);
+      alert(
+        "You've been logged out because your account credentials has been updated. If this is unexpected, please contact the admin."
       );
       setIsAuthenticated(false);
       navigation("/login");

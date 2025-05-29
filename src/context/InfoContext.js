@@ -23,6 +23,7 @@ export const InfoProvider = ({ children }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
+  const [activitylogs, setActivityLogs] = useState([]);
 
   const residentInitialForm = {
     id: "",
@@ -193,6 +194,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchActivityLogs = async () => {
+    try {
+      const response = await api.get("/getactivitylogs");
+      setActivityLogs(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch activity logs:", error);
+    }
+  };
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -212,6 +222,8 @@ export const InfoProvider = ({ children }) => {
         setCourtReservations(updatedData.data);
       } else if (updatedData.type === "blotterreports") {
         setBlotterReports(updatedData.data);
+      } else if (updatedData.type === "activitylogs") {
+        setActivityLogs(updatedData.data);
       }
     });
 
@@ -234,6 +246,8 @@ export const InfoProvider = ({ children }) => {
           blotterreports,
           residentForm,
           blotterForm,
+          fetchActivityLogs,
+          activitylogs,
           setBlotterForm,
           setResidentForm,
           fetchResidents,

@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
+import { useState } from "react";
 import "../App.css";
-import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import api from "../api";
 
 function Reject({ onClose, certID }) {
   const [remarks, setRemarks] = useState("");
@@ -11,7 +9,7 @@ function Reject({ onClose, certID }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.put(
+      await api.put(
         `http://localhost:5000/api/rejectcertificatereq/${certID}`,
         { remarks }
       );

@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 import { InfoContext } from "../context/InfoContext";
@@ -30,7 +29,6 @@ function AccountSettings({ isCollapsed }) {
     { question: "", answer: "" },
     { question: "", answer: "" },
   ]);
-  const navigation = useNavigate();
   const confirm = useConfirm();
   const [residentInfo, setResidentInfo] = useState([]);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
@@ -86,14 +84,10 @@ function AccountSettings({ isCollapsed }) {
     course: "",
   });
 
-  //To toggle password eye icon
-  //Change Username
   const [showUserPassword, setShowUserPassword] = useState(false);
-  //Change Password
   const [showCurrPassword, setShowCurrPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  //Edit Security Questions
   const [showAnswer1, setShowAnswer1] = useState(false);
   const [showConfirmAnswer1, setShowConfirmAnswer1] = useState(false);
   const [showAnswer2, setShowAnswer2] = useState(false);
@@ -143,7 +137,6 @@ function AccountSettings({ isCollapsed }) {
     };
     fetchUserDetails();
   }, [user.userID]);
-  console.log(residentInfo);
 
   const handleMenu1 = () => {
     setPassword("");
@@ -188,6 +181,13 @@ function AccountSettings({ isCollapsed }) {
   ];
 
   const handleUsernameChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your username?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     if (username === user.username) {
       alert("The new username must be different from the current username.");
       return;
@@ -221,6 +221,13 @@ function AccountSettings({ isCollapsed }) {
   };
 
   const handlePasswordChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your password?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     if (newpassword !== renewpassword) {
       alert("Passwords do not match.");
       return;
@@ -245,6 +252,13 @@ function AccountSettings({ isCollapsed }) {
   };
 
   const handleQuestionsChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your security questions?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     const modifiedQuestions = securityquestions.map((q, index) => {
       const current = userDetails.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
@@ -265,7 +279,6 @@ function AccountSettings({ isCollapsed }) {
       alert("No changes detected in your security questions.");
       return;
     }
-    console.log(modifiedQuestions);
     try {
       await api.put(`/changesecurityquestions/${user.userID}`, {
         securityquestions: modifiedQuestions,

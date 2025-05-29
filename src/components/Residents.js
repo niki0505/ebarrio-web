@@ -81,7 +81,7 @@ function Residents({ isCollapsed }) {
         const response = await api.post(`/generatebrgyID/${resID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
         try {
-          const response2 = await api.put(`/savebrgyID/${resID}`, {
+          await api.put(`/savebrgyID/${resID}`, {
             idNumber: response.data.idNumber,
             expirationDate: response.data.expirationDate,
             qrCode,
@@ -115,10 +115,15 @@ function Residents({ isCollapsed }) {
           alert("This resident has not been issued an ID yet.");
           return;
         }
-        BarangayID({
-          resData: response.data,
-          captainData: response2.data,
-        });
+        try {
+          await api.post(`/printcurrentbrgyid/${resID}`);
+          BarangayID({
+            resData: response.data,
+            captainData: response2.data,
+          });
+        } catch (error) {
+          console.log("Error in printing current barangay ID", error);
+        }
       } catch (error) {
         console.log("Error viewing current barangay ID", error);
       }
@@ -133,13 +138,13 @@ function Residents({ isCollapsed }) {
     fetchResidents();
   }, []);
 
-  const buttonClick = (e, resID) => {
-    e.stopPropagation();
-    alert(`Clicked ${resID}`);
-  };
-
-  const editBtn = (resID) => {
-    navigation("/edit-resident", { state: { resID } });
+  const editBtn = async (resID) => {
+    try {
+      await api.post(`/viewresidentdetails/${resID}`);
+      navigation("/edit-resident", { state: { resID } });
+    } catch (error) {
+      console.log("Error in viewing resident details", error);
+    }
   };
 
   const certBtn = (e, resID) => {

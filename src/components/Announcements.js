@@ -1,9 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import CreateAnnouncement from "./CreateAnnouncement";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
@@ -14,14 +12,13 @@ import EditAnnouncement from "./EditAnnouncement";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
-import { IoPencilSharp, IoArchiveSharp } from "react-icons/io5";
+import { IoArchiveSharp } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa";
-import { FaArchive, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
   const confirm = useConfirm();
-  const navigation = useNavigate();
   const { fetchAnnouncements, announcements } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
   const [isCreateClicked, setCreateClicked] = useState(false);
@@ -54,7 +51,6 @@ function Announcements({ isCollapsed }) {
     setSelectedAnnouncement(announcementID);
   };
 
-  console.log(user);
   /* FILTER CATEGORY */
   const filteredAnnouncements = announcements.filter(
     (announcement) =>
