@@ -189,7 +189,7 @@ function CreateReservation({ onClose }) {
     <>
       {showModal && (
         <div className="modal-container">
-          <div className="modal-content h-[32rem] w-[30rem]">
+          <div className="modal-content h-[25rem] w-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -220,7 +220,7 @@ function CreateReservation({ onClose }) {
                     id="resID"
                     name="resID"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input"
                     value={reservationForm.resID}
                   >
                     <option value="" disabled>
@@ -245,7 +245,7 @@ function CreateReservation({ onClose }) {
                     id="purpose"
                     name="purpose"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input"
                     value={reservationForm.purpose}
                   >
                     <option value="" disabled>
@@ -269,8 +269,21 @@ function CreateReservation({ onClose }) {
                     value={reservationForm.date}
                     onChange={handleDateChange}
                     format="YYYY-MM-DD"
-                    className="form-input"
                     placeholder="Select multiple dates"
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "35px",
+                      borderRadius: "8px",
+                      paddingLeft: "0.5rem",
+                      border: "1px solid #C1C0C0",
+                      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                      fontFamily: "Quicksand",
+                      fontWeight: 500,
+                      fontSize: "0.875rem",
+                      appearance: "none",
+                      outline: "none",
+                    }}
                   />
                 </div>
 
@@ -285,9 +298,12 @@ function CreateReservation({ onClose }) {
                       return (
                         <div
                           key={date}
-                          className="flex items-center space-x-2 mb-2"
+                          className="flex items-center space-x-2 space-y-4 w-full"
                         >
-                          <span className="w-24 font-semibold">{date}</span>
+                          <span className="font-subTitle text-[14px] font-medium w-full pl-2 mt-3">
+                            {date}
+                          </span>
+
                           <input
                             type="time"
                             value={
@@ -300,7 +316,7 @@ function CreateReservation({ onClose }) {
                             onChange={(e) =>
                               handleStartTimeChange(date, e.target.value)
                             }
-                            className="form-input h-[30px] w-24"
+                            className="form-input"
                             required
                           />
                           <input
@@ -315,7 +331,7 @@ function CreateReservation({ onClose }) {
                             onChange={(e) =>
                               handleEndTimeChange(date, e.target.value)
                             }
-                            className="form-input h-[30px] w-24"
+                            className="form-input"
                             required
                           />
                         </div>
@@ -334,7 +350,7 @@ function CreateReservation({ onClose }) {
                     type="text"
                     id="amount"
                     name="amount"
-                    className="form-input h-[30px]"
+                    className="form-input"
                     readOnly
                   />
                 </div>

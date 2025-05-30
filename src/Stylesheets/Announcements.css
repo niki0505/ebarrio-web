@@ -56,5 +56,5 @@
   @apply flex flex-row items-center justify-between border p-3 w-full rounded-[8px] border-btn-color-gray mb-4;
 }
 .create-announcement-event-details {
-  @apply w-[30rem] h-[20rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
+  @apply w-[30rem] h-[15rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
 }
