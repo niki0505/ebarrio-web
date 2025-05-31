@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
 import CreateAccount from "./CreateAccount";
 import SearchBar from "./SearchBar";
 import api from "../api";
@@ -29,6 +28,7 @@ function Accounts({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState(null);
+  const [sortOption, setSortOption] = useState("Newest");
 
   const [isCurrentClicked, setCurrentClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
@@ -166,16 +166,30 @@ function Accounts({ isCollapsed }) {
   };
 
   //For Pagination
+
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+
+  const sortedFilteredUsers = [...filteredUsers].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.createdAt) - parseDate(b.createdAt);
+    } else {
+      return parseDate(b.createdAt) - parseDate(a.createdAt);
+    }
+  });
+
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredUsers.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = sortedFilteredUsers.slice(
+    indexOfFirstRow,
+    indexOfLastRow
+  );
   const totalRows = filteredUsers.length;
   const totalPages = Math.ceil(totalRows / rowsPerPage);
 
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     const title = "Barangay Aniban 2 Accounts Reports";
     const now = new Date().toLocaleString();
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
@@ -232,9 +246,17 @@ function Accounts({ isCollapsed }) {
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Accounts";
+    const description = `User exported accounts to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -326,6 +348,14 @@ function Accounts({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
+
+    const action = "Accounts";
+    const description = `User exported accounts to PDF.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside
@@ -434,7 +464,7 @@ function Accounts({ isCollapsed }) {
                   onClick={toggleFilterDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
+                    Sort
                   </h1>
                   <div className="pointer-events-none flex text-gray-600">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
@@ -445,12 +475,24 @@ function Accounts({ isCollapsed }) {
                   <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Newest");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Newest
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Oldest");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Oldest
                         </li>
                       </div>
@@ -478,7 +520,7 @@ function Accounts({ isCollapsed }) {
               <th>Name</th>
               <th>Username</th>
               <th>User Role</th>
-              <th>Status</th>
+              {isCurrentClicked && <th>Status</th>}
               {isArchivedClicked && <th>Date Archived</th>}
               {(isPendingClicked || isCurrentClicked) && <th>Date Created</th>}
               {(isPendingClicked || isCurrentClicked) && <th>Action</th>}
@@ -488,7 +530,7 @@ function Accounts({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={isArchivedClicked ? 5 : 6}>No results found</td>
+                <td colSpan={isArchivedClicked ? 4 : 6}>No results found</td>
               </tr>
             ) : (
               currentRows.map((user) => (
@@ -540,9 +582,10 @@ function Accounts({ isCollapsed }) {
                   </td>
                   <td>{user.username}</td>
                   <td>{user.role}</td>
-                  <td>
-                    <span
-                      className={`text-xs font-semibold px-2 py-1 rounded-full
+                  {isCurrentClicked && (
+                    <td>
+                      <span
+                        className={`text-xs font-semibold px-2 py-1 rounded-full
                       ${
                         user.status === "Inactive"
                           ? "bg-red-100 text-red-800"
@@ -552,10 +595,11 @@ function Accounts({ isCollapsed }) {
                           ? "bg-yellow-100 text-yellow-800"
                           : ""
                       }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                  )}
 
                   {isArchivedClicked && (
                     <td>

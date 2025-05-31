@@ -1,19 +1,11 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
-import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
-import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateReservation from "./CreateReservation";
-import { AuthContext } from "../context/AuthContext";
 import CourtReject from "./CourtReject";
 import api from "../api";
 
@@ -27,14 +19,13 @@ function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
   const location = useLocation();
   const { cancelled } = location.state || {};
-  const navigation = useNavigate();
   const { fetchReservations, courtreservations } = useContext(InfoContext);
-  const { user } = useContext(AuthContext);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [search, setSearch] = useState("");
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [selectedReservationID, setSelectedReservationID] = useState(null);
+  const [sortOption, setSortOption] = useState("Newest");
 
   const [isPendingClicked, setPendingClicked] = useState(true);
   const [isApprovedClicked, setApprovedClicked] = useState(false);
@@ -192,9 +183,13 @@ function CourtReservations({ isCollapsed }) {
   //For Pagination
   const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
 
-  const sortedFilteredCourt = [...filteredReservations].sort(
-    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
-  );
+  const sortedFilteredCourt = [...filteredReservations].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.updatedAt) - parseDate(b.updatedAt);
+    } else {
+      return parseDate(b.updatedAt) - parseDate(a.updatedAt);
+    }
+  });
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = sortedFilteredCourt.slice(
@@ -267,37 +262,39 @@ function CourtReservations({ isCollapsed }) {
             </p>
           </div>
           <div className="flex flex-row gap-x-2 mt-4">
-            <div className="relative" ref={exportRef}>
-              {/* Export Button */}
-              <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleExportDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Export
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+            {isApprovedClicked && (
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
                 </div>
-              </div>
 
-              {exportDropdown && (
-                <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as CSV
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as PDF
-                      </li>
-                    </div>
-                  </ul>
-                </div>
-              )}
-            </div>
+                {exportDropdown && (
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
@@ -306,7 +303,7 @@ function CourtReservations({ isCollapsed }) {
                 onClick={toggleFilterDropdown}
               >
                 <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Filter
+                  Sort
                 </h1>
                 <div className="pointer-events-none flex text-gray-600">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
@@ -317,12 +314,24 @@ function CourtReservations({ isCollapsed }) {
                 <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Newest");
+                          setfilterDropdown(false);
+                        }}
+                      >
                         Newest
                       </li>
                     </div>
                     <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Oldest");
+                          setfilterDropdown(false);
+                        }}
+                      >
                         Oldest
                       </li>
                     </div>

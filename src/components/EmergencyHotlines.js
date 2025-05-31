@@ -143,19 +143,13 @@ function EmergencyHotlines({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     const title = "Barangay Aniban 2 Emergency Hotlines";
     const now = new Date().toLocaleString();
     const headers = ["No", "Public Service Facilities", "Contact No."];
-    const rows = filteredEmergencyHotlines
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt.split(" at")[0]) -
-          new Date(b.createdAt.split(" at")[0])
-      )
-      .map((emergency, index) => {
-        return [index + 1, emergency.name, emergency.contactnumber];
-      });
+    const rows = filteredEmergencyHotlines.map((emergency, index) => {
+      return [index + 1, emergency.name, emergency.contactnumber];
+    });
 
     const csvContent =
       "data:text/csv;charset=utf-8," +
@@ -183,9 +177,17 @@ function EmergencyHotlines({ isCollapsed }) {
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Emergency Hotlines";
+    const description = `User exported emergency hotlines to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -207,15 +209,9 @@ function EmergencyHotlines({ isCollapsed }) {
     });
 
     // Table
-    const rows = filteredEmergencyHotlines
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt.split(" at")[0]) -
-          new Date(b.createdAt.split(" at")[0])
-      )
-      .map((emergency, index) => {
-        return [index + 1, emergency.name, emergency.contactnumber];
-      });
+    const rows = filteredEmergencyHotlines.map((emergency, index) => {
+      return [index + 1, emergency.name, emergency.contactnumber];
+    });
 
     autoTable(doc, {
       head: [["No.", "Public Services Facilities", "Contact No."]],
@@ -257,6 +253,13 @@ function EmergencyHotlines({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
+    const action = "Emergency Hotlines";
+    const description = `User exported emergency hotlines to PDF.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside

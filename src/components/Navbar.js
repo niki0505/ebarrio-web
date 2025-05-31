@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
-import { IoNotificationsOutline } from "react-icons/io5";
+import { useContext, useState, useEffect, useRef } from "react";
 import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings } from "react-icons/io";
 import "../Stylesheets/NavBar.css";
 import { AuthContext } from "../context/AuthContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { InfoContext } from "../context/InfoContext";
 import { IoNotifications } from "react-icons/io5";
 import dayjs from "dayjs";
@@ -26,6 +25,7 @@ const Navbar = ({ isCollapsed }) => {
   const { fetchNotifications, notifications } = useContext(SocketContext);
   const { isAuthenticated } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState(null);
+  const [sortOption, setSortOption] = useState("All");
   const [name, setName] = useState(null);
 
   const notifRef = useRef(null);
@@ -80,6 +80,13 @@ const Navbar = ({ isCollapsed }) => {
       }
     }
   }, [isAuthenticated, residents, user]);
+
+  const filteredNotifications = notifications.filter((notif) => {
+    if (sortOption === "All") return true;
+    if (sortOption === "Read") return notif.read === true;
+    if (sortOption === "Unread") return notif.read === false;
+    return true;
+  });
 
   const toggleProfileDropdown = () => {
     setprofileDropdown(!profileDropdown);
@@ -169,17 +176,35 @@ const Navbar = ({ isCollapsed }) => {
                       <div className="absolute bg-white shadow-md rounded-md border;">
                         <ul className="w-full">
                           <div className="py-1 px-3 cursor-pointer hover:bg-gray-200 w-full rounded-md items-center">
-                            <li className="text-sm font-title text-[#0E94D3]">
+                            <li
+                              className="text-sm font-title text-[#0E94D3]"
+                              onClick={() => {
+                                setSortOption("All");
+                                setfilterDropdown(false);
+                              }}
+                            >
                               All
                             </li>
                           </div>
                           <div className="py-1 px-3 cursor-pointer hover:bg-gray-200 w-full rounded-md items-center">
-                            <li className="text-sm font-title text-[#0E94D3]">
+                            <li
+                              className="text-sm font-title text-[#0E94D3]"
+                              onClick={() => {
+                                setSortOption("Read");
+                                setfilterDropdown(false);
+                              }}
+                            >
                               Read
                             </li>
                           </div>
                           <div className="py-1 px-3 cursor-pointer hover:bg-gray-200 w-full rounded-md items-center">
-                            <li className="text-sm font-title text-[#0E94D3]">
+                            <li
+                              className="text-sm font-title text-[#0E94D3]"
+                              onClick={() => {
+                                setSortOption("Unread");
+                                setfilterDropdown(false);
+                              }}
+                            >
                               Unread
                             </li>
                           </div>
@@ -191,7 +216,7 @@ const Navbar = ({ isCollapsed }) => {
 
                 {/* Scrollable Notification List */}
                 <div className="overflow-y-auto hide-scrollbar flex-grow border-t border-b border-[#C1C0C0]">
-                  {[...notifications]
+                  {[...filteredNotifications]
                     .sort(
                       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
                     )

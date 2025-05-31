@@ -105,31 +105,6 @@ function Announcements({ isCollapsed }) {
   };
 
   const renderContent = (announcement) => {
-    let eventInfo = "";
-    if (announcement.eventStart) {
-      const startDate = new Date(announcement.eventStart);
-      const endDate = new Date(announcement.eventEnd);
-
-      const formattedDate = startDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      const formattedStartTime = startDate.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      const formattedEndTime = endDate.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      eventInfo = `📅 ${formattedDate}\n🕒 ${formattedStartTime} - ${formattedEndTime}\n\n`;
-    }
     const words = announcement.content.split(" ");
     const isLong = words.length > 25;
     const isExpanded = expandedAnnouncements.includes(announcement._id);
@@ -139,7 +114,13 @@ function Announcements({ isCollapsed }) {
 
     return (
       <div className="text-sm font-medium mt-4 font-subTitle whitespace-pre-wrap">
-        {eventInfo}
+        {announcement.eventdetails && (
+          <>
+            {announcement.eventdetails}
+            <br />
+          </>
+        )}
+
         {displayText}
         {isLong && (
           <span

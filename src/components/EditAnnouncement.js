@@ -29,66 +29,25 @@ function EditAnnouncement({ onClose, announcementID }) {
     title: "",
     content: "",
     picture: "",
-    eventStart: "",
-    eventEnd: "",
-    eventStartTime: "",
-    eventEndTime: "",
-    eventDate: "",
-    uploadedby: user.empID,
+    date: [],
+    times: {},
+    eventdetails: "",
   });
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        let formattedDate;
-        let formattedStartTime;
-        let formattedEndTime;
         const response = await api.get(`/getannouncement/${announcementID}`);
         if (response.data.picture !== "") {
           setHavePicture(true);
-        }
-        if (response.data.eventStart !== null) {
-          formattedDate = new Date(response.data.eventStart)
-            .toISOString()
-            .split("T")[0];
-          formattedStartTime = formatToTimeForInput(
-            new Date(response.data.eventStart)
-          );
-          formattedEndTime = formatToTimeForInput(
-            new Date(response.data.eventEnd)
-          );
-          setEventDetails(
-            `📅 ${new Date(response.data.eventStart).toLocaleDateString(
-              "en-US",
-              {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            )}\n🕒 ${new Date(response.data.eventStart).toLocaleTimeString(
-              "en-US",
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-              }
-            )} - ${new Date(response.data.eventEnd).toLocaleTimeString(
-              "en-US",
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-              }
-            )}`
-          );
         }
         setAnnouncementForm(() => ({
           category: response.data.category,
           title: response.data.title,
           content: response.data.content,
-          picture: response.data.picture || "",
-          eventDate: formattedDate || "",
-          eventStartTime: formattedStartTime || "",
-          eventEndTime: formattedEndTime || "",
+          picture: response.data.picture,
+          eventdetails: response.data.eventdetails || "",
         }));
       } catch (error) {
         console.log("Error fetching announcement", error);
@@ -359,12 +318,14 @@ function EditAnnouncement({ onClose, announcementID }) {
                     />
                   </div>
                   {/* Event Details */}
-                  {eventDetails && (
+                  {announcementForm.eventdetails && (
                     <div className="employee-form-group">
                       <label className="font-semibold text-navy-blue">
                         Event Details
                       </label>
-                      <p>{eventDetails}</p>
+                      <p className="whitespace-pre-wrap">
+                        {announcementForm.eventdetails}
+                      </p>
                     </div>
                   )}
                   {havePicture && (
@@ -448,6 +409,8 @@ function EditAnnouncement({ onClose, announcementID }) {
                                     // onChange={handleDateChange}
                                     format="YYYY-MM-DD"
                                     placeholder="Select multiple dates"
+                                    editable={false}
+                                    minDate={new Date()}
                                     style={{
                                       display: "block",
                                       width: "100%",

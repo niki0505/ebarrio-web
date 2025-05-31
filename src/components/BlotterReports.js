@@ -12,6 +12,7 @@ import autoTable from "jspdf-autotable";
 import { AuthContext } from "../context/AuthContext";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
+import api from "../api";
 
 function BlotterReports({ isCollapsed }) {
   const navigation = useNavigate();
@@ -24,6 +25,7 @@ function BlotterReports({ isCollapsed }) {
   const [isScheduledClicked, setScheduledClicked] = useState(false);
   const [isSettledClicked, setSettledClicked] = useState(false);
   const [isRejectedClicked, setRejectedClicked] = useState(false);
+  const [sortOption, setSortOption] = useState("Newest");
 
   const [search, setSearch] = useState("");
   const exportRef = useRef(null);
@@ -129,9 +131,13 @@ function BlotterReports({ isCollapsed }) {
   //For Pagination
   const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
 
-  const sortedFilteredReports = [...filteredBlotterReports].sort(
-    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
-  );
+  const sortedFilteredReports = [...filteredBlotterReports].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.updatedAt) - parseDate(b.updatedAt);
+    } else {
+      return parseDate(b.updatedAt) - parseDate(a.updatedAt);
+    }
+  });
 
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -145,7 +151,7 @@ function BlotterReports({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     const title = "Barangay Aniban 2 Blotter Reports";
     const now = new Date().toLocaleString();
     const headers = [
@@ -213,9 +219,17 @@ function BlotterReports({ isCollapsed }) {
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Blotter Reports";
+    const description = `User exported settled blotter reports to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -320,6 +334,14 @@ function BlotterReports({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
+
+    const action = "Blotter Reports";
+    const description = `User exported settled blotter reports to PDF.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside
@@ -390,11 +412,10 @@ function BlotterReports({ isCollapsed }) {
             </p>
           </div>
 
-          {isSettledClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+          <div className="flex flex-row gap-x-2 mt-4">
+            {isSettledClicked && (
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-
                 <div
                   className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
@@ -430,42 +451,52 @@ function BlotterReports({ isCollapsed }) {
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          <div className="relative" ref={filterRef}>
-            {/* Filter Button */}
-            <div
-              className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-              onClick={toggleFilterDropdown}
-            >
-              <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                Filter
-              </h1>
-              <div className="pointer-events-none flex text-gray-600">
-                <MdArrowDropDown size={18} color={"#0E94D3"} />
-              </div>
-            </div>
-
-            {filterDropdown && (
-              <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
-                <ul className="w-full">
-                  <div className="navbar-dropdown-item">
-                    <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                      Newest
-                    </li>
-                  </div>
-                  <div className="navbar-dropdown-item">
-                    <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                      Oldest
-                    </li>
-                  </div>
-                </ul>
-              </div>
             )}
-          </div>
 
-          {isScheduledClicked && (
+            <div className="relative" ref={filterRef}>
+              {/* Filter Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleFilterDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Sort
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
+              </div>
+
+              {filterDropdown && (
+                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Newest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Newest
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Oldest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Oldest
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
+
             <div
               className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
               onClick={handleAdd}
@@ -474,7 +505,7 @@ function BlotterReports({ isCollapsed }) {
                 Add New Blotter
               </h1>
             </div>
-          )}
+          </div>
         </div>
 
         <hr className="mt-4 border border-gray-300" />

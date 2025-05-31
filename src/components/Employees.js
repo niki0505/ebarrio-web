@@ -3,7 +3,6 @@ import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import "../Stylesheets/Employees.css";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
@@ -18,7 +17,6 @@ import EmployeeID from "./id/EmployeeID";
 import { AuthContext } from "../context/AuthContext";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
-import { TbAdjustmentsHorizontal } from "react-icons/tb";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -32,6 +30,7 @@ function Employees({ isCollapsed }) {
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [sortOption, setSortOption] = useState("All");
 
   const exportRef = useRef(null);
   const filterRef = useRef(null);
@@ -193,13 +192,47 @@ function Employees({ isCollapsed }) {
     } else if (isArchivedClicked) {
       filtered = employees.filter((emp) => emp.status === "Archived");
     }
+
+    switch (sortOption) {
+      case "Captain":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "captain"
+        );
+        break;
+      case "Secretary":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "secretary"
+        );
+        break;
+      case "Clerk":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "clerk"
+        );
+        break;
+      case "Kagawad":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "kagawad"
+        );
+        break;
+      case "Tanod":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "tanod"
+        );
+        break;
+      case "Justice":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "justice"
+        );
+        break;
+      default:
+        break;
+    }
     if (search) {
       const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((emp) => {
         const first = emp.resID.firstname || "";
         const middle = emp.resID.middlename || "";
         const last = emp.resID.lastname || "";
-        const position = emp.position || "";
 
         const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
@@ -211,7 +244,7 @@ function Employees({ isCollapsed }) {
       });
     }
     setFilteredEmployees(filtered);
-  }, [search, employees, isActiveClicked, isArchivedClicked]);
+  }, [search, employees, isActiveClicked, isArchivedClicked, sortOption]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
@@ -232,7 +265,7 @@ function Employees({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     const title = "Barangay Aniban 2 Employees";
     const now = new Date().toLocaleString();
     const headers = ["Name", "Age", "Sex", "Mobile No.", "Address", "Position"];
@@ -280,9 +313,17 @@ function Employees({ isCollapsed }) {
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Employees";
+    const description = "User exported employees' records to CSV.";
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
@@ -361,6 +402,14 @@ function Employees({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
+
+    const action = "Employees";
+    const description = "User exported employees' records to PDF.";
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside
@@ -416,43 +465,45 @@ function Employees({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="flex flex-row gap-x-2 mt-4">
-              <div className="relative" ref={exportRef}>
-                {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+              {sortOption === "All" && (
+                <div className="relative" ref={exportRef}>
+                  {/* Export Button */}
+                  <div
+                    className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                    onClick={toggleExportDropdown}
+                  >
+                    <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                      Export
+                    </h1>
+                    <div className="pointer-events-none flex text-gray-600">
+                      <MdArrowDropDown size={18} color={"#0E94D3"} />
+                    </div>
                   </div>
-                </div>
 
-                {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={exportCSV}
-                        >
-                          Export as CSV
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
-              </div>
+                  {exportDropdown && (
+                    <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                      <ul className="w-full">
+                        <div className="navbar-dropdown-item">
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={exportCSV}
+                          >
+                            Export as CSV
+                          </li>
+                        </div>
+                        <div className="navbar-dropdown-item">
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={exportPDF}
+                          >
+                            Export as PDF
+                          </li>
+                        </div>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
@@ -472,33 +523,80 @@ function Employees({ isCollapsed }) {
                   <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("All");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           All
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Captain");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Captain
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Secretary");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Secretary
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Clerk");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Clerk
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Kagawad");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Kagawad
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Tanod");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Tanod
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Justice");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Justice
                         </li>
                       </div>
                     </ul>

@@ -29,6 +29,7 @@ function CertificateRequests({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [filteredCertificates, setFilteredCertificates] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
+  const [sortOption, setSortOption] = useState("Newest");
   const [search, setSearch] = useState("");
 
   const [isRejectClicked, setRejectClicked] = useState(false);
@@ -226,9 +227,13 @@ function CertificateRequests({ isCollapsed }) {
   //For Pagination
   const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
 
-  const sortedFilteredCert = [...filteredCertificates].sort(
-    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
-  );
+  const sortedFilteredCert = [...filteredCertificates].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.updatedAt) - parseDate(b.updatedAt);
+    } else {
+      return parseDate(b.updatedAt) - parseDate(a.updatedAt);
+    }
+  });
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = sortedFilteredCert.slice(indexOfFirstRow, indexOfLastRow);
@@ -238,7 +243,7 @@ function CertificateRequests({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
+  const exportCSV = async () => {
     const title = "Barangay Aniban 2 Document Requests Reports";
     const now = new Date().toLocaleString();
     const headers = ["Name", "Type of Certificate", "Date Issued"];
@@ -290,9 +295,17 @@ function CertificateRequests({ isCollapsed }) {
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Document Requests";
+    const description = `User exported issued documents to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -372,6 +385,14 @@ function CertificateRequests({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
+
+    const action = "Document Requests";
+    const description = `User exported issued documents to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside
@@ -433,10 +454,11 @@ function CertificateRequests({ isCollapsed }) {
             </p>
           </div>
 
-          {isIssuedClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+          <div className="flex flex-row gap-x-2 mt-4">
+            {isIssuedClicked && (
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
+
                 <div
                   className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
@@ -475,40 +497,52 @@ function CertificateRequests({ isCollapsed }) {
                   </div>
                 )}
               </div>
+            )}
 
-              <div className="relative" ref={filterRef}>
-                {/* Filter Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleFilterDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
+            <div className="relative" ref={filterRef}>
+              {/* Filter Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleFilterDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Sort
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>
-
-                {filterDropdown && (
-                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                          Newest
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                          Oldest
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
               </div>
+
+              {filterDropdown && (
+                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Newest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Newest
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Oldest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Oldest
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         <hr className="mt-4 border border-gray-300" />

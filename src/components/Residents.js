@@ -31,6 +31,7 @@ function Residents({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [sortOption, setSortOption] = useState("All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
 
@@ -204,6 +205,25 @@ function Residents({ isCollapsed }) {
     } else if (isArchivedClicked) {
       filtered = residents.filter((res) => res.status === "Archived");
     }
+
+    switch (sortOption) {
+      case "Female":
+        filtered = filtered.filter(
+          (res) => res.sex?.toLowerCase() === "female"
+        );
+        break;
+      case "Male":
+        filtered = filtered.filter((res) => res.sex?.toLowerCase() === "male");
+        break;
+      case "Senior Citizens":
+        filtered = filtered.filter((res) => res.age >= 60);
+        break;
+      case "Voters":
+        filtered = filtered.filter((res) => res.voter === "Yes");
+        break;
+      default:
+        break;
+    }
     if (search) {
       const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((resident) => {
@@ -221,7 +241,7 @@ function Residents({ isCollapsed }) {
       });
     }
     setFilteredResidents(filtered);
-  }, [search, residents, isActiveClicked, isArchivedClicked]);
+  }, [search, residents, isActiveClicked, isArchivedClicked, sortOption]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
@@ -242,10 +262,15 @@ function Residents({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
-  const exportCSV = () => {
-    const title = "Barangay Aniban 2 Residents";
+  const exportCSV = async () => {
+    const title = `Barangay Aniban 2 ${
+      sortOption === "All" ? "Residents" : sortOption
+    }`;
     const now = new Date().toLocaleString();
-    const headers = ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"];
+    const headers =
+      sortOption === "Voters"
+        ? ["No.", "Name", "Age", "Sex", "Mobile No.", "Address", "Precinct"]
+        : ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"];
     const rows = filteredResidents
       .sort((a, b) => {
         const nameA = `${a.lastname}`.toLowerCase();
@@ -257,7 +282,7 @@ function Residents({ isCollapsed }) {
           ? `${res.lastname} ${res.middlename} ${res.firstname}`
           : `${res.lastname} ${res.firstname}`;
 
-        return [
+        const baseRow = [
           index + 1,
           fullname,
           res.age,
@@ -265,6 +290,11 @@ function Residents({ isCollapsed }) {
           `"${res.mobilenumber.replace(/"/g, '""')}"`,
           `"${res.address.replace(/"/g, '""')}"`,
         ];
+        if (sortOption === "Voters") {
+          return [...baseRow, res.precinct || "N/A"];
+        } else {
+          return baseRow;
+        }
       });
 
     const csvContent =
@@ -283,15 +313,32 @@ function Residents({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Barangay_Aniban_2_Residents_by_${user.name.replace(/ /g, "_")}.csv`
+      `${
+        sortOption === "All"
+          ? `Barangay_Aniban_2_Residents_by_${user.name.replace(/ /g, "_")}.csv`
+          : `Barangay_Aniban_2_${sortOption}_by_${user.name.replace(
+              / /g,
+              "_"
+            )}.csv`
+      }`
     );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     setexportDropdown(false);
+
+    const action = "Residents";
+    const description = `User exported ${
+      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+    } records to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
-  const exportPDF = () => {
+  const exportPDF = async () => {
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -308,7 +355,12 @@ function Residents({ isCollapsed }) {
 
     //Title
     doc.setFontSize(12);
-    doc.text("Residents Reports", pageWidth / 2, 55, { align: "center" });
+    doc.text(
+      `${sortOption === "All" ? "Residents" : sortOption}`,
+      pageWidth / 2,
+      55,
+      { align: "center" }
+    );
 
     // Table
     const rows = filteredResidents
@@ -317,7 +369,7 @@ function Residents({ isCollapsed }) {
         const fullname = res.middlename
           ? `${res.lastname} ${res.middlename} ${res.firstname}`
           : `${res.lastname} ${res.firstname}`;
-        return [
+        const baseRow = [
           index + 1,
           fullname,
           res.age,
@@ -325,10 +377,19 @@ function Residents({ isCollapsed }) {
           res.mobilenumber,
           res.address,
         ];
+        if (sortOption === "Voters") {
+          return [...baseRow, res.precinct || "N/A"];
+        } else {
+          return baseRow;
+        }
       });
 
     autoTable(doc, {
-      head: [["No", "Name", "Age", "Sex", "Mobile No.", "Address"]],
+      head: [
+        sortOption === "Voters"
+          ? ["No.", "Name", "Age", "Sex", "Mobile No.", "Address", "Precinct"]
+          : ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"],
+      ],
       body: rows,
       startY: 65,
       margin: { bottom: 30 },
@@ -361,12 +422,26 @@ function Residents({ isCollapsed }) {
       },
     });
 
-    const filename = `Barangay_Aniban_2_Residents_by_${user.name.replace(
-      / /g,
-      "_"
-    )}.pdf`;
+    const filename = `${
+      sortOption === "All"
+        ? `Barangay_Aniban_2_Residents_by_${user.name.replace(/ /g, "_")}.pdf`
+        : `Barangay_Aniban_2_${sortOption}_by_${user.name.replace(
+            / /g,
+            "_"
+          )}.pdf`
+    }`;
     doc.save(filename);
     setexportDropdown(false);
+
+    const action = "Residents";
+    const description = `User exported ${
+      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+    } records to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   //To handle close when click outside
@@ -478,27 +553,57 @@ function Residents({ isCollapsed }) {
                   <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("All");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           All
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Female");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Female
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Male");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Male
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Senior Citizens");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Senior Citizens
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Voters");
+                            setfilterDropdown(false);
+                          }}
+                        >
                           Voters
                         </li>
                       </div>
@@ -527,6 +632,7 @@ function Residents({ isCollapsed }) {
               <th>Sex</th>
               <th>Mobile No.</th>
               <th>Address</th>
+              {sortOption === "Voters" && <th>Precinct</th>}
               <th></th>
             </tr>
           </thead>
@@ -534,7 +640,9 @@ function Residents({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredResidents.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={5}>No results found</td>
+                <td colSpan={sortOption === "Voters" ? 7 : 6}>
+                  No results found
+                </td>
               </tr>
             ) : (
               currentRows
@@ -556,7 +664,7 @@ function Residents({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === res._id ? (
-                        <td colSpan={6}>
+                        <td colSpan={sortOption === "Voters" ? 7 : 6}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img src={res.picture} className="profile-img" />
@@ -669,7 +777,7 @@ function Residents({ isCollapsed }) {
                                 type="submit"
                                 onClick={(e) => certBtn(e, res._id)}
                               >
-                                CERTIFICATE
+                                DOCUMENT
                               </button>
                               <button
                                 className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
@@ -700,6 +808,9 @@ function Residents({ isCollapsed }) {
                           <td>{res.sex}</td>
                           <td>{res.mobilenumber}</td>
                           <td>{res.address}</td>
+                          {sortOption === "Voters" && (
+                            <td>{res.precinct ? res.precinct : "N/A"}</td>
+                          )}
                           {/* Dropdown Arrow */}
                           <td className="text-center">
                             <span

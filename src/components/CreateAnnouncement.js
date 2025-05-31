@@ -148,6 +148,7 @@ function CreateAnnouncement({ onClose }) {
       }
 
       alert("Announcement successfully created!");
+      setAnnouncementForm(initialForm);
     } catch (error) {
       console.log("Error creating announcement", error);
     }
@@ -185,6 +186,11 @@ function CreateAnnouncement({ onClose }) {
       } else {
         setHavePicture(false);
       }
+    } else {
+      setAnnouncementForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -472,6 +478,8 @@ function CreateAnnouncement({ onClose }) {
                                     onChange={handleDateChange}
                                     format="YYYY-MM-DD"
                                     placeholder="Select multiple dates"
+                                    editable={false}
+                                    minDate={new Date()}
                                     style={{
                                       display: "block",
                                       width: "100%",
@@ -558,56 +566,6 @@ function CreateAnnouncement({ onClose }) {
                                 </div>
                               </div>
                             </div>
-
-                            {/* <div className="modal-form-container">
-                              <div className="modal-form">
-                                <div className="employee-form-group">
-                                  <label className="form-label">Date</label>
-                                  <input
-                                    type="date"
-                                    min={new Date().toISOString().split("T")[0]}
-                                    value={announcementForm.eventDate}
-                                    name="eventDate"
-                                    onChange={handleInputChange}
-                                    className="form-input h-[30px] text-base pr-2"
-                                  />
-                                </div>
-
-                                <div className="employee-form-group">
-                                  <label className="form-label">
-                                    Start Time
-                                  </label>
-                                  <input
-                                    type="time"
-                                    name="eventStartTime"
-                                    value={announcementForm.eventStartTime}
-                                    onChange={handleInputChange}
-                                    className="form-input h-[30px] text-base pr-2"
-                                  />
-                                </div>
-
-                                <div className="employee-form-group">
-                                  <label className="form-label">End Time</label>
-                                  <input
-                                    type="time"
-                                    name="eventEndTime"
-                                    value={announcementForm.eventEndTime}
-                                    onChange={handleInputChange}
-                                    className="form-input h-[30px] text-base pr-2"
-                                  />
-                                </div>
-
-                                <div className="flex justify-center">
-                                  <button
-                                    onClick={handleOK}
-                                    type="button"
-                                    className="actions-btn bg-btn-color-blue"
-                                  >
-                                    OK
-                                  </button>
-                                </div>
-                              </div>
-                            </div> */}
                           </div>
                         </div>
                       )}

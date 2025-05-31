@@ -270,6 +270,8 @@ function CreateReservation({ onClose }) {
                     onChange={handleDateChange}
                     format="YYYY-MM-DD"
                     placeholder="Select multiple dates"
+                    editable={false}
+                    minDate={new Date()}
                     style={{
                       display: "block",
                       width: "100%",
