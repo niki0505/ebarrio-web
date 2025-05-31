@@ -183,46 +183,44 @@ function Dashboard({ isCollapsed }) {
     fetchBlotterData();
   }, [blotterreports]);
 
-  // Check the structure
-  console.log("Document Requests", documentData);
-  console.log("Reservation Requests", reservationData);
-  console.log("Blotters", blotterData);
-
   useEffect(() => {
     if (user.role === "Secretary" || user.role === "Clerk") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
-        .filter((a) => a.eventStart && a.eventEnd)
-        .map((a) => ({
-          title: a.title,
-          start: a.eventStart,
-          end: a.eventEnd,
-          backgroundColor:
-            a.category === "General"
-              ? "#FF0000"
-              : a.category === "Health & Sanitation"
-              ? "#FFB200"
-              : a.category === "Public Safety & Emergency"
-              ? "#2600FF"
-              : a.category === "Education & Youth"
-              ? "#770ED3"
-              : a.category === "Social Services"
-              ? "#FA7020"
-              : a.category === "Infrastructure"
-              ? "#FA7020"
-              : a.category === "Court Reservations"
-              ? "#CF0ED3"
-              : "#3174ad",
-        }));
-
+        .filter((a) => a.times)
+        .flatMap((a) =>
+          Object.entries(a.times).map(([dateKey, timeObj]) => ({
+            title: a.title,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor:
+              a.category === "General"
+                ? "#FF0000"
+                : a.category === "Health & Sanitation"
+                ? "#FFB200"
+                : a.category === "Public Safety & Emergency"
+                ? "#2600FF"
+                : a.category === "Education & Youth"
+                ? "#770ED3"
+                : a.category === "Social Services"
+                ? "#FA7020"
+                : a.category === "Infrastructure"
+                ? "#FA7020"
+                : a.category === "Court Reservations"
+                ? "#CF0ED3"
+                : "#3174ad",
+          }))
+        );
       const approvedReservationEvents = (courtreservations || [])
         .filter((r) => r.status === "Approved")
-        .map((r) => ({
-          title: `${r.resID?.lastname}, ${r.resID?.firstname}`,
-          start: r.starttime,
-          end: r.endtime,
-          backgroundColor: "#770ED3",
-        }));
+        .flatMap((r) =>
+          Object.entries(r.times || {}).map(([dateKey, timeObj]) => ({
+            title: `${r.resID?.lastname}, ${r.resID?.firstname} - ${r.purpose}`,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor: "#770ED3",
+          }))
+        );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
     } else if (user.role === "Justice") {
@@ -750,15 +748,33 @@ function Dashboard({ isCollapsed }) {
 
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="timeGridWeek"
+              initialView="dayGridMonth"
               slotEventOverlap={false}
               dayMaxEventRows={true}
+              allDaySlot={false}
               events={events}
               height="auto"
               eventTimeFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
+              }}
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+              datesSet={(viewInfo) => {
+                document.body.classList.remove(
+                  "fc-month-view",
+                  "fc-week-view",
+                  "fc-day-view"
+                );
+                if (viewInfo.view.type === "dayGridMonth") {
+                  document.body.classList.add("fc-month-view");
+                } else {
+                  document.body.classList.add("fc-week-view"); // or fc-day-view
+                }
               }}
             />
           </div>

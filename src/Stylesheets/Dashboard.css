@@ -30,10 +30,22 @@
 .fc-event-time {
   @apply font-subTitle text-[9px];
 }
-.fc-event-title,
-.fc-event-time {
-  @apply text-white leading-snug;
-}
+
 .fc-timegrid-event {
   @apply flex flex-col justify-center items-center h-full min-h-full p-1 rounded-md overflow-hidden text-center;
+}
+.fc-daygrid-event {
+  @apply flex flex-col items-center;
+}
+
+.fc-month-view .fc-event-title,
+.fc-month-view .fc-event-time {
+  @apply text-black leading-snug whitespace-normal break-words flex-col;
+}
+
+.fc-week-view .fc-event-title,
+.fc-week-view .fc-event-time,
+.fc-day-view .fc-event-title,
+.fc-day-view .fc-event-time {
+  @apply text-white leading-snug;
 }

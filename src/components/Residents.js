@@ -1,22 +1,23 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import BrgyIDBack from "../assets/brgyidback.png";
-import BrgyIDFront from "../assets/brgyidfront.png";
-import ReactDOM from "react-dom/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateCertificate from "./CreateCertificate";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import BarangayID from "./id/BarangayID";
+import { AuthContext } from "../context/AuthContext";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function Residents({ isCollapsed }) {
   const confirm = useConfirm();
@@ -25,16 +26,29 @@ function Residents({ isCollapsed }) {
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
-  const [isBrgyIDClicked, setBrgyIDClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
-
+  const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [sortOption, setSortOption] = useState("All");
+  const exportRef = useRef(null);
+  const filterRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+  const [filterDropdown, setfilterDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
+  };
 
   const handleAdd = () => {
     navigation("/create-resident");
@@ -68,7 +82,7 @@ function Residents({ isCollapsed }) {
         const response = await api.post(`/generatebrgyID/${resID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
         try {
-          const response2 = await api.put(`/savebrgyID/${resID}`, {
+          await api.put(`/savebrgyID/${resID}`, {
             idNumber: response.data.idNumber,
             expirationDate: response.data.expirationDate,
             qrCode,
@@ -102,10 +116,15 @@ function Residents({ isCollapsed }) {
           alert("This resident has not been issued an ID yet.");
           return;
         }
-        BarangayID({
-          resData: response.data,
-          captainData: response2.data,
-        });
+        try {
+          await api.post(`/printcurrentbrgyid/${resID}`);
+          BarangayID({
+            resData: response.data,
+            captainData: response2.data,
+          });
+        } catch (error) {
+          console.log("Error in printing current barangay ID", error);
+        }
       } catch (error) {
         console.log("Error viewing current barangay ID", error);
       }
@@ -120,13 +139,13 @@ function Residents({ isCollapsed }) {
     fetchResidents();
   }, []);
 
-  const buttonClick = (e, resID) => {
-    e.stopPropagation();
-    alert(`Clicked ${resID}`);
-  };
-
-  const editBtn = (resID) => {
-    navigation("/edit-resident", { state: { resID } });
+  const editBtn = async (resID) => {
+    try {
+      await api.post(`/viewresidentdetails/${resID}`);
+      navigation("/edit-resident", { state: { resID } });
+    } catch (error) {
+      console.log("Error in viewing resident details", error);
+    }
   };
 
   const certBtn = (e, resID) => {
@@ -175,13 +194,8 @@ function Residents({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    const sanitizedText = text.replace(/[^a-zA-Z0-9\s]/g, "");
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -191,19 +205,43 @@ function Residents({ isCollapsed }) {
     } else if (isArchivedClicked) {
       filtered = residents.filter((res) => res.status === "Archived");
     }
+
+    switch (sortOption) {
+      case "Female":
+        filtered = filtered.filter(
+          (res) => res.sex?.toLowerCase() === "female"
+        );
+        break;
+      case "Male":
+        filtered = filtered.filter((res) => res.sex?.toLowerCase() === "male");
+        break;
+      case "Senior Citizens":
+        filtered = filtered.filter((res) => res.age >= 60);
+        break;
+      case "Voters":
+        filtered = filtered.filter((res) => res.voter === "Yes");
+        break;
+      default:
+        break;
+    }
     if (search) {
+      const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((resident) => {
         const first = resident.firstname || "";
         const middle = resident.middlename || "";
         const last = resident.lastname || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search);
+        return searchParts.every(
+          (part) =>
+            fullName.includes(part) ||
+            resident.address.toLowerCase().includes(part)
+        );
       });
     }
     setFilteredResidents(filtered);
-  }, [search, residents, isActiveClicked, isArchivedClicked]);
+  }, [search, residents, isActiveClicked, isArchivedClicked, sortOption]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
@@ -223,6 +261,213 @@ function Residents({ isCollapsed }) {
 
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
+
+  const exportCSV = async () => {
+    const title = `Barangay Aniban 2 ${
+      sortOption === "All" ? "Residents" : sortOption
+    }`;
+    const now = new Date().toLocaleString();
+    const headers =
+      sortOption === "Voters"
+        ? ["No.", "Name", "Age", "Sex", "Mobile No.", "Address", "Precinct"]
+        : ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"];
+    const rows = filteredResidents
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((res, index) => {
+        const fullname = res.middlename
+          ? `${res.lastname} ${res.middlename} ${res.firstname}`
+          : `${res.lastname} ${res.firstname}`;
+
+        const baseRow = [
+          index + 1,
+          fullname,
+          res.age,
+          res.sex,
+          `"${res.mobilenumber.replace(/"/g, '""')}"`,
+          `"${res.address.replace(/"/g, '""')}"`,
+        ];
+        if (sortOption === "Voters") {
+          return [...baseRow, res.precinct || "N/A"];
+        } else {
+          return baseRow;
+        }
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${
+        sortOption === "All"
+          ? `Barangay_Aniban_2_Residents_by_${user.name.replace(/ /g, "_")}.csv`
+          : `Barangay_Aniban_2_${sortOption}_by_${user.name.replace(
+              / /g,
+              "_"
+            )}.csv`
+      }`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+
+    const action = "Residents";
+    const description = `User exported ${
+      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+    } records to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  const exportPDF = async () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text(
+      `${sortOption === "All" ? "Residents" : sortOption}`,
+      pageWidth / 2,
+      55,
+      { align: "center" }
+    );
+
+    // Table
+    const rows = filteredResidents
+      .sort((a, b) => a.lastname.localeCompare(b.lastname))
+      .map((res, index) => {
+        const fullname = res.middlename
+          ? `${res.lastname} ${res.middlename} ${res.firstname}`
+          : `${res.lastname} ${res.firstname}`;
+        const baseRow = [
+          index + 1,
+          fullname,
+          res.age,
+          res.sex,
+          res.mobilenumber,
+          res.address,
+        ];
+        if (sortOption === "Voters") {
+          return [...baseRow, res.precinct || "N/A"];
+        } else {
+          return baseRow;
+        }
+      });
+
+    autoTable(doc, {
+      head: [
+        sortOption === "Voters"
+          ? ["No.", "Name", "Age", "Sex", "Mobile No.", "Address", "Precinct"]
+          : ["No.", "Name", "Age", "Sex", "Mobile No.", "Address"],
+      ],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+      },
+    });
+
+    const filename = `${
+      sortOption === "All"
+        ? `Barangay_Aniban_2_Residents_by_${user.name.replace(/ /g, "_")}.pdf`
+        : `Barangay_Aniban_2_${sortOption}_by_${user.name.replace(
+            / /g,
+            "_"
+          )}.pdf`
+    }`;
+    doc.save(filename);
+    setexportDropdown(false);
+
+    const action = "Residents";
+    const description = `User exported ${
+      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+    } records to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown, filterDropdown]);
 
   return (
     <>
@@ -251,10 +496,131 @@ function Residents({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-container" onClick={handleAdd}>
-              <MdPersonAddAlt1 className=" text-xl" />
-              <span className="font-bold">Add new resident</span>
-            </button>
+            <div className="flex flex-row gap-x-2 mt-4">
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {exportDropdown && (
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportCSV}
+                        >
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={filterRef}>
+                {/* Filter Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleFilterDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Filter
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {filterDropdown && (
+                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("All");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          All
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Female");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Female
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Male");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Male
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Senior Citizens");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Senior Citizens
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Voters");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Voters
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div
+                className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+                onClick={handleAdd}
+              >
+                <h1 className="font-medium text-sm text-[#fff] m-0">
+                  Add New Resident
+                </h1>
+              </div>
+            </div>
           )}
         </div>
 
@@ -262,15 +628,21 @@ function Residents({ isCollapsed }) {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Age</th>
+              <th>Sex</th>
               <th>Mobile No.</th>
               <th>Address</th>
+              {sortOption === "Voters" && <th>Precinct</th>}
+              <th></th>
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredResidents.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={3}>No results found</td>
+                <td colSpan={sortOption === "Voters" ? 7 : 6}>
+                  No results found
+                </td>
               </tr>
             ) : (
               currentRows
@@ -292,7 +664,7 @@ function Residents({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === res._id ? (
-                        <td colSpan={3}>
+                        <td colSpan={sortOption === "Voters" ? 7 : 6}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img src={res.picture} className="profile-img" />
@@ -405,7 +777,7 @@ function Residents({ isCollapsed }) {
                                 type="submit"
                                 onClick={(e) => certBtn(e, res._id)}
                               >
-                                CERTIFICATE
+                                DOCUMENT
                               </button>
                               <button
                                 className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
@@ -432,8 +804,23 @@ function Residents({ isCollapsed }) {
                               ? `${res.lastname} ${res.middlename} ${res.firstname}`
                               : `${res.lastname} ${res.firstname}`}
                           </td>
+                          <td>{res.age}</td>
+                          <td>{res.sex}</td>
                           <td>{res.mobilenumber}</td>
                           <td>{res.address}</td>
+                          {sortOption === "Voters" && (
+                            <td>{res.precinct ? res.precinct : "N/A"}</td>
+                          )}
+                          {/* Dropdown Arrow */}
+                          <td className="text-center">
+                            <span
+                              className={`cursor-pointer transition-transform ${
+                                expandedRow === res._id ? "rotate-180" : ""
+                              }`}
+                            >
+                              ▼
+                            </span>
+                          </td>
                         </>
                       )}
                     </tr>
@@ -452,7 +839,7 @@ function Residents({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -461,7 +848,7 @@ function Residents({ isCollapsed }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -476,7 +863,7 @@ function Residents({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -485,10 +872,11 @@ function Residents({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>
+
         {isCertClicked && (
           <CreateCertificate
             resID={selectedResID}

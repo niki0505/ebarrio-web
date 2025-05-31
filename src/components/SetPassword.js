@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
 import api from "../api";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 function SetPassword() {
   const location = useLocation();
@@ -47,30 +48,40 @@ function SetPassword() {
 
   return (
     <>
-      <div className="login-container">
-        <div
-          className="left-login-container"
-          style={{ backgroundImage: `url(${blueBg})` }}
-        >
-          <img src={applogo} alt="App Logo" className="w-[256px] h-[256px]" />
-        </div>
+      <div
+        className="w-screen h-screen relative overflow-hidden"
+        style={{
+          backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+        }}
+      >
+        <img
+          src={AppLogo}
+          alt="App Logo"
+          className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+        />
+        <div className="modal-container">
+          <div className="flex flex-col bg-white rounded-xl shadow-lg p-8 w-[25rem] h-[25rem] justify-center items-center gap-8 overflow-y-auto hide-scrollbar">
+            <div>
+              <h1 className="header-text text-start">Set Password</h1>
+              <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                Enter password and confirm it to complete the reset process.
+              </span>
+            </div>
+            <div className="flex flex-col gap-4 w-full">
+              <input
+                type="password"
+                placeholder="Enter password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input"
+              />
+              <input
+                type="password"
+                placeholder="Enter confirm password"
+                onChange={(e) => setRePassword(e.target.value)}
+                className="form-input"
+              />
 
-        <div className="right-login-container">
-          <div className="login-form-container">
-            <span className="login-title">Set Password</span>
-            <input
-              type="password"
-              placeholder="Enter password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="form-input h-[35px]"
-            />
-            <input
-              type="password"
-              placeholder="Enter password"
-              onChange={(e) => setRePassword(e.target.value)}
-              className="form-input h-[35px]"
-            />
-            {/* <label>Security Questions</label>
+              {/* <label>Security Questions</label>
             <select
               onChange={(e) =>
                 handleSecurityChange(0, "question", e.target.value)
@@ -92,7 +103,7 @@ function SetPassword() {
               onChange={(e) =>
                 handleSecurityChange(0, "answer", e.target.value.toLowerCase())
               }
-              className="form-input h-[35px]"
+              className="form-input"
             />
             <select
               onChange={(e) =>
@@ -115,12 +126,14 @@ function SetPassword() {
               onChange={(e) =>
                 handleSecurityChange(1, "answer", e.target.value.toLowerCase())
               }
-              className="form-input h-[35px]"
+              className="form-input"
             /> */}
+            </div>
+
             <button
               type="submit"
               onClick={handleSubmit}
-              className="actions-btn bg-btn-color-blue"
+              className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
             >
               Submit
             </button>

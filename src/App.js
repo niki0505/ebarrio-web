@@ -41,6 +41,7 @@ import { SocketProvider } from "./context/SocketContext";
 import { ToastContainer } from "react-toastify";
 import SOSUpdateReports from "./components/SOSUpdateReports";
 import RiverSnapshots from "./components/RiverSnapshots";
+import ActivityLogs from "./components/ActivityLogs";
 
 function App() {
   return (
@@ -125,6 +126,15 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Accounts />}
+                          allowedRoles={["Secretary"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="activity-logs"
+                      element={
+                        <PrivateRoute
+                          element={<ActivityLogs />}
                           allowedRoles={["Secretary"]}
                         />
                       }

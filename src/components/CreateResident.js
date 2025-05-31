@@ -18,11 +18,11 @@ function CreateResident({ isCollapsed }) {
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [id, setId] = useState(null);
-  const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
   const initialForm = {
+    id: "",
+    signature: "",
     firstname: "",
     middlename: "",
     lastname: "",
@@ -66,8 +66,7 @@ function CreateResident({ isCollapsed }) {
     typeofschool: "",
     course: "",
   };
-  const [residentForm, setResidentForm] = useState(initialForm);
-
+  const { residentForm, setResidentForm } = useContext(InfoContext);
   useEffect(() => {
     fetchResidents();
   }, []);
@@ -87,6 +86,7 @@ function CreateResident({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             className="form-input"
+            value={residentForm.siblings}
           >
             <option value="" disabled selected hidden>
               Select
@@ -119,6 +119,7 @@ function CreateResident({ isCollapsed }) {
             id={`child-${i}`}
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
+            value={residentForm.children}
             className="form-input"
           >
             <option value="" disabled selected hidden>
@@ -139,7 +140,7 @@ function CreateResident({ isCollapsed }) {
   };
 
   // DROPDOWN VALUES
-  const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
+  const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV"];
   const salutationList = [
     "Mr.",
     "Mrs.",
@@ -153,7 +154,6 @@ function CreateResident({ isCollapsed }) {
     "Gen.",
     "Lt.",
     "Sgt.",
-    "None",
   ];
   const sexList = ["Male", "Female"];
   const genderList = [
@@ -163,7 +163,6 @@ function CreateResident({ isCollapsed }) {
     "Genderfluid",
     "Agender",
     "Other",
-    "Prefer not to say",
   ];
   const civilstatusList = [
     "Single",
@@ -174,17 +173,7 @@ function CreateResident({ isCollapsed }) {
     "Annulled",
     "Common-Law/Live-In",
   ];
-  const bloodtypeList = [
-    "A",
-    "A-",
-    "B",
-    "B-",
-    "AB",
-    "AB-",
-    "O",
-    "O-",
-    "Unknown",
-  ];
+  const bloodtypeList = ["A", "A-", "B", "B-", "AB", "AB-", "O", "O-"];
   const religionList = [
     "Adventist",
     "Aglipayan (Philippine Independence Church)",
@@ -209,7 +198,6 @@ function CreateResident({ isCollapsed }) {
     "Seventh Day Adventists (Central Phil. Union Conf.)",
     "Worldwide Church of God",
     "Other",
-    "Prefer not to say",
   ];
   const nationalityList = [
     "Filipino",
@@ -383,7 +371,7 @@ function CreateResident({ isCollapsed }) {
 
   const stringsAndNoSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const stringsOnly = value.replace(/[^a-zA-Z0-9./:?&=]/g, "");
+    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=]/g, "");
     setResidentForm((prev) => ({
       ...prev,
       [name]: stringsOnly,
@@ -409,7 +397,7 @@ function CreateResident({ isCollapsed }) {
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
-        setId(url);
+        setResidentForm((prev) => ({ ...prev, id: url }));
       } catch (error) {
         console.error("Error removing background:", error);
       } finally {
@@ -422,7 +410,7 @@ function CreateResident({ isCollapsed }) {
     setIsIDProcessing(true);
     setTimeout(() => {
       setIsCameraOpen(false);
-      setId(url);
+      setResidentForm((prev) => ({ ...prev, id: url }));
       setIsIDProcessing(false);
     }, 500);
   };
@@ -430,7 +418,14 @@ function CreateResident({ isCollapsed }) {
   const handleClose = () => {
     setIsCameraOpen(false);
   };
-  const handleReset = () => {
+  const handleReset = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to clear all the fields?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     setResidentForm(initialForm);
   };
   async function uploadToFirebase(url) {
@@ -448,9 +443,9 @@ function CreateResident({ isCollapsed }) {
 
   const handleSubmit = async () => {
     try {
-      if (!id) {
+      if (!residentForm.id) {
         alert("Picture is required");
-      } else if (!signature) {
+      } else if (!residentForm.signature) {
         alert("Signature is required");
       } else {
         const isConfirmed = await confirm(
@@ -461,8 +456,8 @@ function CreateResident({ isCollapsed }) {
           return;
         }
         const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
-        const idPicture = await uploadToFirebase(id);
-        const signaturePicture = await uploadToFirebase(signature);
+        const idPicture = await uploadToFirebase(residentForm.id);
+        const signaturePicture = await uploadToFirebase(residentForm.signature);
 
         let formattedMobileNumber = residentForm.mobilenumber;
         formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
@@ -479,6 +474,8 @@ function CreateResident({ isCollapsed }) {
 
         delete residentForm.mobilenumber;
         delete residentForm.emergencymobilenumber;
+        delete residentForm.id;
+        delete residentForm.signature;
 
         const updatedResidentForm = {
           ...residentForm,
@@ -530,7 +527,7 @@ function CreateResident({ isCollapsed }) {
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
-        setSignature(url);
+        setResidentForm((prev) => ({ ...prev, signature: url }));
       } catch (error) {
         console.error("Error removing background:", error);
       } finally {
@@ -575,7 +572,7 @@ function CreateResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <div className="flex flex-row gap-x-3 items-center">
+      <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
           className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
@@ -607,8 +604,8 @@ function CreateResident({ isCollapsed }) {
                 <div className="preview-container">
                   {isIDProcessing ? (
                     <p>Processing...</p>
-                  ) : id ? (
-                    <img src={id} className="upload-img" />
+                  ) : residentForm.id ? (
+                    <img src={residentForm.id} className="upload-img" />
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
@@ -644,9 +641,9 @@ function CreateResident({ isCollapsed }) {
                 <div className="preview-container">
                   {isSignProcessing ? (
                     <p>Processing...</p>
-                  ) : signature ? (
+                  ) : residentForm.signature ? (
                     <img
-                      src={signature}
+                      src={residentForm.signature}
                       className="w-full h-full object-contain"
                     />
                   ) : (
@@ -721,8 +718,9 @@ function CreateResident({ isCollapsed }) {
                 name="suffix"
                 onChange={handleDropdownChange}
                 className="form-input"
+                value={residentForm.suffix}
               >
-                <option value="Select" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
                 {suffixList.map((element) => (
@@ -749,9 +747,10 @@ function CreateResident({ isCollapsed }) {
                 id="salutation"
                 name="salutation"
                 onChange={handleDropdownChange}
+                value={residentForm.salutation}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
                 {salutationList.map((element) => (
@@ -768,10 +767,11 @@ function CreateResident({ isCollapsed }) {
                 id="sex"
                 name="sex"
                 onChange={handleDropdownChange}
+                value={residentForm.sex}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {sexList.map((element) => (
@@ -788,9 +788,10 @@ function CreateResident({ isCollapsed }) {
                 id="gender"
                 name="gender"
                 onChange={handleDropdownChange}
+                value={residentForm.gender}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {genderList.map((element) => (
@@ -840,10 +841,11 @@ function CreateResident({ isCollapsed }) {
                 id="civilstatus"
                 name="civilstatus"
                 onChange={handleDropdownChange}
+                value={residentForm.civilstatus}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {civilstatusList.map((element) => (
@@ -860,9 +862,10 @@ function CreateResident({ isCollapsed }) {
                 id="bloodtype"
                 name="bloodtype"
                 onChange={handleDropdownChange}
+                value={residentForm.bloodtype}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {bloodtypeList.map((element) => (
@@ -879,9 +882,10 @@ function CreateResident({ isCollapsed }) {
                 id="religion"
                 name="religion"
                 onChange={handleDropdownChange}
+                value={residentForm.religion}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {religionList.map((element) => (
@@ -898,10 +902,11 @@ function CreateResident({ isCollapsed }) {
                 id="nationality"
                 name="nationality"
                 onChange={handleDropdownChange}
+                value={residentForm.nationality}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {nationalityList.map((element) => (
@@ -983,6 +988,7 @@ function CreateResident({ isCollapsed }) {
               <label className="form-label">Email</label>
               <input
                 name="email"
+                type="email"
                 value={residentForm.email}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
@@ -1087,19 +1093,22 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="mother"
                 name="mother"
+                value={residentForm.mother}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Female")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -1113,16 +1122,18 @@ function CreateResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Male")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="form-group">
@@ -1135,7 +1146,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {residents.map((element) => (
@@ -1205,9 +1216,10 @@ function CreateResident({ isCollapsed }) {
                 name="street"
                 onChange={handleDropdownChange}
                 required
+                value={residentForm.street}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {streetList.map((element) => (
@@ -1222,14 +1234,14 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="HOAname"
                 name="HOAname"
+                value={residentForm.HOAname}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-                <option value="None">None</option>
               </select>
             </div>
           </div>
@@ -1246,10 +1258,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="employmentstatus"
                 name="employmentstatus"
+                value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {employmentstatusList.map((element) => (
@@ -1274,10 +1287,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="monthlyincome"
                 name="monthlyincome"
+                value={residentForm.monthlyincome}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {monthlyincomeList.map((element) => (
@@ -1299,10 +1313,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="educationalattainment"
                 name="educationalattainment"
+                value={residentForm.educationalattainment}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {educationalattainmentList.map((element) => (
@@ -1317,10 +1332,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="typeofschool"
                 name="typeofschool"
+                value={residentForm.typeofschool}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Public">Public</option>

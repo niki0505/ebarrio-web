@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 import { InfoContext } from "../context/InfoContext";
@@ -13,6 +12,7 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
 import { BiSolidImageAlt } from "react-icons/bi";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
@@ -29,7 +29,6 @@ function AccountSettings({ isCollapsed }) {
     { question: "", answer: "" },
     { question: "", answer: "" },
   ]);
-  const navigation = useNavigate();
   const confirm = useConfirm();
   const [residentInfo, setResidentInfo] = useState([]);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
@@ -85,6 +84,16 @@ function AccountSettings({ isCollapsed }) {
     course: "",
   });
 
+  const [showUserPassword, setShowUserPassword] = useState(false);
+  const [showCurrPassword, setShowCurrPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showAnswer1, setShowAnswer1] = useState(false);
+  const [showConfirmAnswer1, setShowConfirmAnswer1] = useState(false);
+  const [showAnswer2, setShowAnswer2] = useState(false);
+  const [showConfirmAnswer2, setShowConfirmAnswer2] = useState(false);
+  const [showSecurityPass, setShowSecurityPass] = useState(false);
+
   useEffect(() => {
     fetchResidents();
   }, []);
@@ -128,7 +137,6 @@ function AccountSettings({ isCollapsed }) {
     };
     fetchUserDetails();
   }, [user.userID]);
-  console.log(residentInfo);
 
   const handleMenu1 = () => {
     setPassword("");
@@ -173,6 +181,13 @@ function AccountSettings({ isCollapsed }) {
   ];
 
   const handleUsernameChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your username?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     if (username === user.username) {
       alert("The new username must be different from the current username.");
       return;
@@ -206,6 +221,13 @@ function AccountSettings({ isCollapsed }) {
   };
 
   const handlePasswordChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your password?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     if (newpassword !== renewpassword) {
       alert("Passwords do not match.");
       return;
@@ -230,6 +252,13 @@ function AccountSettings({ isCollapsed }) {
   };
 
   const handleQuestionsChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update your security questions?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     const modifiedQuestions = securityquestions.map((q, index) => {
       const current = userDetails.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
@@ -250,7 +279,6 @@ function AccountSettings({ isCollapsed }) {
       alert("No changes detected in your security questions.");
       return;
     }
-    console.log(modifiedQuestions);
     try {
       await api.put(`/changesecurityquestions/${user.userID}`, {
         securityquestions: modifiedQuestions,
@@ -1660,15 +1688,26 @@ function AccountSettings({ isCollapsed }) {
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        type={showUserPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowUserPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showUserPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="function-btn-container">
@@ -1693,43 +1732,73 @@ function AccountSettings({ isCollapsed }) {
                     <label for="password" className="form-label">
                       Current Password
                     </label>
-                    <input
-                      placeholder="Enter Current Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Current Password"
+                        type={showCurrPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="newpassword" className="form-label">
                       New Password
                     </label>
-                    <input
-                      placeholder="Enter New Password"
-                      type="password"
-                      id="newpassword"
-                      name="newpassword"
-                      value={newpassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter New Password"
+                        type={showNewPassword ? "text" : "password"}
+                        id="newpassword"
+                        name="newpassword"
+                        value={newpassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showNewPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="renewpassword" className="form-label">
                       Reenter Password
                     </label>
-                    <input
-                      placeholder="Enter Reenter Password"
-                      type="password"
-                      id="renewpassword"
-                      name="renewpassword"
-                      value={renewpassword}
-                      onChange={(e) => setRenewPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Reenter Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        id="renewpassword"
+                        name="renewpassword"
+                        value={renewpassword}
+                        onChange={(e) => setRenewPassword(e.target.value)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
                   <div className="function-btn-container">
                     <button
@@ -1769,18 +1838,29 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          0,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        type={showAnswer1 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            0,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer1((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-4">
@@ -1803,33 +1883,54 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          1,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        type={showAnswer2 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            1,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer2((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        id="password"
+                        name="password"
+                        value={password}
+                        type={showSecurityPass ? "text" : "password"}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSecurityPass((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
                   <div className="function-btn-container">
                     <button

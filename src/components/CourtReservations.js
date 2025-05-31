@@ -1,19 +1,11 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import axios from "axios";
-import { IoClose } from "react-icons/io5";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
-import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { storage } from "../firebase";
-import ReactDOM from "react-dom/client";
 import { useConfirm } from "../context/ConfirmContext";
 import CreateReservation from "./CreateReservation";
-import { AuthContext } from "../context/AuthContext";
 import CourtReject from "./CourtReject";
 import api from "../api";
 
@@ -27,22 +19,35 @@ function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
   const location = useLocation();
   const { cancelled } = location.state || {};
-  const navigation = useNavigate();
   const { fetchReservations, courtreservations } = useContext(InfoContext);
-  const { user } = useContext(AuthContext);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [search, setSearch] = useState("");
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [selectedReservationID, setSelectedReservationID] = useState(null);
+  const [sortOption, setSortOption] = useState("Newest");
 
   const [isPendingClicked, setPendingClicked] = useState(true);
   const [isApprovedClicked, setApprovedClicked] = useState(false);
   const [isRejectedClicked, setRejectedClicked] = useState(false);
 
+  const exportRef = useRef(null);
+  const filterRef = useRef(null);
+
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+  const [filterDropdown, setfilterDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
+  };
 
   useEffect(() => {
     if (cancelled) {
@@ -59,12 +64,7 @@ function CourtReservations({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -89,9 +89,9 @@ function CourtReservations({ isCollapsed }) {
         const middle = court.resID.middlename || "";
         const last = court.resID.lastname || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search);
+        return fullName.includes(search.toLowerCase());
       });
     }
     setFilteredReservations(filtered);
@@ -104,6 +104,14 @@ function CourtReservations({ isCollapsed }) {
   ]);
 
   const formatDateRange = (startDate, endDate) => {
+    if (!startDate || !endDate) return "Invalid date";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    // Check if dates are valid
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return "Invalid date";
+
     const options = {
       year: "numeric",
       month: "long",
@@ -119,13 +127,9 @@ function CourtReservations({ isCollapsed }) {
       hour12: true,
     };
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
     const startFormatted = new Intl.DateTimeFormat("en-US", options).format(
       start
     );
-
     const endFormatted = new Intl.DateTimeFormat("en-US", timeOptions).format(
       end
     );
@@ -179,9 +183,13 @@ function CourtReservations({ isCollapsed }) {
   //For Pagination
   const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
 
-  const sortedFilteredCourt = [...filteredReservations].sort(
-    (a, b) => parseDate(b.updatedAt) - parseDate(a.updatedAt)
-  );
+  const sortedFilteredCourt = [...filteredReservations].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.updatedAt) - parseDate(b.updatedAt);
+    } else {
+      return parseDate(b.updatedAt) - parseDate(a.updatedAt);
+    }
+  });
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = sortedFilteredCourt.slice(
@@ -193,6 +201,31 @@ function CourtReservations({ isCollapsed }) {
 
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown, filterDropdown]);
 
   return (
     <>
@@ -228,10 +261,94 @@ function CourtReservations({ isCollapsed }) {
               Cancelled/Rejected
             </p>
           </div>
-          <button className="add-container" onClick={handleAdd}>
-            <MdPersonAddAlt1 className="text-xl" />
-            <span className="font-bold">Add new reservation</span>
-          </button>
+          <div className="flex flex-row gap-x-2 mt-4">
+            {isApprovedClicked && (
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {exportDropdown && (
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="relative" ref={filterRef}>
+              {/* Filter Button */}
+              <div
+                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                onClick={toggleFilterDropdown}
+              >
+                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  Sort
+                </h1>
+                <div className="pointer-events-none flex text-gray-600">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
+              </div>
+
+              {filterDropdown && (
+                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Newest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Newest
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        onClick={() => {
+                          setSortOption("Oldest");
+                          setfilterDropdown(false);
+                        }}
+                      >
+                        Oldest
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+              onClick={handleAdd}
+            >
+              <h1 className="font-medium text-sm text-[#fff] m-0">
+                Add New Reservation
+              </h1>
+            </div>
+          </div>
         </div>
 
         <hr className="mt-4 border border-gray-300" />
@@ -242,7 +359,6 @@ function CourtReservations({ isCollapsed }) {
               <th>Name</th>
               <th>Purpose</th>
               <th>Date & Time</th>
-              <th>Amount</th>
               {isRejectedClicked && <th>Remarks</th>}
               {isPendingClicked && <th>Action</th>}
             </tr>
@@ -252,7 +368,7 @@ function CourtReservations({ isCollapsed }) {
             {filteredReservations.length === 0 ? (
               <tr className="bg-white">
                 <td
-                  colSpan={isApprovedClicked ? 4 : 5}
+                  colSpan={isApprovedClicked ? 3 : 4}
                   className="text-center p-2"
                 >
                   No results found
@@ -273,8 +389,19 @@ function CourtReservations({ isCollapsed }) {
                         : `${court.resID.lastname} ${court.resID.firstname}`}
                     </td>
                     <td className="p-2">{court.purpose}</td>
-                    <td className="p-2">{formattedDatetime}</td>
-                    <td className="p-2">{court.amount}</td>
+                    <td>
+                      {court.times && Object.entries(court.times).length > 0 ? (
+                        Object.entries(court.times).map(
+                          ([dateKey, time], index) => (
+                            <div key={index}>
+                              {formatDateRange(time.starttime, time.endtime)}
+                            </div>
+                          )
+                        )
+                      ) : (
+                        <div>No times available</div>
+                      )}
+                    </td>
                     {isPendingClicked && court.status == "Pending" && (
                       <td className="flex justify-center gap-x-8">
                         <>
@@ -327,7 +454,7 @@ function CourtReservations({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -336,7 +463,7 @@ function CourtReservations({ isCollapsed }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -351,7 +478,7 @@ function CourtReservations({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -360,7 +487,7 @@ function CourtReservations({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 import { IoClose } from "react-icons/io5";
 import { MdOutlineQuestionMark } from "react-icons/md";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   const { logout, user } = useContext(AuthContext);
@@ -13,6 +14,7 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   const [showModal, setShowModal] = useState(() => {
     return localStorage.getItem("sessionTimedOut") === "true";
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const resetTimer = () => {
     clearTimeout(timerRef.current);
@@ -93,16 +95,26 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
               </p>
 
               <div className="mt-4 w-full">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleConfirm();
-                  }}
-                  placeholder="Enter your password"
-                  className="form-input w-full"
-                />
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleConfirm();
+                    }}
+                    className="form-input w-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                  </button>
+                </div>
                 {passwordError && (
                   <h1 className="text-[12px] text-red-600 m-0">
                     {passwordError}
