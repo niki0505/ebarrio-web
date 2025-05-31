@@ -527,6 +527,7 @@ function Employees({ isCollapsed }) {
               <th>Mobile No.</th>
               <th>Address</th>
               <th>Position</th>
+              <th></th>
             </tr>
           </thead>
 
@@ -555,7 +556,7 @@ function Employees({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === emp._id ? (
-                        <td colSpan={6}>
+                        <td colSpan={7}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img
@@ -688,6 +689,17 @@ function Employees({ isCollapsed }) {
                           <td>{emp.resID.mobilenumber}</td>
                           <td>{emp.resID.address}</td>
                           <td>{emp.position}</td>
+
+                          {/* Dropdown Arrow */}
+                          <td className="text-center">
+                            <span
+                              className={`cursor-pointer transition-transform ${
+                                expandedRow === emp.resID ? "rotate-180" : ""
+                              }`}
+                            >
+                              ▼
+                            </span>
+                          </td>
                         </>
                       )}
                     </tr>

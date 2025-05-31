@@ -522,6 +522,7 @@ function CertificateRequests({ isCollapsed }) {
               {isPendingClicked && <th>Date Requested</th>}
               {isIssuedClicked && <th>Date Issued</th>}
               {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
+              <th></th>
             </tr>
           </thead>
 
@@ -752,6 +753,16 @@ function CertificateRequests({ isCollapsed }) {
                             )}
                           </td>
                         )}
+                        {/* Dropdown Arrow */}
+                        <td className="text-center">
+                          <span
+                            className={`cursor-pointer transition-transform ${
+                              expandedRow === cert.resID ? "rotate-180" : ""
+                            }`}
+                          >
+                            ▼
+                          </span>
+                        </td>
                       </>
                     )}
                   </tr>
