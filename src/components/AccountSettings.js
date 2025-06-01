@@ -33,6 +33,9 @@ function AccountSettings({ isCollapsed }) {
   const [residentInfo, setResidentInfo] = useState([]);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const { fetchResidents, residents } = useContext(InfoContext);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
@@ -58,11 +61,11 @@ function AccountSettings({ isCollapsed }) {
     precinct: "",
     deceased: "",
     email: "",
-    mobilenumber: "",
-    telephone: "",
+    mobilenumber: "+63",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
-    emergencymobilenumber: "",
+    emergencymobilenumber: "+63",
     emergencyaddress: "",
     housenumber: "",
     street: "",
@@ -326,6 +329,22 @@ function AccountSettings({ isCollapsed }) {
         houseNumber = "";
       }
 
+      let formattedNumber =
+        residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
+          ? "+63" + residentInfo.mobilenumber.slice(1)
+          : "";
+
+      let formattedEmergencyNumber =
+        residentInfo.emergencymobilenumber &&
+        residentInfo.emergencymobilenumber.length > 0
+          ? "+63" + residentInfo.emergencymobilenumber.slice(1)
+          : "";
+
+      let formattedTelephone =
+        residentInfo.telephone && residentInfo.telephone.length > 0
+          ? "+63" + residentInfo.telephone.slice(1)
+          : "+63";
+
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
@@ -333,8 +352,10 @@ function AccountSettings({ isCollapsed }) {
         numberofchildren: childrenLength,
         street: streetName,
         housenumber: houseNumber,
+        mobilenumber: formattedNumber,
+        emergencymobilenumber: formattedEmergencyNumber,
+        telephone: formattedTelephone,
       }));
-      console.log(streetName);
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
     }
@@ -714,17 +735,38 @@ function AccountSettings({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
       let idPicture;
       let signaturePicture;
-      if (!id) {
-        alert("Picture is required");
-        return;
-      }
-      if (!signature) {
-        alert("Signature is required");
-        return;
-      }
       const isConfirmed = await confirm(
         "Are you sure you want to edit this resident profile?",
         "confirm"
@@ -732,7 +774,7 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      if (residentForm.numberofsiblings === 0) {
+      if (residentForm.numberofsiblings == 0) {
         residentForm.siblings = [];
       } else {
         residentForm.siblings = residentForm.siblings.slice(
@@ -741,7 +783,7 @@ function AccountSettings({ isCollapsed }) {
         );
       }
 
-      if (residentForm.numberofchildren === 0) {
+      if (residentForm.numberofchildren == 0) {
         residentForm.children = [];
       } else {
         residentForm.children = residentForm.children.slice(
@@ -762,11 +804,31 @@ function AccountSettings({ isCollapsed }) {
       } else {
         signaturePicture = residentInfo.signature;
       }
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone) {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+
       const updatedResidentForm = {
         ...residentForm,
         picture: idPicture,
         signature: signaturePicture,
         address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
       };
 
       await api.put(`/updateresident/${residentInfo._id}`, updatedResidentForm);
@@ -788,6 +850,66 @@ function AccountSettings({ isCollapsed }) {
         console.error("Error removing background:", error);
       } finally {
         setIsSignProcessing(false);
+      }
+    }
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
       }
     }
   };
@@ -1274,22 +1396,45 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="mobilenumber"
                             value={residentForm.mobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
                             className="form-input"
+                            maxLength={13}
                           />
+                          {mobileNumError ? (
+                            <label
+                              style={{
+                                color: "red",
+                                fontFamily: "QuicksandMedium",
+                                fontSize: 16,
+                              }}
+                            >
+                              {mobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Telephone</label>
                           <input
                             name="telephone"
                             value={residentForm.telephone}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={telephoneInputChange}
                             placeholder="Enter telephone"
                             className="form-input"
+                            maxLength={13}
                           />
+                          {telephoneNumError ? (
+                            <label
+                              style={{
+                                color: "red",
+                                fontFamily: "QuicksandMedium",
+                                fontSize: 16,
+                              }}
+                            >
+                              {telephoneNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Facebook</label>
@@ -1330,12 +1475,23 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="emergencymobilenumber"
                             value={residentForm.emergencymobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
+                            maxLength={13}
                             className="form-input"
                           />
+                          {emMobileNumError ? (
+                            <label
+                              style={{
+                                color: "red",
+                                fontFamily: "QuicksandMedium",
+                                fontSize: 16,
+                              }}
+                            >
+                              {emMobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">

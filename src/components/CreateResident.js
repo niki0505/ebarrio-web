@@ -17,6 +17,9 @@ function CreateResident({ isCollapsed }) {
   const { fetchResidents, residents } = useContext(InfoContext);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
@@ -440,82 +443,108 @@ function CreateResident({ isCollapsed }) {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   }
+  console.log(residentForm);
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!residentForm.id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!residentForm.signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
-      if (!residentForm.id) {
-        alert("Picture is required");
-      } else if (!residentForm.signature) {
-        alert("Signature is required");
-      } else {
-        const isConfirmed = await confirm(
-          "Are you sure you want to create a resident profile?",
-          "confirm"
-        );
-        if (!isConfirmed) {
-          return;
-        }
-        const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
-        const idPicture = await uploadToFirebase(residentForm.id);
-        const signaturePicture = await uploadToFirebase(residentForm.signature);
-
-        let formattedMobileNumber = residentForm.mobilenumber;
-        formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
-
-        let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
-        formattedEmergencyMobileNumber =
-          "0" + residentForm.emergencymobilenumber.slice(3);
-
-        let formattedTelephone = residentForm.telephone;
-        if (residentForm.telephone) {
-          formattedTelephone = "0" + residentForm.telephone.slice(3);
-          delete residentForm.telephone;
-        }
-
-        delete residentForm.mobilenumber;
-        delete residentForm.emergencymobilenumber;
-        delete residentForm.id;
-        delete residentForm.signature;
-
-        const updatedResidentForm = {
-          ...residentForm,
-          address: fulladdress,
-          mobilenumber: formattedMobileNumber,
-          emergencymobilenumber: formattedEmergencyMobileNumber,
-          telephone: formattedTelephone,
-        };
-
-        const response = await api.post("/createresident", {
-          picture: idPicture,
-          signature: signaturePicture,
-          ...updatedResidentForm,
-        });
-        try {
-          const response2 = await api.post(
-            `/generatebrgyID/${response.data.resID}`
-          );
-          console.log(response2.data);
-          const qrCode = await uploadToFirebase(response2.data.qrCode);
-          try {
-            const response3 = await api.put(
-              `/savebrgyID/${response.data.resID}`,
-              {
-                idNumber: response2.data.idNumber,
-                expirationDate: response2.data.expirationDate,
-                qrCode,
-                qrToken: response2.data.qrToken,
-              }
-            );
-          } catch (error) {
-            console.log("Error saving barangay ID", error);
-          }
-        } catch (error) {
-          console.log("Error generating barangay ID", error);
-        }
-        alert("Resident successfully created!");
-        setResidentForm(initialForm);
-        navigation("/residents");
+      const isConfirmed = await confirm(
+        "Are you sure you want to create a resident profile?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
+      const idPicture = await uploadToFirebase(residentForm.id);
+      const signaturePicture = await uploadToFirebase(residentForm.signature);
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone !== "+63") {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      } else {
+        formattedTelephone = "";
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+      delete residentForm.id;
+      delete residentForm.signature;
+
+      const updatedResidentForm = {
+        ...residentForm,
+        address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
+      };
+
+      const response = await api.post("/createresident", {
+        picture: idPicture,
+        signature: signaturePicture,
+        ...updatedResidentForm,
+      });
+      try {
+        const response2 = await api.post(
+          `/generatebrgyID/${response.data.resID}`
+        );
+        console.log(response2.data);
+        const qrCode = await uploadToFirebase(response2.data.qrCode);
+        try {
+          const response3 = await api.put(
+            `/savebrgyID/${response.data.resID}`,
+            {
+              idNumber: response2.data.idNumber,
+              expirationDate: response2.data.expirationDate,
+              qrCode,
+              qrToken: response2.data.qrToken,
+            }
+          );
+        } catch (error) {
+          console.log("Error saving barangay ID", error);
+        }
+      } catch (error) {
+        console.log("Error generating barangay ID", error);
+      }
+      alert("Resident successfully created!");
+      setResidentForm(initialForm);
+      navigation("/residents");
     } catch (error) {
       console.log("Error", error);
     }
@@ -552,6 +581,22 @@ function CreateResident({ isCollapsed }) {
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
   };
 
   const telephoneInputChange = (e) => {
@@ -569,6 +614,15 @@ function CreateResident({ isCollapsed }) {
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
+      }
+    }
   };
 
   return (
@@ -950,6 +1004,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input"
+                maxLength={3}
               />
             </div>
 
@@ -1010,6 +1065,17 @@ function CreateResident({ isCollapsed }) {
                 maxLength={13}
                 className="form-input"
               />
+              {mobileNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {mobileNumError}
+                </label>
+              ) : null}
             </div>
             <div className="form-group">
               <label className="form-label">Telephone</label>
@@ -1019,7 +1085,19 @@ function CreateResident({ isCollapsed }) {
                 onChange={telephoneInputChange}
                 placeholder="Enter telephone"
                 className="form-input"
+                maxLength={13}
               />
+              {telephoneNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {telephoneNumError}
+                </label>
+              ) : null}
             </div>
 
             <div className="form-group">
@@ -1065,6 +1143,17 @@ function CreateResident({ isCollapsed }) {
                 maxLength={13}
                 className="form-input"
               />
+              {emMobileNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {emMobileNumError}
+                </label>
+              ) : null}
             </div>
 
             <div className="form-group">
@@ -1170,6 +1259,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
@@ -1186,6 +1276,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of children"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
@@ -1205,6 +1296,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.housenumber}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter house number"
+                maxLength={3}
                 className="form-input"
               />
             </div>

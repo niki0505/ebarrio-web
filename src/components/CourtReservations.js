@@ -376,11 +376,6 @@ function CourtReservations({ isCollapsed }) {
               </tr>
             ) : (
               currentRows.map((court) => {
-                const formattedDatetime = formatDateRange(
-                  court.starttime,
-                  court.endtime
-                );
-
                 return (
                   <tr key={court._id}>
                     <td className="p-2">
