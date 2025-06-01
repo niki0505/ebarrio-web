@@ -222,6 +222,16 @@ function CreateAnnouncement({ onClose }) {
       return;
     }
 
+    const hasMissingTimes = announcementForm.date.some((date) => {
+      const times = announcementForm.times[date];
+      return !times || !times.starttime || !times.endtime;
+    });
+
+    if (hasMissingTimes) {
+      alert("Please fill in both start and end times for all selected dates.");
+      return;
+    }
+
     const detailsArray = announcementForm.date.map((date) => {
       const times = announcementForm.times[date];
       if (!times || !times.starttime || !times.endtime) return "";
@@ -256,21 +266,6 @@ function CreateAnnouncement({ onClose }) {
       };
     });
     setShowDateTimeInputs(false);
-  };
-
-  const formatToDateForInput = (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const formatToTimeForInput = (time) => {
-    const hours = time.getHours().toString().padStart(2, "0");
-    const minutes = time.getMinutes().toString().padStart(2, "0");
-
-    return `${hours}:${minutes}`;
   };
 
   const handleCancel = () => {

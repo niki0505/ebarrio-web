@@ -53,7 +53,6 @@ function CreateReservation({ onClose }) {
     );
     if (!isConfirmed) return;
     try {
-      delete reservationForm.date;
       await api.post("/createreservation", { reservationForm });
       alert("Court reservation successfully created!");
       onClose();

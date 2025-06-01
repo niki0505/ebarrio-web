@@ -20,6 +20,9 @@ function EditResident({ isCollapsed }) {
   const { resID } = location.state;
   const [residentInfo, setResidentInfo] = useState([]);
   const { fetchResidents, residents } = useContext(InfoContext);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -46,7 +49,7 @@ function EditResident({ isCollapsed }) {
     deceased: "",
     email: "",
     mobilenumber: "",
-    telephone: "",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
     emergencymobilenumber: "",
@@ -116,7 +119,7 @@ function EditResident({ isCollapsed }) {
       let formattedTelephone =
         residentInfo.telephone && residentInfo.telephone.length > 0
           ? "+63" + residentInfo.telephone.slice(1)
-          : "";
+          : "+63";
 
       setResidentForm((prevForm) => ({
         ...prevForm,
@@ -520,17 +523,38 @@ function EditResident({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!residentForm.id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!residentForm.signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
       let idPicture;
       let signaturePicture;
-      if (!id) {
-        alert("Picture is required");
-        return;
-      }
-      if (!signature) {
-        alert("Signature is required");
-        return;
-      }
       const isConfirmed = await confirm(
         "Are you sure you want to edit this resident profile?",
         "confirm"
@@ -634,6 +658,22 @@ function EditResident({ isCollapsed }) {
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
   };
 
   const telephoneInputChange = (e) => {
@@ -651,6 +691,16 @@ function EditResident({ isCollapsed }) {
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
+      }
+    }
   };
 
   return (
@@ -1021,6 +1071,7 @@ function EditResident({ isCollapsed }) {
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter precinct"
                 className="form-input"
+                maxLength={3}
               />
             </div>
 
@@ -1079,6 +1130,17 @@ function EditResident({ isCollapsed }) {
                 maxLength={13}
                 className="form-input"
               />
+              {mobileNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {mobileNumError}
+                </label>
+              ) : null}
             </div>
             <div className="form-group">
               <label className="form-label">Telephone</label>
@@ -1088,8 +1150,19 @@ function EditResident({ isCollapsed }) {
                 onChange={telephoneInputChange}
                 placeholder="Enter telephone"
                 className="form-input"
-                maxLength={11}
+                maxLength={13}
               />
+              {telephoneNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {telephoneNumError}
+                </label>
+              ) : null}
             </div>
             <div className="form-group">
               <label className="form-label">Facebook</label>
@@ -1133,6 +1206,17 @@ function EditResident({ isCollapsed }) {
                 maxLength={13}
                 className="form-input"
               />
+              {emMobileNumError ? (
+                <label
+                  style={{
+                    color: "red",
+                    fontFamily: "QuicksandMedium",
+                    fontSize: 16,
+                  }}
+                >
+                  {emMobileNumError}
+                </label>
+              ) : null}
             </div>
             <div className="form-group">
               <label className="form-label">
@@ -1234,6 +1318,7 @@ function EditResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
@@ -1250,6 +1335,7 @@ function EditResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
