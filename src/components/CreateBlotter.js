@@ -208,6 +208,7 @@ function CreateBlotter({ isCollapsed }) {
     try {
       await api.post("/createblotter", { updatedForm });
       alert("Blotter report successfully submitted!");
+      setBlotterForm(initialForm);
       navigation("/blotter-reports");
     } catch (error) {
       console.log("Error creating blotter report", error);
@@ -376,7 +377,9 @@ function CreateBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group relative">
               <div>
-                <label className="form-label">Name</label>
+                <label className="form-label">
+                  Name<label className="text-red-600">*</label>
+                </label>
                 <input
                   name="complainantname"
                   value={blotterForm.complainantname}
@@ -410,7 +413,9 @@ function CreateBlotter({ isCollapsed }) {
             </div>
 
             <div>
-              <label className="form-label">Address</label>
+              <label className="form-label">
+                Address<label className="text-red-600">*</label>
+              </label>
               <input
                 name="complainantaddress"
                 onChange={handleComplainantChange}
@@ -421,7 +426,9 @@ function CreateBlotter({ isCollapsed }) {
             </div>
 
             <div>
-              <label className="form-label">Contact No.</label>
+              <label className="form-label">
+                Contact No.<label className="text-red-600">*</label>
+              </label>
               <input
                 name="complainantcontactno"
                 onChange={handleComplainantChange}
@@ -482,7 +489,9 @@ function CreateBlotter({ isCollapsed }) {
           <hr className="section-divider" />
           <div className="form-grid">
             <div className="form-group relative">
-              <label className="form-label">Name</label>
+              <label className="form-label">
+                Name<label className="text-red-600">*</label>
+              </label>
               <input
                 name="subjectname"
                 value={blotterForm.subjectname}
@@ -529,7 +538,7 @@ function CreateBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="type" className="form-label">
-                Type of the Incident
+                Type of the Incident<label className="text-red-600">*</label>
               </label>
               <select
                 id="typeofthecomplaint"
@@ -549,7 +558,7 @@ function CreateBlotter({ isCollapsed }) {
 
             <div className="col-span-4">
               <label for="details" className="form-label">
-                Details of the Incident
+                Details of the Incident<label className="text-red-600">*</label>
               </label>
               <textarea
                 placeholder="Enter details"

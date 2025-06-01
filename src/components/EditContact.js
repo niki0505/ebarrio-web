@@ -33,9 +33,11 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
       return;
     }
     try {
+      let formattednumber = contactNumber;
+      formattednumber = "0" + contactNumber.slice(3);
       await api.post(`/editemergencyhotlines/${emergencyID}`, {
         name,
-        contactNumber,
+        contactNumber: formattednumber,
       });
       alert("Emergency contact successfully updated!");
       onClose();

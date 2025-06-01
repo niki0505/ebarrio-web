@@ -513,6 +513,7 @@ function CreateResident({ isCollapsed }) {
           console.log("Error generating barangay ID", error);
         }
         alert("Resident successfully created!");
+        setResidentForm(initialForm);
         navigation("/residents");
       }
     } catch (error) {

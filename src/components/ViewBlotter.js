@@ -304,7 +304,7 @@ function ViewBlotter({ onClose, blotterID }) {
                   {/*Complainant Information*/}
                   <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
                     <div>
-                      <label className="form-label">Complainant Name</label>
+                      <label className="form-label">Name</label>
                       <label className="text-sm font-regular">
                         {blotter.complainantID
                           ? `${blotter.complainantID.firstname} ${
@@ -315,7 +315,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     </div>
 
                     <div>
-                      <label className="form-label">Complainant Address </label>
+                      <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.complainantID
                           ? blotter.complainantID.address
@@ -324,9 +324,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     </div>
 
                     <div>
-                      <label className="form-label">
-                        Complainant Contact No
-                      </label>
+                      <label className="form-label">Contact No.</label>
                       <label className="text-sm font-regular">
                         {blotter.complainantID
                           ? blotter.complainantID.mobilenumber
@@ -342,7 +340,7 @@ function ViewBlotter({ onClose, blotterID }) {
                   <hr class="section-divider" />
                   <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
                     <div>
-                      <label className="form-label">Subject Name</label>
+                      <label className="form-label">Name</label>
                       <label className="text-sm font-regular">
                         {blotter.subjectID
                           ? `${blotter.subjectID.firstname} ${
@@ -353,7 +351,7 @@ function ViewBlotter({ onClose, blotterID }) {
                     </div>
 
                     <div>
-                      <label className="form-label">Subject Address</label>
+                      <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.subjectID
                           ? blotter.subjectID.address
@@ -381,6 +379,20 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label>{renderDetails(blotter)}</label>
                     </div>
                   </div>
+                  {blotter.status === "Rejected" && (
+                    <>
+                      <label className="section-title text-start">
+                        Reason for Rejection
+                      </label>
+                      <hr class="section-divider" />
+                      <div>
+                        <label className="form-label">Remarks</label>
+                        <label className="text-sm font-regular">
+                          {blotter.remarks}
+                        </label>
+                      </div>
+                    </>
+                  )}
 
                   {(blotter.status === "Pending" ||
                     blotter.status === "Scheduled") && (
@@ -495,18 +507,18 @@ function ViewBlotter({ onClose, blotterID }) {
                     <>
                       <div className="flex justify-center gap-4 mt-4">
                         <button
-                          type="submit"
-                          onClick={handleSubmit}
-                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                        >
-                          Schedule
-                        </button>
-                        <button
                           type="button"
                           onClick={handleReject}
                           className="actions-btn bg-btn-color-red hover:bg-red-700"
                         >
                           Reject
+                        </button>
+                        <button
+                          type="submit"
+                          onClick={handleSubmit}
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                        >
+                          Schedule
                         </button>
                       </div>
                     </>
@@ -515,6 +527,13 @@ function ViewBlotter({ onClose, blotterID }) {
                   {blotter.status === "Scheduled" && (
                     <>
                       <div className="flex justify-center gap-4 mt-4">
+                        <button
+                          type="button"
+                          onClick={handleReject}
+                          className="actions-btn bg-btn-color-red hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
                         <button
                           type="button"
                           onClick={handleEdit}
