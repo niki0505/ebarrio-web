@@ -80,7 +80,10 @@ function CertificateRequests({ isCollapsed }) {
     if (isPendingClicked) {
       filtered = certificates.filter((cert) => cert.status === "Pending");
     } else if (isIssuedClicked) {
-      filtered = certificates.filter((cert) => cert.status === "Issued");
+      filtered = certificates.filter(
+        (cert) =>
+          cert.status === "Not Yet Collected" || cert.status === "Collected"
+      );
     } else if (isRejectedClicked) {
       filtered = certificates.filter(
         (cert) => cert.status === "Rejected" || cert.status === "Cancelled"
@@ -127,6 +130,40 @@ function CertificateRequests({ isCollapsed }) {
     e.stopPropagation();
     setRejectClicked(true);
     setSelectedCertID(certID);
+  };
+
+  const notifyBtn = async (e, certID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to notify the resident that their document is ready for pick-up?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/notifycert/${certID}`);
+      alert("The resident has been successfully notified.");
+    } catch (error) {
+      console.log("Error in notifying user", error);
+    }
+  };
+
+  const collectedBtn = async (e, certID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure the resident has already collected this document?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/collectedcert/${certID}`);
+      alert("The resident has successfully collected their document.");
+    } catch (error) {
+      console.log("Error in updating the status", error);
+    }
   };
 
   const certBtn = async (e, certID) => {
@@ -555,6 +592,7 @@ function CertificateRequests({ isCollapsed }) {
               <th>Type of Certificate</th>
               {isPendingClicked && <th>Date Requested</th>}
               {isIssuedClicked && <th>Date Issued</th>}
+              {isIssuedClicked && <th>Status</th>}
               {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
               <th></th>
             </tr>
@@ -563,7 +601,7 @@ function CertificateRequests({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredCertificates.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={isIssuedClicked ? 5 : 4}>No results found</td>
+                <td colSpan={isIssuedClicked ? 6 : 4}>No results found</td>
               </tr>
             ) : (
               currentRows.map((cert) => (
@@ -579,7 +617,7 @@ function CertificateRequests({ isCollapsed }) {
                     }}
                   >
                     {expandedRow === cert._id ? (
-                      <td colSpan={isIssuedClicked ? 5 : 4}>
+                      <td colSpan={isIssuedClicked ? 6 : 4}>
                         {/* Additional Information for the resident */}
                         {cert.typeofcertificate === "Barangay Clearance" ||
                           (cert.typeofcertificate === "Barangay Indigency" && (
@@ -653,14 +691,29 @@ function CertificateRequests({ isCollapsed }) {
                                       ISSUE
                                     </button>
                                   </>
-                                ) : cert.status === "Issued" ? (
+                                ) : cert.status === "Not Yet Collected" ? (
                                   <>
+                                    <button
+                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                      type="submit"
+                                      onClick={(e) => notifyBtn(e, cert._id)}
+                                    >
+                                      NOTIFY
+                                    </button>
                                     <button
                                       className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                       type="submit"
                                       onClick={(e) => certBtn(e, cert._id)}
                                     >
                                       PRINT
+                                    </button>
+
+                                    <button
+                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                      type="submit"
+                                      onClick={(e) => collectedBtn(e, cert._id)}
+                                    >
+                                      COLLECTED
                                     </button>
                                   </>
                                 ) : null}
@@ -747,8 +800,15 @@ function CertificateRequests({ isCollapsed }) {
                                     ISSUE
                                   </button>
                                 </>
-                              ) : (
+                              ) : cert.status === "Not Yet Collected" ? (
                                 <>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => notifyBtn(e, cert._id)}
+                                  >
+                                    NOTIFY
+                                  </button>
                                   <button
                                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                     type="submit"
@@ -756,8 +816,16 @@ function CertificateRequests({ isCollapsed }) {
                                   >
                                     PRINT
                                   </button>
+
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => collectedBtn(e, cert._id)}
+                                  >
+                                    COLLECTED
+                                  </button>
                                 </>
-                              )}
+                              ) : null}
                             </div>
                           </>
                         )}
@@ -787,6 +855,8 @@ function CertificateRequests({ isCollapsed }) {
                             )}
                           </td>
                         )}
+                        {isIssuedClicked && <td>{cert.status}</td>}
+
                         {/* Dropdown Arrow */}
                         <td className="text-center">
                           <span
