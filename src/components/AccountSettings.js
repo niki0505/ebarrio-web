@@ -34,9 +34,12 @@ function AccountSettings({ isCollapsed }) {
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [mobileNumError, setMobileNumError] = useState("");
+  const [curPasswordError, setCurPasswordError] = useState("");
   const [emMobileNumError, setEmMobileNumError] = useState("");
   const [telephoneNumError, setTelephoneNumError] = useState("");
   const { fetchResidents, residents } = useContext(InfoContext);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -91,6 +94,7 @@ function AccountSettings({ isCollapsed }) {
   const [showCurrPassword, setShowCurrPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [usernameErrors, setUsernameErrors] = useState([]);
   const [showAnswer1, setShowAnswer1] = useState(false);
   const [showConfirmAnswer1, setShowConfirmAnswer1] = useState(false);
   const [showAnswer2, setShowAnswer2] = useState(false);
@@ -143,6 +147,12 @@ function AccountSettings({ isCollapsed }) {
 
   const handleMenu1 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setProfileClicked(true);
     setUsernameClicked(false);
     setPasswordClicked(false);
@@ -150,6 +160,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu2 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setUsernameClicked(true);
     setProfileClicked(false);
     setPasswordClicked(false);
@@ -157,6 +173,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu3 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setPasswordClicked(true);
     setUsernameClicked(false);
     setProfileClicked(false);
@@ -165,6 +187,12 @@ function AccountSettings({ isCollapsed }) {
 
   const handleMenu4 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setQuestionsClicked(true);
     setPasswordClicked(false);
     setUsernameClicked(false);
@@ -184,23 +212,60 @@ function AccountSettings({ isCollapsed }) {
   ];
 
   const handleUsernameChange = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to update your username?",
-      "confirm"
-    );
-    if (!isConfirmed) {
-      return;
+    let hasErrors = false;
+
+    let uerrors = [];
+
+    if (!username) {
+      uerrors.push("Username must not be empty.");
+      setUsernameErrors(uerrors);
+      hasErrors = true;
     }
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    }
+
     if (username === user.username) {
       alert("The new username must be different from the current username.");
+      hasErrors = true;
+    }
+
+    if (usernameErrors !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
     try {
-      await api.get(`/checkusername/${username}`);
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your username?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
       try {
-        await api.put(`/changeusername/${user.userID}`, { username, password });
-        alert("Username changed successfully!");
+        await api.get(`/checkusername/${username}`);
+        try {
+          await api.put(`/changeusername/${user.userID}`, {
+            username,
+            password,
+          });
+          alert("Username changed successfully!");
+        } catch (error) {
+          const response = error.response;
+          if (response && response.data) {
+            console.log("❌ Error status:", response.status);
+            alert(response.data.message || "Something went wrong.");
+          } else {
+            console.log("❌ Network or unknown error:", error.message);
+            alert("An unexpected error occurred.");
+          }
+        }
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -212,56 +277,79 @@ function AccountSettings({ isCollapsed }) {
         }
       }
     } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
-      }
+      console.log("Error in changing username", error);
     }
   };
 
   const handlePasswordChange = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to update your password?",
-      "confirm"
-    );
-    if (!isConfirmed) {
-      return;
+    let hasErrors = false;
+    let nerrors = [];
+    let rerrors = [];
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
     }
-    if (newpassword !== renewpassword) {
-      alert("Passwords do not match.");
+
+    if (!newpassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewpassword) {
+      rerrors.push("Password must not be empty.");
+      setRePasswordErrors(rerrors);
+      hasErrors = true;
+    }
+
+    if (passwordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (repasswordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
     try {
-      await api.put(`/changepassword/${user.userID}`, {
-        newpassword,
-        password,
-      });
-      alert("Password successfully changed! Please log in again.");
-      logout();
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your password?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      if (newpassword !== renewpassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+      try {
+        await api.put(`/changepassword/${user.userID}`, {
+          newpassword,
+          password,
+        });
+        alert("Password successfully changed! Please log in again.");
+        logout();
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing password", error);
     }
   };
 
   const handleQuestionsChange = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to update your security questions?",
-      "confirm"
-    );
-    if (!isConfirmed) {
-      return;
-    }
+    let hasErrors = false;
     const modifiedQuestions = securityquestions.map((q, index) => {
       const current = userDetails.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
@@ -277,26 +365,45 @@ function AccountSettings({ isCollapsed }) {
     });
 
     const hasChanges = modifiedQuestions.some((q) => q !== null);
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    } else {
+      if (!hasChanges) {
+        alert("No changes detected in your security questions.");
+        hasErrors = true;
+      }
+    }
 
-    if (!hasChanges) {
-      alert("No changes detected in your security questions.");
+    if (hasErrors) {
       return;
     }
     try {
-      await api.put(`/changesecurityquestions/${user.userID}`, {
-        securityquestions: modifiedQuestions,
-        password,
-      });
-      alert("Security questions successfully changed!");
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your security questions?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      try {
+        await api.put(`/changesecurityquestions/${user.userID}`, {
+          securityquestions: modifiedQuestions,
+          password,
+        });
+        alert("Security questions successfully changed!");
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing security questions", error);
     }
   };
 
@@ -912,6 +1019,86 @@ function AccountSettings({ isCollapsed }) {
         setTelephoneNumError("Invalid mobile number.");
       }
     }
+  };
+
+  const usernameValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setUsername(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Username must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 3) ||
+      (formattedVal && formattedVal.length > 16)
+    ) {
+      errors.push("Username must be between 3 and 16 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
+      errors.push(
+        "Username can only contain letters, numbers, and underscores."
+      );
+    }
+    if (
+      (formattedVal && formattedVal.startsWith("_")) ||
+      (formattedVal && formattedVal.endsWith("_"))
+    ) {
+      errors.push("Username must not start or end with an underscore");
+    }
+
+    setUsernameErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setRenewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (formattedVal !== newpassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match");
+    }
+    setRePasswordErrors(errors);
+  };
+
+  const curpasswordValidation = (e) => {
+    let val = e.target.value;
+    let formattedVal = val.replace(/\s+/g, "");
+    setPassword(formattedVal);
+
+    if (!formattedVal) {
+      setCurPasswordError("Password must not be empty.");
+    } else {
+      setCurPasswordError(null);
+    }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
   };
 
   return (
@@ -1834,11 +2021,25 @@ function AccountSettings({ isCollapsed }) {
                       id="name"
                       name="name"
                       value={username}
-                      onChange={(e) =>
-                        setUsername(e.target.value.toLowerCase())
-                      }
+                      onChange={(e) => usernameValidation(e)}
                       className="form-input"
                     />
+                    {usernameErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {usernameErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            style={{
+                              color: "red",
+                              fontFamily: "QuicksandMedium",
+                              fontSize: 16,
+                            }}
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
@@ -1852,7 +2053,7 @@ function AccountSettings({ isCollapsed }) {
                         id="password"
                         name="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => curpasswordValidation(e)}
                         className="form-input"
                       />
                       <button
@@ -1863,6 +2064,17 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showUserPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
+                      {curPasswordError ? (
+                        <label
+                          style={{
+                            color: "red",
+                            fontFamily: "QuicksandMedium",
+                            fontSize: 16,
+                          }}
+                        >
+                          {curPasswordError}
+                        </label>
+                      ) : null}
                     </div>
                   </div>
 
@@ -1895,7 +2107,7 @@ function AccountSettings({ isCollapsed }) {
                         id="password"
                         name="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => curpasswordValidation(e)}
                         className="form-input"
                       />
                       <button
@@ -1906,6 +2118,17 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
+                      {curPasswordError ? (
+                        <label
+                          style={{
+                            color: "red",
+                            fontFamily: "QuicksandMedium",
+                            fontSize: 16,
+                          }}
+                        >
+                          {curPasswordError}
+                        </label>
+                      ) : null}
                     </div>
                   </div>
                   <div className="employee-form-group mt-4">
@@ -1919,7 +2142,7 @@ function AccountSettings({ isCollapsed }) {
                         id="newpassword"
                         name="newpassword"
                         value={newpassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => passwordValidation(e)}
                         className="form-input"
                       />
                       <button
@@ -1931,6 +2154,22 @@ function AccountSettings({ isCollapsed }) {
                         {showNewPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
                     </div>
+                    {passwordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {passwordErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            style={{
+                              color: "red",
+                              fontFamily: "QuicksandMedium",
+                              fontSize: 16,
+                            }}
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="renewpassword" className="form-label">
@@ -1943,7 +2182,7 @@ function AccountSettings({ isCollapsed }) {
                         id="renewpassword"
                         name="renewpassword"
                         value={renewpassword}
-                        onChange={(e) => setRenewPassword(e.target.value)}
+                        onChange={(e) => repasswordValidation(e)}
                         className="form-input"
                       />
                       <button
@@ -1954,6 +2193,22 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
+                      {repasswordErrors.length > 0 && (
+                        <div style={{ marginTop: 5, width: 300 }}>
+                          {repasswordErrors.map((error, index) => (
+                            <p
+                              key={index}
+                              style={{
+                                color: "red",
+                                fontFamily: "QuicksandMedium",
+                                fontSize: 16,
+                              }}
+                            >
+                              {error}
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="function-btn-container">
@@ -2075,7 +2330,7 @@ function AccountSettings({ isCollapsed }) {
                         name="password"
                         value={password}
                         type={showSecurityPass ? "text" : "password"}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => curpasswordValidation(e)}
                         className="form-input"
                       />
                       <button
@@ -2086,6 +2341,17 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
                       </button>
+                      {curPasswordError ? (
+                        <label
+                          style={{
+                            color: "red",
+                            fontFamily: "QuicksandMedium",
+                            fontSize: 16,
+                          }}
+                        >
+                          {curPasswordError}
+                        </label>
+                      ) : null}
                     </div>
                   </div>
                   <div className="function-btn-container">

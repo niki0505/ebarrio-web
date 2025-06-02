@@ -29,6 +29,8 @@ function ForgotPassword() {
   });
   const [showSecurityPassword, setShowSecurityPassword] = useState(false);
   const [showResetNewPassword, setShowResetNewPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const handleInputChange = (e) => {
@@ -108,6 +110,25 @@ function ForgotPassword() {
   };
 
   const handleSuccessful = async () => {
+    let hasErrors = false;
+    let nerrors = [];
+    let rnerrors = [];
+    if (!newPassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewPassword) {
+      rnerrors.push("Password must not be empty.");
+      setRePasswordErrors(rnerrors);
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
       alert("You have successfully reset your password!");
@@ -122,6 +143,44 @@ function ForgotPassword() {
         alert("An unexpected error occurred.");
       }
     }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only.");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setReNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (formattedVal !== newPassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match.");
+    }
+    setRePasswordErrors(errors);
   };
 
   useEffect(() => {
@@ -280,7 +339,7 @@ function ForgotPassword() {
                             <input
                               type={showResetNewPassword ? "text" : "password"}
                               placeholder="Enter new password"
-                              onChange={(e) => setNewPassword(e.target.value)}
+                              onChange={(e) => passwordValidation(e)}
                               className="form-input w-full"
                             />
                             <button
@@ -297,6 +356,22 @@ function ForgotPassword() {
                                 <FaEyeSlash />
                               )}
                             </button>
+                            {passwordErrors.length > 0 && (
+                              <div style={{ marginTop: 5, width: 300 }}>
+                                {passwordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    style={{
+                                      color: "red",
+                                      fontFamily: "QuicksandMedium",
+                                      fontSize: 16,
+                                    }}
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           <div className="relative w-full">
@@ -305,7 +380,7 @@ function ForgotPassword() {
                                 showConfirmNewPassword ? "text" : "password"
                               }
                               placeholder="Confirm new password"
-                              onChange={(e) => setReNewPassword(e.target.value)}
+                              onChange={(e) => repasswordValidation(e)}
                               className="form-input w-full"
                             />
                             <button
@@ -322,8 +397,24 @@ function ForgotPassword() {
                                 <FaEyeSlash />
                               )}
                             </button>
+                            {repasswordErrors.length > 0 && (
+                              <div style={{ marginTop: 5, width: 300 }}>
+                                {repasswordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    style={{
+                                      color: "red",
+                                      fontFamily: "QuicksandMedium",
+                                      fontSize: 16,
+                                    }}
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        </div>    
+                        </div>
 
                         <button
                           type="button"
