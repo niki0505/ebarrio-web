@@ -243,7 +243,7 @@ function CreateAccount({ onClose }) {
                   />
                   <div className="text-start">
                     {usernameErrors.length > 0 && (
-                      <ul className="text-[12px] text-red-600 m-0">
+                      <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
                         {usernameErrors.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}
@@ -270,7 +270,7 @@ function CreateAccount({ onClose }) {
                     />
                     <div className="text-start">
                       {passwordErrors.length > 0 && (
-                        <ul className="text-[12px] text-red-600 m-0">
+                        <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
                           {passwordErrors.map((err, idx) => (
                             <li key={idx}>{err}</li>
                           ))}

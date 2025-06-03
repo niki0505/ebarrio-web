@@ -132,13 +132,7 @@ function CreateContact({ onClose }) {
                     required
                   />
                   {mobileNumError ? (
-                    <label
-                      style={{
-                        color: "red",
-                        fontFamily: "QuicksandMedium",
-                        fontSize: 16,
-                      }}
-                    >
+                    <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                       {mobileNumError}
                     </label>
                   ) : null}
