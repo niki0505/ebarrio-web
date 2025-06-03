@@ -126,16 +126,16 @@ function CreateAnnouncement({ onClose }) {
   }
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to create an announcement?",
-      "confirm"
-    );
-    if (!isConfirmed) {
-      return;
-    }
-    onClose();
-    delete announcementForm.date;
     try {
+      const isConfirmed = await confirm(
+        "Are you sure you want to create an announcement?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      onClose();
+      delete announcementForm.date;
       if (announcementForm.picture !== "") {
         const pictureUrl = await uploadToFirebase(announcementForm.picture);
         const response = await api.post("/createannouncement", {
@@ -338,6 +338,7 @@ function CreateAnnouncement({ onClose }) {
                         name="category"
                         onChange={handleInputChange}
                         className="form-input h-[30px]"
+                        required
                       >
                         <option value="" selected>
                           Select
@@ -358,6 +359,7 @@ function CreateAnnouncement({ onClose }) {
                         name="title"
                         onChange={handleInputChange}
                         className="form-input h-[30px]"
+                        required
                       />
                     </div>
                   </div>
@@ -373,6 +375,7 @@ function CreateAnnouncement({ onClose }) {
                       value={announcementForm.content}
                       onChange={handleInputChange}
                       className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
+                      required
                     />
                   </div>
                   {/* Event Details */}
@@ -567,9 +570,8 @@ function CreateAnnouncement({ onClose }) {
                     </div>
                   </div>
                   <button
-                    onClick={handleSubmit}
                     type="submit"
-                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
+                    className="hover:bg-[#0A7A9D] px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
                     Submit
                   </button>

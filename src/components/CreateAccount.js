@@ -230,7 +230,7 @@ function CreateAccount({ onClose }) {
 
                 <div className="employee-form-group">
                   <label className="form-label">
-                    Username <label className="text-red-600">*</label>
+                    Username<label className="text-red-600">*</label>
                   </label>
                   <input
                     type="text"

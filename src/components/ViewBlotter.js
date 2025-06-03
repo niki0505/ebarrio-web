@@ -557,7 +557,7 @@ function ViewBlotter({ onClose, blotterID }) {
                         <button
                           type="button"
                           onClick={handlePrint}
-                          className="actions-btn bg-btn-color-blue "
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                         >
                           Print
                         </button>

@@ -8,17 +8,23 @@ import { useConfirm } from "../context/ConfirmContext";
 import CreateReservation from "./CreateReservation";
 import CourtReject from "./CourtReject";
 import api from "../api";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 //ICONS
 import { FaCheckCircle } from "react-icons/fa";
 import { FaCircleXmark } from "react-icons/fa6";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { AuthContext } from "../context/AuthContext";
 
 function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
   const location = useLocation();
   const { cancelled } = location.state || {};
+  const { user } = useContext(AuthContext);
   const { fetchReservations, courtreservations } = useContext(InfoContext);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [isCreateClicked, setCreateClicked] = useState(false);
@@ -227,6 +233,166 @@ function CourtReservations({ isCollapsed }) {
     };
   }, [exportDropdown, filterDropdown]);
 
+  const exportCSV = async () => {
+    const title = "Barangay Aniban 2 Court Reservations Reports";
+    const now = new Date().toLocaleString();
+    const headers = ["No.", "Name", "Date & Time"];
+    const rows = filteredReservations
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((court) => {
+        const fullname = court.resID.middlename
+          ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
+          : `${court.resID.lastname} ${court.resID.firstname}`;
+
+        const datetime =
+          court.times && Object.entries(court.times).length > 0
+            ? Object.entries(court.times)
+                .map(
+                  ([dateKey, time]) =>
+                    `${formatDateRange(time.starttime, time.endtime)}`
+                )
+                .join("\n")
+            : "N/A";
+
+        return [court.reservationno, fullname, `"${datetime}"`];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_Court_Reservations_by_${user.name.replace(
+        / /g,
+        "_"
+      )}.csv`
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+
+    const action = "Court Reservations";
+    const description = `User exported court reservations to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  const exportPDF = async () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text("Court Reservations Reports", pageWidth / 2, 55, {
+      align: "center",
+    });
+
+    // Table
+    const rows = filteredReservations
+      .sort(
+        (a, b) =>
+          new Date(a.updatedAt.split(" at")[0]) -
+          new Date(b.updatedAt.split(" at")[0])
+      )
+      .map((court) => {
+        const fullname = court.resID.middlename
+          ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
+          : `${court.resID.lastname} ${court.resID.firstname}`;
+
+        const datetime =
+          court.times && Object.entries(court.times).length > 0
+            ? Object.entries(court.times)
+                .map(
+                  ([dateKey, time]) =>
+                    `${formatDateRange(time.starttime, time.endtime)}`
+                )
+                .join("\n")
+            : "N/A";
+
+        return [court.reservationno, fullname, datetime];
+      });
+
+    autoTable(doc, {
+      head: [["No.", "Name", "Date & Time"]],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_Court_Reservations_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+
+    const action = "Court Reservations";
+    const description = `User exported court reservations to PDF.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -266,7 +432,7 @@ function CourtReservations({ isCollapsed }) {
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
                 <div
-                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -281,12 +447,18 @@ function CourtReservations({ isCollapsed }) {
                   <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportCSV}
+                        >
                           Export as CSV
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
                           Export as PDF
                         </li>
                       </div>
@@ -299,7 +471,7 @@ function CourtReservations({ isCollapsed }) {
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
               <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                 onClick={toggleFilterDropdown}
               >
                 <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -340,14 +512,14 @@ function CourtReservations({ isCollapsed }) {
               )}
             </div>
 
-            <div
-              className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+            <button
+              className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
               onClick={handleAdd}
             >
               <h1 className="font-medium text-sm text-[#fff] m-0">
                 Add New Reservation
               </h1>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -356,6 +528,7 @@ function CourtReservations({ isCollapsed }) {
         <table>
           <thead>
             <tr>
+              {isApprovedClicked && <th>No.</th>}
               <th>Name</th>
               <th>Purpose</th>
               <th>Date & Time</th>
@@ -367,10 +540,7 @@ function CourtReservations({ isCollapsed }) {
           <tbody className="bg-[#fff]">
             {filteredReservations.length === 0 ? (
               <tr className="bg-white">
-                <td
-                  colSpan={isApprovedClicked ? 3 : 4}
-                  className="text-center p-2"
-                >
+                <td colSpan={4} className="text-center p-2">
                   No results found
                 </td>
               </tr>
@@ -378,6 +548,9 @@ function CourtReservations({ isCollapsed }) {
               currentRows.map((court) => {
                 return (
                   <tr key={court._id}>
+                    {isApprovedClicked && (
+                      <td className="p-2">{court.reservationno}</td>
+                    )}
                     <td className="p-2">
                       {court.resID.middlename
                         ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
@@ -449,7 +622,7 @@ function CourtReservations({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>

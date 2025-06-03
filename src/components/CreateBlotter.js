@@ -369,7 +369,13 @@ function CreateBlotter({ isCollapsed }) {
           <h1 className="header-text">Blotter Form</h1>
         </div>
 
-        <div className="white-bg-container">
+        <form
+          className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           {/*Complainant Information*/}
           <h3 className="section-title">Complainant Information</h3>
           <hr className="section-divider" />
@@ -387,6 +393,7 @@ function CreateBlotter({ isCollapsed }) {
                   placeholder="Enter name"
                   className="form-input h-[30px] w-full"
                   autoComplete="off"
+                  required
                 />
                 {blotterForm.complainantname?.length > 0 &&
                   complainantSuggestions?.length > 0 && (
@@ -422,6 +429,7 @@ function CreateBlotter({ isCollapsed }) {
                 value={blotterForm.complainantaddress}
                 placeholder="Enter address"
                 className="form-input h-[30px]"
+                required
               />
             </div>
 
@@ -435,6 +443,7 @@ function CreateBlotter({ isCollapsed }) {
                 value={blotterForm.complainantcontactno}
                 placeholder="Enter contact no"
                 className="form-input h-[30px]"
+                required
               />
             </div>
           </div>
@@ -499,6 +508,7 @@ function CreateBlotter({ isCollapsed }) {
                 placeholder="Enter name"
                 className="form-input h-[30px] w-full"
                 autoComplete="off"
+                required
               />
               {blotterForm.subjectname?.length > 0 &&
                 subjectSuggestions?.length > 0 && (
@@ -546,6 +556,7 @@ function CreateBlotter({ isCollapsed }) {
                 onChange={handleInputChange}
                 value={blotterForm.typeofthecomplaint}
                 className="form-input h-[30px]"
+                required
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -568,6 +579,7 @@ function CreateBlotter({ isCollapsed }) {
                 value={blotterForm.details}
                 onChange={handleInputChange}
                 className="w-full h-[15rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                required
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>
@@ -616,7 +628,7 @@ function CreateBlotter({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="flex justify-end rounded-md mt-4">
+          <div className="function-btn-container">
             <button
               type="button"
               onClick={handleReset}
@@ -624,15 +636,11 @@ function CreateBlotter({ isCollapsed }) {
             >
               Clear
             </button>
-            <button
-              onClick={handleSubmit}
-              className="actions-btn bg-btn-color-blue"
-              type="submit"
-            >
+            <button className="actions-btn bg-btn-color-blue" type="submit">
               Submit
             </button>
           </div>
-        </div>
+        </form>
       </main>
     </>
   );

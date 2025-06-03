@@ -29,6 +29,8 @@ function ForgotPassword() {
   });
   const [showSecurityPassword, setShowSecurityPassword] = useState(false);
   const [showResetNewPassword, setShowResetNewPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const handleInputChange = (e) => {
@@ -100,7 +102,7 @@ function ForgotPassword() {
       sendOTP(username, user.empID.resID.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        alert("OTP use is currently disabled. Try again later.");
+        alert("OTP use is currently disabled. Try again in after 30 minutes.");
       } else {
         console.error("Error checking OTP:", error);
       }
@@ -108,6 +110,25 @@ function ForgotPassword() {
   };
 
   const handleSuccessful = async () => {
+    let hasErrors = false;
+    let nerrors = [];
+    let rnerrors = [];
+    if (!newPassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewPassword) {
+      rnerrors.push("Password must not be empty.");
+      setRePasswordErrors(rnerrors);
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
       alert("You have successfully reset your password!");
@@ -122,6 +143,44 @@ function ForgotPassword() {
         alert("An unexpected error occurred.");
       }
     }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only.");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setReNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (formattedVal !== newPassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match.");
+    }
+    setRePasswordErrors(errors);
   };
 
   useEffect(() => {
@@ -214,30 +273,38 @@ function ForgotPassword() {
                 </label>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-input"
-                />
-              </div>
+              <form
+                className="flex flex-col gap-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+              >
+                <div className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="form-input"
+                    required
+                  />
+                </div>
 
-              <div className="flex flex-col gap-2">
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-                >
-                  Submit
-                </button>
-                <a
-                  href="/login"
-                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-                >
-                  Remember your password?
-                </a>
-              </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                  <a
+                    href="/login"
+                    className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+                  >
+                    Remember your password?
+                  </a>
+                </div>
+              </form>
             </div>
           </div>
         </>
@@ -276,54 +343,84 @@ function ForgotPassword() {
                         </div>
 
                         <div className="flex flex-col gap-4 w-full">
-                          <div className="relative w-full">
-                            <input
-                              type={showResetNewPassword ? "text" : "password"}
-                              placeholder="Enter new password"
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              className="form-input w-full"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowResetNewPassword((prev) => !prev)
-                              }
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                              tabIndex={-1}
-                            >
-                              {showResetNewPassword ? (
-                                <FaEye />
-                              ) : (
-                                <FaEyeSlash />
-                              )}
-                            </button>
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showResetNewPassword ? "text" : "password"
+                                }
+                                placeholder="Enter new password"
+                                onChange={(e) => passwordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowResetNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showResetNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
+                            {passwordErrors.length > 0 && (
+                              <div style={{ width: 300 }}>
+                                {passwordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
-                          <div className="relative w-full">
-                            <input
-                              type={
-                                showConfirmNewPassword ? "text" : "password"
-                              }
-                              placeholder="Confirm new password"
-                              onChange={(e) => setReNewPassword(e.target.value)}
-                              className="form-input w-full"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowConfirmNewPassword((prev) => !prev)
-                              }
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                              tabIndex={-1}
-                            >
-                              {showConfirmNewPassword ? (
-                                <FaEye />
-                              ) : (
-                                <FaEyeSlash />
-                              )}
-                            </button>
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showConfirmNewPassword ? "text" : "password"
+                                }
+                                placeholder="Confirm new password"
+                                onChange={(e) => repasswordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowConfirmNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showConfirmNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
+                            {repasswordErrors.length > 0 && (
+                              <div style={{ marginTop: 5, width: 300 }}>
+                                {repasswordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        </div>    
+                        </div>
 
                         <button
                           type="button"

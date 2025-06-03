@@ -283,7 +283,7 @@ function CertificateRequests({ isCollapsed }) {
   const exportCSV = async () => {
     const title = "Barangay Aniban 2 Document Requests Reports";
     const now = new Date().toLocaleString();
-    const headers = ["Name", "Type of Certificate", "Date Issued"];
+    const headers = ["No", "Name", "Type of Certificate", "Date Issued"];
     const rows = filteredCertificates
       .sort(
         (a, b) =>
@@ -300,6 +300,7 @@ function CertificateRequests({ isCollapsed }) {
         );
 
         return [
+          cert.certno,
           fullname,
           cert.typeofcertificate,
           `${issuedDate.replace(",", "")}`,
@@ -412,7 +413,7 @@ function CertificateRequests({ isCollapsed }) {
           doc.internal.getCurrentPageInfo().pageNumber
         } of ${pageCount}`;
         doc.setFontSize(10);
-        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
       },
     });
 
@@ -497,7 +498,7 @@ function CertificateRequests({ isCollapsed }) {
                 {/* Export Button */}
 
                 <div
-                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -539,7 +540,7 @@ function CertificateRequests({ isCollapsed }) {
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
               <div
-                className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                 onClick={toggleFilterDropdown}
               >
                 <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -855,7 +856,22 @@ function CertificateRequests({ isCollapsed }) {
                             )}
                           </td>
                         )}
-                        {isIssuedClicked && <td>{cert.status}</td>}
+                        {isIssuedClicked && (
+                          <td>
+                            <span
+                              className={`text-xs font-semibold px-2 py-1 rounded-full
+                      ${
+                        cert.status === "Not Yet Collected"
+                          ? "bg-red-100 text-red-800"
+                          : cert.status === "Collected"
+                          ? "bg-green-100 text-green-800"
+                          : cert.status === "Deactivated"
+                      }`}
+                            >
+                              {cert.status}
+                            </span>
+                          </td>
+                        )}
 
                         {/* Dropdown Arrow */}
                         <td className="text-center">
@@ -885,7 +901,7 @@ function CertificateRequests({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>

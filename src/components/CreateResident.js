@@ -443,7 +443,6 @@ function CreateResident({ isCollapsed }) {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   }
-  console.log(residentForm);
 
   const handleSubmit = async () => {
     let hasErrors = false;
