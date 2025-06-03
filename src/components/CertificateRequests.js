@@ -620,107 +620,103 @@ function CertificateRequests({ isCollapsed }) {
                     {expandedRow === cert._id ? (
                       <td colSpan={isIssuedClicked ? 6 : 4}>
                         {/* Additional Information for the resident */}
-                        {cert.typeofcertificate === "Barangay Clearance" ||
-                          (cert.typeofcertificate === "Barangay Indigency" && (
-                            <>
-                              <div className="profile-container">
-                                <div className="ml-5 text-xs">
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Name:</h1>
-                                    <p className="font-medium">
-                                      {cert.resID.middlename
-                                        ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                        : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                    </p>
-                                  </div>
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">
-                                      Type of Certificate:
-                                    </h1>
-                                    <p className="font-medium">
-                                      {cert.typeofcertificate}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">
-                                      Purpose of Request:
-                                    </h1>
-                                    <p className="font-medium">
-                                      {cert.purpose}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">
-                                      Date Requested:
-                                    </h1>
-                                    <p className="font-medium">
-                                      {cert.createdAt.substring(
-                                        0,
-                                        cert.createdAt.indexOf(" at")
-                                      )}
-                                    </p>
-                                  </div>
-
-                                  {(cert.status === "Rejected" ||
-                                    cert.status === "Cancelled") && (
-                                    <div className="flex flex-row gap-x-2">
-                                      <h1 className="font-bold">Remarks:</h1>
-                                      <p className="font-medium">
-                                        {cert.remarks}
-                                      </p>
-                                    </div>
-                                  )}
+                        {(cert.typeofcertificate === "Barangay Clearance" ||
+                          cert.typeofcertificate === "Barangay Indigency") && (
+                          <>
+                            <div className="profile-container">
+                              <div className="ml-5 text-xs">
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Name:</h1>
+                                  <p className="font-medium">
+                                    {cert.resID.middlename
+                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                  </p>
                                 </div>
-                              </div>
-                              <div className="btn-container">
-                                {cert.status === "Pending" ? (
-                                  <>
-                                    <button
-                                      className="actions-btn bg-btn-color-red hover:bg-red-700"
-                                      type="submit"
-                                      onClick={(e) => rejectBtn(e, cert._id)}
-                                    >
-                                      REJECT
-                                    </button>
-                                    <button
-                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                      type="submit"
-                                      onClick={(e) => certBtn(e, cert._id)}
-                                    >
-                                      ISSUE
-                                    </button>
-                                  </>
-                                ) : cert.status === "Not Yet Collected" ? (
-                                  <>
-                                    <button
-                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                      type="submit"
-                                      onClick={(e) => notifyBtn(e, cert._id)}
-                                    >
-                                      NOTIFY
-                                    </button>
-                                    <button
-                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                      type="submit"
-                                      onClick={(e) => certBtn(e, cert._id)}
-                                    >
-                                      PRINT
-                                    </button>
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">
+                                    Type of Certificate:
+                                  </h1>
+                                  <p className="font-medium">
+                                    {cert.typeofcertificate}
+                                  </p>
+                                </div>
 
-                                    <button
-                                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                      type="submit"
-                                      onClick={(e) => collectedBtn(e, cert._id)}
-                                    >
-                                      COLLECTED
-                                    </button>
-                                  </>
-                                ) : null}
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">
+                                    Purpose of Request:
+                                  </h1>
+                                  <p className="font-medium">{cert.purpose}</p>
+                                </div>
+
+                                <div className="flex flex-row gap-x-2">
+                                  <h1 className="font-bold">Date Requested:</h1>
+                                  <p className="font-medium">
+                                    {cert.createdAt.substring(
+                                      0,
+                                      cert.createdAt.indexOf(" at")
+                                    )}
+                                  </p>
+                                </div>
+
+                                {(cert.status === "Rejected" ||
+                                  cert.status === "Cancelled") && (
+                                  <div className="flex flex-row gap-x-2">
+                                    <h1 className="font-bold">Remarks:</h1>
+                                    <p className="font-medium">
+                                      {cert.remarks}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
-                            </>
-                          ))}
+                            </div>
+                            <div className="btn-container">
+                              {cert.status === "Pending" ? (
+                                <>
+                                  <button
+                                    className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                    type="submit"
+                                    onClick={(e) => rejectBtn(e, cert._id)}
+                                  >
+                                    REJECT
+                                  </button>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => certBtn(e, cert._id)}
+                                  >
+                                    ISSUE
+                                  </button>
+                                </>
+                              ) : cert.status === "Not Yet Collected" ? (
+                                <>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => notifyBtn(e, cert._id)}
+                                  >
+                                    NOTIFY
+                                  </button>
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => certBtn(e, cert._id)}
+                                  >
+                                    PRINT
+                                  </button>
+
+                                  <button
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                    type="submit"
+                                    onClick={(e) => collectedBtn(e, cert._id)}
+                                  >
+                                    COLLECTED
+                                  </button>
+                                </>
+                              ) : null}
+                            </div>
+                          </>
+                        )}
                         {cert.typeofcertificate ===
                           "Barangay Business Clearance" && (
                           <>

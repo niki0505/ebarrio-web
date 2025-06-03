@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const autologout2 = async () => {
     try {
-      await api.post(`/archiveduser`);
+      await api.post(`/archiveduser/${user.userID}`);
       alert(
         "You've been logged out because your account has been archived. If this is unexpected, please contact the admin."
       );

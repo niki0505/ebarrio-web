@@ -1003,7 +1003,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input"
-                maxLength={3}
+                maxLength={4}
               />
             </div>
 

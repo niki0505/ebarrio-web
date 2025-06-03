@@ -9,6 +9,7 @@ const IndigencyPrint = ({
   preparedByData,
   updatedAt,
 }) => {
+  console.log(certData);
   const printContent = (
     <div id="printContent">
       <div className="id-page">

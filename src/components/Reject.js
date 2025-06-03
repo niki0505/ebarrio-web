@@ -9,10 +9,7 @@ function Reject({ onClose, certID }) {
 
   const handleSubmit = async () => {
     try {
-      await api.put(
-        `http://localhost:5000/api/rejectcertificatereq/${certID}`,
-        { remarks }
-      );
+      await api.put(`/rejectcertificatereq/${certID}`, { remarks });
       alert("Certificate request successfully rejected!");
       onClose();
     } catch (error) {
