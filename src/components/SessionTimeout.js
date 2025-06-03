@@ -123,7 +123,10 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
               </div>
 
               <div className="flex gap-x-4">
-                <button className="actions-btn bg-btn-color-red hover:bg-red-700">
+                <button
+                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                  onClick={logout}
+                >
                   Log Out
                 </button>
                 <button

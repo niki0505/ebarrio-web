@@ -419,7 +419,7 @@ function SettleBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="col-span-4">
               <label for="details" className="form-label">
-                Details
+                Details<label className="text-red-600">*</label>
               </label>
               <textarea
                 placeholder="Enter details"
@@ -444,7 +444,7 @@ function SettleBlotter({ isCollapsed }) {
             <div className="form-group relative">
               <div className="cols-span-1">
                 <label for="type" className="form-label">
-                  Name
+                  Name<label className="text-red-600">*</label>
                 </label>
                 <input
                   name="witnessname"
@@ -482,7 +482,7 @@ function SettleBlotter({ isCollapsed }) {
               {!settleForm.witnessID && (
                 <div className="form-group">
                   <label for="type" className="form-label">
-                    Signature
+                    Signature<label className="text-red-600">*</label>
                   </label>
                   <div className="upload-box">
                     <input
