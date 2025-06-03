@@ -234,7 +234,7 @@ function CreateCertificate({ resID, onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[15rem]">
+          <div className="modal-content w-[30rem] h-[16rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">

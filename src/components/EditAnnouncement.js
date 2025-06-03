@@ -582,7 +582,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                   <button
                     onClick={handleSubmit}
                     type="submit"
-                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
+                    className="hover:bg-[#0A7A9D] px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
                     Update
                   </button>

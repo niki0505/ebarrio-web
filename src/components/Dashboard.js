@@ -195,20 +195,20 @@ function Dashboard({ isCollapsed }) {
             end: new Date(timeObj.endtime),
             backgroundColor:
               a.category === "General"
-                ? "#FF0000"
+                ? "#4A90E2"
                 : a.category === "Health & Sanitation"
-                ? "#FFB200"
+                ? "#7ED321"
                 : a.category === "Public Safety & Emergency"
-                ? "#2600FF"
+                ? "#FF0000"
                 : a.category === "Education & Youth"
-                ? "#770ED3"
+                ? "#FFD942"
                 : a.category === "Social Services"
-                ? "#FA7020"
+                ? "#808080"
                 : a.category === "Infrastructure"
-                ? "#FA7020"
+                ? "#EC9300"
                 : a.category === "Court Reservations"
-                ? "#CF0ED3"
-                : "#3174ad",
+                ? "#9B59B6"
+                : "#4A90E2",
           }))
         );
       const approvedReservationEvents = (courtreservations || [])
@@ -690,7 +690,7 @@ function Dashboard({ isCollapsed }) {
             <div className="form-grid mt-4 mb-4">
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#4A90E2] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     General
                   </span>
@@ -698,7 +698,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#FFB200] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#7ED321] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Health & Sanitation
                   </span>
@@ -706,7 +706,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#2600FF] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Public Safety & Emergency
                   </span>
@@ -714,7 +714,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#770ED3] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#FFD942] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Education & Youth
                   </span>
@@ -722,7 +722,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#FA7020] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#808080] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Social Services
                   </span>
@@ -730,7 +730,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#06D001] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#EC9300] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Infrastructure
                   </span>
@@ -738,7 +738,7 @@ function Dashboard({ isCollapsed }) {
               </div>
               <div className="form-group">
                 <div className="flex flex-row items-center">
-                  <div className="bg-[#CF0ED3] w-4 h-4 rounded-md"></div>
+                  <div className="bg-[#9B59B6] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Court Reservation
                   </span>

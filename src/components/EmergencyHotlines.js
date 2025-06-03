@@ -243,7 +243,7 @@ function EmergencyHotlines({ isCollapsed }) {
           doc.internal.getCurrentPageInfo().pageNumber
         } of ${pageCount}`;
         doc.setFontSize(10);
-        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
       },
     });
 
@@ -314,8 +314,8 @@ function EmergencyHotlines({ isCollapsed }) {
             <div className="flex flex-row gap-x-2 mt-4">
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                <div 
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -352,14 +352,14 @@ function EmergencyHotlines({ isCollapsed }) {
                   </div>
                 )}
               </div>
-              <div
-                className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+              <button
+                className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
                 onClick={handleAdd}
               >
                 <h1 className="font-medium text-sm text-[#fff] m-0">
                   Add New Contact
                 </h1>
-              </div>
+              </button>
             </div>
           )}
         </div>
@@ -458,7 +458,7 @@ function EmergencyHotlines({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
