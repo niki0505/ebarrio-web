@@ -184,7 +184,7 @@ function Dashboard({ isCollapsed }) {
   }, [blotterreports]);
 
   useEffect(() => {
-    if (user.role === "Secretary" || user.role === "Clerk") {
+    if (user.role === "Secretary") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
         .filter((a) => a.times)
@@ -208,6 +208,61 @@ function Dashboard({ isCollapsed }) {
                 ? "#EC9300"
                 : a.category === "Court Reservations"
                 ? "#9B59B6"
+                : a.category === "Blotter"
+                ? "#00796B"
+                : "#4A90E2",
+          }))
+        );
+      const approvedReservationEvents = (courtreservations || [])
+        .filter((r) => r.status === "Approved")
+        .flatMap((r) =>
+          Object.entries(r.times || {}).map(([dateKey, timeObj]) => ({
+            title: `${r.resID?.lastname}, ${r.resID?.firstname} - ${r.purpose}`,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor: "#770ED3",
+          }))
+        );
+      const scheduledBlotters = (blotterreports || [])
+        .filter((b) => b.status === "Scheduled")
+        .map((b) => ({
+          title: `${b.complainantID?.lastname}, ${b.complainantID?.firstname}`,
+          start: parseCustomDateString(b.starttime),
+          end: parseCustomDateString(b.endtime),
+          backgroundColor: "#00796B",
+        }));
+
+      setEvents([
+        ...announcementEvents,
+        ...approvedReservationEvents,
+        ...scheduledBlotters,
+      ]);
+    } else if (user.role === "Clerk") {
+      const announcementEvents = (announcements || [])
+        .filter((a) => a.status !== "Archived")
+        .filter((a) => a.times)
+        .flatMap((a) =>
+          Object.entries(a.times).map(([dateKey, timeObj]) => ({
+            title: a.title,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor:
+              a.category === "General"
+                ? "#4A90E2"
+                : a.category === "Health & Sanitation"
+                ? "#7ED321"
+                : a.category === "Public Safety & Emergency"
+                ? "#FF0000"
+                : a.category === "Education & Youth"
+                ? "#FFD942"
+                : a.category === "Social Services"
+                ? "#808080"
+                : a.category === "Infrastructure"
+                ? "#EC9300"
+                : a.category === "Court Reservations"
+                ? "#9B59B6"
+                : a.category === "Blotter"
+                ? "#00796B"
                 : "#4A90E2",
           }))
         );
@@ -223,14 +278,14 @@ function Dashboard({ isCollapsed }) {
         );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
-    } else if (user.role === "Justice") {
+    } else if (user.role === "Justice" || user.role === "Secretary") {
       const scheduledBlotters = (blotterreports || [])
         .filter((b) => b.status === "Scheduled")
         .map((b) => ({
           title: `${b.complainantID?.lastname}, ${b.complainantID?.firstname}`,
           start: parseCustomDateString(b.starttime),
           end: parseCustomDateString(b.endtime),
-          backgroundColor: "#770ED3",
+          backgroundColor: "#00796B",
         }));
       setEvents([...scheduledBlotters]);
     }
@@ -688,62 +743,76 @@ function Dashboard({ isCollapsed }) {
           </h1>
           <div className="white-bg-container">
             <div className="form-grid mt-4 mb-4">
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#4A90E2] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    General
-                  </span>
+              {(user.role === "Secretary" || user.role === "Clerk") && (
+                <>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#4A90E2] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        General
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#7ED321] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Health & Sanitation
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Public Safety & Emergency
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#FFD942] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Education & Youth
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#808080] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Social Services
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#EC9300] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Infrastructure
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#9B59B6] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Court Reservation
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+              {(user.role === "Secretary" || user.role === "Justice") && (
+                <div className="form-group">
+                  <div className="flex flex-row items-center">
+                    <div className="bg-[#00796B] w-4 h-4 rounded-md"></div>
+                    <span className="ml-4 text-sm font-subTitle font-[600]">
+                      Blotter
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#7ED321] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Health & Sanitation
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Public Safety & Emergency
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#FFD942] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Education & Youth
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#808080] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Social Services
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#EC9300] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Infrastructure
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#9B59B6] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Court Reservation
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
             <FullCalendar
