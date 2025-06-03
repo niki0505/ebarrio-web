@@ -525,10 +525,10 @@ function EditResident({ isCollapsed }) {
   const handleSubmit = async () => {
     let hasErrors = false;
 
-    if (!residentForm.id) {
+    if (!id) {
       alert("Picture is required");
       hasErrors = true;
-    } else if (!residentForm.signature) {
+    } else if (!signature) {
       alert("Signature is required");
       hasErrors = true;
     }
