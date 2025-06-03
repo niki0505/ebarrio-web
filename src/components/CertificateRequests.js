@@ -283,7 +283,7 @@ function CertificateRequests({ isCollapsed }) {
   const exportCSV = async () => {
     const title = "Barangay Aniban 2 Document Requests Reports";
     const now = new Date().toLocaleString();
-    const headers = ["Name", "Type of Certificate", "Date Issued"];
+    const headers = ["No", "Name", "Type of Certificate", "Date Issued"];
     const rows = filteredCertificates
       .sort(
         (a, b) =>
@@ -300,6 +300,7 @@ function CertificateRequests({ isCollapsed }) {
         );
 
         return [
+          cert.certno,
           fullname,
           cert.typeofcertificate,
           `${issuedDate.replace(",", "")}`,

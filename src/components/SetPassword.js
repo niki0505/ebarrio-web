@@ -11,20 +11,27 @@ function SetPassword() {
   const navigation = useNavigate();
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
-  const [securityquestions, setSecurityQuestions] = useState([
-    { question: "", answer: "" },
-    { question: "", answer: "" },
-  ]);
 
-  const handleSecurityChange = (index, field, value) => {
-    const updated = [...securityquestions];
-    updated[index][field] = value;
-    setSecurityQuestions(updated);
-  };
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
 
   const handleSubmit = async () => {
-    if (password !== repassword) {
-      alert("Passwords do not match.");
+    let hasErrors = false;
+    let perrors = [];
+    let rerrors = [];
+    if (!password) {
+      perrors.push("Password must not be empty.");
+      setPasswordErrors(perrors);
+      hasErrors = true;
+    }
+
+    if (!repassword) {
+      rerrors.push("Password must not be empty.");
+      setRePasswordErrors(rerrors);
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
     try {
@@ -32,19 +39,49 @@ function SetPassword() {
         password,
       });
       alert("Your password has been successfully set.");
-      setTimeout(() => {
-        navigation("/login");
-      }, 2000);
+      navigation("/login");
     } catch (error) {
       console.log("Failed to reset password", error);
     }
   };
 
-  const securityQuestionsList = [
-    "What was the name of your first pet?",
-    "What is your mother's maiden name?",
-    "What was the name of your first school?",
-  ];
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only.");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setRePassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (formattedVal !== password && formattedVal.length > 0) {
+      errors.push("Passwords do not match.");
+    }
+    setRePasswordErrors(errors);
+  };
 
   return (
     <>
@@ -71,63 +108,47 @@ function SetPassword() {
               <input
                 type="password"
                 placeholder="Enter password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => passwordValidation(e)}
                 className="form-input"
               />
+              {passwordErrors.length > 0 && (
+                <div style={{ marginTop: 5, width: 300 }}>
+                  {passwordErrors.map((error, index) => (
+                    <p
+                      key={index}
+                      style={{
+                        color: "red",
+                        fontFamily: "QuicksandMedium",
+                        fontSize: 16,
+                      }}
+                    >
+                      {error}
+                    </p>
+                  ))}
+                </div>
+              )}
               <input
                 type="password"
                 placeholder="Enter confirm password"
-                onChange={(e) => setRePassword(e.target.value)}
+                onChange={(e) => repasswordValidation(e)}
                 className="form-input"
               />
-
-              {/* <label>Security Questions</label>
-            <select
-              onChange={(e) =>
-                handleSecurityChange(0, "question", e.target.value)
-              }
-              className="form-input h-[30px]"
-            >
-              <option value="" disabled selected hidden>
-                Select
-              </option>
-              {securityQuestionsList
-                .filter((element) => element !== securityquestions[1].question)
-                .map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-            </select>
-            <input
-              type="password"
-              placeholder="Enter answer"
-              onChange={(e) =>
-                handleSecurityChange(0, "answer", e.target.value.toLowerCase())
-              }
-              className="form-input"
-            />
-            <select
-              onChange={(e) =>
-                handleSecurityChange(1, "question", e.target.value)
-              }
-              className="form-input h-[30px]"
-            >
-              <option value="" disabled selected hidden>
-                Select
-              </option>
-              {securityQuestionsList
-                .filter((element) => element !== securityquestions[0].question)
-                .map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-            </select>
-            <input
-              type="password"
-              placeholder="Enter answer"
-              onChange={(e) =>
-                handleSecurityChange(1, "answer", e.target.value.toLowerCase())
-              }
-              className="form-input"
-            /> */}
+              {repasswordErrors.length > 0 && (
+                <div style={{ marginTop: 5, width: 300 }}>
+                  {repasswordErrors.map((error, index) => (
+                    <p
+                      key={index}
+                      style={{
+                        color: "red",
+                        fontFamily: "QuicksandMedium",
+                        fontSize: 16,
+                      }}
+                    >
+                      {error}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
 
             <button

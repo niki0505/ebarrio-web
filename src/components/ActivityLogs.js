@@ -302,6 +302,7 @@ function ActivityLogs({ isCollapsed }) {
               <input
                 type="date"
                 value={fromDate}
+                max={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setFromDate(e.target.value)}
                 className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
               />
@@ -314,6 +315,7 @@ function ActivityLogs({ isCollapsed }) {
               <input
                 type="date"
                 value={toDate}
+                max={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setToDate(e.target.value)}
                 className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
               />

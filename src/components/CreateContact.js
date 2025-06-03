@@ -9,16 +9,26 @@ function CreateContact({ onClose }) {
   const [name, setName] = useState("");
   const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
+  const [mobileNumError, setMobileNumError] = useState("");
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to create a new contact?",
-      "confirm"
-    );
-    if (!isConfirmed) {
+    let hasErrors = false;
+    if (contactNumber === "+63") {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
     try {
+      const isConfirmed = await confirm(
+        "Are you sure you want to create a new contact?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
       let formattedNumber = contactNumber;
       formattedNumber = "0" + contactNumber.slice(3);
       await api.post("/createemergencyhotlines", {
@@ -44,20 +54,28 @@ function CreateContact({ onClose }) {
   };
 
   const mobileInputChange = (e) => {
-    let input = e.target.value;
-    input = input.replace(/\D/g, "");
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
 
-    if (!input.startsWith("+63")) {
-      input = "+63" + input.replace(/^0+/, "").slice(2);
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
     }
-    if (input.length > 13) {
-      input = input.slice(0, 13);
+    if (value.length > 13) {
+      value = value.slice(0, 13);
     }
-    if (input.length >= 4 && input[3] === "0") {
+    if (value.length >= 4 && value[3] === "0") {
       return;
     }
 
-    setContactNumber(input);
+    setContactNumber(value);
+
+    if (name === "contactnumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
   };
 
   return (
@@ -113,6 +131,17 @@ function CreateContact({ onClose }) {
                     className="form-input h-[30px]"
                     required
                   />
+                  {mobileNumError ? (
+                    <label
+                      style={{
+                        color: "red",
+                        fontFamily: "QuicksandMedium",
+                        fontSize: 16,
+                      }}
+                    >
+                      {mobileNumError}
+                    </label>
+                  ) : null}
                 </div>
                 <div className="flex justify-center">
                   <button

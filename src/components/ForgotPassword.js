@@ -273,30 +273,38 @@ function ForgotPassword() {
                 </label>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-input"
-                />
-              </div>
+              <form
+                className="flex flex-col gap-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+              >
+                <div className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="form-input"
+                    required
+                  />
+                </div>
 
-              <div className="flex flex-col gap-2">
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-                >
-                  Submit
-                </button>
-                <a
-                  href="/login"
-                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-                >
-                  Remember your password?
-                </a>
-              </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                  <a
+                    href="/login"
+                    className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+                  >
+                    Remember your password?
+                  </a>
+                </div>
+              </form>
             </div>
           </div>
         </>
