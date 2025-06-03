@@ -4,6 +4,7 @@ import blueBg from "../assets/blue-bg.png";
 import applogo from "../assets/applogo.png";
 import api from "../api";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function SetPassword() {
   const location = useLocation();
@@ -14,6 +15,8 @@ function SetPassword() {
 
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [repasswordErrors, setRePasswordErrors] = useState([]);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async () => {
     let hasErrors = false;

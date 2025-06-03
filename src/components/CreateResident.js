@@ -1065,13 +1065,7 @@ function CreateResident({ isCollapsed }) {
                 className="form-input"
               />
               {mobileNumError ? (
-                <label
-                  style={{
-                    color: "red",
-                    fontFamily: "QuicksandMedium",
-                    fontSize: 16,
-                  }}
-                >
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                   {mobileNumError}
                 </label>
               ) : null}
@@ -1087,13 +1081,7 @@ function CreateResident({ isCollapsed }) {
                 maxLength={13}
               />
               {telephoneNumError ? (
-                <label
-                  style={{
-                    color: "red",
-                    fontFamily: "QuicksandMedium",
-                    fontSize: 16,
-                  }}
-                >
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                   {telephoneNumError}
                 </label>
               ) : null}
@@ -1143,13 +1131,7 @@ function CreateResident({ isCollapsed }) {
                 className="form-input"
               />
               {emMobileNumError ? (
-                <label
-                  style={{
-                    color: "red",
-                    fontFamily: "QuicksandMedium",
-                    fontSize: 16,
-                  }}
-                >
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                   {emMobileNumError}
                 </label>
               ) : null}

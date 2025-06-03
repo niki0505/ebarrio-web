@@ -208,6 +208,8 @@ function Dashboard({ isCollapsed }) {
                 ? "#EC9300"
                 : a.category === "Court Reservations"
                 ? "#9B59B6"
+                : a.category === "Blotter"
+                ? "#00796B"
                 : "#4A90E2",
           }))
         );
@@ -223,7 +225,7 @@ function Dashboard({ isCollapsed }) {
         );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
-    } else if (user.role === "Justice") {
+    } else if (user.role === "Justice" || user.role === "Secretary") {
       const scheduledBlotters = (blotterreports || [])
         .filter((b) => b.status === "Scheduled")
         .map((b) => ({
@@ -741,6 +743,14 @@ function Dashboard({ isCollapsed }) {
                   <div className="bg-[#9B59B6] w-4 h-4 rounded-md"></div>
                   <span className="ml-4 text-sm font-subTitle font-[600]">
                     Court Reservation
+                  </span>
+                </div>
+              </div>
+              <div className="form-group">
+                <div className="flex flex-row items-center">
+                  <div className="bg-[#00796B] w-4 h-4 rounded-md"></div>
+                  <span className="ml-4 text-sm font-subTitle font-[600]">
+                    Blotter
                   </span>
                 </div>
               </div>
