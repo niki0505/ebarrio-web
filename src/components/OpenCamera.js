@@ -76,93 +76,95 @@ function OpenCamera({ onDone, onClose }) {
             </div>
 
             <div className="modal-form-container flex flex-col items-center justify-center">
-              <div>
-                {hasCamera ? (
-                  imageSrc ? (
-                    <img className="modal-image" src={imageSrc} />
-                  ) : (
-                    !loading && (
-                      <Webcam
-                        className="modal-image"
-                        ref={webRef}
-                        screenshotFormat="image/png/jpg"
-                      />
+              <div classname="modal-form">
+                <div>
+                  {hasCamera ? (
+                    imageSrc ? (
+                      <img className="modal-image" src={imageSrc} />
+                    ) : (
+                      !loading && (
+                        <Webcam
+                          className="modal-image"
+                          ref={webRef}
+                          screenshotFormat="image/png/jpg"
+                        />
+                      )
                     )
-                  )
-                ) : (
-                  <p className="mb-5">
-                    No camera detected. Please ensure it's connected or
-                    installed properly.
+                  ) : (
+                    <p className="mb-5">
+                      No camera detected. Please ensure it's connected or
+                      installed properly.
+                    </p>
+                  )}
+                </div>
+
+                {imageSrc && !loading && (
+                  <p className="success-message">
+                    The picture has been captured successfully!
                   </p>
                 )}
-              </div>
 
-              {imageSrc && !loading && (
-                <p className="success-message">
-                  The picture has been captured successfully!
-                </p>
-              )}
-
-              <div className="flex flex-row gap-x-5">
-                {imageSrc && !loading ? (
-                  <button
-                    className="actions-btn bg-btn-color-blue"
-                    onClick={openCamera}
-                  >
-                    Open Camera
-                  </button>
-                ) : loading ? (
-                  <button
-                    type="button"
-                    className="btn-disabled actions-btn bg-btn-color-blue"
-                    disabled
-                  >
-                    <svg
-                      className="mr-3 w-5 h-5 animate-spin text-white"
-                      viewBox="0 0 24 24"
-                      fill="none"
+                <div className="flex flex-row gap-x-5 items-center justify-center">
+                  {imageSrc && !loading ? (
+                    <button
+                      className="actions-btn bg-btn-color-blue"
+                      onClick={openCamera}
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      ></path>
-                    </svg>
-                    Processing...
-                  </button>
-                ) : (
+                      Open Camera
+                    </button>
+                  ) : loading ? (
+                    <button
+                      type="button"
+                      className="btn-disabled actions-btn bg-btn-color-blue"
+                      disabled
+                    >
+                      <svg
+                        className="mr-3 w-5 h-5 animate-spin text-white"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      Processing...
+                    </button>
+                  ) : (
+                    <button
+                      className={
+                        hasCamera
+                          ? "actions-btn bg-btn-color-blue"
+                          : "actions-btn bg-btn-color-blue cursor-not-allowed"
+                      }
+                      onClick={capture}
+                      disabled={!hasCamera}
+                    >
+                      Capture
+                    </button>
+                  )}
+
                   <button
                     className={
-                      hasCamera
-                        ? "actions-btn bg-btn-color-blue"
-                        : "actions-btn bg-btn-color-blue cursor-not-allowed"
+                      imageSrc
+                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
+                        : "actions-btn bg-btn-color-gray cursor-not-allowed"
                     }
-                    onClick={capture}
-                    disabled={!hasCamera}
+                    onClick={handleDoneClick}
+                    disabled={!imageSrc}
                   >
-                    Capture
+                    Done
                   </button>
-                )}
-
-                <button
-                  className={
-                    imageSrc
-                      ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
-                      : "actions-btn bg-btn-color-gray cursor-not-allowed"
-                  }
-                  onClick={handleDoneClick}
-                  disabled={!imageSrc}
-                >
-                  Done
-                </button>
+                </div>
               </div>
             </div>
           </div>

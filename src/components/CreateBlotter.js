@@ -628,7 +628,7 @@ function CreateBlotter({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="flex justify-end rounded-md mt-4">
+          <div className="function-btn-container">
             <button
               type="button"
               onClick={handleReset}

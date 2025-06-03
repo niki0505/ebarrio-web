@@ -335,37 +335,37 @@ function ForgotPassword() {
                         </div>
 
                         <div className="flex flex-col gap-4 w-full">
-                          <div className="relative w-full">
-                            <input
-                              type={showResetNewPassword ? "text" : "password"}
-                              placeholder="Enter new password"
-                              onChange={(e) => passwordValidation(e)}
-                              className="form-input w-full"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowResetNewPassword((prev) => !prev)
-                              }
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                              tabIndex={-1}
-                            >
-                              {showResetNewPassword ? (
-                                <FaEye />
-                              ) : (
-                                <FaEyeSlash />
-                              )}
-                            </button>
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showResetNewPassword ? "text" : "password"
+                                }
+                                placeholder="Enter new password"
+                                onChange={(e) => passwordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowResetNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showResetNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
                             {passwordErrors.length > 0 && (
-                              <div style={{ marginTop: 5, width: 300 }}>
+                              <div style={{ width: 300 }}>
                                 {passwordErrors.map((error, index) => (
                                   <p
                                     key={index}
-                                    style={{
-                                      color: "red",
-                                      fontFamily: "QuicksandMedium",
-                                      fontSize: 16,
-                                    }}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
                                   >
                                     {error}
                                   </p>
@@ -374,39 +374,37 @@ function ForgotPassword() {
                             )}
                           </div>
 
-                          <div className="relative w-full">
-                            <input
-                              type={
-                                showConfirmNewPassword ? "text" : "password"
-                              }
-                              placeholder="Confirm new password"
-                              onChange={(e) => repasswordValidation(e)}
-                              className="form-input w-full"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowConfirmNewPassword((prev) => !prev)
-                              }
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                              tabIndex={-1}
-                            >
-                              {showConfirmNewPassword ? (
-                                <FaEye />
-                              ) : (
-                                <FaEyeSlash />
-                              )}
-                            </button>
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showConfirmNewPassword ? "text" : "password"
+                                }
+                                placeholder="Confirm new password"
+                                onChange={(e) => repasswordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowConfirmNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showConfirmNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
                             {repasswordErrors.length > 0 && (
                               <div style={{ marginTop: 5, width: 300 }}>
                                 {repasswordErrors.map((error, index) => (
                                   <p
                                     key={index}
-                                    style={{
-                                      color: "red",
-                                      fontFamily: "QuicksandMedium",
-                                      fontSize: 16,
-                                    }}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
                                   >
                                     {error}
                                   </p>

@@ -69,7 +69,7 @@ function ActivityLogs({ isCollapsed }) {
       const logDate = new Date(rawDate).toISOString().split("T")[0];
 
       const isUserMatch = selectedUser
-        ? log.userID.username === selectedUser
+        ? log.userID?.username === selectedUser
         : true;
       const isFromDateMatch = fromDate ? logDate >= fromDate : true;
       const isToDateMatch = toDate ? logDate <= toDate : true;
@@ -79,6 +79,16 @@ function ActivityLogs({ isCollapsed }) {
 
     setFilteredLogs(filtered);
     setCurrentPage(1);
+  };
+
+  const getFullName = (userID) => {
+    const resID = userID?.empID?.resID || userID?.resID;
+    if (!resID) return "No name available";
+
+    const { lastname = "", middlename = "", firstname = "" } = resID;
+    return middlename
+      ? `${lastname} ${middlename} ${firstname}`
+      : `${lastname} ${firstname}`;
   };
 
   const exportCSV = async () => {
@@ -99,15 +109,7 @@ function ActivityLogs({ isCollapsed }) {
           new Date(b.createdAt.split(" at")[0])
       )
       .map((log, index) => {
-        const fullname = log.userID.empID
-          ? log.userID.empID.resID.middlename
-            ? `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.middlename} ${log.userID.empID.resID.firstname}`
-            : `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.firstname}`
-          : log.userID.resID
-          ? log.userID.resID.middlename
-            ? `${log.userID.resID.lastname} ${log.userID.resID.middlename} ${log.userID.resID.firstname}`
-            : `${log.userID.resID.lastname} ${log.userID.resID.firstname}`
-          : "No name available";
+        const fullname = getFullName(log.userID);
         const createdDate = log.createdAt.substring(
           0,
           log.createdAt.indexOf(" at")
@@ -185,15 +187,7 @@ function ActivityLogs({ isCollapsed }) {
           new Date(b.createdAt.split(" at")[0])
       )
       .map((log, index) => {
-        const fullname = log.userID.empID
-          ? log.userID.empID.resID.middlename
-            ? `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.middlename} ${log.userID.empID.resID.firstname}`
-            : `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.firstname}`
-          : log.userID.resID
-          ? log.userID.resID.middlename
-            ? `${log.userID.resID.lastname} ${log.userID.resID.middlename} ${log.userID.resID.firstname}`
-            : `${log.userID.resID.lastname} ${log.userID.resID.firstname}`
-          : "No name available";
+        const fullname = getFullName(log.userID);
         const createdDate = log.createdAt.substring(
           0,
           log.createdAt.indexOf(" at")
@@ -239,7 +233,7 @@ function ActivityLogs({ isCollapsed }) {
           doc.internal.getCurrentPageInfo().pageNumber
         } of ${pageCount}`;
         doc.setFontSize(10);
-        doc.text(pageText, pageWidth - 20, pageHeight - 10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
       },
     });
 
@@ -279,11 +273,71 @@ function ActivityLogs({ isCollapsed }) {
         <div className="header-text">Activity Logs</div>
 
         <hr className="mt-4 border border-gray-300" />
-        <div className="flex flex-row gap-x-2 mt-4">
+
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex gap-4 items-center">
+            <div className="flex flex-col items-start justify-center mt-8">
+              <label className="mr-2 font-title font-semibold text-base">
+                User
+              </label>
+              <select
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+              >
+                <option value="">All Users</option>
+                {users
+                  .sort((a, b) => a.username.localeCompare(b.username))
+                  .map((user, index) => (
+                    <option key={index} value={user.username}>
+                      {user.username}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="flex flex-col items-start justify-center mt-8">
+              <label className="mr-2 font-title font-semibold text-base">
+                From
+              </label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+              />
+            </div>
+
+            <div className="flex flex-col items-start justify-center mt-8">
+              <label className="mr-2 font-title font-semibold text-base">
+                To
+              </label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+              />
+            </div>
+
+            <button
+              onClick={handleReset}
+              className="hover:bg-gray-400 mt-12 bg-btn-color-gray h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0"
+            >
+              Reset
+            </button>
+
+            <button
+              onClick={handleSubmit}
+              className="hover:bg-[#0A7A9D] mt-12 bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0"
+            >
+              Submit
+            </button>
+          </div>
+
           <div className="relative" ref={exportRef}>
             {/* Export Button */}
             <div
-              className="relative flex items-center bg-[#fff] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+              className="mt-12 relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
               onClick={toggleExportDropdown}
             >
               <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
@@ -317,57 +371,6 @@ function ActivityLogs({ isCollapsed }) {
               </div>
             )}
           </div>
-        </div>
-
-        <div className="flex gap-4 items-center mt-4">
-          <div>
-            <label className="mr-2">User:</label>
-            <select
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-              className="border px-2 py-1 rounded bg-white"
-            >
-              <option value="">All Users</option>
-              {users.map((user, index) => (
-                <option key={index} value={user.username}>
-                  {user.username}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mr-2">From:</label>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
-          </div>
-
-          <div>
-            <label className="mr-2">To:</label>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
-          </div>
-
-          <button
-            onClick={handleReset}
-            className="bg-btn-color-gray text-white px-4 py-1 rounded hover:bg-gray-400"
-          >
-            Reset
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            className=" text-white px-4 py-1 rounded bg-btn-color-blue hover:bg-[#0A7A9D]"
-          >
-            Submit
-          </button>
         </div>
 
         <table>
@@ -421,24 +424,25 @@ function ActivityLogs({ isCollapsed }) {
                         }}
                         alt="User"
                         src={
-                          log.userID.empID?.resID?.picture ||
-                          log.userID.resID?.picture
+                          log.userID?.empID?.resID?.picture ||
+                          log.userID?.resID?.picture ||
+                          null
                         }
                       />
                       <div style={{ display: "flex", flexDirection: "column" }}>
                         <div>
-                          {log.userID.empID
+                          {log.userID?.empID?.resID
                             ? log.userID.empID.resID.middlename
                               ? `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.middlename} ${log.userID.empID.resID.firstname}`
                               : `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.firstname}`
-                            : log.userID.resID
+                            : log.userID?.resID
                             ? log.userID.resID.middlename
                               ? `${log.userID.resID.lastname} ${log.userID.resID.middlename} ${log.userID.resID.firstname}`
                               : `${log.userID.resID.lastname} ${log.userID.resID.firstname}`
                             : "No name available"}
                         </div>
                         <div style={{ color: "gray" }}>
-                          {log.userID.username}
+                          {log.userID?.username}
                         </div>
                       </div>
                     </div>
@@ -461,7 +465,7 @@ function ActivityLogs({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>

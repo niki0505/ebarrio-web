@@ -1590,13 +1590,7 @@ function AccountSettings({ isCollapsed }) {
                             maxLength={13}
                           />
                           {mobileNumError ? (
-                            <label
-                              style={{
-                                color: "red",
-                                fontFamily: "QuicksandMedium",
-                                fontSize: 16,
-                              }}
-                            >
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                               {mobileNumError}
                             </label>
                           ) : null}
@@ -1612,13 +1606,7 @@ function AccountSettings({ isCollapsed }) {
                             maxLength={13}
                           />
                           {telephoneNumError ? (
-                            <label
-                              style={{
-                                color: "red",
-                                fontFamily: "QuicksandMedium",
-                                fontSize: 16,
-                              }}
-                            >
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                               {telephoneNumError}
                             </label>
                           ) : null}
@@ -1669,13 +1657,7 @@ function AccountSettings({ isCollapsed }) {
                             className="form-input"
                           />
                           {emMobileNumError ? (
-                            <label
-                              style={{
-                                color: "red",
-                                fontFamily: "QuicksandMedium",
-                                fontSize: 16,
-                              }}
-                            >
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
                               {emMobileNumError}
                             </label>
                           ) : null}
@@ -2029,11 +2011,7 @@ function AccountSettings({ isCollapsed }) {
                         {usernameErrors.map((error, index) => (
                           <p
                             key={index}
-                            style={{
-                              color: "red",
-                              fontFamily: "QuicksandMedium",
-                              fontSize: 16,
-                            }}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
                           >
                             {error}
                           </p>
@@ -2064,18 +2042,12 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showUserPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
-                      {curPasswordError ? (
-                        <label
-                          style={{
-                            color: "red",
-                            fontFamily: "QuicksandMedium",
-                            fontSize: 16,
-                          }}
-                        >
-                          {curPasswordError}
-                        </label>
-                      ) : null}
                     </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
 
                   <div className="function-btn-container">
@@ -2118,18 +2090,12 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
-                      {curPasswordError ? (
-                        <label
-                          style={{
-                            color: "red",
-                            fontFamily: "QuicksandMedium",
-                            fontSize: 16,
-                          }}
-                        >
-                          {curPasswordError}
-                        </label>
-                      ) : null}
                     </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="newpassword" className="form-label">
@@ -2159,11 +2125,7 @@ function AccountSettings({ isCollapsed }) {
                         {passwordErrors.map((error, index) => (
                           <p
                             key={index}
-                            style={{
-                              color: "red",
-                              fontFamily: "QuicksandMedium",
-                              fontSize: 16,
-                            }}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
                           >
                             {error}
                           </p>
@@ -2193,23 +2155,19 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
-                      {repasswordErrors.length > 0 && (
-                        <div style={{ marginTop: 5, width: 300 }}>
-                          {repasswordErrors.map((error, index) => (
-                            <p
-                              key={index}
-                              style={{
-                                color: "red",
-                                fontFamily: "QuicksandMedium",
-                                fontSize: 16,
-                              }}
-                            >
-                              {error}
-                            </p>
-                          ))}
-                        </div>
-                      )}
                     </div>
+                    {repasswordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {repasswordErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="function-btn-container">
                     <button
@@ -2341,18 +2299,12 @@ function AccountSettings({ isCollapsed }) {
                       >
                         {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
                       </button>
-                      {curPasswordError ? (
-                        <label
-                          style={{
-                            color: "red",
-                            fontFamily: "QuicksandMedium",
-                            fontSize: 16,
-                          }}
-                        >
-                          {curPasswordError}
-                        </label>
-                      ) : null}
                     </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
                   <div className="function-btn-container">
                     <button
