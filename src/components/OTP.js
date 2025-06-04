@@ -105,7 +105,10 @@ function OTP() {
         />
         <div className="modal-container">
           <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
-            <IoArrowBack className="text-2xl" />
+            <IoArrowBack
+              className="text-2xl"
+              onClick={() => navigation("/login")}
+            />
             <div className="p-4">
               <div>
                 <h1 className="header-text text-start">Account Verification</h1>
