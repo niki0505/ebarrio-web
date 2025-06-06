@@ -5,6 +5,7 @@ import { OtpContext } from "../context/OtpContext";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { IoArrowBack } from "react-icons/io5";
 
 function OTP() {
   const location = useLocation();
@@ -92,7 +93,7 @@ function OTP() {
   return (
     <>
       <div
-        className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+        className="w-screen h-screen relative overflow-hidden"
         style={{
           backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
         }}
@@ -100,46 +101,61 @@ function OTP() {
         <img
           src={AppLogo}
           alt="App Logo"
-          className="w-[312px] h-[312px] translate-x-[-20vw]"
+          className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
         />
-        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
-          <div className="mb-4">
-            <h1 className="header-text">Account Verification</h1>
-            <label className="text-[#808080] font-subTitle font-semibold">
-              Enter the 6 digit code sent to {mobilenumber}
-            </label>
-          </div>
-
-          <div style={{ width: "100%" }}>
-            <OtpInput
-              value={OTP}
-              onChange={handleOTPChange}
-              numInputs={6}
-              inputType="tel"
-              isInputNum
-              shouldAutoFocus
-              renderSeparator={<span>-</span>}
-              renderInput={(props) => (
-                <input
-                  {...props}
-                  className="w-full h-[70px] mx-2 text-lg text-center border border-gray-300 rounded-[15px] focus:outline-none bg-[#EBEBEB] font-medium"
-                  style={{ maxWidth: "100%" }}
-                />
-              )}
+        <div className="modal-container">
+          <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+            <IoArrowBack
+              className="text-2xl"
+              onClick={() => navigation("/login")}
             />
+            <div className="p-4">
+              <div>
+                <h1 className="header-text text-start">Account Verification</h1>
+                <div className="flex flex-col mt-4">
+                  <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                    Enter the 6 digit code sent to:
+                  </span>
+                  <span className="text-navy-blue font-semibold">
+                    {mobilenumber}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full mt-10">
+                <OtpInput
+                  value={OTP}
+                  onChange={handleOTPChange}
+                  numInputs={6}
+                  inputType="tel"
+                  isInputNum
+                  shouldAutoFocus
+                  renderSeparator={<span>-</span>}
+                  renderInput={(props) => (
+                    <input
+                      {...props}
+                      className="w-full h-[60px] mx-2 text-lg text-center border border-gray-300 rounded-[10px] focus:outline-none bg-[#EBEBEB] font-medium"
+                      style={{ maxWidth: "100%" }}
+                    />
+                  )}
+                />
+              </div>
+              {isResendDisabled ? (
+                <div className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end">
+                  Resend OTP in{" "}
+                  <span className="text-red-600">{resendTimer}</span> second
+                  {resendTimer !== 1 ? "s" : ""}
+                </div>
+              ) : (
+                <p
+                  onClick={handleResend}
+                  className="cursor-pointer mt-5 text-end text-[#808080] font-subTitle font-bold text-[14px]"
+                >
+                  Resend OTP
+                </p>
+              )}
+            </div>
           </div>
-          {isResendDisabled ? (
-            <p className="text-gray-400 mt-5 font-bold text-base">
-              Resend OTP in {resendTimer} second{resendTimer !== 1 ? "s" : ""}
-            </p>
-          ) : (
-            <p
-              onClick={handleResend}
-              className="text-gray-400 font-bold text-base cursor-pointer mt-5"
-            >
-              Resend OTP
-            </p>
-          )}
         </div>
       </div>
     </>

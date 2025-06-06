@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const { setUser, setIsAuthenticated } = useContext(AuthContext);
@@ -11,6 +12,7 @@ const Login = () => {
   const navigation = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const location = useLocation();
 
@@ -50,34 +52,34 @@ const Login = () => {
         { withCredentials: true }
       );
 
+      console.log(res.status);
       if (res.status === 200) {
-        try {
-          await api.put(`/login/${username}`);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.log("Error logging in", error);
-        }
-        // if (res.data.message === "Credentials verified") {
-        //   try {
-        //     const response = await api.get(`/getmobilenumber/${username}`);
-        //     console.log(response.data);
-        //     sendOTP(username, response.data.empID?.resID.mobilenumber);
-        //     navigation("/otp", {
-        //       state: {
-        //         username: username,
-        //         mobilenumber: response.data.empID?.resID.mobilenumber,
-        //       },
-        //     });
-        //   } catch (error) {
-        //     console.log("Error getting mobile number", error);
-        //   }
-        // } else if (res.data.message === "Token verified successfully!") {
-        //   navigation("/set-password", {
-        //     state: {
-        //       username: username,
-        //     },
-        //   });
+        // try {
+        //   await api.put(`/login/${username}`);
+        //   setIsAuthenticated(true);
+        // } catch (error) {
+        //   console.log("Error logging in", error);
         // }
+        if (res.data.message === "Credentials verified") {
+          try {
+            const response = await api.get(`/getmobilenumber/${username}`);
+            sendOTP(username, response.data.empID?.resID.mobilenumber);
+            navigation("/otp", {
+              state: {
+                username: username,
+                mobilenumber: response.data.empID?.resID.mobilenumber,
+              },
+            });
+          } catch (error) {
+            console.log("Error getting mobile number", error);
+          }
+        } else if (res.data.message === "Token verified successfully.") {
+          navigation("/set-password", {
+            state: {
+              username: username,
+            },
+          });
+        }
       }
     } catch (error) {
       const response = error.response;
@@ -128,36 +130,56 @@ const Login = () => {
               </label>
             </div>
 
-            <div className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="Enter username"
-                onChange={(e) => setUsername(e.target.value)}
-                className="form-input"
-              />
-              <input
-                type="password"
-                placeholder="Enter password"
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-input"
-              />
-            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div className="flex flex-col gap-4">
+                <input
+                  type="text"
+                  placeholder="Enter username"
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="form-input"
+                  required
+                />
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="form-input w-full"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                  </button>
+                </div>
+              </div>
 
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={handleLogin}
-                type="submit"
-                className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-              >
-                Login
-              </button>
-              <a
-                href="/forgot-password"
-                className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-              >
-                Forgot password?
-              </a>
-            </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="submit"
+                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
+                >
+                  Login
+                </button>
+                <a
+                  href="/forgot-password"
+                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+                >
+                  Forgot password?
+                </a>
+              </div>
+            </form>
           </div>
         </div>
       )}

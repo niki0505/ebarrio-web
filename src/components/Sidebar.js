@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 import "../Stylesheets/SideBar.css";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
+import { useLocation } from "react-router-dom";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
@@ -18,10 +20,12 @@ import {
 } from "react-icons/bi";
 import { MdOutlineUpdate } from "react-icons/md";
 import { useState } from "react";
-import AppLogo from "../assets/applogo-darkbg.png";
+import { AiFillAlert } from "react-icons/ai";
+import { PiUserSwitchFill } from "react-icons/pi";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
+  const location = useLocation();
   if (!user) return null;
 
   const Menus = [
@@ -57,7 +61,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
-    (user.role === "Secretary" || user.role === "Clerk") && {
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Justice") && {
       title: "Announcements",
       icon: <BiSolidMegaphone />,
       path: "/announcements",
@@ -65,15 +71,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
       user.role === "Justice") && {
-      title: "SOS Requests",
-      icon: <IoLocation />,
-      path: "/sos-reports",
-    },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Justice") && {
       title: "SOS Update Reports",
-      icon: <MdOutlineUpdate />,
+      icon: <AiFillAlert />,
       path: "/sos-update-reports",
     },
     (user.role === "Secretary" ||
@@ -81,7 +80,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       user.role === "Justice") && {
       title: "River Snapshots",
       icon: <BiSolidCctv />,
-      path: "/flood-footage",
+      path: "/river-snapshots",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Emergency Hotlines",
@@ -92,6 +91,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       title: "Accounts Management",
       icon: <FaUsersCog />,
       path: "/accounts",
+    },
+    user.role === "Secretary" && {
+      title: "Activity Logs",
+      icon: <PiUserSwitchFill />,
+      path: "/activity-logs",
     },
   ].filter(Boolean);
 
@@ -145,38 +149,52 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
           </span>
         </div>
 
-        <ul className="sidebar-menu ">
-          {Menus.map((menu, index) => (
-            <li key={index} className="sidebar-menu-item group mb-[-5px]">
-              <NavLink
-                to={menu.path}
-                className={({ isActive }) =>
-                  `flex items-center sidebar-menu-item-link ${
+        <ul className="sidebar-menu">
+          {Menus.map((menu, index) => {
+            //Custom active highlight for residents subpage
+            const isResidentsActive =
+              menu.path === "/residents" &&
+              ["/residents", "/create-resident"].includes(location.pathname);
+
+            //Custom active highlight for blotter subpage
+            const isBlotterActive =
+              menu.path === "/blotter-reports" &&
+              location.pathname.startsWith("/create-blotter");
+
+            const isDefaultActive = location.pathname === menu.path;
+
+            const isActive =
+              isResidentsActive || isBlotterActive || isDefaultActive;
+
+            return (
+              <li key={index} className="sidebar-menu-item group mb-[-5px]">
+                <NavLink
+                  to={menu.path}
+                  className={`flex items-center sidebar-menu-item-link ${
                     isActive
                       ? "bg-gray-500 w-full h-full rounded-lg text-white font-bold"
                       : ""
-                  }`
-                }
-                end
-              >
-                <span
-                  className={`sidebar-menu-item-icon ml-2 ${
-                    isCollapsed ? "ml-3" : ""
-                  }`}
-                  aria-hidden="true"
-                >
-                  {menu.icon}
-                </span>
-                <span
-                  className={`sidebar-menu-item-title ${
-                    isCollapsed ? "hidden" : "block"
                   }`}
                 >
-                  {menu.title}
-                </span>
-              </NavLink>
-            </li>
-          ))}
+                  <span
+                    className={`sidebar-menu-item-icon ml-2 ${
+                      isCollapsed ? "ml-3" : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {menu.icon}
+                  </span>
+                  <span
+                    className={`sidebar-menu-item-title ${
+                      isCollapsed ? "hidden" : "block"
+                    }`}
+                  >
+                    {menu.title}
+                  </span>
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </aside>

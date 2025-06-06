@@ -36,7 +36,7 @@ function SettleBlotter({ isCollapsed }) {
     subjectID: "",
     subjectname: "",
     subjectaddress: "",
-    type: "",
+    typeofthecomplaint: "",
     details: "",
   });
 
@@ -83,7 +83,7 @@ function SettleBlotter({ isCollapsed }) {
           subjectaddress: response.data.subjectID
             ? response.data.subjectID.address
             : response.data.subjectaddress,
-          type: response.data.type,
+          typeofthecomplaint: response.data.typeofthecomplaint,
           details: response.data.details,
         }));
       } catch (error) {
@@ -381,9 +381,9 @@ function SettleBlotter({ isCollapsed }) {
                 Type of the Incident
               </label>
               <select
-                id="type"
-                name="type"
-                value={blotterForm.type}
+                id="typeofthecomplaint"
+                name="typeofthecomplaint"
+                value={blotterForm.typeofthecomplaint}
                 className="form-input h-[30px]"
                 readOnly
               >
@@ -407,7 +407,7 @@ function SettleBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 readOnly
-                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                className="w-full h-[15rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>
@@ -419,7 +419,7 @@ function SettleBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="col-span-4">
               <label for="details" className="form-label">
-                Details
+                Details<label className="text-red-600">*</label>
               </label>
               <textarea
                 placeholder="Enter details"
@@ -444,7 +444,7 @@ function SettleBlotter({ isCollapsed }) {
             <div className="form-group relative">
               <div className="cols-span-1">
                 <label for="type" className="form-label">
-                  Name
+                  Name<label className="text-red-600">*</label>
                 </label>
                 <input
                   name="witnessname"
@@ -482,7 +482,7 @@ function SettleBlotter({ isCollapsed }) {
               {!settleForm.witnessID && (
                 <div className="form-group">
                   <label for="type" className="form-label">
-                    Signature
+                    Signature<label className="text-red-600">*</label>
                   </label>
                   <div className="upload-box">
                     <input

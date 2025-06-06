@@ -6,6 +6,7 @@ import { IoClose } from "react-icons/io5";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+import { MdAutorenew } from "react-icons/md";
 
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
@@ -137,11 +138,18 @@ function CreateAccount({ onClose }) {
       return;
     }
     try {
-      const response = await api.post("/createuser", userForm);
-      alert("User successfully created!");
+      await api.post("/createuser", userForm);
+      alert("Account has been created successfully.");
       onClose();
     } catch (error) {
-      console.log("Error creating user");
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {
@@ -222,7 +230,7 @@ function CreateAccount({ onClose }) {
 
                 <div className="employee-form-group">
                   <label className="form-label">
-                    Username <label className="text-red-600">*</label>
+                    Username<label className="text-red-600">*</label>
                   </label>
                   <input
                     type="text"
@@ -235,7 +243,7 @@ function CreateAccount({ onClose }) {
                   />
                   <div className="text-start">
                     {usernameErrors.length > 0 && (
-                      <ul className="text-[12px] text-red-600 m-0">
+                      <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
                         {usernameErrors.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}
@@ -262,7 +270,7 @@ function CreateAccount({ onClose }) {
                     />
                     <div className="text-start">
                       {passwordErrors.length > 0 && (
-                        <ul className="text-[12px] text-red-600 m-0">
+                        <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
                           {passwordErrors.map((err, idx) => (
                             <li key={idx}>{err}</li>
                           ))}
@@ -274,7 +282,7 @@ function CreateAccount({ onClose }) {
                       className="absolute right-2 top-1/2 transform -translate-y-1/2"
                       onClick={generatePassword}
                     >
-                      <FaEyeSlash className="text-gray-500 mr-1" />
+                      <MdAutorenew className="text-gray-500 mr-1" />
                     </button>
                   </div>
                 </div>

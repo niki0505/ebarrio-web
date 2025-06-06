@@ -17,12 +17,15 @@ function CreateResident({ isCollapsed }) {
   const { fetchResidents, residents } = useContext(InfoContext);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [id, setId] = useState(null);
-  const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
-  const [residentForm, setResidentForm] = useState({
+  const initialForm = {
+    id: "",
+    signature: "",
     firstname: "",
     middlename: "",
     lastname: "",
@@ -41,11 +44,11 @@ function CreateResident({ isCollapsed }) {
     precinct: "",
     deceased: "",
     email: "",
-    mobilenumber: "",
-    telephone: "",
+    mobilenumber: "+63",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
-    emergencymobilenumber: "",
+    emergencymobilenumber: "+63",
     emergencyaddress: "",
     housenumber: "",
     street: "",
@@ -65,8 +68,8 @@ function CreateResident({ isCollapsed }) {
     educationalattainment: "",
     typeofschool: "",
     course: "",
-  });
-
+  };
+  const { residentForm, setResidentForm } = useContext(InfoContext);
   useEffect(() => {
     fetchResidents();
   }, []);
@@ -86,6 +89,7 @@ function CreateResident({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             className="form-input"
+            value={residentForm.siblings}
           >
             <option value="" disabled selected hidden>
               Select
@@ -118,6 +122,7 @@ function CreateResident({ isCollapsed }) {
             id={`child-${i}`}
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
+            value={residentForm.children}
             className="form-input"
           >
             <option value="" disabled selected hidden>
@@ -138,7 +143,7 @@ function CreateResident({ isCollapsed }) {
   };
 
   // DROPDOWN VALUES
-  const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
+  const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV"];
   const salutationList = [
     "Mr.",
     "Mrs.",
@@ -152,7 +157,6 @@ function CreateResident({ isCollapsed }) {
     "Gen.",
     "Lt.",
     "Sgt.",
-    "None",
   ];
   const sexList = ["Male", "Female"];
   const genderList = [
@@ -162,7 +166,6 @@ function CreateResident({ isCollapsed }) {
     "Genderfluid",
     "Agender",
     "Other",
-    "Prefer not to say",
   ];
   const civilstatusList = [
     "Single",
@@ -173,17 +176,7 @@ function CreateResident({ isCollapsed }) {
     "Annulled",
     "Common-Law/Live-In",
   ];
-  const bloodtypeList = [
-    "A",
-    "A-",
-    "B",
-    "B-",
-    "AB",
-    "AB-",
-    "O",
-    "O-",
-    "Unknown",
-  ];
+  const bloodtypeList = ["A", "A-", "B", "B-", "AB", "AB-", "O", "O-"];
   const religionList = [
     "Adventist",
     "Aglipayan (Philippine Independence Church)",
@@ -208,7 +201,6 @@ function CreateResident({ isCollapsed }) {
     "Seventh Day Adventists (Central Phil. Union Conf.)",
     "Worldwide Church of God",
     "Other",
-    "Prefer not to say",
   ];
   const nationalityList = [
     "Filipino",
@@ -382,7 +374,7 @@ function CreateResident({ isCollapsed }) {
 
   const stringsAndNoSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const stringsOnly = value.replace(/[^a-zA-Z0-9./:?&=]/g, "");
+    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=]/g, "");
     setResidentForm((prev) => ({
       ...prev,
       [name]: stringsOnly,
@@ -408,7 +400,7 @@ function CreateResident({ isCollapsed }) {
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
-        setId(url);
+        setResidentForm((prev) => ({ ...prev, id: url }));
       } catch (error) {
         console.error("Error removing background:", error);
       } finally {
@@ -421,13 +413,23 @@ function CreateResident({ isCollapsed }) {
     setIsIDProcessing(true);
     setTimeout(() => {
       setIsCameraOpen(false);
-      setId(url);
+      setResidentForm((prev) => ({ ...prev, id: url }));
       setIsIDProcessing(false);
     }, 500);
   };
 
   const handleClose = () => {
     setIsCameraOpen(false);
+  };
+  const handleReset = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to clear all the fields?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    setResidentForm(initialForm);
   };
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
@@ -443,58 +445,105 @@ function CreateResident({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!residentForm.id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!residentForm.signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
-      if (!id) {
-        alert("Picture is required");
-      } else if (!signature) {
-        alert("Signature is required");
-      } else {
-        const isConfirmed = await confirm(
-          "Are you sure you want to create a resident profile?",
-          "confirm"
-        );
-        if (!isConfirmed) {
-          return;
-        }
-        const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
-        const idPicture = await uploadToFirebase(id);
-        const signaturePicture = await uploadToFirebase(signature);
-
-        const updatedResidentForm = {
-          ...residentForm,
-          address: fulladdress,
-        };
-
-        const response = await api.post("/createresident", {
-          picture: idPicture,
-          signature: signaturePicture,
-          ...updatedResidentForm,
-        });
-        try {
-          const response2 = await api.post(
-            `/generatebrgyID/${response.data.resID}`
-          );
-          console.log(response2.data);
-          const qrCode = await uploadToFirebase(response2.data.qrCode);
-          try {
-            const response3 = await api.put(
-              `/savebrgyID/${response.data.resID}`,
-              {
-                idNumber: response2.data.idNumber,
-                expirationDate: response2.data.expirationDate,
-                qrCode,
-                qrToken: response2.data.qrToken,
-              }
-            );
-          } catch (error) {
-            console.log("Error saving barangay ID", error);
-          }
-        } catch (error) {
-          console.log("Error generating barangay ID", error);
-        }
-        alert("Resident successfully created!");
-        navigation("/residents");
+      const isConfirmed = await confirm(
+        "Are you sure you want to create a resident profile?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
+      const idPicture = await uploadToFirebase(residentForm.id);
+      const signaturePicture = await uploadToFirebase(residentForm.signature);
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone !== "+63") {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      } else {
+        formattedTelephone = "";
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+      delete residentForm.id;
+      delete residentForm.signature;
+
+      const updatedResidentForm = {
+        ...residentForm,
+        address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
+      };
+
+      const response = await api.post("/createresident", {
+        picture: idPicture,
+        signature: signaturePicture,
+        ...updatedResidentForm,
+      });
+      try {
+        const response2 = await api.post(
+          `/generatebrgyID/${response.data.resID}`
+        );
+        console.log(response2.data);
+        const qrCode = await uploadToFirebase(response2.data.qrCode);
+        try {
+          const response3 = await api.put(
+            `/savebrgyID/${response.data.resID}`,
+            {
+              idNumber: response2.data.idNumber,
+              expirationDate: response2.data.expirationDate,
+              qrCode,
+              qrToken: response2.data.qrToken,
+            }
+          );
+        } catch (error) {
+          console.log("Error saving barangay ID", error);
+        }
+      } catch (error) {
+        console.log("Error generating barangay ID", error);
+      }
+      alert("Resident successfully created!");
+      setResidentForm(initialForm);
+      navigation("/residents");
     } catch (error) {
       console.log("Error", error);
     }
@@ -507,7 +556,7 @@ function CreateResident({ isCollapsed }) {
       try {
         const blob = await removeBackground(fileUploaded);
         const url = URL.createObjectURL(blob);
-        setSignature(url);
+        setResidentForm((prev) => ({ ...prev, signature: url }));
       } catch (error) {
         console.error("Error removing background:", error);
       } finally {
@@ -516,9 +565,68 @@ function CreateResident({ isCollapsed }) {
     }
   };
 
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
+      }
+    }
+  };
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <div className="flex flex-row gap-x-3 items-center">
+      <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
           className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
@@ -550,8 +658,8 @@ function CreateResident({ isCollapsed }) {
                 <div className="preview-container">
                   {isIDProcessing ? (
                     <p>Processing...</p>
-                  ) : id ? (
-                    <img src={id} className="upload-img" />
+                  ) : residentForm.id ? (
+                    <img src={residentForm.id} className="upload-img" />
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
@@ -587,9 +695,9 @@ function CreateResident({ isCollapsed }) {
                 <div className="preview-container">
                   {isSignProcessing ? (
                     <p>Processing...</p>
-                  ) : signature ? (
+                  ) : residentForm.signature ? (
                     <img
-                      src={signature}
+                      src={residentForm.signature}
                       className="w-full h-full object-contain"
                     />
                   ) : (
@@ -664,8 +772,9 @@ function CreateResident({ isCollapsed }) {
                 name="suffix"
                 onChange={handleDropdownChange}
                 className="form-input"
+                value={residentForm.suffix}
               >
-                <option value="Select" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
                 {suffixList.map((element) => (
@@ -692,9 +801,10 @@ function CreateResident({ isCollapsed }) {
                 id="salutation"
                 name="salutation"
                 onChange={handleDropdownChange}
+                value={residentForm.salutation}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
                 {salutationList.map((element) => (
@@ -711,10 +821,11 @@ function CreateResident({ isCollapsed }) {
                 id="sex"
                 name="sex"
                 onChange={handleDropdownChange}
+                value={residentForm.sex}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {sexList.map((element) => (
@@ -731,9 +842,10 @@ function CreateResident({ isCollapsed }) {
                 id="gender"
                 name="gender"
                 onChange={handleDropdownChange}
+                value={residentForm.gender}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {genderList.map((element) => (
@@ -783,10 +895,11 @@ function CreateResident({ isCollapsed }) {
                 id="civilstatus"
                 name="civilstatus"
                 onChange={handleDropdownChange}
+                value={residentForm.civilstatus}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {civilstatusList.map((element) => (
@@ -803,9 +916,10 @@ function CreateResident({ isCollapsed }) {
                 id="bloodtype"
                 name="bloodtype"
                 onChange={handleDropdownChange}
+                value={residentForm.bloodtype}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {bloodtypeList.map((element) => (
@@ -822,9 +936,10 @@ function CreateResident({ isCollapsed }) {
                 id="religion"
                 name="religion"
                 onChange={handleDropdownChange}
+                value={residentForm.religion}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {religionList.map((element) => (
@@ -841,10 +956,11 @@ function CreateResident({ isCollapsed }) {
                 id="nationality"
                 name="nationality"
                 onChange={handleDropdownChange}
+                value={residentForm.nationality}
                 required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {nationalityList.map((element) => (
@@ -887,6 +1003,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input"
+                maxLength={4}
               />
             </div>
 
@@ -926,6 +1043,7 @@ function CreateResident({ isCollapsed }) {
               <label className="form-label">Email</label>
               <input
                 name="email"
+                type="email"
                 value={residentForm.email}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
@@ -940,22 +1058,33 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="mobilenumber"
                 value={residentForm.mobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
+              {mobileNumError ? (
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                  {mobileNumError}
+                </label>
+              ) : null}
             </div>
             <div className="form-group">
               <label className="form-label">Telephone</label>
               <input
                 name="telephone"
                 value={residentForm.telephone}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={telephoneInputChange}
                 placeholder="Enter telephone"
                 className="form-input"
+                maxLength={13}
               />
+              {telephoneNumError ? (
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                  {telephoneNumError}
+                </label>
+              ) : null}
             </div>
 
             <div className="form-group">
@@ -995,12 +1124,17 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="emergencymobilenumber"
                 value={residentForm.emergencymobilenumber}
-                onChange={numbersAndNoSpaceOnly}
+                onChange={mobileInputChange}
                 placeholder="Enter mobile number"
                 required
-                maxLength={11}
+                maxLength={13}
                 className="form-input"
               />
+              {emMobileNumError ? (
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                  {emMobileNumError}
+                </label>
+              ) : null}
             </div>
 
             <div className="form-group">
@@ -1030,19 +1164,22 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="mother"
                 name="mother"
+                value={residentForm.mother}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Female")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -1056,16 +1193,18 @@ function CreateResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Male")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="form-group">
@@ -1078,7 +1217,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {residents.map((element) => (
@@ -1101,6 +1240,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of siblings"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
@@ -1117,6 +1257,7 @@ function CreateResident({ isCollapsed }) {
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter number of children"
                 className="form-input"
+                maxLength={1}
               />
             </div>
           </div>
@@ -1136,6 +1277,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.housenumber}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter house number"
+                maxLength={3}
                 className="form-input"
               />
             </div>
@@ -1148,9 +1290,10 @@ function CreateResident({ isCollapsed }) {
                 name="street"
                 onChange={handleDropdownChange}
                 required
+                value={residentForm.street}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {streetList.map((element) => (
@@ -1165,14 +1308,14 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="HOAname"
                 name="HOAname"
+                value={residentForm.HOAname}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-                <option value="None">None</option>
               </select>
             </div>
           </div>
@@ -1189,10 +1332,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="employmentstatus"
                 name="employmentstatus"
+                value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {employmentstatusList.map((element) => (
@@ -1217,10 +1361,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="monthlyincome"
                 name="monthlyincome"
+                value={residentForm.monthlyincome}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {monthlyincomeList.map((element) => (
@@ -1242,10 +1387,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="educationalattainment"
                 name="educationalattainment"
+                value={residentForm.educationalattainment}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {educationalattainmentList.map((element) => (
@@ -1260,10 +1406,11 @@ function CreateResident({ isCollapsed }) {
               <select
                 id="typeofschool"
                 name="typeofschool"
+                value={residentForm.typeofschool}
                 onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="Select" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Public">Public</option>
@@ -1285,6 +1432,7 @@ function CreateResident({ isCollapsed }) {
           <div className="function-btn-container">
             <button
               type="button"
+              onClick={handleReset}
               className="actions-btn bg-btn-color-gray hover:bg-gray-400"
             >
               Clear

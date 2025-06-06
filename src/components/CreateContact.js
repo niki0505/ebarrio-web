@@ -7,31 +7,75 @@ import { useConfirm } from "../context/ConfirmContext";
 function CreateContact({ onClose }) {
   const confirm = useConfirm();
   const [name, setName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
+  const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
+  const [mobileNumError, setMobileNumError] = useState("");
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to create a new contact?",
-      "confirm"
-    );
-    if (!isConfirmed) {
+    let hasErrors = false;
+    if (contactNumber === "+63") {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
-    onClose();
     try {
-      const response = await api.post("/createemergencyhotlines", {
+      const isConfirmed = await confirm(
+        "Are you sure you want to create a new contact?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      let formattedNumber = contactNumber;
+      formattedNumber = "0" + contactNumber.slice(3);
+      await api.post("/createemergencyhotlines", {
         name,
-        contactNumber,
+        contactNumber: formattedNumber,
       });
       alert("Emergency contact successfully created!");
+      onClose();
     } catch (error) {
-      console.log("Error creating emergency contact", error);
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {
     setShowModal(false);
     onClose();
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setContactNumber(value);
+
+    if (name === "contactnumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
   };
 
   return (
@@ -71,6 +115,7 @@ function CreateContact({ onClose }) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="employee-form-group">
@@ -82,9 +127,15 @@ function CreateContact({ onClose }) {
                     id="contactnumber"
                     name="contactnumber"
                     value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
+                    onChange={(e) => mobileInputChange(e)}
                     className="form-input h-[30px]"
+                    required
                   />
+                  {mobileNumError ? (
+                    <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                      {mobileNumError}
+                    </label>
+                  ) : null}
                 </div>
                 <div className="flex justify-center">
                   <button

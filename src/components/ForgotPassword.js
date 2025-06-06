@@ -6,6 +6,7 @@ import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
 import { IoArrowBack } from "react-icons/io5";
 import { RiQuestionnaireFill, RiLockPasswordFill } from "react-icons/ri";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function ForgotPassword() {
   const navigation = useNavigate();
@@ -26,6 +27,11 @@ function ForgotPassword() {
     question: "",
     answer: "",
   });
+  const [showSecurityPassword, setShowSecurityPassword] = useState(false);
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -34,6 +40,17 @@ function ForgotPassword() {
       ...prev,
       [name]: updatedValue,
     }));
+  };
+
+  const handleQuestionsClicked = () => {
+    if (
+      Array.isArray(user.securityquestions) &&
+      user.securityquestions.length === 0
+    ) {
+      alert("It looks like you haven't set up your security questions yet.");
+      return;
+    }
+    setQuestionsClicked(true);
   };
 
   const handleSubmit = async () => {
@@ -85,7 +102,7 @@ function ForgotPassword() {
       sendOTP(username, user.empID.resID.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        alert("OTP use is currently disabled. Try again later.");
+        alert("OTP use is currently disabled. Try again in after 30 minutes.");
       } else {
         console.error("Error checking OTP:", error);
       }
@@ -93,6 +110,25 @@ function ForgotPassword() {
   };
 
   const handleSuccessful = async () => {
+    let hasErrors = false;
+    let nerrors = [];
+    let rnerrors = [];
+    if (!newPassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewPassword) {
+      rnerrors.push("Password must not be empty.");
+      setRePasswordErrors(rnerrors);
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
       alert("You have successfully reset your password!");
@@ -107,6 +143,44 @@ function ForgotPassword() {
         alert("An unexpected error occurred.");
       }
     }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only.");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setReNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty.");
+    }
+    if (formattedVal !== newPassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match.");
+    }
+    setRePasswordErrors(errors);
   };
 
   useEffect(() => {
@@ -199,30 +273,38 @@ function ForgotPassword() {
                 </label>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-input"
-                />
-              </div>
+              <form
+                className="flex flex-col gap-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+              >
+                <div className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder="Enter your username"
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="form-input"
+                    required
+                  />
+                </div>
 
-              <div className="flex flex-col gap-2">
-                <button
-                  type="submit"
-                  onClick={handleSubmit}
-                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-                >
-                  Submit
-                </button>
-                <a
-                  href="/login"
-                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-                >
-                  Remember your password?
-                </a>
-              </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
+                  >
+                    Submit
+                  </button>
+                  <a
+                    href="/login"
+                    className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
+                  >
+                    Remember your password?
+                  </a>
+                </div>
+              </form>
             </div>
           </div>
         </>
@@ -249,7 +331,7 @@ function ForgotPassword() {
                   />
                   <div className="modal-container">
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] justify-center items-center">
-                      <div className="p-4">
+                      <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
                         <div>
                           <h1 className="header-text text-start">
                             Reset Password
@@ -260,19 +342,84 @@ function ForgotPassword() {
                           </span>
                         </div>
 
-                        <div className="flex flex-col gap-4 mt-5 w-full">
-                          <input
-                            type="password"
-                            placeholder="Enter new password"
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="form-input"
-                          />
-                          <input
-                            type="password"
-                            placeholder="Confirm new password"
-                            onChange={(e) => setReNewPassword(e.target.value)}
-                            className="form-input"
-                          />
+                        <div className="flex flex-col gap-4 w-full">
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showResetNewPassword ? "text" : "password"
+                                }
+                                placeholder="Enter new password"
+                                onChange={(e) => passwordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowResetNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showResetNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
+                            {passwordErrors.length > 0 && (
+                              <div style={{ width: 300 }}>
+                                {passwordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showConfirmNewPassword ? "text" : "password"
+                                }
+                                placeholder="Confirm new password"
+                                onChange={(e) => repasswordValidation(e)}
+                                className="form-input w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowConfirmNewPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showConfirmNewPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
+                            {repasswordErrors.length > 0 && (
+                              <div style={{ marginTop: 5, width: 300 }}>
+                                {repasswordErrors.map((error, index) => (
+                                  <p
+                                    key={index}
+                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <button
@@ -311,10 +458,14 @@ function ForgotPassword() {
                           <h1 className="header-text text-start">
                             One-Time Password
                           </h1>
-                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
-                            Enter the 6 digit code sent to{" "}
-                            {user.empID.resID.mobilenumber}
-                          </span>
+                          <div className="flex flex-col mt-4">
+                            <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                              Enter the 6 digit code sent to:
+                            </span>
+                            <span className="text-navy-blue font-semibold">
+                              {user.empID.resID.mobilenumber}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="w-full mt-10">
@@ -372,7 +523,7 @@ function ForgotPassword() {
                         className="text-2xl"
                         onClick={() => setQuestionsClicked(false)}
                       />
-                      <div className="p-4">
+                      <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
                         <div>
                           <h1 className="header-text text-start">
                             Security Questions
@@ -382,7 +533,7 @@ function ForgotPassword() {
                             question below.
                           </span>
                         </div>
-                        <div className="mt-5 flex flex-col gap-y-4">
+                        <div className="flex flex-col gap-4">
                           <select
                             onChange={handleInputChange}
                             className="form-input"
@@ -397,19 +548,36 @@ function ForgotPassword() {
                               </option>
                             ))}
                           </select>
-                          <input
-                            type="password"
-                            placeholder="Enter answer"
-                            name="answer"
-                            onChange={handleInputChange}
-                            className="form-input"
-                          />
+
+                          <div className="relative w-full">
+                            <input
+                              type={showSecurityPassword ? "text" : "password"}
+                              placeholder="Enter answer"
+                              name="answer"
+                              onChange={handleInputChange}
+                              className="form-input w-full"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setShowSecurityPassword((prev) => !prev)
+                              }
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                              tabIndex={-1}
+                            >
+                              {showSecurityPassword ? (
+                                <FaEye />
+                              ) : (
+                                <FaEyeSlash />
+                              )}
+                            </button>
+                          </div>
                         </div>
 
                         <button
                           type="button"
                           onClick={handleQuestionVerify}
-                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full mt-5 text-[20px] hover:bg-[#0A7A9D]"
+                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Next
                         </button>
@@ -433,12 +601,12 @@ function ForgotPassword() {
                     className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
                   <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem]">
                       <IoArrowBack
                         className="text-2xl"
                         onClick={() => setIsExisting(false)}
                       />
-                      <div className="p-4">
+                      <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
                         <div>
                           <h1 className="header-text text-start">
                             Verification Method
@@ -449,7 +617,7 @@ function ForgotPassword() {
                           </label>
                         </div>
 
-                        <div className="flex flex-col mt-10 gap-y-4">
+                        <div className="flex flex-col gap-4">
                           <button
                             type="button"
                             onClick={handleOTP}
@@ -463,7 +631,7 @@ function ForgotPassword() {
 
                           <button
                             type="button"
-                            onClick={() => setQuestionsClicked(true)}
+                            onClick={handleQuestionsClicked}
                             className="bg-[rgba(172,172,172,0.17)] p-4 rounded-md text-start flex flex-row items-center gap-x-4 border border-[#C1C0C0]"
                           >
                             <RiQuestionnaireFill className="text-3xl text-navy-blue" />

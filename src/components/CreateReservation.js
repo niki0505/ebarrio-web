@@ -1,241 +1,202 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import "../App.css";
 import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+import DatePicker from "react-multi-date-picker";
 
 function CreateReservation({ onClose }) {
   const confirm = useConfirm();
-  const { fetchResidents, residents } = useContext(InfoContext);
+  const { fetchResidents, residents, courtreservations, fetchReservations } =
+    useContext(InfoContext);
+
   const [showModal, setShowModal] = useState(true);
   const [reservationForm, setReservationForm] = useState({
     resID: "",
     purpose: "",
-    date: new Date(),
-    starttime: null,
-    endtime: null,
+    date: [],
+    times: {},
     amount: "",
   });
-  const { courtreservations, fetchReservations } = useContext(InfoContext);
 
   useEffect(() => {
     fetchResidents();
     fetchReservations();
   }, []);
 
+  // Calculate total amount based on all times across all selected dates
+  useEffect(() => {
+    const hourlyRate = 100;
+    let totalHours = 0;
+
+    for (const dateKey in reservationForm.times) {
+      const t = reservationForm.times[dateKey];
+      if (t?.starttime && t?.endtime) {
+        const start = new Date(t.starttime);
+        const end = new Date(t.endtime);
+
+        if (!isNaN(start) && !isNaN(end) && end > start) {
+          totalHours += (end - start) / (1000 * 3600);
+        }
+      }
+    }
+
+    const totalAmount = "₱" + Math.round(totalHours * hourlyRate);
+    setReservationForm((prev) => ({ ...prev, amount: totalAmount }));
+  }, [reservationForm.times]);
+
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
       "Are you sure you want to create a new court reservation?",
       "confirm"
     );
-    if (!isConfirmed) {
-      return;
-    }
-    onClose();
+    if (!isConfirmed) return;
     try {
-      const response = await api.post("/createreservation", {
-        reservationForm,
-      });
+      await api.post("/createreservation", { reservationForm });
       alert("Court reservation successfully created!");
+      onClose();
     } catch (error) {
-      console.log("Error creating court reservation", error);
+      console.error("Error creating court reservation", error);
     }
   };
+
   const handleClose = () => {
     setShowModal(false);
     onClose();
   };
 
   const purposeList = ["Basketball", "Birthday"];
-  const hourlyRate = 100;
 
   const handleDropdownChange = (e) => {
     const { name, value } = e.target;
+    setReservationForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Date picker change
+  const handleDateChange = (dates) => {
+    // Format dates to ISO YYYY-MM-DD strings
+    const formattedDates = dates.map((d) => d.format("YYYY-MM-DD"));
+
+    // Remove times for deselected dates
+    const newTimes = {};
+    formattedDates.forEach((date) => {
+      if (reservationForm.times[date]) {
+        newTimes[date] = reservationForm.times[date];
+      }
+    });
+
     setReservationForm((prev) => ({
       ...prev,
-      [name]: value,
+      date: formattedDates,
+      times: newTimes,
     }));
   };
 
-  useEffect(() => {
-    const calculateAmount = () => {
-      const startTime = new Date(reservationForm.starttime);
-      const endTime = new Date(reservationForm.endtime);
+  // Time change handlers per date
+  const handleStartTimeChange = (date, time) => {
+    if (!time) return;
 
-      startTime.setFullYear(1970, 0, 1);
-      endTime.setFullYear(1970, 0, 1);
-
-      const timeDifference = endTime - startTime;
-      const hoursDifference = Math.max(timeDifference / (1000 * 3600), 0);
-      const calculatedAmount = hoursDifference * hourlyRate;
-      const totalamount = "₱" + Math.round(calculatedAmount).toString();
-      setReservationForm((prev) => ({
-        ...prev,
-        amount: totalamount,
-      }));
-    };
-
-    if (reservationForm.starttime && reservationForm.endtime) {
-      calculateAmount();
-    }
-  }, [reservationForm.starttime, reservationForm.endtime]);
-
-  const handleDateChange = (e) => {
-    // const selectedDate = e.target.value;
-    // const dateParts = selectedDate.split("-");
-    // const newDate = new Date(
-    //   Number(dateParts[0]),
-    //   Number(dateParts[1]) - 1,
-    //   Number(dateParts[2])
-    // );
-
-    // const prevStartTime = new Date(reservationForm.starttime);
-    // const prevEndTime = new Date(reservationForm.endtime);
-
-    // const updatedStarttime = new Date(newDate);
-    // updatedStarttime.setHours(prevStartTime.getHours());
-    // updatedStarttime.setMinutes(prevStartTime.getMinutes());
-
-    // const updatedEndtime = new Date(newDate);
-    // updatedEndtime.setHours(prevEndTime.getHours());
-    // updatedEndtime.setMinutes(prevEndTime.getMinutes());
-
-    // setReservationForm((prev) => ({
-    //   ...prev,
-    //   date: newDate.toISOString(),
-    //   starttime: null,
-    //   endtime: null,
-    //   amount: "",
-    // }));
-
-    const newDateStr = e.target.value;
+    const newStartTime = new Date(`${date}T${time}:00`);
 
     setReservationForm((prev) => {
+      const currentTimes = prev.times[date] || {};
       return {
         ...prev,
-        date: newDateStr,
-        starttime: "",
-        endtime: "",
+        times: {
+          ...prev.times,
+          [date]: {
+            ...currentTimes,
+            starttime: newStartTime.toISOString(),
+            endtime: null, // reset endtime if starttime changes
+          },
+        },
       };
     });
   };
 
-  const handleStartTimeChange = (e) => {
-    const time = e.target.value;
-    const newStartTime = new Date(`${reservationForm.date}T${time}:00`);
+  const handleEndTimeChange = (date, time) => {
+    if (!time) return;
 
-    if (!reservationForm.date) {
-      alert("Please select a date first.");
+    const currentTimes = reservationForm.times[date] || {};
+    if (!currentTimes.starttime) {
+      alert("Please select a start time first for " + date);
       return;
     }
 
-    setReservationForm((prev) => ({
-      ...prev,
-      starttime: newStartTime.toISOString(),
-      endtime: "",
-    }));
-  };
-
-  const handleEndTimeChange = (e) => {
-    const time = e.target.value;
-    const newEndTime = new Date(`${reservationForm.date}T${time}:00`);
-    const startTime = new Date(reservationForm.starttime);
-    if (!reservationForm.date) {
-      alert("Please select a date first.");
-      return;
-    }
-    if (!reservationForm.starttime) {
-      alert("Please select a start time first.");
-      return;
-    }
+    const [year, month, day] = date.split("-");
+    const [hours, minutes] = time.split(":");
+    const newEndTime = new Date(year, month - 1, day, hours, minutes, 0);
+    const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert("End time must be after the start time.");
+      alert(`End time must be after start time for ${date}`);
       return;
-    }
-
-    const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
-      startTime,
-      newEndTime
-    );
-
-    if (!isAvailable) {
-      const conflictInfo = conflict
-        ? `This time slot overlaps with an existing reservation of ${conflict.start.toLocaleTimeString(
-            [],
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          )} - ${conflict.end.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}.`
-        : "This time slot overlaps with another reservation.";
-      alert(conflictInfo);
-      setReservationForm((prev) => ({ ...prev, endtime: "" }));
-      return;
-    }
-    setReservationForm((prev) => ({
-      ...prev,
-      endtime: newEndTime.toISOString(),
-    }));
-  };
-
-  const checkIfTimeSlotIsAvailable = (startTime, endTime) => {
-    const selectedStartTime = new Date(startTime);
-    const selectedEndTime = new Date(endTime);
-
-    if (
-      isNaN(selectedStartTime.getTime()) ||
-      isNaN(selectedEndTime.getTime())
-    ) {
-      console.warn("Invalid selected time range");
-      return { isAvailable: false, conflict: null };
     }
 
     const conflict = courtreservations
-      .filter((court) => court.status === "Approved")
-      .find((court) => {
-        const reservedStart = new Date(court.starttime);
-        const reservedEnd = new Date(court.endtime);
+      .filter(
+        (r) =>
+          r.status === "Approved" &&
+          r.times?.[date]?.starttime &&
+          r.times?.[date]?.endtime
+      )
+      .find((r) => {
+        const reservedStart = new Date(r.times[date].starttime);
+        const reservedEnd = new Date(r.times[date].endtime);
 
-        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
-          return false;
-        }
-
-        return (
-          selectedStartTime < reservedEnd && selectedEndTime > reservedStart
+        console.log(
+          "Checking overlap:",
+          { selectedStart: startTime, selectedEnd: newEndTime },
+          { reservedStart, reservedEnd }
         );
+
+        return startTime < reservedEnd && newEndTime > reservedStart;
       });
 
     if (conflict) {
-      return {
-        isAvailable: false,
-        conflict: {
-          start: new Date(conflict.starttime),
-          end: new Date(conflict.endtime),
-        },
-      };
+      alert(
+        `Time slot overlaps with existing reservation on ${date} (${new Date(
+          conflict.times[date].starttime
+        ).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} - ${new Date(conflict.times[date].endtime).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}).`
+      );
+      return;
     }
 
-    return { isAvailable: true, conflict: null };
+    setReservationForm((prev) => {
+      const updatedTimes = prev.times[date] || {};
+      return {
+        ...prev,
+        times: {
+          ...prev.times,
+          [date]: {
+            ...updatedTimes,
+            endtime: newEndTime.toISOString(),
+          },
+        },
+      };
+    });
   };
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
-          <div className="modal-content h-[32rem] w-[30rem]">
+          <div className="modal-content h-[25rem] w-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
                   <h1 className="modal-title">Add New Reservation</h1>
                   <IoClose
                     onClick={handleClose}
-                    class="dialog-title-bar-icon"
-                  ></IoClose>
+                    className="dialog-title-bar-icon"
+                  />
                 </div>
                 <hr className="dialog-line" />
               </div>
@@ -249,21 +210,23 @@ function CreateReservation({ onClose }) {
               }}
             >
               <div className="modal-form">
+                {/* Resident Select */}
                 <div className="employee-form-group">
-                  <label for="resID" className="form-label">
+                  <label htmlFor="resID" className="form-label">
                     Name<label className="text-red-600">*</label>
                   </label>
                   <select
                     id="resID"
                     name="resID"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input"
+                    value={reservationForm.resID}
                   >
-                    <option value="" disabled selected hidden>
+                    <option value="" disabled>
                       Select
                     </option>
                     {residents.map((element) => (
-                      <option value={element._id}>
+                      <option key={element._id} value={element._id}>
                         {element.middlename
                           ? `${element.firstname} ${element.middlename} ${element.lastname}`
                           : `${element.firstname} ${element.lastname}`}
@@ -271,88 +234,128 @@ function CreateReservation({ onClose }) {
                     ))}
                   </select>
                 </div>
+
+                {/* Purpose Select */}
                 <div className="employee-form-group">
-                  <label for="purpose" className="form-label">
+                  <label htmlFor="purpose" className="form-label">
                     Purpose<label className="text-red-600">*</label>
                   </label>
                   <select
                     id="purpose"
                     name="purpose"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input"
+                    value={reservationForm.purpose}
                   >
-                    <option value="" disabled selected hidden>
+                    <option value="" disabled>
                       Select
                     </option>
                     {purposeList.map((element) => (
-                      <option value={element}>{element}</option>
+                      <option key={element} value={element}>
+                        {element}
+                      </option>
                     ))}
                   </select>
                 </div>
+
+                {/* Date picker */}
                 <div className="employee-form-group">
-                  <label for="date" className="form-label">
+                  <label className="form-label">
                     Date<label className="text-red-600">*</label>
                   </label>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    className="form-input h-[30px] pr-2"
+                  <DatePicker
+                    multiple
+                    value={reservationForm.date}
                     onChange={handleDateChange}
-                    min={new Date().toISOString().split("T")[0]}
+                    format="YYYY-MM-DD"
+                    placeholder="Select multiple dates"
+                    editable={false}
+                    minDate={new Date()}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "35px",
+                      borderRadius: "8px",
+                      paddingLeft: "0.5rem",
+                      border: "1px solid #C1C0C0",
+                      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                      fontFamily: "Quicksand",
+                      fontWeight: 500,
+                      fontSize: "0.875rem",
+                      appearance: "none",
+                      outline: "none",
+                    }}
                   />
                 </div>
+
+                {/* Start/End time inputs per date */}
+                {reservationForm.date.length > 0 && (
+                  <div className="employee-form-group">
+                    <label className="form-label">
+                      Select Start and End Times
+                    </label>
+                    {reservationForm.date.map((date) => {
+                      const times = reservationForm.times[date] || {};
+                      return (
+                        <div
+                          key={date}
+                          className="flex items-center space-x-2 space-y-4 w-full"
+                        >
+                          <span className="font-subTitle text-[14px] font-medium w-full pl-2 mt-3">
+                            {date}
+                          </span>
+
+                          <input
+                            type="time"
+                            value={
+                              times.starttime
+                                ? new Date(times.starttime)
+                                    .toTimeString()
+                                    .slice(0, 5)
+                                : ""
+                            }
+                            onChange={(e) =>
+                              handleStartTimeChange(date, e.target.value)
+                            }
+                            className="form-input"
+                            required
+                          />
+                          <input
+                            type="time"
+                            value={
+                              times.endtime
+                                ? new Date(times.endtime)
+                                    .toTimeString()
+                                    .slice(0, 5)
+                                : ""
+                            }
+                            onChange={(e) =>
+                              handleEndTimeChange(date, e.target.value)
+                            }
+                            className="form-input"
+                            required
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Amount (readonly) */}
                 <div className="employee-form-group">
-                  <label for="starttime" className="form-label">
-                    Start Time<label className="text-red-600">*</label>
-                  </label>
-                  <input
-                    type="time"
-                    id="starttime"
-                    name="starttime"
-                    onChange={handleStartTimeChange}
-                    className="form-input h-[30px] pr-2"
-                    value={
-                      reservationForm.starttime
-                        ? new Date(reservationForm.starttime)
-                            .toTimeString()
-                            .slice(0, 5)
-                        : ""
-                    }
-                  />
-                </div>
-                <div className="employee-form-group">
-                  <label for="endtime" className="form-label">
-                    End Time<label className="text-red-600">*</label>
-                  </label>
-                  <input
-                    type="time"
-                    id="endtime"
-                    name="endtime"
-                    onChange={handleEndTimeChange}
-                    className="form-input h-[30px] pr-2"
-                    value={
-                      reservationForm.endtime
-                        ? new Date(reservationForm.endtime)
-                            .toTimeString()
-                            .slice(0, 5)
-                        : ""
-                    }
-                  />
-                </div>
-                <div className="employee-form-group">
-                  <label for="amount" className="form-label">
+                  <label htmlFor="amount" className="form-label">
                     Amount
                   </label>
                   <input
                     value={reservationForm.amount}
                     type="text"
-                    id="name"
-                    name="name"
-                    className="form-input h-[30px]"
+                    id="amount"
+                    name="amount"
+                    className="form-input"
                     readOnly
                   />
                 </div>
+
                 <div className="flex justify-center">
                   <button
                     type="submit"

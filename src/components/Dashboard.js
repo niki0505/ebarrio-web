@@ -183,54 +183,109 @@ function Dashboard({ isCollapsed }) {
     fetchBlotterData();
   }, [blotterreports]);
 
-  // Check the structure
-  console.log("Document Requests", documentData);
-  console.log("Reservation Requests", reservationData);
-  console.log("Blotters", blotterData);
-
   useEffect(() => {
-    if (user.role === "Secretary" || user.role === "Clerk") {
+    if (user.role === "Secretary") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
-        .filter((a) => a.eventStart && a.eventEnd)
-        .map((a) => ({
-          title: a.title,
-          start: a.eventStart,
-          end: a.eventEnd,
-          backgroundColor:
-            a.category === "General"
-              ? "#FF0000"
-              : a.category === "Health & Sanitation"
-              ? "#FA7020"
-              : a.category === "Public Safety & Emergency"
-              ? "#FFB200"
-              : a.category === "Education & Youth"
-              ? "#0E94D3"
-              : a.category === "Social Services"
-              ? "#CF0ED3"
-              : a.category === "Infrastructure"
-              ? "#06D001"
-              : "#3174ad",
-        }));
-
+        .filter((a) => a.times)
+        .flatMap((a) =>
+          Object.entries(a.times).map(([dateKey, timeObj]) => ({
+            title: a.title,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor:
+              a.category === "General"
+                ? "#4A90E2"
+                : a.category === "Health & Sanitation"
+                ? "#7ED321"
+                : a.category === "Public Safety & Emergency"
+                ? "#FF0000"
+                : a.category === "Education & Youth"
+                ? "#FFD942"
+                : a.category === "Social Services"
+                ? "#808080"
+                : a.category === "Infrastructure"
+                ? "#EC9300"
+                : a.category === "Court Reservations"
+                ? "#9B59B6"
+                : a.category === "Blotter"
+                ? "#00796B"
+                : "#4A90E2",
+          }))
+        );
       const approvedReservationEvents = (courtreservations || [])
         .filter((r) => r.status === "Approved")
-        .map((r) => ({
-          title: `${r.resID?.lastname}, ${r.resID?.firstname}`,
-          start: r.starttime,
-          end: r.endtime,
-          backgroundColor: "#770ED3",
-        }));
-
-      setEvents([...announcementEvents, ...approvedReservationEvents]);
-    } else if (user.role === "Justice") {
+        .flatMap((r) =>
+          Object.entries(r.times || {}).map(([dateKey, timeObj]) => ({
+            title: `${r.resID?.lastname}, ${r.resID?.firstname} - ${r.purpose}`,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor: "#770ED3",
+          }))
+        );
       const scheduledBlotters = (blotterreports || [])
         .filter((b) => b.status === "Scheduled")
         .map((b) => ({
           title: `${b.complainantID?.lastname}, ${b.complainantID?.firstname}`,
           start: parseCustomDateString(b.starttime),
           end: parseCustomDateString(b.endtime),
-          backgroundColor: "#770ED3",
+          backgroundColor: "#00796B",
+        }));
+
+      setEvents([
+        ...announcementEvents,
+        ...approvedReservationEvents,
+        ...scheduledBlotters,
+      ]);
+    } else if (user.role === "Clerk") {
+      const announcementEvents = (announcements || [])
+        .filter((a) => a.status !== "Archived")
+        .filter((a) => a.times)
+        .flatMap((a) =>
+          Object.entries(a.times).map(([dateKey, timeObj]) => ({
+            title: a.title,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor:
+              a.category === "General"
+                ? "#4A90E2"
+                : a.category === "Health & Sanitation"
+                ? "#7ED321"
+                : a.category === "Public Safety & Emergency"
+                ? "#FF0000"
+                : a.category === "Education & Youth"
+                ? "#FFD942"
+                : a.category === "Social Services"
+                ? "#808080"
+                : a.category === "Infrastructure"
+                ? "#EC9300"
+                : a.category === "Court Reservations"
+                ? "#9B59B6"
+                : a.category === "Blotter"
+                ? "#00796B"
+                : "#4A90E2",
+          }))
+        );
+      const approvedReservationEvents = (courtreservations || [])
+        .filter((r) => r.status === "Approved")
+        .flatMap((r) =>
+          Object.entries(r.times || {}).map(([dateKey, timeObj]) => ({
+            title: `${r.resID?.lastname}, ${r.resID?.firstname} - ${r.purpose}`,
+            start: new Date(timeObj.starttime),
+            end: new Date(timeObj.endtime),
+            backgroundColor: "#770ED3",
+          }))
+        );
+
+      setEvents([...announcementEvents, ...approvedReservationEvents]);
+    } else if (user.role === "Justice" || user.role === "Secretary") {
+      const scheduledBlotters = (blotterreports || [])
+        .filter((b) => b.status === "Scheduled")
+        .map((b) => ({
+          title: `${b.complainantID?.lastname}, ${b.complainantID?.firstname}`,
+          start: parseCustomDateString(b.starttime),
+          end: parseCustomDateString(b.endtime),
+          backgroundColor: "#00796B",
         }));
       setEvents([...scheduledBlotters]);
     }
@@ -356,13 +411,13 @@ function Dashboard({ isCollapsed }) {
             <>
               <div className="form-group">
                 <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#E3DE48]"></div>
+                  <div class="demog-card-left-border bg-[#FFB200]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.total}
                     </h2>
-                    <p class="text-[#E3DE48] font-title text-[16px] font-medium">
+                    <p class="text-[#FFB200] font-title text-[16px] font-semibold">
                       Total Residents
                     </p>
                   </div>
@@ -375,13 +430,13 @@ function Dashboard({ isCollapsed }) {
 
               <div className="form-group">
                 <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#0E94D3]"></div>
+                  <div class="demog-card-left-border bg-[#0079FF]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.male}
                     </h2>
-                    <p class="text-[#0E94D3] font-title text-[16px] font-medium">
+                    <p class="text-[#0079FF] font-title text-[16px] font-semibold">
                       Male
                     </p>
                   </div>
@@ -394,13 +449,13 @@ function Dashboard({ isCollapsed }) {
 
               <div className="form-group">
                 <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#FCA0FE]"></div>
+                  <div class="demog-card-left-border bg-[#FF90BB]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.female}
                     </h2>
-                    <p class="text-[#FCA0FE] font-title text-[16px] font-medium">
+                    <p class="text-[#FF90BB] font-title text-[16px] font-semibold">
                       Female
                     </p>
                   </div>
@@ -413,13 +468,13 @@ function Dashboard({ isCollapsed }) {
 
               <div className="form-group">
                 <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#FA7020]"></div>
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.seniorCitizens}
                     </h2>
-                    <p class="text-[#FA7020] font-title text-[16px] font-medium">
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
                       Senior Citizens
                     </p>
                   </div>
@@ -432,13 +487,13 @@ function Dashboard({ isCollapsed }) {
 
               <div className="form-group">
                 <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#59D05E]"></div>
+                  <div class="demog-card-left-border bg-[#06D001]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.voters}
                     </h2>
-                    <p class="text-[#59D05E] font-title text-[16px] font-medium">
+                    <p class="text-[#06D001] font-title text-[16px] font-semibold">
                       Voters
                     </p>
                   </div>
@@ -688,75 +743,107 @@ function Dashboard({ isCollapsed }) {
           </h1>
           <div className="white-bg-container">
             <div className="form-grid mt-4 mb-4">
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    General
-                  </span>
+              {(user.role === "Secretary" || user.role === "Clerk") && (
+                <>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#4A90E2] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        General
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#7ED321] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Health & Sanitation
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#FF0000] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Public Safety & Emergency
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#FFD942] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Education & Youth
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#808080] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Social Services
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#EC9300] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Infrastructure
+                      </span>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <div className="flex flex-row items-center">
+                      <div className="bg-[#9B59B6] w-4 h-4 rounded-md"></div>
+                      <span className="ml-4 text-sm font-subTitle font-[600]">
+                        Court Reservation
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+              {(user.role === "Secretary" || user.role === "Justice") && (
+                <div className="form-group">
+                  <div className="flex flex-row items-center">
+                    <div className="bg-[#00796B] w-4 h-4 rounded-md"></div>
+                    <span className="ml-4 text-sm font-subTitle font-[600]">
+                      Blotter
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#FA7020] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Health & Sanitation
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#FFB200] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Public Safety & Emergency
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#0E94D3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Education & Youth
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#CF0ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Social Services
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#06D001] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Infrastructure
-                  </span>
-                </div>
-              </div>
-              <div className="form-group">
-                <div className="flex flex-row items-center">
-                  <div className="bg-[#770ED3] w-4 h-4 rounded-md"></div>
-                  <span className="ml-4 text-sm font-subTitle font-[600]">
-                    Court Reservation
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="timeGridWeek"
+              initialView="dayGridMonth"
               slotEventOverlap={false}
               dayMaxEventRows={true}
+              allDaySlot={false}
               events={events}
               height="auto"
               eventTimeFormat={{
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
+              }}
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek,timeGridDay",
+              }}
+              datesSet={(viewInfo) => {
+                document.body.classList.remove(
+                  "fc-month-view",
+                  "fc-week-view",
+                  "fc-day-view"
+                );
+                if (viewInfo.view.type === "dayGridMonth") {
+                  document.body.classList.add("fc-month-view");
+                } else {
+                  document.body.classList.add("fc-week-view"); // or fc-day-view
+                }
               }}
             />
           </div>

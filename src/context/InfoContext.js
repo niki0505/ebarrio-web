@@ -2,8 +2,6 @@ import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
-import { useRouteError } from "react-router-dom";
-
 // Create a context for socket connection
 export const SocketContext = createContext();
 
@@ -23,6 +21,106 @@ export const InfoProvider = ({ children }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
+  const [activitylogs, setActivityLogs] = useState([]);
+
+  const announcementInitialForm = {
+    category: "",
+    title: "",
+    content: "",
+    picture: "",
+    date: [],
+    times: {},
+    eventdetails: "",
+  };
+
+  const residentInitialForm = {
+    id: "",
+    signature: "",
+    firstname: "",
+    middlename: "",
+    lastname: "",
+    suffix: "",
+    alias: "",
+    salutation: "",
+    sex: "",
+    gender: "",
+    birthdate: "",
+    birthplace: "",
+    civilstatus: "",
+    bloodtype: "",
+    religion: "",
+    nationality: "",
+    voter: "",
+    precinct: "",
+    deceased: "",
+    email: "",
+    mobilenumber: "+63",
+    telephone: "+63",
+    facebook: "",
+    emergencyname: "",
+    emergencymobilenumber: "+63",
+    emergencyaddress: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
+    mother: "",
+    father: "",
+    spouse: "",
+    siblings: [],
+    children: [],
+    numberofsiblings: "",
+    numberofchildren: "",
+    employmentstatus: "",
+    employmentfield: "",
+    occupation: "",
+    monthlyincome: "",
+    educationalattainment: "",
+    typeofschool: "",
+    course: "",
+  };
+  const blotterInitialForm = {
+    complainantID: "",
+    complainantname: "",
+    complainantaddress: "",
+    complainantcontactno: "",
+    complainantsignature: "",
+    subjectID: "",
+    subjectname: "",
+    subjectaddress: "",
+    typeofthecomplaint: "",
+    details: "",
+    date: "",
+    starttime: "",
+    endtime: "",
+  };
+
+  const [residentForm, setResidentForm] = useState(() => {
+    const savedForm = localStorage.getItem("residentForm");
+    return savedForm ? JSON.parse(savedForm) : residentInitialForm;
+  });
+
+  const [blotterForm, setBlotterForm] = useState(() => {
+    const savedForm = localStorage.getItem("blotterForm");
+    return savedForm ? JSON.parse(savedForm) : blotterInitialForm;
+  });
+
+  const [announcementForm, setAnnouncementForm] = useState(() => {
+    const savedForm = localStorage.getItem("announcementForm");
+    return savedForm ? JSON.parse(savedForm) : announcementInitialForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("residentForm", JSON.stringify(residentForm));
+  }, [residentForm]);
+
+  useEffect(() => {
+    localStorage.setItem("blotterForm", JSON.stringify(blotterForm));
+  }, [blotterForm]);
+
+  useEffect(() => {
+    localStorage.setItem("announcementForm", JSON.stringify(announcementForm));
+  }, [announcementForm]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -113,6 +211,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchActivityLogs = async () => {
+    try {
+      const response = await api.get("/getactivitylogs");
+      setActivityLogs(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch activity logs:", error);
+    }
+  };
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -132,6 +239,8 @@ export const InfoProvider = ({ children }) => {
         setCourtReservations(updatedData.data);
       } else if (updatedData.type === "blotterreports") {
         setBlotterReports(updatedData.data);
+      } else if (updatedData.type === "activitylogs") {
+        setActivityLogs(updatedData.data);
       }
     });
 
@@ -152,6 +261,14 @@ export const InfoProvider = ({ children }) => {
           announcements,
           courtreservations,
           blotterreports,
+          residentForm,
+          blotterForm,
+          announcementForm,
+          setAnnouncementForm,
+          fetchActivityLogs,
+          activitylogs,
+          setBlotterForm,
+          setResidentForm,
           fetchResidents,
           fetchEmployees,
           fetchUsers,

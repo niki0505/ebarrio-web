@@ -1,24 +1,24 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
 import CreateContact from "./CreateContact";
 import EditContact from "./EditContact";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
-import { IoArchiveSharp } from "react-icons/io5";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { AuthContext } from "../context/AuthContext";
 
 function EmergencyHotlines({ isCollapsed }) {
   const confirm = useConfirm();
-  const navigation = useNavigate();
   const { fetchEmergencyHotlines, emergencyhotlines } = useContext(InfoContext);
   const [filteredEmergencyHotlines, setFilteredEmergencyHotlines] = useState(
     []
@@ -28,13 +28,21 @@ function EmergencyHotlines({ isCollapsed }) {
   const [selectedEmergencyID, setSelectedEmergencyID] = useState(null);
   const [selectedEmergency, setSelectedEmergency] = useState({});
   const [search, setSearch] = useState("");
-
+  const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+
+  const exportRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
 
   useEffect(() => {
     fetchEmergencyHotlines();
@@ -53,12 +61,33 @@ function EmergencyHotlines({ isCollapsed }) {
       return;
     }
     try {
-      const response = await api.delete(
-        `/archiveemergencyhotlines/${emergencyID}`
-      );
-      alert("Emergency contact successfully archived!");
+      await api.put(`/archiveemergencyhotlines/${emergencyID}`);
+      alert("Emergency hotline has been successfully archived.");
     } catch (error) {
       console.log("Error archiving emergency contact", error);
+    }
+  };
+
+  const handleRecover = async (emergencyID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this emergency contact?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/recoveremergencyhotlines/${emergencyID}`);
+      alert("Emergency hotline has been successfully recovered.");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
 
@@ -70,12 +99,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const handleSearch = (text) => {
     const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -91,7 +115,7 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     if (search) {
       filtered = filtered.filter((emergency) => {
-        return emergency.name.includes(search);
+        return emergency.name.toLowerCase().includes(search.toLowerCase());
       });
     }
     setFilteredEmergencyHotlines(filtered);
@@ -119,6 +143,142 @@ function EmergencyHotlines({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = async () => {
+    const title = "Barangay Aniban 2 Emergency Hotlines";
+    const now = new Date().toLocaleString();
+    const headers = ["No", "Public Service Facilities", "Contact No."];
+    const rows = filteredEmergencyHotlines.map((emergency, index) => {
+      return [index + 1, emergency.name, emergency.contactnumber];
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_Emergency_Hotlines_by_${user.name.replace(
+        / /g,
+        "_"
+      )}.csv`
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+
+    const action = "Emergency Hotlines";
+    const description = `User exported emergency hotlines to CSV.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  const exportPDF = async () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text("Emergency Hotlines", pageWidth / 2, 55, {
+      align: "center",
+    });
+
+    // Table
+    const rows = filteredEmergencyHotlines.map((emergency, index) => {
+      return [index + 1, emergency.name, emergency.contactnumber];
+    });
+
+    autoTable(doc, {
+      head: [["No.", "Public Services Facilities", "Contact No."]],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_Emergency_Hotlines_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+    const action = "Emergency Hotlines";
+    const description = `User exported emergency hotlines to PDF.`;
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -132,7 +292,9 @@ function EmergencyHotlines({ isCollapsed }) {
             <p
               onClick={handleMenu1}
               className={`status-text ${
-                isActiveClicked ? "border-b-4 border-[#BC0F0F]" : ""
+                isActiveClicked
+                  ? "border-b-4 border-[#BC0F0F]"
+                  : "text-[#808080]"
               }`}
             >
               Active
@@ -140,17 +302,65 @@ function EmergencyHotlines({ isCollapsed }) {
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isArchivedClicked ? "border-b-4 border-[#BC0F0F]" : ""
+                isArchivedClicked
+                  ? "border-b-4 border-[#BC0F0F]"
+                  : "text-[#808080]"
               }`}
             >
               Archived
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-container" onClick={handleAdd}>
-              <MdPersonAddAlt1 className="text-xl" />
-              <span className="font-bold">Add new contact</span>
-            </button>
+            <div className="flex flex-row gap-x-2 mt-4">
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
+                <div 
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {exportDropdown && (
+                  <div
+                    className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md"
+                    style={{ marginLeft: "-70px" }}
+                  >
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportCSV}
+                        >
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <button
+                className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+                onClick={handleAdd}
+              >
+                <h1 className="font-medium text-sm text-[#fff] m-0">
+                  Add New Contact
+                </h1>
+              </button>
+            </div>
           )}
         </div>
         <hr className="mt-4 border border-gray-300" />
@@ -184,37 +394,54 @@ function EmergencyHotlines({ isCollapsed }) {
                   <td>{emergency.name}</td>
                   <td>{emergency.contactnumber}</td>
                   <td className="flex justify-center gap-x-8">
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() =>
-                          handleEdit(
-                            emergency._id,
-                            emergency.name,
-                            emergency.contactnumber
-                          )
-                        }
-                      >
-                        <FaEdit className="text-lg text-[#06D001]" />
-                        <label className="text-xs font-semibold text-[#06D001]">
-                          Edit
-                        </label>
-                      </button>
-                    </div>
+                    {emergency.status === "Active" ? (
+                      <>
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() =>
+                              handleEdit(
+                                emergency._id,
+                                emergency.name,
+                                emergency.contactnumber
+                              )
+                            }
+                          >
+                            <FaEdit className="text-lg text-[#06D001]" />
+                            <label className="text-xs font-semibold text-[#06D001]">
+                              Edit
+                            </label>
+                          </button>
+                        </div>
 
-                    <div className="table-actions-container">
-                      <button
-                        type="button"
-                        className="table-actions-btn"
-                        onClick={() => handleArchive(emergency._id)}
-                      >
-                        <FaArchive className="text-lg text-btn-color-red" />
-                        <label className="text-xs font-semibold text-btn-color-red">
-                          Archive
-                        </label>
-                      </button>
-                    </div>
+                        <div className="table-actions-container">
+                          <button
+                            type="button"
+                            className="table-actions-btn"
+                            onClick={() => handleArchive(emergency._id)}
+                          >
+                            <FaArchive className="text-lg text-btn-color-red" />
+                            <label className="text-xs font-semibold text-btn-color-red">
+                              Archive
+                            </label>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="table-actions-container">
+                        <button
+                          type="button"
+                          className="table-actions-btn"
+                          onClick={() => handleRecover(emergency._id)}
+                        >
+                          <FaArchive className="text-lg text-btn-color-red" />
+                          <label className="text-xs font-semibold text-btn-color-red">
+                            Recover
+                          </label>
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))
@@ -231,7 +458,7 @@ function EmergencyHotlines({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -240,7 +467,7 @@ function EmergencyHotlines({ isCollapsed }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -255,7 +482,7 @@ function EmergencyHotlines({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -264,7 +491,7 @@ function EmergencyHotlines({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>

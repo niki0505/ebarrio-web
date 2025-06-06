@@ -1,9 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import CreateAnnouncement from "./CreateAnnouncement";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
@@ -14,14 +12,13 @@ import EditAnnouncement from "./EditAnnouncement";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
-import { IoPencilSharp, IoArchiveSharp } from "react-icons/io5";
+import { IoArchiveSharp } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa";
-import { FaArchive, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
   const confirm = useConfirm();
-  const navigation = useNavigate();
   const { fetchAnnouncements, announcements } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
   const [isCreateClicked, setCreateClicked] = useState(false);
@@ -33,6 +30,7 @@ function Announcements({ isCollapsed }) {
   const [menuVisible, setMenuVisible] = useState(null);
   const [expandedAnnouncements, setExpandedAnnouncements] = useState([]);
   const [sortOption, setSortOption] = useState("Newest");
+  const menuRef = useRef(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -53,7 +51,6 @@ function Announcements({ isCollapsed }) {
     setSelectedAnnouncement(announcementID);
   };
 
-  console.log(user);
   /* FILTER CATEGORY */
   const filteredAnnouncements = announcements.filter(
     (announcement) =>
@@ -62,13 +59,20 @@ function Announcements({ isCollapsed }) {
   );
 
   /* SORTED ANNOUNCEMENTS */
-  const sortedAnnouncements = [...filteredAnnouncements].sort((a, b) => {
-    if (sortOption === "Newest") {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    } else {
-      return new Date(a.createdAt) - new Date(b.createdAt);
-    }
-  });
+  let sortedAnnouncements;
+  if (sortOption === "Newest") {
+    sortedAnnouncements = [...filteredAnnouncements].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  } else if (sortOption === "Oldest") {
+    sortedAnnouncements = [...filteredAnnouncements].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+  } else if (sortOption === "Archived") {
+    sortedAnnouncements = filteredAnnouncements.filter(
+      (item) => item.status === "Archived"
+    );
+  }
 
   /* PIN ANNOUNCEMENT */
   const togglePin = async (announcementID) => {
@@ -101,31 +105,6 @@ function Announcements({ isCollapsed }) {
   };
 
   const renderContent = (announcement) => {
-    let eventInfo = "";
-    if (announcement.eventStart) {
-      const startDate = new Date(announcement.eventStart);
-      const endDate = new Date(announcement.eventEnd);
-
-      const formattedDate = startDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      const formattedStartTime = startDate.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      const formattedEndTime = endDate.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      eventInfo = `📅 ${formattedDate}\n🕒 ${formattedStartTime} - ${formattedEndTime}\n\n`;
-    }
     const words = announcement.content.split(" ");
     const isLong = words.length > 25;
     const isExpanded = expandedAnnouncements.includes(announcement._id);
@@ -135,7 +114,13 @@ function Announcements({ isCollapsed }) {
 
     return (
       <div className="text-sm font-medium mt-4 font-subTitle whitespace-pre-wrap">
-        {eventInfo}
+        {announcement.eventdetails && (
+          <>
+            {announcement.eventdetails}
+            <br />
+          </>
+        )}
+
         {displayText}
         {isLong && (
           <span
@@ -159,8 +144,43 @@ function Announcements({ isCollapsed }) {
     }
     try {
       await api.put(`/archiveannouncement/${announcementID}`);
-    } catch (error) {}
+      alert("The announcement has been successfully archived.");
+    } catch (error) {
+      console.log("Error in archiving announcement", error);
+    }
   };
+
+  const handleRecover = async (announcementID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this announcement?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    try {
+      await api.put(`/recoverannouncement/${announcementID}`);
+      alert("The announcement has been successfully recovered.");
+    } catch (error) {
+      console.log("Error in recovering announcement", error);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target) &&
+        menuVisible
+      ) {
+        setMenuVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuVisible]);
 
   return (
     <>
@@ -194,24 +214,24 @@ function Announcements({ isCollapsed }) {
             </div>
           </div>
 
-          {/* CENTER - ANNOUNCEMENTS */}
           <div className="w-full lg:w-2/5 p-4">
-            {/* CREATE ANNOUNCEMENT */}
-            <div className="announcement-create">
-              <img
-                src={user.picture}
-                alt="Profile"
-                className="announcement-profile-img"
-              />
-              <button
-                onClick={handleAdd}
-                className="announcement-create-button"
-              >
-                <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
-                  Create Announcement
-                </label>
-              </button>
-            </div>
+            {(user.role === "Secretary" || user.role === "Clerk") && (
+              <div className="announcement-create">
+                <img
+                  src={user.picture}
+                  alt="Profile"
+                  className="announcement-profile-img"
+                />
+                <button
+                  onClick={handleAdd}
+                  className="announcement-create-button"
+                >
+                  <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
+                    Create Announcement
+                  </label>
+                </button>
+              </div>
+            )}
 
             {/* SORT OPTIONS - NEWEST, LATEST */}
 
@@ -223,12 +243,17 @@ function Announcements({ isCollapsed }) {
               >
                 <option value="Newest">Newest</option>
                 <option value="Oldest">Oldest</option>
+                <option value="Archived">Archived</option>
               </select>
             </div>
 
             {/* ALL ANNOUNCEMENTS */}
             {sortedAnnouncements
-              .filter((announcement) => announcement.status === "Not Pinned")
+              .filter((announcement) =>
+                sortOption === "Archived"
+                  ? announcement.status === "Archived"
+                  : announcement.status === "Not Pinned"
+              )
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card">
                   <div className="announcement-pin-date-menu">
@@ -237,12 +262,16 @@ function Announcements({ isCollapsed }) {
                     </h1>
 
                     <div>
-                      <button
-                        onClick={() => togglePin(announcement._id)}
-                        className="mr-1"
-                      >
-                        <BsPinAngle />
-                      </button>
+                      {(user.role === "Secretary" || user.role === "Clerk") &&
+                        sortOption !== "Archived" && (
+                          <button
+                            onClick={() => togglePin(announcement._id)}
+                            className="mr-1"
+                          >
+                            <BsPinAngle />
+                          </button>
+                        )}
+
                       {(user.role === "Secretary" ||
                         announcement.uploadedby._id === user.empID) && (
                         <button
@@ -257,26 +286,40 @@ function Announcements({ isCollapsed }) {
 
                   {/* MENU */}
                   {menuVisible === announcement._id && (
-                    <div className="announcement-menu">
+                    <div className="announcement-menu" ref={menuRef}>
                       <ul className="w-full">
-                        <div
-                          className="navbar-dropdown-item justify-start"
-                          onClick={() => handleEdit(announcement._id)}
-                        >
-                          <FaEdit className="ml-2" />
-                          <li className="text-sm font-semibold ml-2 font-subTitle">
-                            Edit
-                          </li>
-                        </div>
-                        <div
-                          className="navbar-dropdown-item justify-start"
-                          onClick={() => handleArchive(announcement._id)}
-                        >
-                          <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
-                            Archive
-                          </li>
-                        </div>
+                        {sortOption === "Archived" ? (
+                          <div
+                            className="navbar-dropdown-item justify-start"
+                            onClick={() => handleRecover(announcement._id)}
+                          >
+                            <FaEdit className="ml-2" />
+                            <li className="text-sm font-semibold ml-2 font-subTitle">
+                              Recover
+                            </li>
+                          </div>
+                        ) : (
+                          <>
+                            <div
+                              className="navbar-dropdown-item justify-start"
+                              onClick={() => handleEdit(announcement._id)}
+                            >
+                              <FaEdit className="ml-2" />
+                              <li className="text-sm font-semibold ml-2 font-subTitle">
+                                Edit
+                              </li>
+                            </div>
+                            <div
+                              className="navbar-dropdown-item justify-start"
+                              onClick={() => handleArchive(announcement._id)}
+                            >
+                              <IoArchiveSharp className="text-red-600 ml-2" />
+                              <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
+                                Archive
+                              </li>
+                            </div>
+                          </>
+                        )}
                       </ul>
                     </div>
                   )}
@@ -347,16 +390,18 @@ function Announcements({ isCollapsed }) {
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="announcement-pin-date-menu">
-                  <h1 className="text-sm text-gray-500">
+                  <h1 className="text-[#808080] text-xs font-medium font-subTitle">
                     {dayjs(announcement.createdAt).fromNow()}
                   </h1>
                   <div>
-                    <button
-                      onClick={() => toggleUnpin(announcement._id)}
-                      className="mr-1"
-                    >
-                      <BsPinAngleFill />
-                    </button>
+                    {(user.role === "Secretary" || user.role === "Clerk") && (
+                      <button
+                        onClick={() => toggleUnpin(announcement._id)}
+                        className="mr-1"
+                      >
+                        <BsPinAngleFill />
+                      </button>
+                    )}
                     {(user.role === "Secretary" ||
                       announcement.uploadedby?._id === user.empID) && (
                       <button
@@ -370,7 +415,7 @@ function Announcements({ isCollapsed }) {
 
                   {/* MENU */}
                   {menuVisible === announcement._id && (
-                    <div className="announcement-menu">
+                    <div className="announcement-menu" ref={menuRef}>
                       <ul className="w-full">
                         <div className="navbar-dropdown-item justify-start">
                           <FaEdit className="ml-2" />

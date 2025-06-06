@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
+import { useState } from "react";
 import "../App.css";
-import { InfoContext } from "../context/InfoContext";
 import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import api from "../api";
 
 function Reject({ onClose, certID }) {
   const [remarks, setRemarks] = useState("");
@@ -11,10 +9,7 @@ function Reject({ onClose, certID }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.put(
-        `http://localhost:5000/api/rejectcertificatereq/${certID}`,
-        { remarks }
-      );
+      await api.put(`/rejectcertificatereq/${certID}`, { remarks });
       alert("Certificate request successfully rejected!");
       onClose();
     } catch (error) {
@@ -30,11 +25,11 @@ function Reject({ onClose, certID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[20rem]">
+          <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Reject Certificate Request</h1>
+                  <h1 className="modal-title">Reject Document Request</h1>
                   <IoClose
                     onClick={handleClose}
                     class="dialog-title-bar-icon"
@@ -53,7 +48,7 @@ function Reject({ onClose, certID }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[9rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                  className="w-full h-[11rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
                 ></textarea>
                 <div
                   style={{ fontSize: "12px", color: "gray", textAlign: "end" }}

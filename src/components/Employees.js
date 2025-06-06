@@ -1,21 +1,22 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import CreateEmployee from "./CreateEmployee";
 import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import "../Stylesheets/Employees.css";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import EmployeeIDFront from "../assets/employeeidfront.png";
-import EmployeeIDBack from "../assets/employeeidback.png";
-import ReactDOM from "react-dom/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
 import EditEmployee from "./EditEmployee";
 import api from "../api";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import EmployeeID from "./id/EmployeeID";
+import { AuthContext } from "../context/AuthContext";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -24,14 +25,30 @@ function Employees({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
+  const { user } = useContext(AuthContext);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [search, setSearch] = useState("");
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [sortOption, setSortOption] = useState("All");
+
+  const exportRef = useRef(null);
+  const filterRef = useRef(null);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [exportDropdown, setexportDropdown] = useState(false);
+  const [filterDropdown, setfilterDropdown] = useState(false);
+
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
+  };
 
   const handleRowClick = (residentId) => {
     setExpandedRow(expandedRow === residentId ? null : residentId);
@@ -93,6 +110,13 @@ function Employees({ isCollapsed }) {
       try {
         const response = await api.get(`/getemployee/${empID}`);
         const response2 = await api.get(`/getcaptain/`);
+        if (
+          !Array.isArray(response.data.employeeID) ||
+          response.data.employeeID.length === 0
+        ) {
+          alert("This employee has not been issued an ID yet.");
+          return;
+        }
         EmployeeID({
           empData: response.data,
           captainData: response2.data,
@@ -119,10 +143,33 @@ function Employees({ isCollapsed }) {
     );
     if (isConfirmed) {
       try {
-        const response = await api.delete(`/archiveemployee/${empID}`);
-        alert("Employee successfully archived");
+        await api.put(`/archiveemployee/${empID}`);
+        alert("Employee has been successfully archived.");
       } catch (error) {
         console.log("Error", error);
+      }
+    }
+  };
+
+  const recoverBtn = async (e, empID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to recover this employee?",
+      "confirmred"
+    );
+    if (isConfirmed) {
+      try {
+        await api.put(`/recoveremployee/${empID}`);
+        alert("Employee has been successfully recovered.");
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
       }
     }
   };
@@ -134,13 +181,8 @@ function Employees({ isCollapsed }) {
   };
 
   const handleSearch = (text) => {
-    const sanitizedText = text.replace(/[^a-zA-Z\s.]/g, "");
-    const formattedText = sanitizedText
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-
-    setSearch(formattedText);
+    const sanitizedText = text.replace(/[^a-zA-Z0-9\s]/g, "");
+    setSearch(sanitizedText);
   };
 
   useEffect(() => {
@@ -150,20 +192,59 @@ function Employees({ isCollapsed }) {
     } else if (isArchivedClicked) {
       filtered = employees.filter((emp) => emp.status === "Archived");
     }
+
+    switch (sortOption) {
+      case "Captain":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "captain"
+        );
+        break;
+      case "Secretary":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "secretary"
+        );
+        break;
+      case "Clerk":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "clerk"
+        );
+        break;
+      case "Kagawad":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "kagawad"
+        );
+        break;
+      case "Tanod":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "tanod"
+        );
+        break;
+      case "Justice":
+        filtered = filtered.filter(
+          (emp) => emp.position?.toLowerCase() === "justice"
+        );
+        break;
+      default:
+        break;
+    }
     if (search) {
+      const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((emp) => {
         const first = emp.resID.firstname || "";
         const middle = emp.resID.middlename || "";
         const last = emp.resID.lastname || "";
-        const position = emp.position || "";
 
-        const fullName = `${first} ${middle} ${last}`.trim();
+        const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
-        return fullName.includes(search) || position.includes(search);
+        return searchParts.every(
+          (part) =>
+            fullName.includes(part) ||
+            emp.resID.address.toLowerCase().includes(part)
+        );
       });
     }
     setFilteredEmployees(filtered);
-  }, [search, employees, isActiveClicked, isArchivedClicked]);
+  }, [search, employees, isActiveClicked, isArchivedClicked, sortOption]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
@@ -184,6 +265,178 @@ function Employees({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = async () => {
+    const title = "Barangay Aniban 2 Employees";
+    const now = new Date().toLocaleString();
+    const headers = ["Name", "Age", "Sex", "Mobile No.", "Address", "Position"];
+    const rows = filteredEmployees
+      .sort((a, b) => {
+        const nameA = `${a.lastname}`.toLowerCase();
+        const nameB = `${b.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((emp) => {
+        const fullname = emp.resID.middlename
+          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+
+        return [
+          fullname,
+          emp.resID.age,
+          emp.resID.sex,
+          `"${emp.resID.mobilenumber.replace(/"/g, '""')}"`,
+          `"${emp.resID.address.replace(/"/g, '""')}"`,
+          emp.position,
+        ];
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_Employees_by_${user.name.replace(/ /g, "_")}.csv`
+    );
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+
+    const action = "Employees";
+    const description = "User exported employees' records to CSV.";
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  const exportPDF = async () => {
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text("Employees Reports", pageWidth / 2, 55, { align: "center" });
+
+    const rows = filteredEmployees
+      .sort((a, b) => {
+        const nameA = `${a.resID.lastname}`.toLowerCase();
+        const nameB = `${b.resID.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((emp) => {
+        const fullname = emp.resID.middlename
+          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+
+        return [
+          fullname,
+          emp.resID.age,
+          emp.resID.sex,
+          emp.resID.mobilenumber,
+          emp.resID.address,
+          emp.position,
+        ];
+      });
+
+    autoTable(doc, {
+      head: [["Name", "Age", "Sex", "Mobile No.", "Address", "Position"]],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_Employees_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+
+    const action = "Employees";
+    const description = "User exported employees' records to PDF.";
+    try {
+      await api.post("/logexport", { action, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        exportRef.current &&
+        !exportRef.current.contains(event.target) &&
+        exportDropdown
+      ) {
+        setexportDropdown(false);
+      }
+
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [exportDropdown, filterDropdown]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -195,24 +448,171 @@ function Employees({ isCollapsed }) {
           <div className="status-container">
             <p
               onClick={handleMenu1}
-              className={`status-text ${isActiveClicked ? "status-line" : ""}`}
+              className={`status-text ${
+                isActiveClicked ? "status-line" : "text-[#808080]"
+              }`}
             >
               Active
             </p>
             <p
               onClick={handleMenu2}
               className={`status-text ${
-                isArchivedClicked ? "status-line" : ""
+                isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
               Archived
             </p>
           </div>
           {isActiveClicked && (
-            <button className="add-container" onClick={handleAdd}>
-              <MdPersonAddAlt1 className=" text-xl" />
-              <span className="font-bold">Add new employee</span>
-            </button>
+            <div className="flex flex-row gap-x-2 mt-4">
+              {sortOption === "All" && (
+                <div className="relative" ref={exportRef}>
+                  {/* Export Button */}
+                  <div
+                    className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                    onClick={toggleExportDropdown}
+                  >
+                    <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                      Export
+                    </h1>
+                    <div className="pointer-events-none flex text-gray-600">
+                      <MdArrowDropDown size={18} color={"#0E94D3"} />
+                    </div>
+                  </div>
+
+                  {exportDropdown && (
+                    <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                      <ul className="w-full">
+                        <div className="navbar-dropdown-item">
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={exportCSV}
+                          >
+                            Export as CSV
+                          </li>
+                        </div>
+                        <div className="navbar-dropdown-item">
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={exportPDF}
+                          >
+                            Export as PDF
+                          </li>
+                        </div>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="relative" ref={filterRef}>
+                {/* Filter Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] h-7 border-[#0E94D3] px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleFilterDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Filter
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {filterDropdown && (
+                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("All");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          All
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Captain");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Captain
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Secretary");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Secretary
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Clerk");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Clerk
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Kagawad");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Kagawad
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Tanod");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Tanod
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Justice");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Justice
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <button
+                className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border hover:bg-[#0A7A9D]"
+                onClick={handleAdd}
+              >
+                <h1 className="font-medium text-sm text-[#fff] m-0">
+                  Add New Employee
+                </h1>
+              </button>
+            </div>
           )}
         </div>
 
@@ -220,17 +620,19 @@ function Employees({ isCollapsed }) {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Age</th>
+              <th>Sex</th>
               <th>Mobile No.</th>
               <th>Address</th>
               <th>Position</th>
-              {/* <th>Schedule</th> */}
+              <th></th>
             </tr>
           </thead>
 
           <tbody className="bg-[#fff]">
             {filteredEmployees.length === 0 ? (
               <tr className="bg-white">
-                <td colSpan={4}>No results found</td>
+                <td colSpan={6}>No results found</td>
               </tr>
             ) : (
               currentRows
@@ -252,7 +654,7 @@ function Employees({ isCollapsed }) {
                       }}
                     >
                       {expandedRow === emp._id ? (
-                        <td colSpan={4}>
+                        <td colSpan={7}>
                           {/* Additional Information for the resident */}
                           <div className="profile-container">
                             <img
@@ -339,29 +741,41 @@ function Employees({ isCollapsed }) {
                               </div>
                             </div>
                           </div>
-                          <div className="btn-container">
-                            <button
-                              className="actions-btn bg-btn-color-red hover:bg-red-700"
-                              type="submit"
-                              onClick={(e) => archiveBtn(e, emp._id)}
-                            >
-                              ARCHIVE
-                            </button>
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={(e) => handleEmployeeID(e, emp._id)}
-                            >
-                              EMPLOYEE ID
-                            </button>
-                            <button
-                              className="actions-btn bg-btn-color-blue"
-                              type="submit"
-                              onClick={(e) => editBtn(e, emp._id)}
-                            >
-                              EDIT POSITION
-                            </button>
-                          </div>
+                          {emp.status === "Active" ? (
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                type="submit"
+                                onClick={(e) => archiveBtn(e, emp._id)}
+                              >
+                                ARCHIVE
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => handleEmployeeID(e, emp._id)}
+                              >
+                                EMPLOYEE ID
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue"
+                                type="submit"
+                                onClick={(e) => editBtn(e, emp._id)}
+                              >
+                                EDIT POSITION
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => recoverBtn(e, emp._id)}
+                              >
+                                RECOVER
+                              </button>
+                            </div>
+                          )}
                         </td>
                       ) : (
                         <>
@@ -370,9 +784,22 @@ function Employees({ isCollapsed }) {
                               ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
                               : `${emp.resID.lastname} ${emp.resID.firstname}`}
                           </td>
+                          <td>{emp.resID.age}</td>
+                          <td>{emp.resID.sex}</td>
                           <td>{emp.resID.mobilenumber}</td>
                           <td>{emp.resID.address}</td>
                           <td>{emp.position}</td>
+
+                          {/* Dropdown Arrow */}
+                          <td className="text-center">
+                            <span
+                              className={`cursor-pointer transition-transform ${
+                                expandedRow === emp.resID ? "rotate-180" : ""
+                              }`}
+                            >
+                              ▼
+                            </span>
+                          </td>
                         </>
                       )}
                     </tr>
@@ -391,7 +818,7 @@ function Employees({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center"
+                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -400,7 +827,7 @@ function Employees({ isCollapsed }) {
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} />
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
           </div>
@@ -415,7 +842,7 @@ function Employees({ isCollapsed }) {
               disabled={currentPage === 1}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowLeft className="text-xl text-[#808080]" />
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
             <button
               onClick={() =>
@@ -424,10 +851,11 @@ function Employees({ isCollapsed }) {
               disabled={currentPage === totalPages}
               className="px-2 py-1 rounded"
             >
-              <MdKeyboardArrowRight className="text-xl text-[#808080]" />
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>
           </div>
         </div>
+
         {isCreateClicked && (
           <CreateEmployee onClose={() => setCreateClicked(false)} />
         )}

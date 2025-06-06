@@ -1,5 +1,5 @@
 .demog-card-container {
-  @apply h-20 flex items-center relative bg-[#fff] rounded-[10px] p-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
+  @apply h-24 flex items-center relative bg-[#fff] rounded-[10px] p-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
 }
 
 .demog-card-left-border {
@@ -14,7 +14,7 @@
   @apply text-gray-300 text-[32px];
 }
 .fc .fc-button {
-  @apply bg-[#0E94D3] text-white font-semibold px-3 py-1 rounded-md border-none;
+  @apply bg-[#0E94D3] text-white font-semibold px-3 py-1 rounded-md;
 }
 .fc .fc-toolbar-title {
   @apply text-[#0E94D3] text-lg font-semibold;
@@ -25,8 +25,27 @@
 }
 
 .fc-event-title {
-  @apply font-title text-xs text-[#fff];
+  @apply font-title text-[10px];
 }
 .fc-event-time {
-  @apply font-subTitle text-base text-[#fff];
+  @apply font-subTitle text-[9px];
+}
+
+.fc-timegrid-event {
+  @apply flex flex-col justify-center items-center h-full min-h-full p-1 rounded-md overflow-hidden text-center;
+}
+.fc-daygrid-event {
+  @apply flex flex-col items-center;
+}
+
+.fc-month-view .fc-event-title,
+.fc-month-view .fc-event-time {
+  @apply text-black leading-snug whitespace-normal break-words flex-col;
+}
+
+.fc-week-view .fc-event-title,
+.fc-week-view .fc-event-time,
+.fc-day-view .fc-event-title,
+.fc-day-view .fc-event-time {
+  @apply text-white leading-snug;
 }

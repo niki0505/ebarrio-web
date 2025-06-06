@@ -39,6 +39,9 @@ import PublicRoute from "./components/PublicRoute";
 import AppLayout from "./AppLayout";
 import { SocketProvider } from "./context/SocketContext";
 import { ToastContainer } from "react-toastify";
+import SOSUpdateReports from "./components/SOSUpdateReports";
+import RiverSnapshots from "./components/RiverSnapshots";
+import ActivityLogs from "./components/ActivityLogs";
 
 function App() {
   return (
@@ -50,7 +53,7 @@ function App() {
               <InfoProvider>
                 <ToastContainer
                   position="top-right"
-                  autoClose={5000}
+                  autoClose={3000}
                   hideProgressBar={false}
                   newestOnTop={false}
                   closeOnClick
@@ -128,6 +131,15 @@ function App() {
                       }
                     />
                     <Route
+                      path="activity-logs"
+                      element={
+                        <PrivateRoute
+                          element={<ActivityLogs />}
+                          allowedRoles={["Secretary"]}
+                        />
+                      }
+                    />
+                    <Route
                       path="document-requests"
                       element={
                         <PrivateRoute
@@ -150,7 +162,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Announcements />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -204,6 +216,24 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<AccountSettings />}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="sos-update-reports"
+                      element={
+                        <PrivateRoute
+                          element={<SOSUpdateReports />}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="river-snapshots"
+                      element={
+                        <PrivateRoute
+                          element={<RiverSnapshots />}
                           allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }

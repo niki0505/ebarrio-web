@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 import { InfoContext } from "../context/InfoContext";
@@ -13,6 +12,7 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
 import { BiSolidImageAlt } from "react-icons/bi";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
@@ -29,12 +29,17 @@ function AccountSettings({ isCollapsed }) {
     { question: "", answer: "" },
     { question: "", answer: "" },
   ]);
-  const navigation = useNavigate();
   const confirm = useConfirm();
   const [residentInfo, setResidentInfo] = useState([]);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [curPasswordError, setCurPasswordError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const { fetchResidents, residents } = useContext(InfoContext);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -59,11 +64,11 @@ function AccountSettings({ isCollapsed }) {
     precinct: "",
     deceased: "",
     email: "",
-    mobilenumber: "",
-    telephone: "",
+    mobilenumber: "+63",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
-    emergencymobilenumber: "",
+    emergencymobilenumber: "+63",
     emergencyaddress: "",
     housenumber: "",
     street: "",
@@ -84,6 +89,17 @@ function AccountSettings({ isCollapsed }) {
     typeofschool: "",
     course: "",
   });
+
+  const [showUserPassword, setShowUserPassword] = useState(false);
+  const [showCurrPassword, setShowCurrPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [usernameErrors, setUsernameErrors] = useState([]);
+  const [showAnswer1, setShowAnswer1] = useState(false);
+  const [showConfirmAnswer1, setShowConfirmAnswer1] = useState(false);
+  const [showAnswer2, setShowAnswer2] = useState(false);
+  const [showConfirmAnswer2, setShowConfirmAnswer2] = useState(false);
+  const [showSecurityPass, setShowSecurityPass] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -128,10 +144,15 @@ function AccountSettings({ isCollapsed }) {
     };
     fetchUserDetails();
   }, [user.userID]);
-  console.log(residentInfo);
 
   const handleMenu1 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setProfileClicked(true);
     setUsernameClicked(false);
     setPasswordClicked(false);
@@ -139,6 +160,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu2 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setUsernameClicked(true);
     setProfileClicked(false);
     setPasswordClicked(false);
@@ -146,6 +173,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu3 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setPasswordClicked(true);
     setUsernameClicked(false);
     setProfileClicked(false);
@@ -154,6 +187,12 @@ function AccountSettings({ isCollapsed }) {
 
   const handleMenu4 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setQuestionsClicked(true);
     setPasswordClicked(false);
     setUsernameClicked(false);
@@ -173,16 +212,60 @@ function AccountSettings({ isCollapsed }) {
   ];
 
   const handleUsernameChange = async () => {
+    let hasErrors = false;
+
+    let uerrors = [];
+
+    if (!username) {
+      uerrors.push("Username must not be empty.");
+      setUsernameErrors(uerrors);
+      hasErrors = true;
+    }
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    }
+
     if (username === user.username) {
       alert("The new username must be different from the current username.");
+      hasErrors = true;
+    }
+
+    if (usernameErrors !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
     try {
-      await api.get(`/checkusername/${username}`);
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your username?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
       try {
-        await api.put(`/changeusername/${user.userID}`, { username, password });
-        alert("Username changed successfully!");
+        await api.get(`/checkusername/${username}`);
+        try {
+          await api.put(`/changeusername/${user.userID}`, {
+            username,
+            password,
+          });
+          alert("Username changed successfully!");
+        } catch (error) {
+          const response = error.response;
+          if (response && response.data) {
+            console.log("❌ Error status:", response.status);
+            alert(response.data.message || "Something went wrong.");
+          } else {
+            console.log("❌ Network or unknown error:", error.message);
+            alert("An unexpected error occurred.");
+          }
+        }
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -194,42 +277,79 @@ function AccountSettings({ isCollapsed }) {
         }
       }
     } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
-      }
+      console.log("Error in changing username", error);
     }
   };
 
   const handlePasswordChange = async () => {
-    if (newpassword !== renewpassword) {
-      alert("Passwords do not match.");
+    let hasErrors = false;
+    let nerrors = [];
+    let rerrors = [];
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    }
+
+    if (!newpassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewpassword) {
+      rerrors.push("Password must not be empty.");
+      setRePasswordErrors(rerrors);
+      hasErrors = true;
+    }
+
+    if (passwordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (repasswordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
     try {
-      await api.put(`/changepassword/${user.userID}`, {
-        newpassword,
-        password,
-      });
-      alert("Password successfully changed! Please log in again.");
-      logout();
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your password?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      if (newpassword !== renewpassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+      try {
+        await api.put(`/changepassword/${user.userID}`, {
+          newpassword,
+          password,
+        });
+        alert("Password successfully changed! Please log in again.");
+        logout();
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing password", error);
     }
   };
 
   const handleQuestionsChange = async () => {
+    let hasErrors = false;
     const modifiedQuestions = securityquestions.map((q, index) => {
       const current = userDetails.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
@@ -245,27 +365,45 @@ function AccountSettings({ isCollapsed }) {
     });
 
     const hasChanges = modifiedQuestions.some((q) => q !== null);
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    } else {
+      if (!hasChanges) {
+        alert("No changes detected in your security questions.");
+        hasErrors = true;
+      }
+    }
 
-    if (!hasChanges) {
-      alert("No changes detected in your security questions.");
+    if (hasErrors) {
       return;
     }
-    console.log(modifiedQuestions);
     try {
-      await api.put(`/changesecurityquestions/${user.userID}`, {
-        securityquestions: modifiedQuestions,
-        password,
-      });
-      alert("Security questions successfully changed!");
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your security questions?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      try {
+        await api.put(`/changesecurityquestions/${user.userID}`, {
+          securityquestions: modifiedQuestions,
+          password,
+        });
+        alert("Security questions successfully changed!");
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing security questions", error);
     }
   };
 
@@ -298,6 +436,22 @@ function AccountSettings({ isCollapsed }) {
         houseNumber = "";
       }
 
+      let formattedNumber =
+        residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
+          ? "+63" + residentInfo.mobilenumber.slice(1)
+          : "";
+
+      let formattedEmergencyNumber =
+        residentInfo.emergencymobilenumber &&
+        residentInfo.emergencymobilenumber.length > 0
+          ? "+63" + residentInfo.emergencymobilenumber.slice(1)
+          : "";
+
+      let formattedTelephone =
+        residentInfo.telephone && residentInfo.telephone.length > 0
+          ? "+63" + residentInfo.telephone.slice(1)
+          : "+63";
+
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
@@ -305,8 +459,10 @@ function AccountSettings({ isCollapsed }) {
         numberofchildren: childrenLength,
         street: streetName,
         housenumber: houseNumber,
+        mobilenumber: formattedNumber,
+        emergencymobilenumber: formattedEmergencyNumber,
+        telephone: formattedTelephone,
       }));
-      console.log(streetName);
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
     }
@@ -686,17 +842,38 @@ function AccountSettings({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
       let idPicture;
       let signaturePicture;
-      if (!id) {
-        alert("Picture is required");
-        return;
-      }
-      if (!signature) {
-        alert("Signature is required");
-        return;
-      }
       const isConfirmed = await confirm(
         "Are you sure you want to edit this resident profile?",
         "confirm"
@@ -704,7 +881,7 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      if (residentForm.numberofsiblings === 0) {
+      if (residentForm.numberofsiblings == 0) {
         residentForm.siblings = [];
       } else {
         residentForm.siblings = residentForm.siblings.slice(
@@ -713,7 +890,7 @@ function AccountSettings({ isCollapsed }) {
         );
       }
 
-      if (residentForm.numberofchildren === 0) {
+      if (residentForm.numberofchildren == 0) {
         residentForm.children = [];
       } else {
         residentForm.children = residentForm.children.slice(
@@ -734,11 +911,31 @@ function AccountSettings({ isCollapsed }) {
       } else {
         signaturePicture = residentInfo.signature;
       }
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone) {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+
       const updatedResidentForm = {
         ...residentForm,
         picture: idPicture,
         signature: signaturePicture,
         address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
       };
 
       await api.put(`/updateresident/${residentInfo._id}`, updatedResidentForm);
@@ -762,6 +959,146 @@ function AccountSettings({ isCollapsed }) {
         setIsSignProcessing(false);
       }
     }
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const usernameValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setUsername(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Username must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 3) ||
+      (formattedVal && formattedVal.length > 16)
+    ) {
+      errors.push("Username must be between 3 and 16 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
+      errors.push(
+        "Username can only contain letters, numbers, and underscores."
+      );
+    }
+    if (
+      (formattedVal && formattedVal.startsWith("_")) ||
+      (formattedVal && formattedVal.endsWith("_"))
+    ) {
+      errors.push("Username must not start or end with an underscore");
+    }
+
+    setUsernameErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setRenewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (formattedVal !== newpassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match");
+    }
+    setRePasswordErrors(errors);
+  };
+
+  const curpasswordValidation = (e) => {
+    let val = e.target.value;
+    let formattedVal = val.replace(/\s+/g, "");
+    setPassword(formattedVal);
+
+    if (!formattedVal) {
+      setCurPasswordError("Password must not be empty.");
+    } else {
+      setCurPasswordError(null);
+    }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
   };
 
   return (
@@ -1246,22 +1583,33 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="mobilenumber"
                             value={residentForm.mobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
                             className="form-input"
+                            maxLength={13}
                           />
+                          {mobileNumError ? (
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                              {mobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Telephone</label>
                           <input
                             name="telephone"
                             value={residentForm.telephone}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={telephoneInputChange}
                             placeholder="Enter telephone"
                             className="form-input"
+                            maxLength={13}
                           />
+                          {telephoneNumError ? (
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                              {telephoneNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Facebook</label>
@@ -1302,12 +1650,17 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="emergencymobilenumber"
                             value={residentForm.emergencymobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
+                            maxLength={13}
                             className="form-input"
                           />
+                          {emMobileNumError ? (
+                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                              {emMobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">
@@ -1650,25 +2003,51 @@ function AccountSettings({ isCollapsed }) {
                       id="name"
                       name="name"
                       value={username}
-                      onChange={(e) =>
-                        setUsername(e.target.value.toLowerCase())
-                      }
+                      onChange={(e) => usernameValidation(e)}
                       className="form-input"
                     />
+                    {usernameErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {usernameErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        type={showUserPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowUserPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showUserPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
 
                   <div className="function-btn-container">
@@ -1693,43 +2072,102 @@ function AccountSettings({ isCollapsed }) {
                     <label for="password" className="form-label">
                       Current Password
                     </label>
-                    <input
-                      placeholder="Enter Current Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Current Password"
+                        type={showCurrPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="newpassword" className="form-label">
                       New Password
                     </label>
-                    <input
-                      placeholder="Enter New Password"
-                      type="password"
-                      id="newpassword"
-                      name="newpassword"
-                      value={newpassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter New Password"
+                        type={showNewPassword ? "text" : "password"}
+                        id="newpassword"
+                        name="newpassword"
+                        value={newpassword}
+                        onChange={(e) => passwordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showNewPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {passwordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {passwordErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="renewpassword" className="form-label">
                       Reenter Password
                     </label>
-                    <input
-                      placeholder="Enter Reenter Password"
-                      type="password"
-                      id="renewpassword"
-                      name="renewpassword"
-                      value={renewpassword}
-                      onChange={(e) => setRenewPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Reenter Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        id="renewpassword"
+                        name="renewpassword"
+                        value={renewpassword}
+                        onChange={(e) => repasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {repasswordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {repasswordErrors.map((error, index) => (
+                          <p
+                            key={index}
+                            className="text-red-500 font-semibold font-subTitle text-[14px]"
+                          >
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="function-btn-container">
                     <button
@@ -1769,18 +2207,29 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          0,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        type={showAnswer1 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            0,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer1((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-4">
@@ -1803,33 +2252,59 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          1,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        type={showAnswer2 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            1,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer2((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        id="password"
+                        name="password"
+                        value={password}
+                        type={showSecurityPass ? "text" : "password"}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSecurityPass((prev) => !prev)}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        tabIndex={-1}
+                      >
+                        {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        {curPasswordError}
+                      </label>
+                    ) : null}
                   </div>
                   <div className="function-btn-container">
                     <button

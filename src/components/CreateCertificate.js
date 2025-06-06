@@ -9,8 +9,10 @@ import IndigencyPrint from "./certificates/IndigencyPrint";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
 
 function CreateCertificate({ resID, onClose }) {
+  const confirm = useConfirm();
   const { user } = useContext(AuthContext);
   const [certificateForm, setCertificateForm] = useState({
     typeofcertificate: "",
@@ -107,6 +109,13 @@ function CreateCertificate({ resID, onClose }) {
   }
 
   const handleSubmit = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to issue this resident a document?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     const requiredFields =
       certificateFields[certificateForm.typeofcertificate] || [];
 
@@ -162,28 +171,49 @@ function CreateCertificate({ resID, onClose }) {
         const response5 = await api.get(`/getprepared/${user.userID}`);
 
         if (response3.data.typeofcertificate === "Barangay Indigency") {
-          IndigencyPrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            IndigencyPrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         } else if (response3.data.typeofcertificate === "Barangay Clearance") {
-          ClearancePrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            ClearancePrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         } else if (
           response3.data.typeofcertificate === "Barangay Business Clearance"
         ) {
-          BusinessClearancePrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            BusinessClearancePrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         }
         setTimeout(() => {
           handleClose();
@@ -204,7 +234,7 @@ function CreateCertificate({ resID, onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[15rem]">
+          <div className="modal-content w-[30rem] h-[16rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
