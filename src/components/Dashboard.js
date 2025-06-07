@@ -46,6 +46,8 @@ function Dashboard({ isCollapsed }) {
     fetchCertificates,
     blotterreports,
     fetchBlotterReports,
+    fetchHouseholds,
+    household,
   } = useContext(InfoContext);
   const [events, setEvents] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
@@ -58,6 +60,7 @@ function Dashboard({ isCollapsed }) {
       fetchAnnouncements();
       fetchReservations();
       fetchBlotterReports();
+      fetchHouseholds();
       setIsFetched(true);
     }
   }, []);
@@ -85,8 +88,11 @@ function Dashboard({ isCollapsed }) {
         .filter((element) => element.voter === "Yes")
         .filter((element) => element.status !== "Archived").length;
 
+      const totalHouseholds = household.length;
+
       setResidentsData({
         total: totalResidents,
+        totalHouseholds: totalHouseholds,
         male: male,
         female: female,
         seniorCitizens: seniorCitizens,
@@ -430,6 +436,25 @@ function Dashboard({ isCollapsed }) {
 
               <div className="form-group">
                 <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#FFB200]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.totalHouseholds}
+                    </h2>
+                    <p class="text-[#FFB200] font-title text-[16px] font-semibold">
+                      Total Households
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <IoIosPeople />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#0079FF]"></div>
 
                   <div class="flex-grow">
@@ -476,6 +501,63 @@ function Dashboard({ isCollapsed }) {
                     </h2>
                     <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
                       Senior Citizens
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.seniorCitizens}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      PWD
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.seniorCitizens}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Pregnant
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.seniorCitizens}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      4Ps
                     </p>
                   </div>
 

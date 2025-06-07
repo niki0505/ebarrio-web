@@ -67,9 +67,19 @@ function CreateResident({ isCollapsed }) {
     monthlyincome: "",
     educationalattainment: "",
     typeofschool: "",
+    head: "",
     course: "",
   };
   const { residentForm, setResidentForm } = useContext(InfoContext);
+
+  const [householdForm, setHouseholdForm] = useState({
+    members: [],
+  });
+  const [members, setMembers] = useState([
+    { resident: "", residentID: "", residentAddress: "", residentContact: "" },
+  ]);
+  const [memberSuggestions, setMemberSuggestions] = useState([]);
+
   useEffect(() => {
     fetchResidents();
   }, []);
@@ -518,6 +528,7 @@ function CreateResident({ isCollapsed }) {
         picture: idPicture,
         signature: signaturePicture,
         ...updatedResidentForm,
+        householdForm,
       });
       try {
         const response2 = await api.post(
@@ -526,15 +537,12 @@ function CreateResident({ isCollapsed }) {
         console.log(response2.data);
         const qrCode = await uploadToFirebase(response2.data.qrCode);
         try {
-          const response3 = await api.put(
-            `/savebrgyID/${response.data.resID}`,
-            {
-              idNumber: response2.data.idNumber,
-              expirationDate: response2.data.expirationDate,
-              qrCode,
-              qrToken: response2.data.qrToken,
-            }
-          );
+          await api.put(`/savebrgyID/${response.data.resID}`, {
+            idNumber: response2.data.idNumber,
+            expirationDate: response2.data.expirationDate,
+            qrCode,
+            qrToken: response2.data.qrToken,
+          });
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
@@ -622,6 +630,95 @@ function CreateResident({ isCollapsed }) {
         setTelephoneNumError("Invalid mobile number.");
       }
     }
+  };
+
+  //HOUSEHOLD
+  const handleHouseholdChange = (e) => {
+    const value = e.target.value;
+    setResidentForm({ ...residentForm, head: value });
+  };
+
+  const handleMemberChange = (index, field, value) => {
+    const updatedMembers = [...householdForm.members];
+
+    if (field === "resident") {
+      updatedMembers[index] = {
+        ...updatedMembers[index],
+        resident: value,
+        resID: "",
+      };
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+
+      if (value.trim() === "") {
+        setMemberSuggestions((prev) => {
+          const newSuggestions = [...prev];
+          newSuggestions[index] = [];
+          return newSuggestions;
+        });
+        return;
+      }
+
+      const matches = residents.filter((res) => {
+        const fullName = `${res.firstname} ${
+          res.middlename ? res.middlename + " " : ""
+        }${res.lastname}`.toLowerCase();
+        return fullName.includes(value.toLowerCase());
+      });
+
+      setMemberSuggestions((prev) => {
+        const newSuggestions = [...prev];
+        newSuggestions[index] = matches;
+        return newSuggestions;
+      });
+    } else {
+      updatedMembers[index][field] = value;
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+    }
+  };
+
+  const handleMemberSuggestionClick = (index, res) => {
+    const fullName = `${res.firstname} ${
+      res.middlename ? res.middlename + " " : ""
+    }${res.lastname}`;
+
+    const updatedMembers = [...householdForm.members];
+    updatedMembers[index] = {
+      ...updatedMembers[index],
+      resident: fullName,
+      resID: res._id,
+    };
+
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: updatedMembers,
+    }));
+
+    setMemberSuggestions((prev) => {
+      const newSuggestions = [...prev];
+      newSuggestions[index] = [];
+      return newSuggestions;
+    });
+  };
+
+  const addMember = () => {
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: [...prev.members, { resident: "", position: "" }],
+    }));
+  };
+
+  const removeMember = (index) => {
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: prev.members.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -1318,6 +1415,169 @@ function CreateResident({ isCollapsed }) {
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
               </select>
             </div>
+          </div>
+
+          {/* Household Information */}
+          <h3 className="section-title mt-8">Household Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-group space-x-5">
+            <label className="form-label">Head of the Household</label>
+            <div className="flex flex-row space-x-10">
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="Yes"
+                  checked={residentForm.head === "Yes"}
+                />
+                <h1>Yes</h1>
+              </div>
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="No"
+                  checked={residentForm.head === "No"}
+                />
+                <h1>No</h1>
+              </div>
+            </div>
+            {residentForm.head === "No" && (
+              <>
+                <div className="form-group">
+                  <label for="HOAname" className="form-label">
+                    Household No.
+                  </label>
+                  <select
+                    id="HOAname"
+                    name="HOAname"
+                    value={residentForm.HOAname}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="" selected>
+                      Select
+                    </option>
+                    <option value="Bermuda Town Homes">
+                      Bermuda Town Homes
+                    </option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* Head = Yes: show members table */}
+            {residentForm.head === "Yes" && (
+              <div className="form-group mt-4">
+                <table className="min-w-full border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="border border-gray-300 px-4 py-2">
+                        Position
+                      </th>
+                      <th className="border border-gray-300 px-4 py-2">Name</th>
+                      <th className="border border-gray-300 px-4 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {householdForm.members.map((member, index) => (
+                      <tr key={index}>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <select
+                            value={member.position}
+                            onChange={(e) =>
+                              handleMemberChange(
+                                index,
+                                "position",
+                                e.target.value
+                              )
+                            }
+                            className="form-input"
+                          >
+                            <option value="">Select Position</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Grandchild">Grandchild</option>
+                            <option value="In-law">In-law</option>
+                            <option value="Relative">Relative</option>
+                            <option value="Housemate">Housemate</option>
+                            <option value="Househelp">Househelp</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Enter name"
+                              value={member.resident}
+                              onChange={(e) =>
+                                handleMemberChange(
+                                  index,
+                                  "resident",
+                                  e.target.value
+                                )
+                              }
+                              className="form-input"
+                            />
+                            {memberSuggestions[index] &&
+                              memberSuggestions[index].length > 0 && (
+                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
+                                  {memberSuggestions[index].map((res) => {
+                                    const fullName = `${res.firstname} ${
+                                      res.middlename ? res.middlename + " " : ""
+                                    }${res.lastname}`;
+                                    return (
+                                      <li
+                                        key={res._id}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                        onClick={() =>
+                                          handleMemberSuggestionClick(
+                                            index,
+                                            res
+                                          )
+                                        }
+                                      >
+                                        {fullName}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {/* Prevent removing the Head */}
+                          {member.position !== "Head" && (
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              onClick={() => removeMember(index)}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <button
+                  type="button"
+                  className="btn btn-primary mt-4"
+                  onClick={addMember}
+                >
+                  Add Member
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Employment Information */}

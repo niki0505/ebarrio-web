@@ -22,6 +22,7 @@ export const InfoProvider = ({ children }) => {
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
+  const [household, setHousehold] = useState([]);
 
   const announcementInitialForm = {
     category: "",
@@ -220,6 +221,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchHouseholds = async () => {
+    try {
+      const response = await api.get("/gethouseholds");
+      setHousehold(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -264,11 +274,13 @@ export const InfoProvider = ({ children }) => {
           residentForm,
           blotterForm,
           announcementForm,
+          household,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
           setBlotterForm,
           setResidentForm,
+          fetchHouseholds,
           fetchResidents,
           fetchEmployees,
           fetchUsers,

@@ -42,6 +42,7 @@ import { ToastContainer } from "react-toastify";
 import SOSUpdateReports from "./components/SOSUpdateReports";
 import RiverSnapshots from "./components/RiverSnapshots";
 import ActivityLogs from "./components/ActivityLogs";
+import Household from "./components/Household";
 
 function App() {
   return (
@@ -90,6 +91,15 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Residents />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="household"
+                      element={
+                        <PrivateRoute
+                          element={<Household />}
                           allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
