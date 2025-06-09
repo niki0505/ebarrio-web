@@ -85,7 +85,7 @@ export const InfoProvider = ({ children }) => {
     complainantID: "",
     complainantname: "",
     complainantaddress: "",
-    complainantcontactno: "",
+    complainantcontactno: "+63",
     complainantsignature: "",
     subjectID: "",
     subjectname: "",
@@ -232,16 +232,18 @@ export const InfoProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const fetchPendingReservations = async () => {
-      try {
-        const response = await api.get("/getpendingreservations");
-        setPendingReservationCount(response.data);
-      } catch (error) {
-        console.error("❌ Failed to fetch users:", error);
-      }
-    };
-    fetchPendingReservations();
-  });
+    if (isAuthenticated) {
+      const fetchPendingReservations = async () => {
+        try {
+          const response = await api.get("/getpendingreservations");
+          setPendingReservationCount(response.data);
+        } catch (error) {
+          console.error("❌ Failed to fetch users:", error);
+        }
+      };
+      fetchPendingReservations();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {

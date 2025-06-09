@@ -356,16 +356,53 @@ function CreateResident({ isCollapsed }) {
     });
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const lettersAndSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const lettersOnly = value.replace(/[^a-zA-Z\s.]/g, "");
-    const capitalizeFirstLetter = lettersOnly
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => smartCapitalize(word))
       .join(" ");
+
     setResidentForm((prev) => ({
       ...prev,
-      [name]: capitalizeFirstLetter,
+      [name]: capitalized,
+    }));
+  };
+
+  const occupationChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z0-9\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
+  };
+
+  const birthplaceChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.,'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
     }));
   };
 
@@ -375,6 +412,15 @@ function CreateResident({ isCollapsed }) {
     setResidentForm((prev) => ({
       ...prev,
       [name]: numbersOnly,
+    }));
+  };
+
+  const precinctChange = (e) => {
+    const { name, value } = e.target;
+    const precinct = value.replace(/[^a-zA-Z0-9\s]/g, "");
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: precinct.toUpperCase(),
     }));
   };
 
@@ -393,7 +439,7 @@ function CreateResident({ isCollapsed }) {
 
   const stringsAndNoSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=]/g, "");
+    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=-]/g, "");
     setResidentForm((prev) => ({
       ...prev,
       [name]: stringsOnly,
@@ -477,7 +523,10 @@ function CreateResident({ isCollapsed }) {
       setMobileNumError("Invalid mobile number.");
       hasErrors = true;
     }
-    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+    if (
+      residentForm.emergencymobilenumber &&
+      residentForm.emergencymobilenumber.length !== 13
+    ) {
       setEmMobileNumError("Invalid mobile number.");
       hasErrors = true;
     }
@@ -783,6 +832,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 onChange={handleChangeID}
                 type="file"
+                accept="image/jpeg, image/png"
                 style={{ display: "none" }}
                 ref={hiddenInputRef1}
               />
@@ -821,6 +871,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 onChange={handleChangeSig}
                 type="file"
+                accept="image/jpeg, image/png"
                 style={{ display: "none" }}
                 ref={hiddenInputRef2}
               />
@@ -865,6 +916,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 type="text"
                 name="firstname"
+                maxLength={50}
                 value={residentForm.firstname}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter first name"
@@ -878,6 +930,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="middlename"
                 value={residentForm.middlename}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
                 className="form-input"
@@ -890,6 +944,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="lastname"
                 value={residentForm.lastname}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter last name"
                 required
@@ -920,6 +976,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="alias"
                 value={residentForm.alias}
+                maxLength={50}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter alias"
                 className="form-input"
@@ -1014,7 +1071,9 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="birthplace"
                 value={residentForm.birthplace}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
+                onChange={birthplaceChange}
                 placeholder="Enter birthplace"
                 className="form-input"
               />
@@ -1132,10 +1191,11 @@ function CreateResident({ isCollapsed }) {
               <label className="form-label">Precinct</label>
               <input
                 name="precinct"
-                onChange={lettersNumbersAndSpaceOnly}
+                onChange={precinctChange}
                 value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input"
+                minLength={2}
                 maxLength={4}
               />
             </div>
@@ -1297,6 +1357,8 @@ function CreateResident({ isCollapsed }) {
                 name="emergencyname"
                 value={residentForm.emergencyname}
                 onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
                 placeholder="Enter name"
                 required
                 className="form-input"
@@ -1330,6 +1392,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="emergencyaddress"
                 value={residentForm.emergencyaddress}
+                minLength={5}
+                maxLength={100}
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter address"
                 required
@@ -1732,7 +1796,9 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="occupation"
                 value={residentForm.occupation}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={100}
+                onChange={occupationChange}
                 placeholder="Enter occupation"
                 className="form-input"
               />
@@ -1805,6 +1871,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="course"
                 value={residentForm.course}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter course"
                 className="form-input"

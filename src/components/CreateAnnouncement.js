@@ -374,9 +374,13 @@ function CreateAnnouncement({ onClose }) {
                       name="content"
                       value={announcementForm.content}
                       onChange={handleInputChange}
+                      maxLength={1000}
                       className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                       required
                     />
+                    <div className="w-full text-right text-sm text-gray-500 mt-1">
+                      {announcementForm.content.length}/1000
+                    </div>
                   </div>
                   {/* Event Details */}
                   {announcementForm.eventdetails && (

@@ -20,12 +20,13 @@ function CreateBlotter({ isCollapsed }) {
   const hiddenInputRef1 = useRef(null);
   const [complainantSuggestions, setComplainantSuggestions] = useState([]);
   const [subjectSuggestions, setSubjectSuggestions] = useState([]);
+  const [mobileNumError, setMobileNumError] = useState("");
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const initialForm = {
     complainantID: "",
     complainantname: "",
     complainantaddress: "",
-    complainantcontactno: "",
+    complainantcontactno: "+63",
     complainantsignature: "",
     subjectID: "",
     subjectname: "",
@@ -53,8 +54,19 @@ function CreateBlotter({ isCollapsed }) {
     }));
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const handleComplainantChange = (e) => {
     const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const formatted = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "complainantname") {
       const matches = residents.filter((res) => {
@@ -68,14 +80,9 @@ function CreateBlotter({ isCollapsed }) {
       setBlotterForm((prevForm) => ({
         ...prevForm,
         complainantID: "",
-        complainantname: value,
+        complainantname: formatted,
         complainantaddress: "",
         complainantcontactno: "",
-      }));
-    } else {
-      setBlotterForm((prevForm) => ({
-        ...prevForm,
-        [name]: value,
       }));
     }
   };
@@ -96,8 +103,27 @@ function CreateBlotter({ isCollapsed }) {
     setComplainantSuggestions([]);
   };
 
+  const lettersNumbersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const lettersAndNumbersOnly = value.replace(/[^a-zA-Z0-9\s.,]/g, "");
+    const capitalizeFirstLetter = lettersAndNumbersOnly
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+    setBlotterForm((prev) => ({
+      ...prev,
+      [name]: capitalizeFirstLetter,
+    }));
+  };
+
   const handleSubjectChange = (e) => {
     const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const formatted = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "subjectname") {
       const matches = residents.filter((res) => {
@@ -110,14 +136,9 @@ function CreateBlotter({ isCollapsed }) {
       setSubjectSuggestions(matches);
       setBlotterForm((prevForm) => ({
         ...prevForm,
-        subjectname: value,
+        subjectname: formatted,
         subjectID: "",
         subjectaddress: "",
-      }));
-    } else {
-      setBlotterForm((prevForm) => ({
-        ...prevForm,
-        [name]: value,
       }));
     }
   };
@@ -174,44 +195,63 @@ function CreateBlotter({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to file a blotter report?",
-      "confirm"
-    );
-    if (!isConfirmed) {
+    let hasErrors = false;
+    if (
+      blotterForm.complainantcontactno &&
+      blotterForm.complainantcontactno.length !== 13
+    ) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
-    let updatedForm = { ...blotterForm };
-
-    if (updatedForm.complainantID) {
-      delete updatedForm.complainantname;
-      delete updatedForm.complainantaddress;
-      delete updatedForm.complainantcontactno;
-      delete updatedForm.complainantsignature;
-    } else {
-      delete updatedForm.complainantID;
-      const signaturePicture = await uploadToFirebase(
-        updatedForm.complainantsignature
-      );
-      updatedForm = {
-        ...updatedForm,
-        complainantsignature: signaturePicture,
-      };
-    }
-
-    if (updatedForm.subjectID) {
-      delete updatedForm.subjectname;
-      delete updatedForm.subjectaddress;
-    } else {
-      delete updatedForm.subjectID;
-    }
     try {
-      await api.post("/createblotter", { updatedForm });
-      alert("Blotter report successfully submitted!");
-      setBlotterForm(initialForm);
-      navigation("/blotter-reports");
+      const isConfirmed = await confirm(
+        "Are you sure you want to file a blotter report?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      let updatedForm = { ...blotterForm };
+
+      if (updatedForm.complainantID) {
+        delete updatedForm.complainantname;
+        delete updatedForm.complainantaddress;
+        delete updatedForm.complainantcontactno;
+        delete updatedForm.complainantsignature;
+      } else {
+        let formattedMobileNumber = blotterForm.complainantcontactno;
+        formattedMobileNumber = "0" + blotterForm.complainantcontactno.slice(3);
+        delete updatedForm.complainantID;
+        const signaturePicture = await uploadToFirebase(
+          updatedForm.complainantsignature
+        );
+        updatedForm = {
+          ...updatedForm,
+          complainantsignature: signaturePicture,
+          complainantcontactno: formattedMobileNumber,
+        };
+      }
+
+      if (updatedForm.subjectID) {
+        delete updatedForm.subjectname;
+        delete updatedForm.subjectaddress;
+      } else {
+        delete updatedForm.subjectID;
+      }
+      try {
+        await api.post("/createblotter", { updatedForm });
+        alert("Blotter report successfully submitted!");
+        setBlotterForm(initialForm);
+        navigation("/blotter-reports");
+      } catch (error) {
+        console.log("Error creating blotter report", error);
+      }
     } catch (error) {
-      console.log("Error creating blotter report", error);
+      console.log("Error", error);
     }
   };
 
@@ -355,6 +395,29 @@ function CreateBlotter({ isCollapsed }) {
     return `${hours}:${minutes}`;
   };
 
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setBlotterForm((prev) => ({ ...prev, [name]: value }));
+
+    if (value.length >= 13) {
+      setMobileNumError(null);
+    } else {
+      setMobileNumError("Invalid mobile number.");
+    }
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -391,6 +454,8 @@ function CreateBlotter({ isCollapsed }) {
                   value={blotterForm.complainantname}
                   onChange={handleComplainantChange}
                   placeholder="Enter name"
+                  minLength={2}
+                  maxLength={150}
                   className="form-input h-[30px] w-full"
                   autoComplete="off"
                   required
@@ -425,9 +490,11 @@ function CreateBlotter({ isCollapsed }) {
               </label>
               <input
                 name="complainantaddress"
-                onChange={handleComplainantChange}
+                onChange={lettersNumbersAndSpaceOnly}
                 value={blotterForm.complainantaddress}
                 placeholder="Enter address"
+                minLength={5}
+                maxLength={100}
                 className="form-input h-[30px]"
                 required
               />
@@ -439,12 +506,18 @@ function CreateBlotter({ isCollapsed }) {
               </label>
               <input
                 name="complainantcontactno"
-                onChange={handleComplainantChange}
+                onChange={mobileInputChange}
                 value={blotterForm.complainantcontactno}
-                placeholder="Enter contact no"
+                placeholder="Enter contact no."
+                maxLength={13}
                 className="form-input h-[30px]"
                 required
               />
+              {mobileNumError ? (
+                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                  {mobileNumError}
+                </label>
+              ) : null}
             </div>
           </div>
 
@@ -459,6 +532,7 @@ function CreateBlotter({ isCollapsed }) {
                     <input
                       onChange={handleChangeSig}
                       type="file"
+                      accept="image/jpeg, image/png"
                       style={{ display: "none" }}
                       ref={hiddenInputRef1}
                     />
@@ -506,6 +580,8 @@ function CreateBlotter({ isCollapsed }) {
                 value={blotterForm.subjectname}
                 onChange={handleSubjectChange}
                 placeholder="Enter name"
+                minLength={2}
+                maxLength={150}
                 className="form-input h-[30px] w-full"
                 autoComplete="off"
                 required
@@ -534,9 +610,11 @@ function CreateBlotter({ isCollapsed }) {
               <label className="form-label">Address</label>
               <input
                 name="subjectaddress"
-                onChange={handleSubjectChange}
+                onChange={lettersNumbersAndSpaceOnly}
                 value={blotterForm.subjectaddress}
                 placeholder="Enter address"
+                minLength={2}
+                maxLength={100}
                 className="form-input h-[30px]"
               />
             </div>
