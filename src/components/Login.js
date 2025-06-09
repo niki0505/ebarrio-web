@@ -93,6 +93,18 @@ const Login = () => {
     }
   };
 
+  const handleUsernameChange = (e) => {
+    const input = e.target.value;
+    const filtered = input.replace(/[^a-z0-9_]/g, "");
+    setUsername(filtered);
+  };
+
+  const handlePasswordChange = (e) => {
+    const input = e.target.value;
+    const filtered = input.replace(/[^a-zA-Z0-9!@\$%\^&\*\+#_]/g, "");
+    setPassword(filtered);
+  };
+
   return (
     <div
       className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
@@ -141,8 +153,11 @@ const Login = () => {
                 <input
                   type="text"
                   placeholder="Enter username"
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={username}
+                  onChange={(e) => handleUsernameChange(e)}
                   className="form-input"
+                  minLength={3}
+                  maxLength={16}
                   required
                 />
                 <div className="relative w-full">
@@ -150,8 +165,10 @@ const Login = () => {
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handlePasswordChange(e)}
                     className="form-input w-full"
+                    minLength={8}
+                    maxLength={64}
                     required
                   />
                   <button

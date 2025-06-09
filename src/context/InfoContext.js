@@ -22,6 +22,8 @@ export const InfoProvider = ({ children }) => {
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
+  const [household, setHousehold] = useState([]);
+  const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
     category: "",
@@ -83,7 +85,7 @@ export const InfoProvider = ({ children }) => {
     complainantID: "",
     complainantname: "",
     complainantaddress: "",
-    complainantcontactno: "",
+    complainantcontactno: "+63",
     complainantsignature: "",
     subjectID: "",
     subjectname: "",
@@ -220,6 +222,29 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchHouseholds = async () => {
+    try {
+      const response = await api.get("/gethouseholds");
+      setHousehold(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchPendingReservations = async () => {
+        try {
+          const response = await api.get("/getpendingreservations");
+          setPendingReservationCount(response.data);
+        } catch (error) {
+          console.error("❌ Failed to fetch users:", error);
+        }
+      };
+      fetchPendingReservations();
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -264,11 +289,14 @@ export const InfoProvider = ({ children }) => {
           residentForm,
           blotterForm,
           announcementForm,
+          household,
+          pendingReservationCount,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
           setBlotterForm,
           setResidentForm,
+          fetchHouseholds,
           fetchResidents,
           fetchEmployees,
           fetchUsers,
