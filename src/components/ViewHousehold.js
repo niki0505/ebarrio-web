@@ -78,10 +78,10 @@ function ViewHousehold({ onClose, householdID }) {
   };
 
   const handleRemoveMember = async (member) => {
-    const confirmDelete = await confirm(
+    const isConfirmed = await confirm(
       "Are you sure you want to remove this member?"
     );
-    if (!confirmDelete) return;
+    if (!isConfirmed) return;
 
     try {
       await api.delete(`/household/${householdID}/member/${member._id}`);
@@ -89,6 +89,7 @@ function ViewHousehold({ onClose, householdID }) {
         ...prev,
         members: prev.members.filter((m) => m._id !== member._id),
       }));
+      alert("Member has been removed successfully.");
     } catch (error) {
       console.error("Error removing member:", error);
     }
@@ -186,7 +187,7 @@ function ViewHousehold({ onClose, householdID }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[45rem] h-[30rem]">
+          <div className="modal-content w-[70rem] h-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -236,6 +237,9 @@ function ViewHousehold({ onClose, householdID }) {
                           </th>
                           <th className="border border-gray-300 px-4 py-2">
                             Occupation
+                          </th>
+                          <th className="border border-gray-300 px-4 py-2">
+                            Classification
                           </th>
                           <th className="border border-gray-300 px-4 py-2">
                             Action
@@ -293,6 +297,29 @@ function ViewHousehold({ onClose, householdID }) {
                               {member.resID.occupation
                                 ? member.resID.occupation
                                 : "N/A"}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2">
+                              {member.resID.isSenior ||
+                              member.resID.isPregnant ||
+                              member.resID.isPWD ||
+                              member.resID.is4Ps ||
+                              member.resID.isSoloParent ? (
+                                <>
+                                  {member.resID.isSenior && (
+                                    <div>Senior Citizen</div>
+                                  )}
+                                  {member.resID.isPregnant && (
+                                    <div>Pregnant</div>
+                                  )}
+                                  {member.resID.isPWD && <div>PWD</div>}
+                                  {member.resID.is4Ps && <div>4Ps</div>}
+                                  {member.resID.isSoloParent && (
+                                    <div>Solo Parent</div>
+                                  )}
+                                </>
+                              ) : (
+                                "N/A"
+                              )}
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
                               {editingMemberId === member._id ? (

@@ -96,7 +96,7 @@ function App() {
                       }
                     />
                     <Route
-                      path="household"
+                      path="households"
                       element={
                         <PrivateRoute
                           element={<Household />}

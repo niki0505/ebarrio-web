@@ -3,7 +3,7 @@ import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
@@ -20,8 +20,10 @@ import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
 
 function Residents({ isCollapsed }) {
+  const location = useLocation();
   const confirm = useConfirm();
   const navigation = useNavigate();
+  const { selectedSort } = location.state || {};
   const { fetchResidents, residents } = useContext(InfoContext);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
@@ -31,7 +33,7 @@ function Residents({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
-  const [sortOption, setSortOption] = useState("All");
+  const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
 
@@ -217,6 +219,23 @@ function Residents({ isCollapsed }) {
         break;
       case "Senior Citizens":
         filtered = filtered.filter((res) => res.age >= 60);
+        break;
+      case "PWD":
+        filtered = filtered.filter((res) => res.isPWD);
+        break;
+      case "Pregnant":
+        filtered = filtered.filter((res) => res.isPregnant);
+        break;
+      case "4Ps":
+        filtered = filtered.filter((res) => res.is4Ps);
+        break;
+      case "Solo Parent":
+        filtered = filtered.filter((res) => res.isSoloParent);
+        break;
+      case "Unemployed":
+        filtered = filtered.filter(
+          (res) => res.employmentstatus === "Unemployed"
+        );
         break;
       case "Voters":
         filtered = filtered.filter((res) => res.voter === "Yes");
@@ -594,6 +613,61 @@ function Residents({ isCollapsed }) {
                           }}
                         >
                           Senior Citizens
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("PWD");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          PWD
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Pregnant");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Pregnant
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("4Ps");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          4Ps
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Solo Parent");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Solo Parent
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("Unemployed");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          Unemployed
                         </li>
                       </div>
                       <div className="navbar-dropdown-item">

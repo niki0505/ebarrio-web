@@ -23,6 +23,7 @@ export const InfoProvider = ({ children }) => {
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
   const [household, setHousehold] = useState([]);
+  const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
     category: "",
@@ -231,6 +232,18 @@ export const InfoProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const fetchPendingReservations = async () => {
+      try {
+        const response = await api.get("/getpendingreservations");
+        setPendingReservationCount(response.data);
+      } catch (error) {
+        console.error("❌ Failed to fetch users:", error);
+      }
+    };
+    fetchPendingReservations();
+  });
+
+  useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
         setResidents(updatedData.data);
@@ -275,6 +288,7 @@ export const InfoProvider = ({ children }) => {
           blotterForm,
           announcementForm,
           household,
+          pendingReservationCount,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,

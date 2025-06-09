@@ -14,7 +14,8 @@ import { GrNext } from "react-icons/gr";
 function CreateResident({ isCollapsed }) {
   const navigation = useNavigate();
   const confirm = useConfirm();
-  const { fetchResidents, residents } = useContext(InfoContext);
+  const { fetchResidents, residents, fetchHouseholds, household } =
+    useContext(InfoContext);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [mobileNumError, setMobileNumError] = useState("");
@@ -67,8 +68,15 @@ function CreateResident({ isCollapsed }) {
     monthlyincome: "",
     educationalattainment: "",
     typeofschool: "",
+    householdno: "",
+    householdposition: "",
     head: "",
     course: "",
+    is4Ps: false,
+    isSenior: false,
+    isPregnant: false,
+    isPWD: false,
+    isSoloParent: false,
   };
   const { residentForm, setResidentForm } = useContext(InfoContext);
 
@@ -82,6 +90,7 @@ function CreateResident({ isCollapsed }) {
 
   useEffect(() => {
     fetchResidents();
+    fetchHouseholds();
   }, []);
 
   const renderSiblingsDropdown = () => {
@@ -721,6 +730,33 @@ function CreateResident({ isCollapsed }) {
     }));
   };
 
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  useEffect(() => {
+    if (residentForm.birthdate) {
+      const birthDate = new Date(residentForm.birthdate);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const dayDiff = today.getDate() - birthDate.getDate();
+
+      const isAlready60 =
+        age > 60 ||
+        (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+
+      setResidentForm((prev) => ({
+        ...prev,
+        isSenior: isAlready60,
+      }));
+    }
+  }, [residentForm.birthdate]);
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
@@ -1103,6 +1139,59 @@ function CreateResident({ isCollapsed }) {
                 maxLength={4}
               />
             </div>
+            <div className="form-group">
+              <label className="form-label">Special Status</label>
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="is4Ps"
+                    checked={residentForm.is4Ps}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>4Ps Beneficiary</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSenior"
+                    checked={residentForm.isSenior}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Senior Citizen</span>
+                </label>
+                {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isPregnant"
+                      checked={residentForm.isPregnant}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Pregnant</span>
+                  </label>
+                )}
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isPWD"
+                    checked={residentForm.isPWD}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Person with Disability (PWD)</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSoloParent"
+                    checked={residentForm.isSoloParent}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Solo Parent</span>
+                </label>
+              </div>
+            </div>
 
             <div className="form-group space-x-5">
               <label className="form-label">Deceased</label>
@@ -1448,22 +1537,55 @@ function CreateResident({ isCollapsed }) {
             {residentForm.head === "No" && (
               <>
                 <div className="form-group">
-                  <label for="HOAname" className="form-label">
-                    Household No.
+                  <label for="householdno" className="form-label">
+                    Household
                   </label>
                   <select
-                    id="HOAname"
-                    name="HOAname"
-                    value={residentForm.HOAname}
+                    id="householdno"
+                    name="householdno"
+                    value={residentForm.householdno}
                     onChange={handleDropdownChange}
                     className="form-input"
                   >
                     <option value="" selected>
                       Select
                     </option>
-                    <option value="Bermuda Town Homes">
-                      Bermuda Town Homes
-                    </option>
+                    {household.map((h) => {
+                      const head = h.members.find((m) => m.position === "Head");
+                      const headName = head.resID
+                        ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
+                        : "Unnamed";
+                      return (
+                        <option key={h._id} value={h._id}>
+                          {headName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label for="HOAname" className="form-label">
+                    Position
+                  </label>
+                  <select
+                    id="householdposition"
+                    name="householdposition"
+                    value={residentForm.householdposition}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="">Select Position</option>
+                    <option value="Spouse">Spouse</option>
+                    <option value="Child">Child</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Sibling">Sibling</option>
+                    <option value="Grandparent">Grandparent</option>
+                    <option value="Grandchild">Grandchild</option>
+                    <option value="In-law">In-law</option>
+                    <option value="Relative">Relative</option>
+                    <option value="Housemate">Housemate</option>
+                    <option value="Househelp">Househelp</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
               </>
@@ -1587,7 +1709,7 @@ function CreateResident({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="employmentstatus" className="form-label">
-                Employment Status
+                Employment Status<label className="text-red-600">*</label>
               </label>
               <select
                 id="employmentstatus"
@@ -1595,6 +1717,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
+                required
               >
                 <option value="" selected>
                   Select
