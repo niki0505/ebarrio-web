@@ -417,7 +417,10 @@ function Announcements({ isCollapsed }) {
                   {menuVisible === announcement._id && (
                     <div className="announcement-menu" ref={menuRef}>
                       <ul className="w-full">
-                        <div className="navbar-dropdown-item justify-start">
+                        <div
+                          className="navbar-dropdown-item justify-start"
+                          onClick={() => handleEdit(announcement._id)}
+                        >
                           <FaEdit className="ml-2" />
                           <li className="text-sm font-semibold ml-2 font-subTitle">
                             Edit

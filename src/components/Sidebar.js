@@ -22,9 +22,11 @@ import { MdOutlineUpdate } from "react-icons/md";
 import { useState } from "react";
 import { AiFillAlert } from "react-icons/ai";
 import { PiUserSwitchFill } from "react-icons/pi";
+import { InfoContext } from "../context/InfoContext";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
+  const { pendingReservationCount } = useContext(InfoContext);
   const location = useLocation();
   if (!user) return null;
 
@@ -45,6 +47,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       title: "Residents",
       icon: <IoIosPeople />,
       path: "/residents",
+    },
+    (user.role === "Secretary" || user.role === "Clerk") && {
+      title: "Households",
+      icon: <IoIosPeople />,
+      path: "/households",
     },
     (user.role === "Justice" || user.role === "Secretary") && {
       title: "Blotter Reports",

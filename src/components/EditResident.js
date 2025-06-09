@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { useConfirm } from "../context/ConfirmContext";
 import { useNavigate } from "react-router-dom";
+import { BiSolidImageAlt } from "react-icons/bi";
 import api from "../api";
 import { GrNext } from "react-icons/gr";
 
@@ -425,16 +426,53 @@ function EditResident({ isCollapsed }) {
     });
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const lettersAndSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const lettersOnly = value.replace(/[^a-zA-Z\s.]/g, "");
-    const capitalizeFirstLetter = lettersOnly
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => smartCapitalize(word))
       .join(" ");
+
     setResidentForm((prev) => ({
       ...prev,
-      [name]: capitalizeFirstLetter,
+      [name]: capitalized,
+    }));
+  };
+
+  const occupationChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z0-9\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
+  };
+
+  const birthplaceChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.,'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
     }));
   };
 
@@ -444,6 +482,15 @@ function EditResident({ isCollapsed }) {
     setResidentForm((prev) => ({
       ...prev,
       [name]: numbersOnly,
+    }));
+  };
+
+  const precinctChange = (e) => {
+    const { name, value } = e.target;
+    const precinct = value.replace(/[^a-zA-Z0-9\s]/g, "");
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: precinct.toUpperCase(),
     }));
   };
 
@@ -462,7 +509,7 @@ function EditResident({ isCollapsed }) {
 
   const stringsAndNoSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const stringsOnly = value.replace(/[^a-zA-Z0-9./:?&=]/g, "");
+    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=-]/g, "");
     setResidentForm((prev) => ({
       ...prev,
       [name]: stringsOnly,
@@ -742,7 +789,10 @@ function EditResident({ isCollapsed }) {
                       className="w-full h-full object-contain bg-white"
                     />
                   ) : (
-                    <p>No Picture Attached</p>
+                    <div className="flex flex-col items-center">
+                      <BiSolidImageAlt className="w-16 h-16" />
+                      <p>Attach Image</p>
+                    </div>
                   )}
                 </div>
 
@@ -779,7 +829,10 @@ function EditResident({ isCollapsed }) {
                       className="w-full h-full object-contain bg-white"
                     />
                   ) : (
-                    <p>No Picture Attached</p>
+                    <div className="flex flex-col items-center">
+                      <BiSolidImageAlt className="w-16 h-16" />
+                      <p>Attach Image</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -807,6 +860,7 @@ function EditResident({ isCollapsed }) {
               <input
                 type="text"
                 name="firstname"
+                maxLength={50}
                 value={residentForm.firstname}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter first name"
@@ -814,11 +868,14 @@ function EditResident({ isCollapsed }) {
                 className="form-input input-box"
               />
             </div>
+
             <div className="form-group">
               <label className="form-label">Middle Name</label>
               <input
                 name="middlename"
                 value={residentForm.middlename}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
                 className="form-input"
@@ -831,6 +888,8 @@ function EditResident({ isCollapsed }) {
               <input
                 name="lastname"
                 value={residentForm.lastname}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter last name"
                 required
@@ -845,10 +904,10 @@ function EditResident({ isCollapsed }) {
                 id="suffix"
                 name="suffix"
                 onChange={handleDropdownChange}
-                value={residentForm.suffix}
                 className="form-input"
+                value={residentForm.suffix}
               >
-                <option value="" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
                 {suffixList.map((element) => (
@@ -861,11 +920,13 @@ function EditResident({ isCollapsed }) {
               <input
                 name="alias"
                 value={residentForm.alias}
+                maxLength={50}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter alias"
                 className="form-input"
               />
             </div>
+
             <div className="form-group">
               <label for="salutation" className="form-label">
                 Salutation
@@ -877,15 +938,15 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.salutation}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="Select" selected>
                   Select
                 </option>
-
                 {salutationList.map((element) => (
                   <option value={element}>{element}</option>
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label for="sex" className="form-label">
                 Sex<label className="text-red-600">*</label>
@@ -894,11 +955,11 @@ function EditResident({ isCollapsed }) {
                 id="sex"
                 name="sex"
                 onChange={handleDropdownChange}
-                required
                 value={residentForm.sex}
+                required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {sexList.map((element) => (
@@ -906,6 +967,7 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label for="gender" className="form-label">
                 Gender
@@ -917,7 +979,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.gender}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {genderList.map((element) => (
@@ -925,6 +987,7 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label className="form-label">
                 Birthdate<label className="text-red-600">*</label>
@@ -952,11 +1015,14 @@ function EditResident({ isCollapsed }) {
               <input
                 name="birthplace"
                 value={residentForm.birthplace}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
+                onChange={birthplaceChange}
                 placeholder="Enter birthplace"
                 className="form-input"
               />
             </div>
+
             <div className="form-group">
               <label for="civilstatus" className="form-label">
                 Civil Status<label className="text-red-600">*</label>
@@ -965,11 +1031,11 @@ function EditResident({ isCollapsed }) {
                 id="civilstatus"
                 name="civilstatus"
                 onChange={handleDropdownChange}
-                required
                 value={residentForm.civilstatus}
+                required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {civilstatusList.map((element) => (
@@ -977,6 +1043,7 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label for="bloodtype" className="form-label">
                 Blood Type
@@ -988,7 +1055,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.bloodtype}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {bloodtypeList.map((element) => (
@@ -1008,7 +1075,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.religion}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {religionList.map((element) => (
@@ -1016,6 +1083,7 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
+
             <div className="form-group">
               <label for="nationality" className="form-label">
                 Nationality<label className="text-red-600">*</label>
@@ -1024,11 +1092,11 @@ function EditResident({ isCollapsed }) {
                 id="nationality"
                 name="nationality"
                 onChange={handleDropdownChange}
-                required
                 value={residentForm.nationality}
+                required
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {nationalityList.map((element) => (
@@ -1037,8 +1105,8 @@ function EditResident({ isCollapsed }) {
               </select>
             </div>
 
-            <div className="form-group space-x-5">
-              <label className="form-label ">Registered Voter</label>
+            <div className="form-group">
+              <label className="form-label">Registered Voter</label>
               <div className="flex flex-row space-x-10">
                 <div className="flex flex-row justify-center gap-1">
                   <input
@@ -1067,11 +1135,12 @@ function EditResident({ isCollapsed }) {
               <label className="form-label">Precinct</label>
               <input
                 name="precinct"
+                onChange={precinctChange}
                 value={residentForm.precinct}
-                onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter precinct"
                 className="form-input"
-                maxLength={3}
+                minLength={2}
+                maxLength={4}
               />
             </div>
 
@@ -1111,12 +1180,14 @@ function EditResident({ isCollapsed }) {
               <label className="form-label">Email</label>
               <input
                 name="email"
+                type="email"
                 value={residentForm.email}
                 onChange={stringsAndNoSpaceOnly}
                 placeholder="Enter email"
                 className="form-input"
               />
             </div>
+
             <div className="form-group">
               <label className="form-label">
                 Mobile Number<label className="text-red-600">*</label>
@@ -1152,6 +1223,7 @@ function EditResident({ isCollapsed }) {
                 </label>
               ) : null}
             </div>
+
             <div className="form-group">
               <label className="form-label">Facebook</label>
               <input
@@ -1176,11 +1248,14 @@ function EditResident({ isCollapsed }) {
                 name="emergencyname"
                 value={residentForm.emergencyname}
                 onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
                 placeholder="Enter name"
                 required
                 className="form-input"
               />
             </div>
+
             <div className="form-group">
               <label className="form-label">
                 Mobile Number<label className="text-red-600">*</label>
@@ -1200,6 +1275,7 @@ function EditResident({ isCollapsed }) {
                 </label>
               ) : null}
             </div>
+
             <div className="form-group">
               <label className="form-label">
                 Address<label className="text-red-600">*</label>
@@ -1207,6 +1283,8 @@ function EditResident({ isCollapsed }) {
               <input
                 name="emergencyaddress"
                 value={residentForm.emergencyaddress}
+                minLength={5}
+                maxLength={100}
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter address"
                 required
@@ -1227,23 +1305,25 @@ function EditResident({ isCollapsed }) {
               <select
                 id="mother"
                 name="mother"
-                onChange={handleDropdownChange}
                 value={residentForm.mother}
+                onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Female")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
+
             <div className="form-group">
               <label for="father" className="form-label">
                 Father
@@ -1252,19 +1332,20 @@ function EditResident({ isCollapsed }) {
                 id="father"
                 name="father"
                 onChange={handleDropdownChange}
-                value={residentInfo.father}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
+                {residents
+                  .filter((element) => element.sex === "Male")
+                  .map((element) => (
+                    <option value={element._id}>
+                      {element.middlename
+                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                        : `${element.firstname} ${element.lastname}`}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="form-group">
@@ -1275,10 +1356,9 @@ function EditResident({ isCollapsed }) {
                 id="spouse"
                 name="spouse"
                 onChange={handleDropdownChange}
-                value={residentInfo.spouse}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {residents.map((element) => (
@@ -1291,6 +1371,7 @@ function EditResident({ isCollapsed }) {
               </select>
             </div>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label mt-4">Siblings</label>
@@ -1310,20 +1391,19 @@ function EditResident({ isCollapsed }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="form-group">
-              <label className="form-label mt-4">Children</label>
+              <label className="form-label mt-4 ">Children</label>
               <input
                 name="numberofchildren"
                 value={residentForm.numberofchildren}
                 onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of siblings"
+                placeholder="Enter number of children"
                 className="form-input"
                 maxLength={1}
               />
             </div>
           </div>
-
           {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mt-4 ">{renderChildrenDropdown()}</div>
+            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
           )}
 
           {/* Address Information */}
@@ -1338,6 +1418,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.housenumber}
                 onChange={numbersAndNoSpaceOnly}
                 placeholder="Enter house number"
+                maxLength={3}
                 className="form-input"
               />
             </div>
@@ -1353,7 +1434,7 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.street}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {streetList.map((element) => (
@@ -1368,15 +1449,14 @@ function EditResident({ isCollapsed }) {
               <select
                 id="HOAname"
                 name="HOAname"
-                onChange={handleDropdownChange}
                 value={residentForm.HOAname}
+                onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-                <option value="None">None</option>
               </select>
             </div>
           </div>
@@ -1388,16 +1468,17 @@ function EditResident({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="employmentstatus" className="form-label">
-                Employment Status
+                Employment Status<label className="text-red-600">*</label>
               </label>
               <select
                 id="employmentstatus"
                 name="employmentstatus"
-                onChange={handleDropdownChange}
                 value={residentForm.employmentstatus}
+                onChange={handleDropdownChange}
                 className="form-input"
+                required
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {employmentstatusList.map((element) => (
@@ -1405,18 +1486,18 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
-
             <div className="form-group">
               <label className="form-label">Occupation</label>
               <input
                 name="occupation"
                 value={residentForm.occupation}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={100}
+                onChange={occupationChange}
                 placeholder="Enter occupation"
                 className="form-input"
               />
             </div>
-
             <div className="form-group">
               <label for="monthlyincome" className="form-label">
                 Monthly Income
@@ -1424,11 +1505,11 @@ function EditResident({ isCollapsed }) {
               <select
                 id="monthlyincome"
                 name="monthlyincome"
-                onChange={handleDropdownChange}
                 value={residentForm.monthlyincome}
+                onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {monthlyincomeList.map((element) => (
@@ -1450,11 +1531,11 @@ function EditResident({ isCollapsed }) {
               <select
                 id="educationalattainment"
                 name="educationalattainment"
-                onChange={handleDropdownChange}
                 value={residentForm.educationalattainment}
+                onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 {educationalattainmentList.map((element) => (
@@ -1469,11 +1550,11 @@ function EditResident({ isCollapsed }) {
               <select
                 id="typeofschool"
                 name="typeofschool"
-                onChange={handleDropdownChange}
                 value={residentForm.typeofschool}
+                onChange={handleDropdownChange}
                 className="form-input"
               >
-                <option value="" disabled selected hidden>
+                <option value="" selected>
                   Select
                 </option>
                 <option value="Public">Public</option>
@@ -1485,6 +1566,8 @@ function EditResident({ isCollapsed }) {
               <input
                 name="course"
                 value={residentForm.course}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter course"
                 className="form-input"
@@ -1492,7 +1575,7 @@ function EditResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <div className="function-btn-container">
             <button
               type="submit"
               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"

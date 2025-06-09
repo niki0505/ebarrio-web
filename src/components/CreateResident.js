@@ -14,7 +14,8 @@ import { GrNext } from "react-icons/gr";
 function CreateResident({ isCollapsed }) {
   const navigation = useNavigate();
   const confirm = useConfirm();
-  const { fetchResidents, residents } = useContext(InfoContext);
+  const { fetchResidents, residents, fetchHouseholds, household } =
+    useContext(InfoContext);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [mobileNumError, setMobileNumError] = useState("");
@@ -67,11 +68,29 @@ function CreateResident({ isCollapsed }) {
     monthlyincome: "",
     educationalattainment: "",
     typeofschool: "",
+    householdno: "",
+    householdposition: "",
+    head: "",
     course: "",
+    is4Ps: false,
+    isSenior: false,
+    isPregnant: false,
+    isPWD: false,
+    isSoloParent: false,
   };
   const { residentForm, setResidentForm } = useContext(InfoContext);
+
+  const [householdForm, setHouseholdForm] = useState({
+    members: [],
+  });
+  const [members, setMembers] = useState([
+    { resident: "", residentID: "", residentAddress: "", residentContact: "" },
+  ]);
+  const [memberSuggestions, setMemberSuggestions] = useState([]);
+
   useEffect(() => {
     fetchResidents();
+    fetchHouseholds();
   }, []);
 
   const renderSiblingsDropdown = () => {
@@ -337,16 +356,53 @@ function CreateResident({ isCollapsed }) {
     });
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const lettersAndSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const lettersOnly = value.replace(/[^a-zA-Z\s.]/g, "");
-    const capitalizeFirstLetter = lettersOnly
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => smartCapitalize(word))
       .join(" ");
+
     setResidentForm((prev) => ({
       ...prev,
-      [name]: capitalizeFirstLetter,
+      [name]: capitalized,
+    }));
+  };
+
+  const occupationChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z0-9\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
+  };
+
+  const birthplaceChange = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.,'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
     }));
   };
 
@@ -356,6 +412,15 @@ function CreateResident({ isCollapsed }) {
     setResidentForm((prev) => ({
       ...prev,
       [name]: numbersOnly,
+    }));
+  };
+
+  const precinctChange = (e) => {
+    const { name, value } = e.target;
+    const precinct = value.replace(/[^a-zA-Z0-9\s]/g, "");
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: precinct.toUpperCase(),
     }));
   };
 
@@ -374,7 +439,7 @@ function CreateResident({ isCollapsed }) {
 
   const stringsAndNoSpaceOnly = (e) => {
     const { name, value } = e.target;
-    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=]/g, "");
+    const stringsOnly = value.replace(/[^a-zA-Z0-9@_./:?&=-]/g, "");
     setResidentForm((prev) => ({
       ...prev,
       [name]: stringsOnly,
@@ -458,7 +523,10 @@ function CreateResident({ isCollapsed }) {
       setMobileNumError("Invalid mobile number.");
       hasErrors = true;
     }
-    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+    if (
+      residentForm.emergencymobilenumber &&
+      residentForm.emergencymobilenumber.length !== 13
+    ) {
       setEmMobileNumError("Invalid mobile number.");
       hasErrors = true;
     }
@@ -518,6 +586,7 @@ function CreateResident({ isCollapsed }) {
         picture: idPicture,
         signature: signaturePicture,
         ...updatedResidentForm,
+        householdForm,
       });
       try {
         const response2 = await api.post(
@@ -526,15 +595,12 @@ function CreateResident({ isCollapsed }) {
         console.log(response2.data);
         const qrCode = await uploadToFirebase(response2.data.qrCode);
         try {
-          const response3 = await api.put(
-            `/savebrgyID/${response.data.resID}`,
-            {
-              idNumber: response2.data.idNumber,
-              expirationDate: response2.data.expirationDate,
-              qrCode,
-              qrToken: response2.data.qrToken,
-            }
-          );
+          await api.put(`/savebrgyID/${response.data.resID}`, {
+            idNumber: response2.data.idNumber,
+            expirationDate: response2.data.expirationDate,
+            qrCode,
+            qrToken: response2.data.qrToken,
+          });
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
@@ -624,6 +690,122 @@ function CreateResident({ isCollapsed }) {
     }
   };
 
+  //HOUSEHOLD
+  const handleHouseholdChange = (e) => {
+    const value = e.target.value;
+    setResidentForm({ ...residentForm, head: value });
+  };
+
+  const handleMemberChange = (index, field, value) => {
+    const updatedMembers = [...householdForm.members];
+
+    if (field === "resident") {
+      updatedMembers[index] = {
+        ...updatedMembers[index],
+        resident: value,
+        resID: "",
+      };
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+
+      if (value.trim() === "") {
+        setMemberSuggestions((prev) => {
+          const newSuggestions = [...prev];
+          newSuggestions[index] = [];
+          return newSuggestions;
+        });
+        return;
+      }
+
+      const matches = residents.filter((res) => {
+        const fullName = `${res.firstname} ${
+          res.middlename ? res.middlename + " " : ""
+        }${res.lastname}`.toLowerCase();
+        return fullName.includes(value.toLowerCase());
+      });
+
+      setMemberSuggestions((prev) => {
+        const newSuggestions = [...prev];
+        newSuggestions[index] = matches;
+        return newSuggestions;
+      });
+    } else {
+      updatedMembers[index][field] = value;
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+    }
+  };
+
+  const handleMemberSuggestionClick = (index, res) => {
+    const fullName = `${res.firstname} ${
+      res.middlename ? res.middlename + " " : ""
+    }${res.lastname}`;
+
+    const updatedMembers = [...householdForm.members];
+    updatedMembers[index] = {
+      ...updatedMembers[index],
+      resident: fullName,
+      resID: res._id,
+    };
+
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: updatedMembers,
+    }));
+
+    setMemberSuggestions((prev) => {
+      const newSuggestions = [...prev];
+      newSuggestions[index] = [];
+      return newSuggestions;
+    });
+  };
+
+  const addMember = () => {
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: [...prev.members, { resident: "", position: "" }],
+    }));
+  };
+
+  const removeMember = (index) => {
+    setHouseholdForm((prev) => ({
+      ...prev,
+      members: prev.members.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  useEffect(() => {
+    if (residentForm.birthdate) {
+      const birthDate = new Date(residentForm.birthdate);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const dayDiff = today.getDate() - birthDate.getDate();
+
+      const isAlready60 =
+        age > 60 ||
+        (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+
+      setResidentForm((prev) => ({
+        ...prev,
+        isSenior: isAlready60,
+      }));
+    }
+  }, [residentForm.birthdate]);
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
@@ -650,6 +832,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 onChange={handleChangeID}
                 type="file"
+                accept="image/jpeg, image/png"
                 style={{ display: "none" }}
                 ref={hiddenInputRef1}
               />
@@ -688,6 +871,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 onChange={handleChangeSig}
                 type="file"
+                accept="image/jpeg, image/png"
                 style={{ display: "none" }}
                 ref={hiddenInputRef2}
               />
@@ -732,6 +916,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 type="text"
                 name="firstname"
+                maxLength={50}
                 value={residentForm.firstname}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter first name"
@@ -745,6 +930,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="middlename"
                 value={residentForm.middlename}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter middle name"
                 className="form-input"
@@ -757,6 +944,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="lastname"
                 value={residentForm.lastname}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter last name"
                 required
@@ -787,6 +976,7 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="alias"
                 value={residentForm.alias}
+                maxLength={50}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter alias"
                 className="form-input"
@@ -881,7 +1071,9 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="birthplace"
                 value={residentForm.birthplace}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
+                onChange={birthplaceChange}
                 placeholder="Enter birthplace"
                 className="form-input"
               />
@@ -999,12 +1191,66 @@ function CreateResident({ isCollapsed }) {
               <label className="form-label">Precinct</label>
               <input
                 name="precinct"
-                onChange={lettersNumbersAndSpaceOnly}
+                onChange={precinctChange}
                 value={residentForm.precinct}
                 placeholder="Enter precinct"
                 className="form-input"
+                minLength={2}
                 maxLength={4}
               />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Special Status</label>
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="is4Ps"
+                    checked={residentForm.is4Ps}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>4Ps Beneficiary</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSenior"
+                    checked={residentForm.isSenior}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Senior Citizen</span>
+                </label>
+                {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isPregnant"
+                      checked={residentForm.isPregnant}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Pregnant</span>
+                  </label>
+                )}
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isPWD"
+                    checked={residentForm.isPWD}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Person with Disability (PWD)</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSoloParent"
+                    checked={residentForm.isSoloParent}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Solo Parent</span>
+                </label>
+              </div>
             </div>
 
             <div className="form-group space-x-5">
@@ -1111,6 +1357,8 @@ function CreateResident({ isCollapsed }) {
                 name="emergencyname"
                 value={residentForm.emergencyname}
                 onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={150}
                 placeholder="Enter name"
                 required
                 className="form-input"
@@ -1144,6 +1392,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="emergencyaddress"
                 value={residentForm.emergencyaddress}
+                minLength={5}
+                maxLength={100}
                 onChange={lettersNumbersAndSpaceOnly}
                 placeholder="Enter address"
                 required
@@ -1320,6 +1570,202 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
+          {/* Household Information */}
+          <h3 className="section-title mt-8">Household Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-group space-x-5">
+            <label className="form-label">Head of the Household</label>
+            <div className="flex flex-row space-x-10">
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="Yes"
+                  checked={residentForm.head === "Yes"}
+                />
+                <h1>Yes</h1>
+              </div>
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="No"
+                  checked={residentForm.head === "No"}
+                />
+                <h1>No</h1>
+              </div>
+            </div>
+            {residentForm.head === "No" && (
+              <>
+                <div className="form-group">
+                  <label for="householdno" className="form-label">
+                    Household
+                  </label>
+                  <select
+                    id="householdno"
+                    name="householdno"
+                    value={residentForm.householdno}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="" selected>
+                      Select
+                    </option>
+                    {household.map((h) => {
+                      const head = h.members.find((m) => m.position === "Head");
+                      const headName = head.resID
+                        ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
+                        : "Unnamed";
+                      return (
+                        <option key={h._id} value={h._id}>
+                          {headName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label for="HOAname" className="form-label">
+                    Position
+                  </label>
+                  <select
+                    id="householdposition"
+                    name="householdposition"
+                    value={residentForm.householdposition}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="">Select Position</option>
+                    <option value="Spouse">Spouse</option>
+                    <option value="Child">Child</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Sibling">Sibling</option>
+                    <option value="Grandparent">Grandparent</option>
+                    <option value="Grandchild">Grandchild</option>
+                    <option value="In-law">In-law</option>
+                    <option value="Relative">Relative</option>
+                    <option value="Housemate">Housemate</option>
+                    <option value="Househelp">Househelp</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* Head = Yes: show members table */}
+            {residentForm.head === "Yes" && (
+              <div className="form-group mt-4">
+                <table className="min-w-full border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="border border-gray-300 px-4 py-2">
+                        Position
+                      </th>
+                      <th className="border border-gray-300 px-4 py-2">Name</th>
+                      <th className="border border-gray-300 px-4 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {householdForm.members.map((member, index) => (
+                      <tr key={index}>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <select
+                            value={member.position}
+                            onChange={(e) =>
+                              handleMemberChange(
+                                index,
+                                "position",
+                                e.target.value
+                              )
+                            }
+                            className="form-input"
+                          >
+                            <option value="">Select Position</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Grandchild">Grandchild</option>
+                            <option value="In-law">In-law</option>
+                            <option value="Relative">Relative</option>
+                            <option value="Housemate">Housemate</option>
+                            <option value="Househelp">Househelp</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Enter name"
+                              value={member.resident}
+                              onChange={(e) =>
+                                handleMemberChange(
+                                  index,
+                                  "resident",
+                                  e.target.value
+                                )
+                              }
+                              className="form-input"
+                            />
+                            {memberSuggestions[index] &&
+                              memberSuggestions[index].length > 0 && (
+                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
+                                  {memberSuggestions[index].map((res) => {
+                                    const fullName = `${res.firstname} ${
+                                      res.middlename ? res.middlename + " " : ""
+                                    }${res.lastname}`;
+                                    return (
+                                      <li
+                                        key={res._id}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                        onClick={() =>
+                                          handleMemberSuggestionClick(
+                                            index,
+                                            res
+                                          )
+                                        }
+                                      >
+                                        {fullName}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {/* Prevent removing the Head */}
+                          {member.position !== "Head" && (
+                            <button
+                              type="button"
+                              className="btn btn-danger"
+                              onClick={() => removeMember(index)}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <button
+                  type="button"
+                  className="btn btn-primary mt-4"
+                  onClick={addMember}
+                >
+                  Add Member
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Employment Information */}
           <h3 className="section-title mt-8">Employment Information</h3>
           <hr class="section-divider" />
@@ -1327,7 +1773,7 @@ function CreateResident({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="employmentstatus" className="form-label">
-                Employment Status
+                Employment Status<label className="text-red-600">*</label>
               </label>
               <select
                 id="employmentstatus"
@@ -1335,6 +1781,7 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
+                required
               >
                 <option value="" selected>
                   Select
@@ -1349,7 +1796,9 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="occupation"
                 value={residentForm.occupation}
-                onChange={lettersAndSpaceOnly}
+                minLength={2}
+                maxLength={100}
+                onChange={occupationChange}
                 placeholder="Enter occupation"
                 className="form-input"
               />
@@ -1422,6 +1871,8 @@ function CreateResident({ isCollapsed }) {
               <input
                 name="course"
                 value={residentForm.course}
+                minLength={2}
+                maxLength={100}
                 onChange={lettersAndSpaceOnly}
                 placeholder="Enter course"
                 className="form-input"

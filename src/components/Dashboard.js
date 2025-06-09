@@ -5,6 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "../Stylesheets/Dashboard.css";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import {
   BarChart,
@@ -31,6 +32,7 @@ import { FaMale, FaFemale } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
 function Dashboard({ isCollapsed }) {
+  const navigation = useNavigate();
   const [residentsData, setResidentsData] = useState({});
   const [documentData, setDocumentData] = useState({});
   const [blotterData, setBlotterData] = useState({});
@@ -46,6 +48,8 @@ function Dashboard({ isCollapsed }) {
     fetchCertificates,
     blotterreports,
     fetchBlotterReports,
+    fetchHouseholds,
+    household,
   } = useContext(InfoContext);
   const [events, setEvents] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
@@ -58,6 +62,7 @@ function Dashboard({ isCollapsed }) {
       fetchAnnouncements();
       fetchReservations();
       fetchBlotterReports();
+      fetchHouseholds();
       setIsFetched(true);
     }
   }, []);
@@ -85,12 +90,40 @@ function Dashboard({ isCollapsed }) {
         .filter((element) => element.voter === "Yes")
         .filter((element) => element.status !== "Archived").length;
 
+      const PWD = residents
+        .filter((element) => element.isPWD)
+        .filter((element) => element.status !== "Archived").length;
+
+      const pregnant = residents
+        .filter((element) => element.isPregnant)
+        .filter((element) => element.status !== "Archived").length;
+
+      const fourps = residents
+        .filter((element) => element.is4Ps)
+        .filter((element) => element.status !== "Archived").length;
+
+      const soloparent = residents
+        .filter((element) => element.isSoloParent)
+        .filter((element) => element.status !== "Archived").length;
+
+      const unemployed = residents
+        .filter((element) => element.employmentstatus === "Unemployed")
+        .filter((element) => element.status !== "Archived").length;
+
+      const totalHouseholds = household.length;
+
       setResidentsData({
         total: totalResidents,
+        totalHouseholds: totalHouseholds,
         male: male,
         female: female,
         seniorCitizens: seniorCitizens,
         voters: voters,
+        PWD: PWD,
+        pregnant: pregnant,
+        fourps: fourps,
+        soloparent: soloparent,
+        unemployed: unemployed,
       });
     };
     fetchResidentData();
@@ -409,7 +442,10 @@ function Dashboard({ isCollapsed }) {
         <div className="form-grid mt-4">
           {(user.role === "Secretary" || user.role === "Clerk") && (
             <>
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() => navigation("/residents")}
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#FFB200]"></div>
 
@@ -428,7 +464,38 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() => navigation("/households")}
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#FFB200]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.totalHouseholds}
+                    </h2>
+                    <p class="text-[#FFB200] font-title text-[16px] font-semibold">
+                      Total Households
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <IoIosPeople />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Male",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#0079FF]"></div>
 
@@ -447,7 +514,16 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Female",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#FF90BB]"></div>
 
@@ -466,7 +542,16 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Senior Citizens",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#00DFA2]"></div>
 
@@ -485,7 +570,156 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "PWD",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.PWD}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      PWD
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Pregnant",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.pregnant}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Pregnant
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "4Ps",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.fourps}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      4Ps
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Solo Parent",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.soloparent}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Solo Parent
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Unemployed",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.unemployed}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Unemployed
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Voters",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#06D001]"></div>
 

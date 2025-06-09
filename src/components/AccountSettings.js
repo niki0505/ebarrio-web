@@ -209,6 +209,13 @@ function AccountSettings({ isCollapsed }) {
     "What was the name of your first pet?",
     "What is your mother's maiden name?",
     "What was the name of your first school?",
+    "What was your childhood name?",
+    "What is your favorite book?",
+    "What is your favorite movie of all time?",
+    "What is the name of your first crush?",
+    "What is the name of your favorite teacher?",
+    "What is the name of of your first childhood friend?",
+    "What city you were born in?",
   ];
 
   const handleUsernameChange = async () => {
@@ -255,7 +262,9 @@ function AccountSettings({ isCollapsed }) {
             username,
             password,
           });
-          alert("Username changed successfully!");
+          alert("Username has been changed successfully.");
+          setUsername("");
+          setPassword("");
         } catch (error) {
           const response = error.response;
           if (response && response.data) {
@@ -331,7 +340,7 @@ function AccountSettings({ isCollapsed }) {
           newpassword,
           password,
         });
-        alert("Password successfully changed! Please log in again.");
+        alert("Password has been changed successfully. Please log in again.");
         logout();
       } catch (error) {
         const response = error.response;
@@ -391,7 +400,14 @@ function AccountSettings({ isCollapsed }) {
           securityquestions: modifiedQuestions,
           password,
         });
-        alert("Security questions successfully changed!");
+        alert("Security questions have been changed successfully.");
+        setPassword("");
+        setSecurityQuestions((prevQuestions) =>
+          prevQuestions.map((q) => ({
+            ...q,
+            answer: "",
+          }))
+        );
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -2003,6 +2019,8 @@ function AccountSettings({ isCollapsed }) {
                       id="name"
                       name="name"
                       value={username}
+                      minLength={3}
+                      maxLength={16}
                       onChange={(e) => usernameValidation(e)}
                       className="form-input"
                     />
@@ -2079,6 +2097,8 @@ function AccountSettings({ isCollapsed }) {
                         id="password"
                         name="password"
                         value={password}
+                        minLength={8}
+                        maxLength={64}
                         onChange={(e) => curpasswordValidation(e)}
                         className="form-input"
                       />
@@ -2108,6 +2128,8 @@ function AccountSettings({ isCollapsed }) {
                         id="newpassword"
                         name="newpassword"
                         value={newpassword}
+                        minLength={8}
+                        maxLength={64}
                         onChange={(e) => passwordValidation(e)}
                         className="form-input"
                       />
@@ -2143,6 +2165,8 @@ function AccountSettings({ isCollapsed }) {
                         type={showConfirmPassword ? "text" : "password"}
                         id="renewpassword"
                         name="renewpassword"
+                        minLength={8}
+                        maxLength={64}
                         value={renewpassword}
                         onChange={(e) => repasswordValidation(e)}
                         className="form-input"
@@ -2211,6 +2235,7 @@ function AccountSettings({ isCollapsed }) {
                     <div className="relative w-full">
                       <input
                         placeholder="Enter answer"
+                        value={securityquestions[0].answer}
                         type={showAnswer1 ? "text" : "password"}
                         onChange={(e) =>
                           handleSecurityChange(
@@ -2256,6 +2281,7 @@ function AccountSettings({ isCollapsed }) {
                     <div className="relative w-full">
                       <input
                         placeholder="Enter answer"
+                        value={securityquestions[1].answer}
                         type={showAnswer2 ? "text" : "password"}
                         onChange={(e) =>
                           handleSecurityChange(
