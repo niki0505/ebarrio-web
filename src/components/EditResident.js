@@ -20,7 +20,8 @@ function EditResident({ isCollapsed }) {
   const location = useLocation();
   const { resID } = location.state;
   const [residentInfo, setResidentInfo] = useState([]);
-  const { fetchResidents, residents } = useContext(InfoContext);
+  const { fetchResidents, residents, fetchHouseholds, household } =
+    useContext(InfoContext);
   const [mobileNumError, setMobileNumError] = useState("");
   const [emMobileNumError, setEmMobileNumError] = useState("");
   const [telephoneNumError, setTelephoneNumError] = useState("");
@@ -29,6 +30,7 @@ function EditResident({ isCollapsed }) {
   const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
+  const [memberSuggestions, setMemberSuggestions] = useState([]);
 
   const [residentForm, setResidentForm] = useState({
     firstname: "",
@@ -40,6 +42,7 @@ function EditResident({ isCollapsed }) {
     sex: "",
     gender: "",
     birthdate: "",
+    age: "",
     birthplace: "",
     civilstatus: "",
     bloodtype: "",
@@ -73,10 +76,26 @@ function EditResident({ isCollapsed }) {
     educationalattainment: "",
     typeofschool: "",
     course: "",
+    householdno: "",
+    householdposition: "",
+    head: "",
+    is4Ps: false,
+    isSenior: false,
+    isInfant: false,
+    isChild: false,
+    isPregnant: false,
+    isPWD: false,
+    isSoloParent: false,
+  });
+
+  const [householdForm, setHouseholdForm] = useState({
+    members: [],
+    vehicles: [],
   });
 
   useEffect(() => {
     fetchResidents();
+    fetchHouseholds();
   }, []);
 
   useEffect(() => {
@@ -149,6 +168,50 @@ function EditResident({ isCollapsed }) {
     };
     fetchResident();
   }, []);
+
+  useEffect(() => {
+    if (residentInfo.householdno) {
+      const fetchHousehold = async () => {
+        try {
+          const res = await api.get(
+            `/gethousehold/${residentInfo.householdno}`
+          );
+
+          const head = res.data.members.find(
+            (member) => member.position === "Head"
+          );
+
+          const isHead = head?.resID?._id === resID;
+
+          if (isHead) {
+            setResidentForm((prev) => ({
+              ...prev,
+              head: "Yes",
+            }));
+
+            const otherMembers = res.data.members.filter(
+              (member) => member.position !== "Head"
+            );
+
+            setHouseholdForm((prev) => ({
+              ...prev,
+              members: otherMembers,
+              vehicles: res.data.vehicles,
+            }));
+          } else {
+            setResidentForm((prev) => ({
+              ...prev,
+              head: "No",
+            }));
+          }
+        } catch (error) {
+          console.log("Error in fetching household", error);
+        }
+      };
+
+      fetchHousehold();
+    }
+  }, [residentInfo.householdno]);
 
   const renderSiblingsDropdown = () => {
     const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
@@ -530,17 +593,22 @@ function EditResident({ isCollapsed }) {
 
   const handleChangeID = async (event) => {
     const fileUploaded = event.target.files[0];
-    if (fileUploaded) {
-      setIsIDProcessing(true);
-      try {
-        const blob = await removeBackground(fileUploaded);
-        const url = URL.createObjectURL(blob);
-        setId(url);
-      } catch (error) {
-        console.error("Error removing background:", error);
-      } finally {
-        setIsIDProcessing(false);
-      }
+    const maxSize = 1 * 1024 * 1024;
+
+    if (fileUploaded && fileUploaded.size > maxSize) {
+      alert("File is too large. Maximum allowed size is 1 MB.");
+      event.target.value = "";
+      return;
+    }
+    setIsIDProcessing(true);
+    try {
+      const blob = await removeBackground(fileUploaded);
+      const url = URL.createObjectURL(blob);
+      setId(url);
+    } catch (error) {
+      console.error("Error removing background:", error);
+    } finally {
+      setIsIDProcessing(false);
     }
   };
 
@@ -676,17 +744,23 @@ function EditResident({ isCollapsed }) {
 
   const handleChangeSig = async (event) => {
     const fileUploaded = event.target.files[0];
-    if (fileUploaded) {
-      setIsSignProcessing(true);
-      try {
-        const blob = await removeBackground(fileUploaded);
-        const url = URL.createObjectURL(blob);
-        setSignature(url);
-      } catch (error) {
-        console.error("Error removing background:", error);
-      } finally {
-        setIsSignProcessing(false);
-      }
+
+    const maxSize = 1 * 1024 * 1024;
+
+    if (fileUploaded && fileUploaded.size > maxSize) {
+      alert("File is too large. Maximum allowed size is 1 MB.");
+      event.target.value = "";
+      return;
+    }
+    setIsSignProcessing(true);
+    try {
+      const blob = await removeBackground(fileUploaded);
+      const url = URL.createObjectURL(blob);
+      setSignature(url);
+    } catch (error) {
+      console.error("Error removing background:", error);
+    } finally {
+      setIsSignProcessing(false);
     }
   };
 
@@ -748,6 +822,351 @@ function EditResident({ isCollapsed }) {
         setTelephoneNumError("Invalid mobile number.");
       }
     }
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setResidentForm((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  useEffect(() => {
+    if (residentForm.birthdate) {
+      const birthDate = new Date(residentForm.birthdate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const dayDiff = today.getDate() - birthDate.getDate();
+
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+
+      const isSenior =
+        age > 60 ||
+        (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+
+      const isInfant = age === 0;
+      const isChild = age >= 1 && age <= 17;
+
+      setResidentForm((prev) => ({
+        ...prev,
+        age,
+        isSenior,
+        isInfant,
+        isChild,
+      }));
+    }
+  }, [residentForm.birthdate]);
+
+  //HOUSEHOLD
+  const handleHouseholdChange = (e) => {
+    const value = e.target.value;
+    setResidentForm({ ...residentForm, head: value });
+  };
+
+  const handleMemberChange = (index, field, value) => {
+    const updatedMembers = [...householdForm.members];
+
+    if (field === "resident") {
+      updatedMembers[index] = {
+        ...updatedMembers[index],
+        resident: value,
+        resID: "",
+      };
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+
+      if (value.trim() === "") {
+        setMemberSuggestions((prev) => {
+          const newSuggestions = [...prev];
+          newSuggestions[index] = [];
+          return newSuggestions;
+        });
+        return;
+      }
+
+      const matches = residents.filter((res) => {
+        const fullName = `${res.firstname} ${
+          res.middlename ? res.middlename + " " : ""
+        }${res.lastname}`.toLowerCase();
+        return fullName.includes(value.toLowerCase());
+      });
+
+      setMemberSuggestions((prev) => {
+        const newSuggestions = [...prev];
+        newSuggestions[index] = matches;
+        return newSuggestions;
+      });
+    } else {
+      updatedMembers[index][field] = value;
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: updatedMembers,
+      }));
+    }
+  };
+
+  const handleMemberSuggestionClick = (index, resident) => {
+    setNewMembers((prev) => {
+      const updated = [...prev];
+      updated[index].resID = resident;
+      updated[index].resident = `${resident.firstname} ${
+        resident.middlename ? resident.middlename + " " : ""
+      }${resident.lastname}`;
+      return updated;
+    });
+
+    setMemberSuggestions((prev) => ({
+      ...prev,
+      [index]: [],
+    }));
+  };
+
+  // const addMember = () => {
+  //   setHouseholdForm((prev) => ({
+  //     ...prev,
+  //     members: [...prev.members, { resident: "", position: "" }],
+  //   }));
+  // };
+
+  // const removeMember = (index) => {
+  //   setHouseholdForm((prev) => ({
+  //     ...prev,
+  //     members: prev.members.filter((_, i) => i !== index),
+  //   }));
+  // };
+
+  const [editingMemberId, setEditingMemberId] = useState(null);
+  const [editedPosition, setEditedPosition] = useState("");
+  const [newMembers, setNewMembers] = useState([]);
+
+  const [newVehicles, setNewVehicles] = useState([]);
+  const [editingVehicleIndex, setEditingVehicleIndex] = useState(null);
+  const [editedVehicle, setEditedVehicle] = useState({});
+
+  const handleSavePosition = async (member) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update this member?",
+      "confirm"
+    );
+    if (!isConfirmed) return;
+    try {
+      await api.put(
+        `/household/${residentInfo.householdno}/member/${member._id}`,
+        {
+          position: editedPosition,
+        }
+      );
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: prev.members.map((m) =>
+          m._id === member._id ? { ...m, position: editedPosition } : m
+        ),
+      }));
+
+      setEditingMemberId(null);
+      setEditedPosition("");
+      alert("The member's position successfully updated.");
+    } catch (error) {
+      console.error("Error updating position:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMemberId(null);
+    setEditedPosition("");
+  };
+
+  const handleRemoveMember = async (member) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to remove this member?",
+      "confirmred"
+    );
+    if (!isConfirmed) return;
+
+    try {
+      await api.delete(
+        `/household/${residentInfo.householdno}/member/${member._id}`
+      );
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: prev.members.filter((m) => m._id !== member._id),
+      }));
+      alert("Member has been removed successfully.");
+    } catch (error) {
+      console.error("Error removing member:", error);
+    }
+  };
+
+  const handleAddMember = () => {
+    setNewMembers((prev) => [
+      ...prev,
+      {
+        tempId: Date.now(),
+        resID: null,
+        position: "",
+        resident: "",
+        isNew: true,
+      },
+    ]);
+  };
+
+  const handleSaveNewMember = async (member) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to add this resident as household member?",
+      "confirm"
+    );
+    if (!isConfirmed) return;
+    if (!member.resID || !member.position) {
+      alert("Please select resident and position.");
+      return;
+    }
+    try {
+      const payload = {
+        resID: member.resID._id,
+        position: member.position,
+      };
+
+      const response = await api.post(
+        `/household/${residentInfo.householdno}/member`,
+        payload
+      );
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        members: [...(prev.members || []), response.data],
+      }));
+
+      setNewMembers((prev) => prev.filter((m) => m.tempId !== member.tempId));
+    } catch (error) {
+      console.error("Error adding new member:", error);
+    }
+  };
+
+  const handleCancelNewMember = (tempId) => {
+    setNewMembers((prev) => prev.filter((m) => m.tempId !== tempId));
+  };
+
+  const handleMemberInputChange = (index, value) => {
+    setNewMembers((prev) => {
+      const updated = [...prev];
+      updated[index].resident = value;
+      updated[index].resID = null;
+      return updated;
+    });
+    if (value.length > 0) {
+      const filtered = residents
+        .filter((r) => !r.householdno)
+        .filter((r) => {
+          const fullName = `${r.firstname} ${
+            r.middlename ? r.middlename + " " : ""
+          }${r.lastname}`.toLowerCase();
+          return fullName.includes(value.toLowerCase());
+        });
+      setMemberSuggestions((prev) => ({
+        ...prev,
+        [index]: filtered,
+      }));
+    } else {
+      setMemberSuggestions((prev) => ({
+        ...prev,
+        [index]: [],
+      }));
+    }
+  };
+
+  const handleVehicleChange = (index, field, value) => {
+    const updatedVehicles = [...householdForm.vehicles];
+    updatedVehicles[index][field] = value;
+    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
+  };
+
+  const handleAddVehicle = () => {
+    setNewVehicles([
+      ...newVehicles,
+      { model: "", color: "", kind: "", platenumber: "", tempId: Date.now() },
+    ]);
+  };
+
+  const handleRemoveVehicle = (index) => {
+    const updatedVehicles = householdForm.vehicles.filter(
+      (_, i) => i !== index
+    );
+    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
+  };
+
+  const handleSaveNewVehicle = async (vehicle) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to add this vehicle?",
+      "confirm"
+    );
+    if (!isConfirmed) return;
+    try {
+      const payload = {
+        model: vehicle.model,
+        color: vehicle.color,
+        kind: vehicle.kind,
+        platenumber: vehicle.platenumber,
+      };
+      const response = await api.post(
+        `/household/${residentInfo.householdno}/vehicle`,
+        payload
+      );
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        vehicles: [...(prev.vehicles || []), response.data],
+      }));
+      alert("Vehicle has been added successfully.");
+    } catch (error) {
+      console.error("Error adding new vehicle:", error);
+    }
+  };
+  const handleSaveEditedVehicle = async (vehicle) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to update this vehicle?",
+      "confirm"
+    );
+    if (!isConfirmed) return;
+    try {
+      const payload = {
+        model: editedVehicle.model,
+        color: editedVehicle.color,
+        kind: editedVehicle.kind,
+        platenumber: editedVehicle.platenumber,
+      };
+
+      await api.put(
+        `/household/${residentInfo.householdno}/vehicle/${editedVehicle._id}`,
+        { payload }
+      );
+
+      setHouseholdForm((prev) => ({
+        ...prev,
+        vehicles: prev.vehicles.map((v) =>
+          v._id === editedVehicle._id ? { ...v, ...payload } : v
+        ),
+      }));
+
+      setEditingVehicleIndex(null);
+      setEditedVehicle("");
+      alert("The vehicle was successfully updated.");
+    } catch (error) {
+      console.error("Error updating position:", error);
+    }
+  };
+
+  const handleNewVehicleChange = (index, field, value) => {
+    const updated = [...newVehicles];
+    updated[index][field] = value;
+    setNewVehicles(updated);
   };
 
   return (
@@ -1011,6 +1430,17 @@ function EditResident({ isCollapsed }) {
             </div>
 
             <div className="form-group">
+              <label className="form-label">Age</label>
+              <input
+                type="text"
+                name="age"
+                value={residentForm.age}
+                readOnly
+                className="form-input p-2"
+              />
+            </div>
+
+            <div className="form-group">
               <label className="form-label">Birthplace</label>
               <input
                 name="birthplace"
@@ -1142,6 +1572,80 @@ function EditResident({ isCollapsed }) {
                 minLength={2}
                 maxLength={4}
               />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Special Status</label>
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="is4Ps"
+                    checked={residentForm.is4Ps}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>4Ps Beneficiary</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSenior"
+                    checked={residentForm.isSenior}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Senior Citizen</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isInfant"
+                    checked={residentForm.isInfant}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Infant</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isChild"
+                    checked={residentForm.isChild}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Child</span>
+                </label>
+                {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isPregnant"
+                      checked={residentForm.isPregnant}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Pregnant</span>
+                  </label>
+                )}
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isPWD"
+                    checked={residentForm.isPWD}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Person with Disability (PWD)</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSoloParent"
+                    checked={residentForm.isSoloParent}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Solo Parent</span>
+                </label>
+              </div>
             </div>
 
             <div className="form-group space-x-5">
@@ -1458,6 +1962,517 @@ function EditResident({ isCollapsed }) {
                 </option>
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
               </select>
+            </div>
+          </div>
+
+          {/* Household Information */}
+          <h3 className="section-title mt-8">Household Information</h3>
+          <hr class="section-divider" />
+
+          <div className="form-group space-x-5">
+            <label className="form-label">Head of the Household</label>
+            <div className="flex flex-row space-x-10">
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="Yes"
+                  checked={residentForm.head === "Yes"}
+                />
+                <h1>Yes</h1>
+              </div>
+              <div className="flex flex-row justify-center gap-1">
+                <input
+                  type="radio"
+                  name="head"
+                  onChange={handleHouseholdChange}
+                  value="No"
+                  checked={residentForm.head === "No"}
+                />
+                <h1>No</h1>
+              </div>
+            </div>
+            {residentForm.head === "No" && (
+              <>
+                <div className="form-group">
+                  <label for="householdno" className="form-label">
+                    Household
+                  </label>
+                  <select
+                    id="householdno"
+                    name="householdno"
+                    value={residentForm.householdno}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="" selected>
+                      Select
+                    </option>
+                    {household.map((h) => {
+                      const head = h.members.find((m) => m.position === "Head");
+                      const headName = head.resID
+                        ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
+                        : "Unnamed";
+                      return (
+                        <option key={h._id} value={h._id}>
+                          {headName}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label for="HOAname" className="form-label">
+                    Position
+                  </label>
+                  <select
+                    id="householdposition"
+                    name="householdposition"
+                    value={residentForm.householdposition}
+                    onChange={handleDropdownChange}
+                    className="form-input"
+                  >
+                    <option value="">Select Position</option>
+                    <option value="Spouse">Spouse</option>
+                    <option value="Child">Child</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Sibling">Sibling</option>
+                    <option value="Grandparent">Grandparent</option>
+                    <option value="Grandchild">Grandchild</option>
+                    <option value="In-law">In-law</option>
+                    <option value="Relative">Relative</option>
+                    <option value="Housemate">Housemate</option>
+                    <option value="Househelp">Househelp</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* Head = Yes: show members table */}
+            {residentForm.head === "Yes" && (
+              <div className="form-group mt-4">
+                <table className="min-w-full border border-gray-300">
+                  <thead>
+                    <tr>
+                      <th className="border border-gray-300 px-4 py-2">
+                        Position
+                      </th>
+                      <th className="border border-gray-300 px-4 py-2">Name</th>
+                      <th className="border border-gray-300 px-4 py-2">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Existing Members */}
+                    {(householdForm.members || []).map((member, index) => (
+                      <tr key={member._id}>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {editingMemberId === member._id ? (
+                            <select
+                              value={editedPosition}
+                              onChange={(e) =>
+                                setEditedPosition(e.target.value)
+                              }
+                              className="form-input"
+                            >
+                              <option value="">Select Position</option>
+                              <option value="Spouse">Spouse</option>
+                              <option value="Child">Child</option>
+                              <option value="Parent">Parent</option>
+                              <option value="Sibling">Sibling</option>
+                              <option value="Grandparent">Grandparent</option>
+                              <option value="Grandchild">Grandchild</option>
+                              <option value="In-law">In-law</option>
+                              <option value="Relative">Relative</option>
+                              <option value="Housemate">Housemate</option>
+                              <option value="Househelp">Househelp</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          ) : (
+                            member.position
+                          )}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {member.resID?.firstname}{" "}
+                          {member.resID?.middlename
+                            ? member.resID.middlename + " "
+                            : ""}
+                          {member.resID?.lastname}
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          {editingMemberId === member._id ? (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-success mr-2"
+                                onClick={() => handleSavePosition(member)}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handleCancelEdit}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-warning mr-2"
+                                onClick={() => {
+                                  setEditingMemberId(member._id);
+                                  setEditedPosition(member.position);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              {member.position !== "Head" && (
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => handleRemoveMember(member)}
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+
+                    {/* New Members */}
+                    {newMembers.map((member, index) => (
+                      <tr key={member.tempId}>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <select
+                            value={member.position}
+                            onChange={(e) => {
+                              const updated = [...newMembers];
+                              updated[index].position = e.target.value;
+                              setNewMembers(updated);
+                            }}
+                            className="form-input"
+                          >
+                            <option value="">Select Position</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Grandchild">Grandchild</option>
+                            <option value="In-law">In-law</option>
+                            <option value="Relative">Relative</option>
+                            <option value="Housemate">Housemate</option>
+                            <option value="Househelp">Househelp</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Enter name"
+                              value={member.resident}
+                              onChange={(e) =>
+                                handleMemberInputChange(index, e.target.value)
+                              }
+                              className="form-input"
+                            />
+                            {memberSuggestions[index] &&
+                              memberSuggestions[index].length > 0 && (
+                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
+                                  {memberSuggestions[index].map((res) => {
+                                    const fullName = `${res.firstname} ${
+                                      res.middlename ? res.middlename + " " : ""
+                                    }${res.lastname}`;
+                                    return (
+                                      <li
+                                        key={res._id}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                        onClick={() =>
+                                          handleMemberSuggestionClick(
+                                            index,
+                                            res
+                                          )
+                                        }
+                                      >
+                                        {fullName}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                          </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-2">
+                          <button
+                            type="button"
+                            className="btn btn-success mr-2"
+                            onClick={() => handleSaveNewMember(member)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => handleCancelNewMember(member.tempId)}
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <button
+                  type="button"
+                  className="btn btn-primary mt-4"
+                  onClick={handleAddMember}
+                >
+                  Add Member
+                </button>
+              </div>
+            )}
+
+            <div className="form-group mt-6">
+              <table className="min-w-full border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 px-4 py-2">Model</th>
+                    <th className="border border-gray-300 px-4 py-2">Color</th>
+                    <th className="border border-gray-300 px-4 py-2">Kind</th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Plate Number
+                    </th>
+                    <th className="border border-gray-300 px-4 py-2">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Existing Vehicles */}
+                  {householdForm.vehicles.map((vehicle, index) => (
+                    <tr key={index}>
+                      {editingVehicleIndex === index ? (
+                        <>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <input
+                              type="text"
+                              value={editedVehicle.model}
+                              onChange={(e) =>
+                                setEditedVehicle({
+                                  ...editedVehicle,
+                                  model: e.target.value,
+                                })
+                              }
+                              className="form-input w-full"
+                            />
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <input
+                              type="text"
+                              value={editedVehicle.color}
+                              onChange={(e) =>
+                                setEditedVehicle({
+                                  ...editedVehicle,
+                                  color: e.target.value,
+                                })
+                              }
+                              className="form-input w-full"
+                            />
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <select
+                              value={editedVehicle.kind}
+                              onChange={(e) =>
+                                setEditedVehicle({
+                                  ...editedVehicle,
+                                  kind: e.target.value,
+                                })
+                              }
+                              className="form-input w-full"
+                            >
+                              <option value="">Select kind</option>
+                              <option value="Sedan">Sedan</option>
+                              <option value="SUV">SUV</option>
+                              <option value="Motorcycle">Motorcycle</option>
+                              <option value="Van">Van</option>
+                              <option value="Truck">Truck</option>
+                              <option value="Tricycle">Tricycle</option>
+                              <option value="Bicycle">Bicycle</option>
+                              <option value="Other">Other</option>
+                            </select>
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <input
+                              type="text"
+                              value={editedVehicle.platenumber}
+                              onChange={(e) =>
+                                setEditedVehicle({
+                                  ...editedVehicle,
+                                  platenumber: e.target.value,
+                                })
+                              }
+                              className="form-input w-full"
+                            />
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-success"
+                                onClick={handleSaveEditedVehicle}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => setEditingVehicleIndex(null)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {vehicle.model}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {vehicle.color}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {vehicle.kind}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {vehicle.platenumber}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-warning"
+                                onClick={() => {
+                                  setEditingVehicleIndex(index);
+                                  setEditedVehicle({ ...vehicle });
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-danger"
+                                onClick={() => handleRemoveVehicle(index)}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                  {/* New Vehicles */}
+                  {newVehicles.map((vehicle, index) => (
+                    <tr key={vehicle.tempId}>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <input
+                          value={vehicle.model}
+                          onChange={(e) =>
+                            handleNewVehicleChange(
+                              index,
+                              "model",
+                              e.target.value
+                            )
+                          }
+                          className="form-input w-full"
+                        />
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <input
+                          value={vehicle.color}
+                          onChange={(e) =>
+                            handleNewVehicleChange(
+                              index,
+                              "color",
+                              e.target.value
+                            )
+                          }
+                          className="form-input w-full"
+                        />
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <select
+                          value={vehicle.kind}
+                          onChange={(e) =>
+                            handleNewVehicleChange(
+                              index,
+                              "kind",
+                              e.target.value
+                            )
+                          }
+                          className="form-input w-full"
+                        >
+                          <option value="">Select kind</option>
+                          <option value="Sedan">Sedan</option>
+                          <option value="SUV">SUV</option>
+                          <option value="Motorcycle">Motorcycle</option>
+                          <option value="Van">Van</option>
+                          <option value="Truck">Truck</option>
+                          <option value="Tricycle">Tricycle</option>
+                          <option value="Bicycle">Bicycle</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <input
+                          value={vehicle.platenumber}
+                          onChange={(e) =>
+                            handleNewVehicleChange(
+                              index,
+                              "platenumber",
+                              e.target.value
+                            )
+                          }
+                          className="form-input w-full"
+                        />
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSaveNewVehicle(vehicle, index)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVehicle(index, "new")}
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <button
+                type="button"
+                className="btn btn-primary mt-4"
+                onClick={handleAddVehicle}
+              >
+                Add Vehicle
+              </button>
             </div>
           </div>
 

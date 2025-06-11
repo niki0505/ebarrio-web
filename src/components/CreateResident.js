@@ -36,6 +36,7 @@ function CreateResident({ isCollapsed }) {
     sex: "",
     gender: "",
     birthdate: "",
+    age: "",
     birthplace: "",
     civilstatus: "",
     bloodtype: "",
@@ -74,6 +75,8 @@ function CreateResident({ isCollapsed }) {
     course: "",
     is4Ps: false,
     isSenior: false,
+    isInfant: false,
+    isChild: false,
     isPregnant: false,
     isPWD: false,
     isSoloParent: false,
@@ -460,17 +463,24 @@ function CreateResident({ isCollapsed }) {
 
   const handleChangeID = async (event) => {
     const fileUploaded = event.target.files[0];
-    if (fileUploaded) {
-      setIsIDProcessing(true);
-      try {
-        const blob = await removeBackground(fileUploaded);
-        const url = URL.createObjectURL(blob);
-        setResidentForm((prev) => ({ ...prev, id: url }));
-      } catch (error) {
-        console.error("Error removing background:", error);
-      } finally {
-        setIsIDProcessing(false);
-      }
+
+    const maxSize = 1 * 1024 * 1024;
+
+    if (fileUploaded && fileUploaded.size > maxSize) {
+      alert("File is too large. Maximum allowed size is 1 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setIsIDProcessing(true);
+    try {
+      const blob = await removeBackground(fileUploaded);
+      const url = URL.createObjectURL(blob);
+      setResidentForm((prev) => ({ ...prev, id: url }));
+    } catch (error) {
+      console.error("Error removing background:", error);
+    } finally {
+      setIsIDProcessing(false);
     }
   };
 
@@ -617,17 +627,24 @@ function CreateResident({ isCollapsed }) {
 
   const handleChangeSig = async (event) => {
     const fileUploaded = event.target.files[0];
-    if (fileUploaded) {
-      setIsSignProcessing(true);
-      try {
-        const blob = await removeBackground(fileUploaded);
-        const url = URL.createObjectURL(blob);
-        setResidentForm((prev) => ({ ...prev, signature: url }));
-      } catch (error) {
-        console.error("Error removing background:", error);
-      } finally {
-        setIsSignProcessing(false);
-      }
+
+    const maxSize = 1 * 1024 * 1024;
+
+    if (fileUploaded && fileUploaded.size > maxSize) {
+      alert("File is too large. Maximum allowed size is 1 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setIsSignProcessing(true);
+    try {
+      const blob = await removeBackground(fileUploaded);
+      const url = URL.createObjectURL(blob);
+      setResidentForm((prev) => ({ ...prev, signature: url }));
+    } catch (error) {
+      console.error("Error removing background:", error);
+    } finally {
+      setIsSignProcessing(false);
     }
   };
 
@@ -795,13 +812,23 @@ function CreateResident({ isCollapsed }) {
       const monthDiff = today.getMonth() - birthDate.getMonth();
       const dayDiff = today.getDate() - birthDate.getDate();
 
-      const isAlready60 =
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+
+      const isSenior =
         age > 60 ||
         (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
 
+      const isInfant = age === 0;
+      const isChild = age >= 1 && age <= 17;
+
       setResidentForm((prev) => ({
         ...prev,
-        isSenior: isAlready60,
+        age,
+        isSenior,
+        isInfant,
+        isChild,
       }));
     }
   }, [residentForm.birthdate]);
@@ -1067,6 +1094,17 @@ function CreateResident({ isCollapsed }) {
             </div>
 
             <div className="form-group">
+              <label className="form-label">Age</label>
+              <input
+                type="text"
+                name="age"
+                value={residentForm.age}
+                readOnly
+                className="form-input p-2"
+              />
+            </div>
+
+            <div className="form-group">
               <label className="form-label">Birthplace</label>
               <input
                 name="birthplace"
@@ -1220,6 +1258,26 @@ function CreateResident({ isCollapsed }) {
                     disabled
                   />
                   <span>Senior Citizen</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isInfant"
+                    checked={residentForm.isInfant}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Infant</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isChild"
+                    checked={residentForm.isChild}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Child</span>
                 </label>
                 {residentForm.sex === "Female" && (
                   <label className="flex items-center space-x-2">
