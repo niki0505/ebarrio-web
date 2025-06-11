@@ -67,7 +67,7 @@ function Accounts({ isCollapsed }) {
   };
 
   useEffect(() => {
-    let otherUsers = users.filter((u) => u._id !== user.userID);
+    let otherUsers = [];
     if (isCurrentClicked) {
       otherUsers = users.filter(
         (emp) =>
@@ -80,6 +80,8 @@ function Accounts({ isCollapsed }) {
     } else if (isArchivedClicked) {
       otherUsers = users.filter((emp) => emp.status === "Archived");
     }
+
+    otherUsers = otherUsers.filter((u) => u._id !== user.userID);
     if (search) {
       otherUsers = otherUsers.filter((user) => {
         const resFirst = user.resID?.firstname || "";
@@ -193,7 +195,8 @@ function Accounts({ isCollapsed }) {
     const title = "Barangay Aniban 2 Accounts Reports";
     const now = new Date().toLocaleString();
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
-    const rows = filteredUsers
+    const rows = users
+      .filter((user) => user.status === "Inactive" || user.status === "Active")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -278,7 +281,8 @@ function Accounts({ isCollapsed }) {
     });
 
     // Table
-    const rows = filteredUsers
+    const rows = users
+      .filter((user) => user.status === "Inactive" || user.status === "Active")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
