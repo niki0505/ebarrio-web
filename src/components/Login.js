@@ -63,11 +63,11 @@ const Login = () => {
         // if (res.data.message === "Credentials verified") {
         //   try {
         //     const response = await api.get(`/getmobilenumber/${username}`);
-        //     sendOTP(username, response.data.empID?.resID.mobilenumber);
+        //     sendOTP(username, response.data);
         //     navigation("/otp", {
         //       state: {
         //         username: username,
-        //         mobilenumber: response.data.empID?.resID.mobilenumber,
+        //         mobilenumber: response.data,
         //       },
         //     });
         //   } catch (error) {

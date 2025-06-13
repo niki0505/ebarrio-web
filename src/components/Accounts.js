@@ -81,7 +81,13 @@ function Accounts({ isCollapsed }) {
       otherUsers = users.filter((emp) => emp.status === "Archived");
     }
 
-    otherUsers = otherUsers.filter((u) => u._id !== user.userID);
+    if (user.userID) {
+      otherUsers = otherUsers.filter(
+        (u) => u._id !== user.userID && u.role !== "Technical Admin"
+      );
+    } else {
+      otherUsers.filter((u) => u.role !== "Technical Admin");
+    }
     if (search) {
       otherUsers = otherUsers.filter((user) => {
         const resFirst = user.resID?.firstname || "";
