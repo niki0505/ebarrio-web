@@ -1569,27 +1569,6 @@ function EditResident({ isCollapsed }) {
             </div>
 
             <div className="form-group">
-              <label for="civilstatus" className="form-label">
-                Civil Status<label className="text-red-600">*</label>
-              </label>
-              <select
-                id="civilstatus"
-                name="civilstatus"
-                onChange={handleDropdownChange}
-                value={residentForm.civilstatus}
-                required
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {civilstatusList.map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
               <label className="form-label">PhilHealth ID</label>
               <input
                 name="philhealthid"
