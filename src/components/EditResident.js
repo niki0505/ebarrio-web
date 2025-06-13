@@ -86,11 +86,28 @@ function EditResident({ isCollapsed }) {
     isPregnant: false,
     isPWD: false,
     isSoloParent: false,
+    philhealthid: "",
+    philhealthtype: "",
+    philhealthcategory: "",
+    haveHypertension: false,
+    haveDiabetes: false,
+    haveTubercolosis: false,
+    haveSurgery: false,
+    lastmenstrual: "",
+    haveFPmethod: false,
+    fpmethod: "",
+    fpstatus: "",
   });
 
   const [householdForm, setHouseholdForm] = useState({
     members: [],
     vehicles: [],
+    ethnicity: "",
+    tribe: "",
+    sociostatus: "",
+    nhtsno: "",
+    watersource: "",
+    toiletfacility: "",
   });
 
   useEffect(() => {
@@ -195,13 +212,18 @@ function EditResident({ isCollapsed }) {
 
             setHouseholdForm((prev) => ({
               ...prev,
+              ...res.data,
               members: otherMembers,
               vehicles: res.data.vehicles,
             }));
           } else {
+            const currentMember = res.data.members.find(
+              (member) => member.resID?._id === resID
+            );
             setResidentForm((prev) => ({
               ...prev,
               head: "No",
+              householdposition: currentMember?.position || "",
             }));
           }
         } catch (error) {
@@ -311,11 +333,10 @@ function EditResident({ isCollapsed }) {
   const civilstatusList = [
     "Single",
     "Married",
-    "Divorced",
-    "Widowed",
+    "Widower",
     "Separated",
     "Annulled",
-    "Common-Law/Live-In",
+    "Cohabitation",
   ];
   const bloodtypeList = [
     "A",
@@ -429,38 +450,70 @@ function EditResident({ isCollapsed }) {
   ];
 
   const educationalattainmentList = [
-    "No Formal Education",
-    "Day Care",
-    "Kindergarten/Preparatory",
-    "Grade 1",
-    "Grade 2",
-    "Grade 3",
-    "Grade 4",
-    "Grade 5",
-    "Grade 6",
-    "Grade 7",
-    "Grade 8",
-    "Grade 9",
-    "Grade 10",
-    "Grade 11",
-    "Grade 12",
-    "1st Year PS/N-T/TV",
-    "2nd Year PS/N-T/TV",
-    "3rd Year PS/N-T/TV",
-    "1st Year College",
-    "2nd Year College",
-    "3rd Year College",
-    "4th Year College or Higher",
-    "ALS Elementary",
-    "ALS Secondary",
-    "SPED Elementary",
-    "SPED Secondary",
-    "Grade School Graduate",
+    "None",
+    "Kinder",
+    "Elementary Student",
+    "Elementary Undergrad",
+    "Elementary Graduate",
+    "High School Student",
+    "High School Undergrad",
     "High School Graduate",
-    "Post-Secondary Graduate",
-    "Post-Grad with Units",
+    "Vocational Course",
+    "College Student",
+    "College Undergrad",
     "College Graduate",
-    "Masters/PHD Graduate",
+    "Postgraduate",
+  ];
+
+  const philhealthcategoryList = [
+    "Formal Economy Private",
+    "Formal Economy Government",
+    "Informal Economy",
+    "NHTS",
+    "Senior Citizen",
+    "Indigenous People",
+    "Unknown",
+  ];
+
+  const fpmethodList = [
+    "COC",
+    "POP",
+    "Injectables",
+    "IUD",
+    "Condom",
+    "LAM",
+    "BTL",
+    "Implant",
+    "SDM",
+    "DPT",
+    "Withdrawal",
+    "Others",
+  ];
+
+  const fpstatusList = [
+    "New Acceptor",
+    "Current User",
+    "Changing Method",
+    "Changing Clinic",
+    "Dropout",
+    "Restarter",
+  ];
+
+  const watersourceList = [
+    "Point Source",
+    "Communal Faucet",
+    "Individual Connection",
+    "Others",
+  ];
+
+  const toiletfacilityList = [
+    "Pour/flush type connected to septic tank",
+    "Pour/flush toilet connected to septic tank AND to sewerage system",
+    "Ventilated Pit Latrine",
+    "Water-sealed Toilet",
+    "Overhung Latrine",
+    "Open Pit Latrine",
+    "Without Toilet",
   ];
 
   const handleRadioChange = (e) => {
@@ -732,6 +785,7 @@ function EditResident({ isCollapsed }) {
         mobilenumber: formattedMobileNumber,
         emergencymobilenumber: formattedEmergencyMobileNumber,
         telephone: formattedTelephone,
+        householdForm,
       };
 
       await api.put(`/updateresident/${resID}`, updatedResidentForm);
@@ -1169,6 +1223,46 @@ function EditResident({ isCollapsed }) {
     setNewVehicles(updated);
   };
 
+  const handleHouseholdRadioChange = (e) => {
+    const { name, value } = e.target;
+    setHouseholdForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleHouseholdDropdownChange = (e) => {
+    const { name, value } = e.target;
+    setHouseholdForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const householdNumbersAndNoSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const numbersOnly = value.replace(/[^0-9]/g, "");
+    setHouseholdForm((prev) => ({
+      ...prev,
+      [name]: numbersOnly,
+    }));
+  };
+
+  const householdLettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setHouseholdForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
+  };
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="flex flex-row gap-x-3 items-center">
@@ -1475,6 +1569,166 @@ function EditResident({ isCollapsed }) {
             </div>
 
             <div className="form-group">
+              <label for="civilstatus" className="form-label">
+                Civil Status<label className="text-red-600">*</label>
+              </label>
+              <select
+                id="civilstatus"
+                name="civilstatus"
+                onChange={handleDropdownChange}
+                value={residentForm.civilstatus}
+                required
+                className="form-input"
+              >
+                <option value="" selected>
+                  Select
+                </option>
+                {civilstatusList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">PhilHealth ID</label>
+              <input
+                name="philhealthid"
+                value={residentForm.philhealthid}
+                onChange={numbersAndNoSpaceOnly}
+                placeholder="Enter philhealth ID"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label for="philhealthtype" className="form-label">
+                PhilHealth Membership
+              </label>
+              <select
+                id="philhealthtype"
+                name="philhealthtype"
+                onChange={handleDropdownChange}
+                value={residentForm.philhealthtype}
+                className="form-input"
+              >
+                <option value="" selected>
+                  Select
+                </option>
+                <option value="Member">Member</option>
+                <option value="Dependent">Dependent</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label for="philhealthcategory" className="form-label">
+                PhilHealth Category
+              </label>
+              <select
+                id="philhealthcategory"
+                name="philhealthcategory"
+                onChange={handleDropdownChange}
+                value={residentForm.philhealthcategory}
+                className="form-input"
+              >
+                <option value="" selected>
+                  Select
+                </option>
+                {philhealthcategoryList.map((element) => (
+                  <option value={element}>{element}</option>
+                ))}
+              </select>
+            </div>
+
+            {residentForm.sex === "Female" && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Last Menstrual Period</label>
+                  <input
+                    type="date"
+                    name="lastmenstrual"
+                    onChange={(e) => {
+                      const { name, value } = e.target;
+                      setResidentForm((prev) => ({
+                        ...prev,
+                        [name]: value,
+                      }));
+                    }}
+                    value={residentForm.lastmenstrual}
+                    placeholder="Enter date"
+                    min="1900-01-01"
+                    className="form-input p-2"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Using any FP method?</label>
+                  <div className="flex flex-row space-x-10">
+                    <div className="flex flex-row justify-center gap-1">
+                      <input
+                        type="radio"
+                        name="haveFPmethod"
+                        onChange={handleRadioChange}
+                        value="Yes"
+                        checked={residentForm.haveFPmethod === "Yes"}
+                      />
+                      <h1>Yes</h1>
+                    </div>
+                    <div className="flex flex-row justify-center gap-1">
+                      <input
+                        type="radio"
+                        name="haveFPmethod"
+                        onChange={handleRadioChange}
+                        value="No"
+                        checked={residentForm.haveFPmethod === "No"}
+                      />
+                      <h1>No</h1>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label for="philhealthcategory" className="form-label">
+                    Family Planning Method
+                  </label>
+                  <select
+                    id="fpmethod"
+                    name="fpmethod"
+                    onChange={handleDropdownChange}
+                    value={residentForm.fpmethod}
+                    className="form-input"
+                  >
+                    <option value="" selected>
+                      Select
+                    </option>
+                    {fpmethodList.map((element) => (
+                      <option value={element}>{element}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label for="philhealthcategory" className="form-label">
+                    Family Planning Status
+                  </label>
+                  <select
+                    id="fpstatus"
+                    name="fpstatus"
+                    onChange={handleDropdownChange}
+                    value={residentForm.fpstatus}
+                    className="form-input"
+                  >
+                    <option value="" selected>
+                      Select
+                    </option>
+                    {fpstatusList.map((element) => (
+                      <option value={element}>{element}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            <div className="form-group">
               <label for="bloodtype" className="form-label">
                 Blood Type
               </label>
@@ -1575,7 +1829,7 @@ function EditResident({ isCollapsed }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Special Status</label>
+              <label className="form-label">Classification</label>
               <div className="flex flex-col space-y-2">
                 <label className="flex items-center space-x-2">
                   <input
@@ -1644,6 +1898,47 @@ function EditResident({ isCollapsed }) {
                     onChange={handleCheckboxChange}
                   />
                   <span>Solo Parent</span>
+                </label>
+              </div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Medical History</label>
+              <div className="flex flex-col space-y-2">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="haveHypertension"
+                    checked={residentForm.haveHypertension}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Hypertension</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="haveDiabetes"
+                    checked={residentForm.haveDiabetes}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Diabetes</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="haveTubercolosis"
+                    checked={residentForm.haveTubercolosis}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Tubercolosis</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="haveSurgery"
+                    checked={residentForm.haveSurgery}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span>Surgery</span>
                 </label>
               </div>
             </div>
@@ -2052,30 +2347,254 @@ function EditResident({ isCollapsed }) {
 
             {/* Head = Yes: show members table */}
             {residentForm.head === "Yes" && (
-              <div className="form-group mt-4">
-                <table className="min-w-full border border-gray-300">
-                  <thead>
-                    <tr>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Position
-                      </th>
-                      <th className="border border-gray-300 px-4 py-2">Name</th>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Existing Members */}
-                    {(householdForm.members || []).map((member, index) => (
-                      <tr key={member._id}>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {editingMemberId === member._id ? (
+              <>
+                <div className="form-group mt-4">
+                  <div className="form-group">
+                    <label className="form-label">
+                      Ethnicity<label className="text-red-600">*</label>
+                    </label>
+                    <div className="flex flex-row space-x-10">
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="ethnicity"
+                          onChange={handleHouseholdRadioChange}
+                          value="IP Household"
+                          checked={householdForm.ethnicity === "IP Household"}
+                        />
+                        <h1>IP Household</h1>
+                      </div>
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="ethnicity"
+                          onChange={handleHouseholdRadioChange}
+                          value="Non-IP Household"
+                          checked={
+                            householdForm.ethnicity === "Non-IP Household"
+                          }
+                        />
+                        <h1>Non-IP Household</h1>
+                      </div>
+                    </div>
+                  </div>
+
+                  {householdForm.ethnicity === "IP Household" && (
+                    <div className="form-group">
+                      <label className="form-label">Tribe</label>
+                      <input
+                        name="tribe"
+                        value={householdForm.tribe}
+                        onChange={householdLettersAndSpaceOnly}
+                        placeholder="Enter tribe"
+                        className="form-input"
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      Socioeconomic Status
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <div className="flex flex-row space-x-10">
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="NHTS 4Ps"
+                          checked={householdForm.sociostatus === "NHTS 4Ps"}
+                        />
+                        <h1>NHTS 4Ps</h1>
+                      </div>
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="NHTS Non-4Ps"
+                          checked={householdForm.sociostatus === "NHTS Non-4Ps"}
+                        />
+                        <h1>NHTS Non-4Ps</h1>
+                      </div>
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="Non-NHTS"
+                          checked={householdForm.sociostatus === "Non-NHTS"}
+                        />
+                        <h1>Non-NHTS</h1>
+                      </div>
+                    </div>
+                  </div>
+
+                  {(householdForm.sociostatus === "NHTS 4Ps" ||
+                    householdForm.sociostatus === "NHTS Non-4Ps") && (
+                    <div className="form-group">
+                      <label className="form-label">NHTS No.</label>
+                      <input
+                        name="nhtsno"
+                        value={householdForm.nhtsno}
+                        onChange={householdNumbersAndNoSpaceOnly}
+                        placeholder="Enter no."
+                        className="form-input"
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label for="employmentstatus" className="form-label">
+                      Type of Water Source
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="watersource"
+                      name="watersource"
+                      value={householdForm.watersource}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                      required
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {watersourceList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label for="employmentstatus" className="form-label">
+                      Type of Toilet Facility
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="toiletfacility"
+                      name="toiletfacility"
+                      value={householdForm.toiletfacility}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                      required
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {toiletfacilityList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <table className="min-w-full border border-gray-300">
+                    <thead>
+                      <tr>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Position
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Name
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Existing Members */}
+                      {(householdForm.members || []).map((member, index) => (
+                        <tr key={member._id}>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {editingMemberId === member._id ? (
+                              <select
+                                value={editedPosition}
+                                onChange={(e) =>
+                                  setEditedPosition(e.target.value)
+                                }
+                                className="form-input"
+                              >
+                                <option value="">Select Position</option>
+                                <option value="Spouse">Spouse</option>
+                                <option value="Child">Child</option>
+                                <option value="Parent">Parent</option>
+                                <option value="Sibling">Sibling</option>
+                                <option value="Grandparent">Grandparent</option>
+                                <option value="Grandchild">Grandchild</option>
+                                <option value="In-law">In-law</option>
+                                <option value="Relative">Relative</option>
+                                <option value="Housemate">Housemate</option>
+                                <option value="Househelp">Househelp</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            ) : (
+                              member.position
+                            )}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {member.resID?.firstname}{" "}
+                            {member.resID?.middlename
+                              ? member.resID.middlename + " "
+                              : ""}
+                            {member.resID?.lastname}
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            {editingMemberId === member._id ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn btn-success mr-2"
+                                  onClick={() => handleSavePosition(member)}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn btn-secondary"
+                                  onClick={handleCancelEdit}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn btn-warning mr-2"
+                                  onClick={() => {
+                                    setEditingMemberId(member._id);
+                                    setEditedPosition(member.position);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                {member.position !== "Head" && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={() => handleRemoveMember(member)}
+                                  >
+                                    Remove
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+
+                      {/* New Members */}
+                      {newMembers.map((member, index) => (
+                        <tr key={member.tempId}>
+                          <td className="border border-gray-300 px-4 py-2">
                             <select
-                              value={editedPosition}
-                              onChange={(e) =>
-                                setEditedPosition(e.target.value)
-                              }
+                              value={member.position}
+                              onChange={(e) => {
+                                const updated = [...newMembers];
+                                updated[index].position = e.target.value;
+                                setNewMembers(updated);
+                              }}
                               className="form-input"
                             >
                               <option value="">Select Position</option>
@@ -2091,212 +2610,262 @@ function EditResident({ isCollapsed }) {
                               <option value="Househelp">Househelp</option>
                               <option value="Other">Other</option>
                             </select>
-                          ) : (
-                            member.position
-                          )}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {member.resID?.firstname}{" "}
-                          {member.resID?.middlename
-                            ? member.resID.middlename + " "
-                            : ""}
-                          {member.resID?.lastname}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {editingMemberId === member._id ? (
-                            <>
-                              <button
-                                type="button"
-                                className="btn btn-success mr-2"
-                                onClick={() => handleSavePosition(member)}
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={handleCancelEdit}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                className="btn btn-warning mr-2"
-                                onClick={() => {
-                                  setEditingMemberId(member._id);
-                                  setEditedPosition(member.position);
-                                }}
-                              >
-                                Edit
-                              </button>
-                              {member.position !== "Head" && (
-                                <button
-                                  type="button"
-                                  className="btn btn-danger"
-                                  onClick={() => handleRemoveMember(member)}
-                                >
-                                  Remove
-                                </button>
-                              )}
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-
-                    {/* New Members */}
-                    {newMembers.map((member, index) => (
-                      <tr key={member.tempId}>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <select
-                            value={member.position}
-                            onChange={(e) => {
-                              const updated = [...newMembers];
-                              updated[index].position = e.target.value;
-                              setNewMembers(updated);
-                            }}
-                            className="form-input"
-                          >
-                            <option value="">Select Position</option>
-                            <option value="Spouse">Spouse</option>
-                            <option value="Child">Child</option>
-                            <option value="Parent">Parent</option>
-                            <option value="Sibling">Sibling</option>
-                            <option value="Grandparent">Grandparent</option>
-                            <option value="Grandchild">Grandchild</option>
-                            <option value="In-law">In-law</option>
-                            <option value="Relative">Relative</option>
-                            <option value="Housemate">Housemate</option>
-                            <option value="Househelp">Househelp</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="Enter name"
-                              value={member.resident}
-                              onChange={(e) =>
-                                handleMemberInputChange(index, e.target.value)
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Enter name"
+                                value={member.resident}
+                                onChange={(e) =>
+                                  handleMemberInputChange(index, e.target.value)
+                                }
+                                className="form-input"
+                              />
+                              {memberSuggestions[index] &&
+                                memberSuggestions[index].length > 0 && (
+                                  <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
+                                    {memberSuggestions[index].map((res) => {
+                                      const fullName = `${res.firstname} ${
+                                        res.middlename
+                                          ? res.middlename + " "
+                                          : ""
+                                      }${res.lastname}`;
+                                      return (
+                                        <li
+                                          key={res._id}
+                                          className="p-2 hover:bg-gray-200 cursor-pointer"
+                                          onClick={() =>
+                                            handleMemberSuggestionClick(
+                                              index,
+                                              res
+                                            )
+                                          }
+                                        >
+                                          {fullName}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
+                                )}
+                            </div>
+                          </td>
+                          <td className="border border-gray-300 px-4 py-2">
+                            <button
+                              type="button"
+                              className="btn btn-success mr-2"
+                              onClick={() => handleSaveNewMember(member)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary"
+                              onClick={() =>
+                                handleCancelNewMember(member.tempId)
                               }
-                              className="form-input"
-                            />
-                            {memberSuggestions[index] &&
-                              memberSuggestions[index].length > 0 && (
-                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
-                                  {memberSuggestions[index].map((res) => {
-                                    const fullName = `${res.firstname} ${
-                                      res.middlename ? res.middlename + " " : ""
-                                    }${res.lastname}`;
-                                    return (
-                                      <li
-                                        key={res._id}
-                                        className="p-2 hover:bg-gray-200 cursor-pointer"
-                                        onClick={() =>
-                                          handleMemberSuggestionClick(
-                                            index,
-                                            res
-                                          )
-                                        }
-                                      >
-                                        {fullName}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              )}
-                          </div>
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          <button
-                            type="button"
-                            className="btn btn-success mr-2"
-                            onClick={() => handleSaveNewMember(member)}
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => handleCancelNewMember(member.tempId)}
-                          >
-                            Cancel
-                          </button>
-                        </td>
+                            >
+                              Cancel
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-4"
+                    onClick={handleAddMember}
+                  >
+                    Add Member
+                  </button>
+                </div>
+
+                <div className="form-group mt-6">
+                  <table className="min-w-full border border-gray-300">
+                    <thead>
+                      <tr>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Model
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Color
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Kind
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Plate Number
+                        </th>
+                        <th className="border border-gray-300 px-4 py-2">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <button
-                  type="button"
-                  className="btn btn-primary mt-4"
-                  onClick={handleAddMember}
-                >
-                  Add Member
-                </button>
-              </div>
-            )}
-
-            <div className="form-group mt-6">
-              <table className="min-w-full border border-gray-300">
-                <thead>
-                  <tr>
-                    <th className="border border-gray-300 px-4 py-2">Model</th>
-                    <th className="border border-gray-300 px-4 py-2">Color</th>
-                    <th className="border border-gray-300 px-4 py-2">Kind</th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Plate Number
-                    </th>
-                    <th className="border border-gray-300 px-4 py-2">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Existing Vehicles */}
-                  {householdForm.vehicles.map((vehicle, index) => (
-                    <tr key={index}>
-                      {editingVehicleIndex === index ? (
-                        <>
+                    </thead>
+                    <tbody>
+                      {/* Existing Vehicles */}
+                      {householdForm.vehicles.map((vehicle, index) => (
+                        <tr key={index}>
+                          {editingVehicleIndex === index ? (
+                            <>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <input
+                                  type="text"
+                                  value={editedVehicle.model}
+                                  onChange={(e) =>
+                                    setEditedVehicle({
+                                      ...editedVehicle,
+                                      model: e.target.value,
+                                    })
+                                  }
+                                  className="form-input w-full"
+                                />
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <input
+                                  type="text"
+                                  value={editedVehicle.color}
+                                  onChange={(e) =>
+                                    setEditedVehicle({
+                                      ...editedVehicle,
+                                      color: e.target.value,
+                                    })
+                                  }
+                                  className="form-input w-full"
+                                />
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <select
+                                  value={editedVehicle.kind}
+                                  onChange={(e) =>
+                                    setEditedVehicle({
+                                      ...editedVehicle,
+                                      kind: e.target.value,
+                                    })
+                                  }
+                                  className="form-input w-full"
+                                >
+                                  <option value="">Select kind</option>
+                                  <option value="Sedan">Sedan</option>
+                                  <option value="SUV">SUV</option>
+                                  <option value="Motorcycle">Motorcycle</option>
+                                  <option value="Van">Van</option>
+                                  <option value="Truck">Truck</option>
+                                  <option value="Tricycle">Tricycle</option>
+                                  <option value="Bicycle">Bicycle</option>
+                                  <option value="Other">Other</option>
+                                </select>
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <input
+                                  type="text"
+                                  value={editedVehicle.platenumber}
+                                  onChange={(e) =>
+                                    setEditedVehicle({
+                                      ...editedVehicle,
+                                      platenumber: e.target.value,
+                                    })
+                                  }
+                                  className="form-input w-full"
+                                />
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    onClick={handleSaveEditedVehicle}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setEditingVehicleIndex(null)}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.model}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.color}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.kind}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.platenumber}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    className="btn btn-warning"
+                                    onClick={() => {
+                                      setEditingVehicleIndex(index);
+                                      setEditedVehicle({ ...vehicle });
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={() => handleRemoveVehicle(index)}
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                      {/* New Vehicles */}
+                      {newVehicles.map((vehicle, index) => (
+                        <tr key={vehicle.tempId}>
                           <td className="border border-gray-300 px-4 py-2">
                             <input
-                              type="text"
-                              value={editedVehicle.model}
+                              value={vehicle.model}
                               onChange={(e) =>
-                                setEditedVehicle({
-                                  ...editedVehicle,
-                                  model: e.target.value,
-                                })
+                                handleNewVehicleChange(
+                                  index,
+                                  "model",
+                                  e.target.value
+                                )
                               }
                               className="form-input w-full"
                             />
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
                             <input
-                              type="text"
-                              value={editedVehicle.color}
+                              value={vehicle.color}
                               onChange={(e) =>
-                                setEditedVehicle({
-                                  ...editedVehicle,
-                                  color: e.target.value,
-                                })
+                                handleNewVehicleChange(
+                                  index,
+                                  "color",
+                                  e.target.value
+                                )
                               }
                               className="form-input w-full"
                             />
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
                             <select
-                              value={editedVehicle.kind}
+                              value={vehicle.kind}
                               onChange={(e) =>
-                                setEditedVehicle({
-                                  ...editedVehicle,
-                                  kind: e.target.value,
-                                })
+                                handleNewVehicleChange(
+                                  index,
+                                  "kind",
+                                  e.target.value
+                                )
                               }
                               className="form-input w-full"
                             >
@@ -2313,167 +2882,48 @@ function EditResident({ isCollapsed }) {
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
                             <input
-                              type="text"
-                              value={editedVehicle.platenumber}
+                              value={vehicle.platenumber}
                               onChange={(e) =>
-                                setEditedVehicle({
-                                  ...editedVehicle,
-                                  platenumber: e.target.value,
-                                })
+                                handleNewVehicleChange(
+                                  index,
+                                  "platenumber",
+                                  e.target.value
+                                )
                               }
                               className="form-input w-full"
                             />
                           </td>
                           <td className="border border-gray-300 px-4 py-2">
-                            <div className="flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-success"
-                                onClick={handleSaveEditedVehicle}
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                onClick={() => setEditingVehicleIndex(null)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleSaveNewVehicle(vehicle, index)
+                              }
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveVehicle(index, "new")}
+                            >
+                              Cancel
+                            </button>
                           </td>
-                        </>
-                      ) : (
-                        <>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {vehicle.model}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {vehicle.color}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {vehicle.kind}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {vehicle.platenumber}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            <div className="flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-warning"
-                                onClick={() => {
-                                  setEditingVehicleIndex(index);
-                                  setEditedVehicle({ ...vehicle });
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-danger"
-                                onClick={() => handleRemoveVehicle(index)}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-                  {/* New Vehicles */}
-                  {newVehicles.map((vehicle, index) => (
-                    <tr key={vehicle.tempId}>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <input
-                          value={vehicle.model}
-                          onChange={(e) =>
-                            handleNewVehicleChange(
-                              index,
-                              "model",
-                              e.target.value
-                            )
-                          }
-                          className="form-input w-full"
-                        />
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <input
-                          value={vehicle.color}
-                          onChange={(e) =>
-                            handleNewVehicleChange(
-                              index,
-                              "color",
-                              e.target.value
-                            )
-                          }
-                          className="form-input w-full"
-                        />
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <select
-                          value={vehicle.kind}
-                          onChange={(e) =>
-                            handleNewVehicleChange(
-                              index,
-                              "kind",
-                              e.target.value
-                            )
-                          }
-                          className="form-input w-full"
-                        >
-                          <option value="">Select kind</option>
-                          <option value="Sedan">Sedan</option>
-                          <option value="SUV">SUV</option>
-                          <option value="Motorcycle">Motorcycle</option>
-                          <option value="Van">Van</option>
-                          <option value="Truck">Truck</option>
-                          <option value="Tricycle">Tricycle</option>
-                          <option value="Bicycle">Bicycle</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <input
-                          value={vehicle.platenumber}
-                          onChange={(e) =>
-                            handleNewVehicleChange(
-                              index,
-                              "platenumber",
-                              e.target.value
-                            )
-                          }
-                          className="form-input w-full"
-                        />
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2">
-                        <button
-                          type="button"
-                          onClick={() => handleSaveNewVehicle(vehicle, index)}
-                        >
-                          Save
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveVehicle(index, "new")}
-                        >
-                          Cancel
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
 
-              <button
-                type="button"
-                className="btn btn-primary mt-4"
-                onClick={handleAddVehicle}
-              >
-                Add Vehicle
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-4"
+                    onClick={handleAddVehicle}
+                  >
+                    Add Vehicle
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Employment Information */}

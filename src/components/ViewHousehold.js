@@ -187,7 +187,7 @@ function ViewHousehold({ onClose, householdID }) {
     <>
       {showModal && (
         <div className="modal-container">
-          <div className="modal-content w-[70rem] h-[30rem]">
+          <div className="modal-content w-[70rem] h-[35rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -212,93 +212,262 @@ function ViewHousehold({ onClose, householdID }) {
                 </div>
 
                 <div>
+                  <label>Ethnicity: {selectedHousehold.ethnicity}</label>
+                </div>
+
+                {selectedHousehold.ethnicity === "IP Household" && (
+                  <div>
+                    <label>Tribe: {selectedHousehold.tribe}</label>
+                  </div>
+                )}
+
+                <div>
+                  <label>
+                    Socioeconomic Status: {selectedHousehold.sociostatus}
+                  </label>
+                </div>
+
+                {(selectedHousehold.sociostatus === "NHTS Non-4Ps" ||
+                  selectedHousehold.sociostatus === "NHTS 4Ps") && (
+                  <div>
+                    <label>NHTS No.: {selectedHousehold.nhtsno}</label>
+                  </div>
+                )}
+
+                <div>
+                  <label>Water Source: {selectedHousehold.watersource}</label>
+                </div>
+
+                <div>
+                  <label>
+                    Toilet Facility: {selectedHousehold.toiletfacility}
+                  </label>
+                </div>
+
+                <div>
                   <label>Members:</label>
                   {selectedHousehold.members &&
                   selectedHousehold.members.length > 0 ? (
-                    <table className="min-w-full table-auto border-collapse border border-gray-300 mt-2">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="border border-gray-300 px-4 py-2">
-                            #
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Name
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Position in the Family
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Age
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Birthdate
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Civil Status
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Occupation
-                          </th>
-                          <th className="border border-gray-300 px-4 py-2">
-                            Classification
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sortedMembers.map((member, index) => (
-                          <tr key={index}>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {index + 1}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.lastname}, {member.resID.firstname}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.position}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.age}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.birthdate}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.civilstatus}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.occupation || "N/A"}
-                            </td>
-                            <td className="border border-gray-300 px-4 py-2">
-                              {member.resID.isSenior ||
-                              member.resID.isInfant ||
-                              member.resID.isChild ||
-                              member.resID.isPregnant ||
-                              member.resID.isPWD ||
-                              member.resID.is4Ps ||
-                              member.resID.isSoloParent ? (
-                                <>
-                                  {member.resID.isSenior && (
-                                    <div>Senior Citizen</div>
-                                  )}
-                                  {member.resID.isPregnant && (
-                                    <div>Pregnant</div>
-                                  )}
-                                  {member.resID.isPWD && <div>PWD</div>}
-                                  {member.resID.is4Ps && <div>4Ps</div>}
-                                  {member.resID.isSoloParent && (
-                                    <div>Solo Parent</div>
-                                  )}
-                                </>
-                              ) : (
-                                "N/A"
-                              )}
-                            </td>
+                    <div className="overflow-x-auto mt-2 max-h-[18rem]">
+                      <table className="min-w-full table-auto border-collapse border border-gray-300 text-xs">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="border border-gray-300 px-4 py-2">
+                              #
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Name
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Position in the Family
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Sex
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Age
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Birthdate
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Civil Status
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              PhilHealth ID
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Membership Type
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              PhilHealth Category
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Medical History
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Last Menstrual Period
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Using any FP method?
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Family Planning Method
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              FP Status
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Classification
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Educational Attainment
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Religion
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {sortedMembers.map((member, index) => (
+                            <tr key={index}>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {index + 1}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.lastname},{" "}
+                                {member.resID.firstname}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.position}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.sex}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.age}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.birthdate}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.civilstatus}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.philhealthid || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.philhealthtype || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.philhealthcategory || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.haveDiabetes ||
+                                member.resID.haveHypertension ||
+                                member.resID.haveTubercolosis ||
+                                member.resID.haveSurgery ? (
+                                  <>
+                                    {member.resID.haveDiabetes && (
+                                      <div>Diabetes</div>
+                                    )}
+                                    {member.resID.haveHypertension && (
+                                      <div>Hypertension</div>
+                                    )}
+                                    {member.resID.haveTubercolosis && (
+                                      <div>Tubercolosis</div>
+                                    )}
+                                    {member.resID.haveSurgery && (
+                                      <div>Surgery</div>
+                                    )}
+                                  </>
+                                ) : (
+                                  "N/A"
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.lastmenstrual || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.haveFPmethod || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.fpmethod || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.fpstatus || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.isSenior ||
+                                member.resID.isInfant ||
+                                member.resID.isChild ||
+                                member.resID.isPregnant ||
+                                member.resID.isPWD ||
+                                member.resID.is4Ps ||
+                                member.resID.isSoloParent ? (
+                                  <>
+                                    {member.resID.isSenior && (
+                                      <div>Senior Citizen</div>
+                                    )}
+                                    {member.resID.isPregnant && (
+                                      <div>Pregnant</div>
+                                    )}
+                                    {member.resID.isPWD && <div>PWD</div>}
+                                    {member.resID.is4Ps && <div>4Ps</div>}
+                                    {member.resID.isSoloParent && (
+                                      <div>Solo Parent</div>
+                                    )}
+                                  </>
+                                ) : (
+                                  "N/A"
+                                )}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.educationalattainment || "N/A"}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {member.resID.religion || "N/A"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   ) : (
                     <p>No members found.</p>
+                  )}
+                </div>
+
+                <div>
+                  <label>Vehicles:</label>
+                  {selectedHousehold.vehicles &&
+                  selectedHousehold.vehicles.length > 0 ? (
+                    <div className="overflow-x-auto mt-2 max-h-[18rem]">
+                      <table className="min-w-full table-auto border-collapse border border-gray-300 text-xs">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="border border-gray-300 px-4 py-2">
+                              #
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Model
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Color
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Kind
+                            </th>
+                            <th className="border border-gray-300 px-4 py-2">
+                              Plate Number
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedHousehold.vehicles.map((vehicle, index) => (
+                            <tr key={index}>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {index + 1}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.model}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.color}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.kind}
+                              </td>
+                              <td className="border border-gray-300 px-4 py-2">
+                                {vehicle.platenumber}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p>No vehicles found.</p>
                   )}
                 </div>
               </div>
