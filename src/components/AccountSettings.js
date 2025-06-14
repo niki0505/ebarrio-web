@@ -17,8 +17,12 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
   const [userDetails, setUserDetails] = useState(null);
-  const [isProfileClicked, setProfileClicked] = useState(true);
-  const [isUsernameClicked, setUsernameClicked] = useState(false);
+  const [isProfileClicked, setProfileClicked] = useState(
+    user.role !== "Technical Admin"
+  );
+  const [isUsernameClicked, setUsernameClicked] = useState(
+    user.role === "Technical Admin"
+  );
   const [isPasswordClicked, setPasswordClicked] = useState(false);
   const [isQuestionsClicked, setQuestionsClicked] = useState(false);
   const [username, setUsername] = useState("");
@@ -1124,16 +1128,19 @@ function AccountSettings({ isCollapsed }) {
         <div className="flex flex-col lg:flex-row mt-4 gap-10">
           {/* Left Panel */}
           <div className="flex flex-col mt-4">
-            <p
-              onClick={handleMenu1}
-              className={`cursor-pointer text-base font-bold ${
-                isProfileClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
-                  : "p-2 font-medium"
-              }`}
-            >
-              Profile
-            </p>
+            {user.role !== "Technical Admin" && (
+              <p
+                onClick={handleMenu1}
+                className={`cursor-pointer text-base font-bold ${
+                  isProfileClicked
+                    ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                    : "p-2 font-medium"
+                }`}
+              >
+                Profile
+              </p>
+            )}
+
             <p
               onClick={handleMenu2}
               className={`cursor-pointer text-base font-bold ${

@@ -71,46 +71,78 @@ function Dashboard({ isCollapsed }) {
   useEffect(() => {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
-        (element) => element.status !== "Archived"
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
       ).length;
 
       const male = residents
         .filter((element) => element.sex === "Male")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const female = residents
         .filter((element) => element.sex === "Female")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const seniorCitizens = residents
         .filter((element) => element.age >= 60)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const voters = residents
         .filter((element) => element.voter === "Yes")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const PWD = residents
         .filter((element) => element.isPWD)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const pregnant = residents
         .filter((element) => element.isPregnant)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const fourps = residents
         .filter((element) => element.is4Ps)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const soloparent = residents
         .filter((element) => element.isSoloParent)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const unemployed = residents
-        .filter((element) => element.employmentstatus === "Unemployed")
+        .filter(
+          (element) =>
+            element.employmentstatus === "Unemployed" &&
+            element.status !== "Pending"
+        )
         .filter((element) => element.status !== "Archived").length;
 
-      const totalHouseholds = household.length;
+      const totalHouseholds = household.filter(
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
+      ).length;
 
       setResidentsData({
         total: totalResidents,
@@ -217,7 +249,7 @@ function Dashboard({ isCollapsed }) {
   }, [blotterreports]);
 
   useEffect(() => {
-    if (user.role === "Secretary") {
+    if (user.role === "Secretary" || user.role === "Technical Admin") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
         .filter((a) => a.times)
@@ -311,7 +343,11 @@ function Dashboard({ isCollapsed }) {
         );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
-    } else if (user.role === "Justice" || user.role === "Secretary") {
+    } else if (
+      user.role === "Justice" ||
+      user.role === "Secretary" ||
+      user.role === "Technical Admin"
+    ) {
       const scheduledBlotters = (blotterreports || [])
         .filter((b) => b.status === "Scheduled")
         .map((b) => ({
@@ -440,7 +476,9 @@ function Dashboard({ isCollapsed }) {
         <div className="header-text">Dashboard</div>
 
         <div className="form-grid mt-4">
-          {(user.role === "Secretary" || user.role === "Clerk") && (
+          {(user.role === "Secretary" ||
+            user.role === "Clerk" ||
+            user.role === "Technical Admin") && (
             <>
               <div
                 className="form-group cursor-pointer"
@@ -744,7 +782,9 @@ function Dashboard({ isCollapsed }) {
         <div className="mt-8">
           <h1 className="text-[20px] font-title font-semibold">Reports</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            {(user.role === "Secretary" || user.role === "Clerk") && (
+            {(user.role === "Secretary" ||
+              user.role === "Clerk" ||
+              user.role === "Technical Admin") && (
               <>
                 {/* Document Requests */}
                 <div className="col-span-1 white-bg-container">
@@ -893,7 +933,9 @@ function Dashboard({ isCollapsed }) {
             )}
 
             {/* Blotter Reports */}
-            {(user.role === "Justice" || user.role === "Secretary") && (
+            {(user.role === "Justice" ||
+              user.role === "Secretary" ||
+              user.role === "Technical Admin") && (
               <div className="col-span-2 white-bg-container">
                 <h2 className="text-base font-medium text-center text-navy-blue">
                   Blotter Reports
@@ -977,7 +1019,9 @@ function Dashboard({ isCollapsed }) {
           </h1>
           <div className="white-bg-container">
             <div className="form-grid mt-4 mb-4">
-              {(user.role === "Secretary" || user.role === "Clerk") && (
+              {(user.role === "Secretary" ||
+                user.role === "Clerk" ||
+                user.role === "Technical Admin") && (
                 <>
                   <div className="form-group">
                     <div className="flex flex-row items-center">
@@ -1037,7 +1081,9 @@ function Dashboard({ isCollapsed }) {
                   </div>
                 </>
               )}
-              {(user.role === "Secretary" || user.role === "Justice") && (
+              {(user.role === "Secretary" ||
+                user.role === "Justice" ||
+                user.role === "Technical Admin") && (
                 <div className="form-group">
                   <div className="flex flex-row items-center">
                     <div className="bg-[#00796B] w-4 h-4 rounded-md"></div>

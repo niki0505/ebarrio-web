@@ -33,6 +33,7 @@ function Residents({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [isPendingClicked, setPendingClicked] = useState(false);
   const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
@@ -141,6 +142,15 @@ function Residents({ isCollapsed }) {
     fetchResidents();
   }, []);
 
+  const viewBtn = async (resID) => {
+    try {
+      await api.post(`/viewresidentdetails/${resID}`);
+      navigation("/view-resident", { state: { resID } });
+    } catch (error) {
+      console.log("Error in viewing resident details", error);
+    }
+  };
+
   const editBtn = async (resID) => {
     try {
       await api.post(`/viewresidentdetails/${resID}`);
@@ -206,6 +216,8 @@ function Residents({ isCollapsed }) {
       filtered = residents.filter((res) => res.status === "Active");
     } else if (isArchivedClicked) {
       filtered = residents.filter((res) => res.status === "Archived");
+    } else if (isPendingClicked) {
+      filtered = residents.filter((res) => res.status === "Pending");
     }
 
     switch (sortOption) {
@@ -260,14 +272,28 @@ function Residents({ isCollapsed }) {
       });
     }
     setFilteredResidents(filtered);
-  }, [search, residents, isActiveClicked, isArchivedClicked, sortOption]);
+  }, [
+    search,
+    residents,
+    isActiveClicked,
+    isArchivedClicked,
+    isPendingClicked,
+    sortOption,
+  ]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
     setArchivedClicked(false);
+    setPendingClicked(false);
   };
   const handleMenu2 = () => {
     setArchivedClicked(true);
+    setActiveClicked(false);
+    setPendingClicked(false);
+  };
+  const handleMenu3 = () => {
+    setPendingClicked(true);
+    setArchivedClicked(false);
     setActiveClicked(false);
   };
 
@@ -504,6 +530,14 @@ function Residents({ isCollapsed }) {
               }`}
             >
               Active
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Pending
             </p>
             <p
               onClick={handleMenu2}
@@ -861,7 +895,7 @@ function Residents({ isCollapsed }) {
                                 EDIT
                               </button>
                             </div>
-                          ) : (
+                          ) : res.status === "Archived" ? (
                             <button
                               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                               type="submit"
@@ -869,6 +903,30 @@ function Residents({ isCollapsed }) {
                             >
                               RECOVER
                             </button>
+                          ) : (
+                            <>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => recoverBtn(e, res._id)}
+                              >
+                                REJECT
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => recoverBtn(e, res._id)}
+                              >
+                                APPROVE
+                              </button>
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={() => viewBtn(res._id)}
+                              >
+                                VIEW
+                              </button>
+                            </>
                           )}
                         </td>
                       ) : (

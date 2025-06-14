@@ -12,7 +12,7 @@ import { BiSolidImageAlt } from "react-icons/bi";
 import api from "../api";
 import { GrNext } from "react-icons/gr";
 
-function EditResident({ isCollapsed }) {
+function ViewResident({ isCollapsed }) {
   const navigation = useNavigate();
   const confirm = useConfirm();
   const [isIDProcessing, setIsIDProcessing] = useState(false);
@@ -234,6 +234,8 @@ function EditResident({ isCollapsed }) {
       fetchHousehold();
     }
   }, [residentInfo.householdno]);
+
+  console.log(householdForm);
 
   const renderSiblingsDropdown = () => {
     const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
@@ -3036,4 +3038,4 @@ function EditResident({ isCollapsed }) {
   );
 }
 
-export default EditResident;
+export default ViewResident;

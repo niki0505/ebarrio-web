@@ -262,15 +262,29 @@ const Navbar = ({ isCollapsed }) => {
             )}
           </div>
 
-          <img src={profilePic} alt="Profile" className="navbar-profile-img" />
+          {user?.role !== "Technical Admin" && (
+            <img
+              src={profilePic}
+              alt="Profile"
+              className="navbar-profile-img"
+            />
+          )}
 
           {/* User Information */}
           <div className="navbar-user-info">
-            <h2 className="text-navy-blue font-bold text-base">{name}</h2>
-            {user?.role && (
-              <h2 className="text-[#808080] text-sm font-semibold font-subTitle">
-                {user.role}
+            {user?.role === "Technical Admin" ? (
+              <h2 className="text-navy-blue font-bold text-base">
+                Technical Admin
               </h2>
+            ) : (
+              <>
+                <h2 className="text-navy-blue font-bold text-base">{name}</h2>
+                {user?.role && (
+                  <h2 className="text-[#808080] text-sm font-semibold font-subTitle">
+                    {user.role}
+                  </h2>
+                )}
+              </>
             )}
           </div>
           {/* Profile Image and Dropdown */}
