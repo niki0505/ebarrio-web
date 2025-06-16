@@ -71,46 +71,78 @@ function Dashboard({ isCollapsed }) {
   useEffect(() => {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
-        (element) => element.status !== "Archived"
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
       ).length;
 
       const male = residents
         .filter((element) => element.sex === "Male")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const female = residents
         .filter((element) => element.sex === "Female")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const seniorCitizens = residents
         .filter((element) => element.age >= 60)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const voters = residents
         .filter((element) => element.voter === "Yes")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const PWD = residents
         .filter((element) => element.isPWD)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const pregnant = residents
         .filter((element) => element.isPregnant)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const fourps = residents
         .filter((element) => element.is4Ps)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const soloparent = residents
         .filter((element) => element.isSoloParent)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const unemployed = residents
-        .filter((element) => element.employmentstatus === "Unemployed")
+        .filter(
+          (element) =>
+            element.employmentstatus === "Unemployed" &&
+            element.status !== "Pending"
+        )
         .filter((element) => element.status !== "Archived").length;
 
-      const totalHouseholds = household.length;
+      const totalHouseholds = household.filter(
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
+      ).length;
 
       setResidentsData({
         total: totalResidents,

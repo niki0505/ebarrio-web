@@ -43,6 +43,7 @@ import SOSUpdateReports from "./components/SOSUpdateReports";
 import RiverSnapshots from "./components/RiverSnapshots";
 import ActivityLogs from "./components/ActivityLogs";
 import Household from "./components/Household";
+import ViewResident from "./components/ViewResident";
 
 function App() {
   return (
@@ -130,6 +131,19 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<EditResident />}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="view-resident"
+                      element={
+                        <PrivateRoute
+                          element={<ViewResident />}
                           allowedRoles={[
                             "Secretary",
                             "Clerk",
