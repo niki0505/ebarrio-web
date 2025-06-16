@@ -17,6 +17,7 @@ function Household({ isCollapsed }) {
   const [exportDropdown, setexportDropdown] = useState(false);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
+  const [isChangeClicked, setChangedClicked] = useState(false);
   const [filteredHousehold, setFilteredHousehold] = useState([]);
   const [search, setSearch] = useState("");
   const exportRef = useRef(null);
@@ -52,9 +53,16 @@ function Household({ isCollapsed }) {
   const handleMenu1 = () => {
     setActiveClicked(true);
     setPendingClicked(false);
+    setChangedClicked(false);
   };
   const handleMenu2 = () => {
     setPendingClicked(true);
+    setActiveClicked(false);
+    setChangedClicked(false);
+  };
+  const handleMenu3 = () => {
+    setChangedClicked(true);
+    setPendingClicked(false);
     setActiveClicked(false);
   };
 
@@ -69,6 +77,8 @@ function Household({ isCollapsed }) {
       filtered = household.filter((res) => res.status === "Active");
     } else if (isPendingClicked) {
       filtered = household.filter((res) => res.status === "Pending");
+    } else if (isChangeClicked) {
+      filtered = household.filter((res) => res.status === "Change Requested");
     }
 
     if (search) {
@@ -114,6 +124,14 @@ function Household({ isCollapsed }) {
             }`}
           >
             Pending
+          </p>
+          <p
+            onClick={handleMenu3}
+            className={`status-text ${
+              isChangeClicked ? "status-line" : "text-[#808080]"
+            }`}
+          >
+            Change Requested
           </p>
         </div>
         {isActiveClicked && (
@@ -168,32 +186,38 @@ function Household({ isCollapsed }) {
           </thead>
 
           <tbody className="bg-[#fff]">
-            {filteredHousehold.map((house, index) => {
-              const headMember = house.members.find(
-                (member) => member.position === "Head"
-              );
-              const headName = `${headMember.resID.lastname} ${headMember.resID.firstname}`;
-              const householdName = `${headMember.resID.lastname}'s Residence`;
-              return (
-                <tr
-                  key={index}
-                  onClick={() => handleRowClick(house._id)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
-                >
-                  <td>N/A</td>
-                  <td>{householdName}</td>
-                  <td>{headName}</td>
-                  <td>{headMember.resID.address}</td>
-                  <td>{house.members.length}</td>
-                  <td>{house.vehicles.length}</td>
-                </tr>
-              );
-            })}
+            {filteredHousehold.length === 0 ? (
+              <tr className="bg-white">
+                <td colSpan={6}>No results found</td>
+              </tr>
+            ) : (
+              filteredHousehold.map((house, index) => {
+                const headMember = house.members.find(
+                  (member) => member.position === "Head"
+                );
+                const headName = `${headMember.resID.lastname} ${headMember.resID.firstname}`;
+                const householdName = `${headMember.resID.lastname}'s Residence`;
+                return (
+                  <tr
+                    key={index}
+                    onClick={() => handleRowClick(house._id)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    <td>N/A</td>
+                    <td>{householdName}</td>
+                    <td>{headName}</td>
+                    <td>{headMember.resID.address}</td>
+                    <td>{house.members.length}</td>
+                    <td>{house.vehicles.length}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
         {isHouseholdClicked && (
