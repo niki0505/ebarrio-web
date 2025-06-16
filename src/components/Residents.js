@@ -18,6 +18,7 @@ import BarangayID from "./id/BarangayID";
 import { AuthContext } from "../context/AuthContext";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
+import { removeBackground } from "@imgly/background-removal";
 
 function Residents({ isCollapsed }) {
   const location = useLocation();
@@ -65,6 +66,25 @@ function Residents({ isCollapsed }) {
     const file = new File([blob], fileName, { type: blob.type });
     const storageRef = ref(storage, fileName);
     await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
+  async function uploadToFirebaseImages(data) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_images/${Date.now()}_${randomString}.png`;
+    const storageRef = ref(storage, fileName);
+
+    // Convert to Blob if it’s not already
+    let blob;
+    if (data instanceof Blob) {
+      blob = data;
+    } else {
+      blob = new Blob([data], { type: "image/png" });
+    }
+
+    await uploadBytes(storageRef, blob, { contentType: "image/png" });
 
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
@@ -141,6 +161,67 @@ function Residents({ isCollapsed }) {
   useEffect(() => {
     fetchResidents();
   }, []);
+
+  const approveBtn = async (e, resID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to approve this resident?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const response = await api.get(`/getresidentimages/${resID}`);
+      const { picture, signature } = response.data;
+
+      const pictureBlob = await fetch(picture).then((res) => res.blob());
+      const signatureBlob = await fetch(signature).then((res) => res.blob());
+
+      let pictureURL, signatureURL;
+
+      console.log("Attempting to remove background...");
+
+      // Try removing background from picture
+      try {
+        const removedBgPicture = await removeBackground(pictureBlob);
+        pictureURL = await uploadToFirebaseImages(
+          new Blob([removedBgPicture], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from picture. Uploading original."
+        );
+        pictureURL = await uploadToFirebase(pictureBlob);
+      }
+
+      // Try removing background from signature
+      try {
+        const removedBgSignature = await removeBackground(signatureBlob);
+        signatureURL = await uploadToFirebaseImages(
+          new Blob([removedBgSignature], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from signature. Uploading original."
+        );
+        signatureURL = await uploadToFirebase(signatureBlob);
+      }
+
+      await api.post(`/approveresident/${resID}`, {
+        pictureURL,
+        signatureURL,
+      });
+
+      setActiveClicked(true);
+      setPendingClicked(false);
+      alert("Resident has been approved successfully.");
+    } catch (error) {
+      console.log("Error in approving resident details", error);
+      alert("Something went wrong while approving the resident.");
+    }
+  };
 
   const viewBtn = async (resID) => {
     try {
@@ -915,7 +996,7 @@ function Residents({ isCollapsed }) {
                               <button
                                 className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                 type="submit"
-                                onClick={(e) => recoverBtn(e, res._id)}
+                                onClick={(e) => approveBtn(e, res._id)}
                               >
                                 APPROVE
                               </button>
