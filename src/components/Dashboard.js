@@ -36,6 +36,7 @@ function Dashboard({ isCollapsed }) {
   const [residentsData, setResidentsData] = useState({});
   const [documentData, setDocumentData] = useState({});
   const [blotterData, setBlotterData] = useState({});
+  const [classificationsData, setClassificationsData] = useState({});
   const [reservationData, setReservationData] = useState({});
   const {
     announcements,
@@ -143,6 +144,24 @@ function Dashboard({ isCollapsed }) {
         (element) =>
           element.status !== "Archived" && element.status !== "Pending"
       ).length;
+
+      setClassificationsData({
+        Newborn: residents.filter((r) => r.isNewborn).length,
+        Infant: residents.filter((r) => r.isInfant).length,
+        "Under 5 y.o": residents.filter((r) => r.isUnder5).length,
+        "School of Age": residents.filter((r) => r.isSchoolAge).length,
+        Adolescent: residents.filter((r) => r.isAdolescent).length,
+        "Adolescent Pregnant": residents.filter((r) => r.isAdolescentPregnant)
+          .length,
+        Adult: residents.filter((r) => r.isAdult).length,
+        Postpartum: residents.filter((r) => r.isPostpartum).length,
+        "Women of Reproductive Age": residents.filter(
+          (r) => r.isWomenOfReproductive
+        ).length,
+        "Senior Citizens": residents.filter((r) => r.isSenior).length,
+        Pregnant: residents.filter((r) => r.isPregnant).length,
+        PWD: residents.filter((r) => r.isPWD).length,
+      });
 
       setResidentsData({
         total: totalResidents,
@@ -395,6 +414,13 @@ function Dashboard({ isCollapsed }) {
     })
   );
 
+  const classificationArray = Object.entries(classificationsData).map(
+    ([key, value]) => ({
+      category: key,
+      Total: value,
+    })
+  );
+
   //To show single graph per status when click
   const allDocumentStatuses = ["Pending", "Issued", "Rejected"];
   const allReservationStatuses = ["Pending", "Approved", "Rejected"];
@@ -580,7 +606,7 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div
+              {/* <div
                 className="form-group cursor-pointer"
                 onClick={() =>
                   navigation("/residents", {
@@ -662,7 +688,7 @@ function Dashboard({ isCollapsed }) {
                     <MdElderly />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div
                 className="form-group cursor-pointer"
@@ -778,6 +804,58 @@ function Dashboard({ isCollapsed }) {
             </>
           )}
         </div>
+        {(user.role === "Secretary" ||
+          user.role === "Clerk" ||
+          user.role === "Technical Admin") && (
+          <div className="col-span-2 white-bg-container">
+            <h2 className="text-base font-medium text-center text-navy-blue">
+              Classification by Age/Health
+            </h2>
+            {classificationArray.length > 0 ? (
+              <div className="w-full h-[20rem]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={classificationArray}
+                    margin={{ top: 20, right: 30, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="category"
+                      tick={{ fontSize: 12, fontWeight: 600, fill: "#04384E" }}
+                      interval={0}
+                      angle={-30}
+                      textAnchor="end"
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar
+                      dataKey="Total"
+                      fill="#0096FF"
+                      className="cursor-pointer"
+                      onClick={(data, index) => {
+                        const clickedCategory =
+                          classificationArray[index].category;
+
+                        navigation("/residents", {
+                          state: {
+                            selectedSort: clickedCategory,
+                          },
+                        });
+                      }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="w-full h-[20rem] flex items-center justify-center">
+                <h1 className="text-center text-gray-600">
+                  No classification data available.
+                </h1>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-8">
           <h1 className="text-[20px] font-title font-semibold">Reports</h1>

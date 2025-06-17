@@ -311,7 +311,7 @@ function Residents({ isCollapsed }) {
         filtered = filtered.filter((res) => res.sex?.toLowerCase() === "male");
         break;
       case "Senior Citizens":
-        filtered = filtered.filter((res) => res.age >= 60);
+        filtered = filtered.filter((res) => res.age >= 60 || res.isSenior);
         break;
       case "PWD":
         filtered = filtered.filter((res) => res.isPWD);
@@ -319,12 +319,6 @@ function Residents({ isCollapsed }) {
       case "Pregnant":
         filtered = filtered.filter((res) => res.isPregnant);
         break;
-      // case "4Ps":
-      //   filtered = filtered.filter((res) => res.is4Ps);
-      //   break;
-      // case "Solo Parent":
-      //   filtered = filtered.filter((res) => res.isSoloParent);
-      //   break;
       case "Unemployed":
         filtered = filtered.filter(
           (res) => res.employmentstatus === "Unemployed"
@@ -332,6 +326,33 @@ function Residents({ isCollapsed }) {
         break;
       case "Voters":
         filtered = filtered.filter((res) => res.voter === "Yes");
+        break;
+      case "Newborn":
+        filtered = filtered.filter((res) => res.isNewborn);
+        break;
+      case "Infant":
+        filtered = filtered.filter((res) => res.isInfant);
+        break;
+      case "Under 5 y.o":
+        filtered = filtered.filter((res) => res.isUnder5);
+        break;
+      case "School of Age":
+        filtered = filtered.filter((res) => res.isSchoolAge);
+        break;
+      case "Adolescent":
+        filtered = filtered.filter((res) => res.isAdolescent);
+        break;
+      case "Adolescent Pregnant":
+        filtered = filtered.filter((res) => res.isAdolescentPregnant);
+        break;
+      case "Adult":
+        filtered = filtered.filter((res) => res.isAdult);
+        break;
+      case "Postpartum":
+        filtered = filtered.filter((res) => res.isPostpartum);
+        break;
+      case "Women of Reproductive Age":
+        filtered = filtered.filter((res) => res.isWomenOfReproductive);
         break;
       default:
         break;
@@ -595,6 +616,26 @@ function Residents({ isCollapsed }) {
     };
   }, [exportDropdown, filterDropdown]);
 
+  const sortOptionsList = [
+    "All",
+    "Female",
+    "Male",
+    "Newborn",
+    "Infant",
+    "Under 5 y.o",
+    "School of Age",
+    "Adolescent",
+    "Adolescent Pregnant",
+    "Adult",
+    "Postpartum",
+    "Women of Reproductive Age",
+    "Senior Citizens",
+    "Pregnant",
+    "PWD",
+    "Unemployed",
+    "Voters",
+  ];
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -676,7 +717,7 @@ function Residents({ isCollapsed }) {
                   onClick={toggleFilterDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
+                    {sortOption}
                   </h1>
                   <div className="pointer-events-none flex text-gray-600">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
@@ -684,118 +725,21 @@ function Residents({ isCollapsed }) {
                 </div>
 
                 {filterDropdown && (
-                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("All");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          All
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Female");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Female
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Male");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Male
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Senior Citizens");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Senior Citizens
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("PWD");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          PWD
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Pregnant");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Pregnant
-                        </li>
-                      </div>
-                      {/* <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("4Ps");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          4Ps
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Solo Parent");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Solo Parent
-                        </li>
-                      </div> */}
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Unemployed");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Unemployed
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Voters");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Voters
-                        </li>
-                      </div>
+                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md max-h-60 overflow-y-auto">
+                    <ul className="dropdown-list">
+                      {sortOptionsList.map((option) => (
+                        <div className="navbar-dropdown-item" key={option}>
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={() => {
+                              setSortOption(option);
+                              setfilterDropdown(false);
+                            }}
+                          >
+                            {option}
+                          </li>
+                        </div>
+                      ))}
                     </ul>
                   </div>
                 )}
