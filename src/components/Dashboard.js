@@ -821,7 +821,7 @@ function Dashboard({ isCollapsed }) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                       dataKey="category"
-                      tick={{ fontSize: 12, fontWeight: 600, fill: "#04384E" }}
+                      tick={{ fontSize: 14, fill: "#04384E" }}
                       interval={0}
                       angle={-30}
                       textAnchor="end"
