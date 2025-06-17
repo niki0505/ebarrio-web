@@ -8,8 +8,11 @@ import autoTable from "jspdf-autotable";
 import { MdArrowDropDown } from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
 import SearchBar from "./SearchBar";
+import { useLocation } from "react-router-dom";
 
 function Household({ isCollapsed }) {
+  const location = useLocation();
+  const { selectedSort } = location.state || {};
   const { fetchHouseholds, household } = useContext(InfoContext);
   const { user } = useContext(AuthContext);
   const [isHouseholdClicked, setHouseholdClicked] = useState(false);
@@ -20,10 +23,17 @@ function Household({ isCollapsed }) {
   const [isChangeClicked, setChangedClicked] = useState(false);
   const [filteredHousehold, setFilteredHousehold] = useState([]);
   const [search, setSearch] = useState("");
+  const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
+  const filterRef = useRef(null);
+  const [filterDropdown, setfilterDropdown] = useState(false);
 
   const toggleExportDropdown = () => {
     setexportDropdown(!exportDropdown);
+  };
+
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
   };
 
   useEffect(() => {
@@ -136,7 +146,7 @@ function Household({ isCollapsed }) {
           Male: "M",
           Female: "F",
         };
-        return sexMap[sex] || "N/A";
+        return sexMap[sex] || "";
       };
 
       // To format the date
@@ -162,7 +172,7 @@ function Household({ isCollapsed }) {
           Separated: "SP",
           Cohabitation: "C",
         };
-        return civilstatusMap[civilstatus] || "N/A";
+        return civilstatusMap[civilstatus] || "";
       };
 
       //To display the code for membership type
@@ -171,7 +181,7 @@ function Household({ isCollapsed }) {
           Member: "M",
           Dependent: "D",
         };
-        return philhealthtypeMap[philhealthtype] || "N/A";
+        return philhealthtypeMap[philhealthtype] || "";
       };
 
       //To display the code for philhealth category
@@ -185,7 +195,7 @@ function Household({ isCollapsed }) {
           "Indigenous People": "IP",
           Unknown: "U",
         };
-        return philhealthcategoryMap[philhealthcategory] || "N/A";
+        return philhealthcategoryMap[philhealthcategory] || "";
       };
 
       // To display the code for medical history
@@ -199,15 +209,17 @@ function Household({ isCollapsed }) {
 
         if (history.length === 0) return "N/A";
 
-        return history.join(", ");
+        return history.join(" ");
       };
 
       // To display the code for using any fp method
       const getUsingFPMethodCode = (member) => {
-        if (member.resID?.haveFPmethod) {
+        if (member.resID?.haveFPmethod === "Yes") {
           return "Y";
-        } else {
+        } else if (member.resID?.haveFPmethod === "No") {
           return "N";
+        } else {
+          return "";
         }
       };
 
@@ -222,7 +234,7 @@ function Household({ isCollapsed }) {
           Restarter: "R",
         };
 
-        return fpstatusMap[fpstatus] || "N/A";
+        return fpstatusMap[fpstatus] || "";
       };
 
       //To display the code for age/class
@@ -242,9 +254,9 @@ function Household({ isCollapsed }) {
         if (member.resID?.isUnder5) classification.push("U");
         if (member.resID?.isPWD) classification.push("PWD");
 
-        if (classification.length === 0) return "N/A";
+        if (classification.length === 0) return "";
 
-        return classification.join(", ");
+        return classification.join(" ");
       };
 
       const getEducationCode = (education) => {
@@ -263,7 +275,7 @@ function Household({ isCollapsed }) {
           "College Graduate": "CG",
           Postgraduate: "PG",
         };
-        return educationMap[education] || "N/A";
+        return educationMap[education] || "";
       };
 
       doc.setFontSize(12);
@@ -290,7 +302,7 @@ function Household({ isCollapsed }) {
               },
             },
             {
-              content: `Lastname: ${headMember.resID.lastname || "N/A"}
+              content: `Lastname: ${headMember.resID.lastname || ""}
 `,
               colSpan: 3,
               styles: {
@@ -302,7 +314,7 @@ function Household({ isCollapsed }) {
                 `${
                   household.ethnicity === "IP Household" ? "[x]" : "[ ]"
                 } IP Household\n` +
-                `If IP Household, indicate tribe: ${household.tribe || "N/A"}`,
+                `If IP Household, indicate tribe: ${household.tribe || ""}`,
               rowSpan: 2,
               colSpan: 3,
               styles: { valign: "top", fontSize: 11 },
@@ -319,7 +331,7 @@ function Household({ isCollapsed }) {
                   household.sociostatus === "Non-NHTS" ? "[x]" : "[ ]"
                 } Non-NHTS\n\n` +
                 `If NHTS, please indicate the NHTS No.: ${
-                  household.nhtsno || "N/A"
+                  household.nhtsno || ""
                 }`,
               rowSpan: 3,
               colSpan: 3,
@@ -335,7 +347,7 @@ function Household({ isCollapsed }) {
                   ? "LEVEL III"
                   : household.watersource === "Others"
                   ? "Others"
-                  : "N/A"
+                  : ""
               }`,
               colSpan: 3,
               styles: { fontSize: 11 },
@@ -358,7 +370,7 @@ function Household({ isCollapsed }) {
                   ? "F"
                   : household.toiletfacility === "Without toilet"
                   ? "G"
-                  : "N/A"
+                  : ""
               }`,
               colSpan: 9,
               styles: { fontSize: 11 },
@@ -372,7 +384,7 @@ function Household({ isCollapsed }) {
               styles: { fontSize: 11 },
             },
             {
-              content: `First Name: ${headMember.resID.firstname || "N/A"}`,
+              content: `First Name: ${headMember.resID.firstname || ""}`,
               colSpan: 3,
               styles: { fontSize: 11 },
             },
@@ -398,13 +410,13 @@ function Household({ isCollapsed }) {
           [
             {
               content: `Household (HH) Number: ${
-                headMember.resID.householdno || "N/A"
+                headMember.resID.householdno || ""
               }`,
               colSpan: 3,
               styles: { fontSize: 11 },
             },
             {
-              content: `Middle Name: ${headMember.resID.middlename || "N/A"}`,
+              content: `Middle Name: ${headMember.resID.middlename || ""}`,
               colSpan: 3,
               styles: { fontSize: 11 },
             },
@@ -904,15 +916,15 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
           ...sortedMembers.map((member) => [
             {
-              content: member.resID?.lastname || "N/A",
+              content: member.resID?.lastname || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID?.firstname || "N/A",
+              content: member.resID?.firstname || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID?.middlename || "N/A",
+              content: member.resID?.middlename || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
@@ -924,7 +936,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: formatDate(member.resID?.birthdate || "N/A"),
+              content: formatDate(member.resID?.birthdate || ""),
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
@@ -932,7 +944,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID?.philhealthid || "N/A",
+              content: member.resID?.philhealthid || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
@@ -966,7 +978,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
             {
               content:
                 member.resID.sex === "Female"
-                  ? member.resID.fpmethod || "N/A"
+                  ? member.resID.fpmethod || ""
                   : "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
@@ -978,7 +990,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID.age || "N/A",
+              content: member.resID.age || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
@@ -1014,7 +1026,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID?.religion || "N/A",
+              content: member.resID?.religion || "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
@@ -1158,6 +1170,14 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
       filtered = household.filter((res) => res.status === "Change Requested");
     }
 
+    switch (sortOption) {
+      case "4Ps":
+        filtered = filtered.filter((h) => h.sociostatus === "NHTS 4Ps");
+        break;
+      default:
+        break;
+    }
+
     if (search) {
       const searchParts = search.toLowerCase().split(" ").filter(Boolean);
       filtered = filtered.filter((resident) => {
@@ -1175,7 +1195,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
       });
     }
     setFilteredHousehold(filtered);
-  }, [search, household, isActiveClicked, isPendingClicked]);
+  }, [search, household, isActiveClicked, isPendingClicked, sortOption]);
 
   console.log(household);
 
@@ -1185,70 +1205,115 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         <div className="header-text">Households</div>
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
-        <div className="status-container">
-          <p
-            onClick={handleMenu1}
-            className={`status-text ${
-              isActiveClicked ? "status-line" : "text-[#808080]"
-            }`}
-          >
-            Active
-          </p>
-          <p
-            onClick={handleMenu2}
-            className={`status-text ${
-              isPendingClicked ? "status-line" : "text-[#808080]"
-            }`}
-          >
-            Pending
-          </p>
-          <p
-            onClick={handleMenu3}
-            className={`status-text ${
-              isChangeClicked ? "status-line" : "text-[#808080]"
-            }`}
-          >
-            Change Requested
-          </p>
-        </div>
-        {isActiveClicked && (
-          <div className="flex flex-row gap-x-2 mt-4">
-            <div className="relative" ref={exportRef}>
-              {/* Export Button */}
-              <div
-                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleExportDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Export
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
-                  <MdArrowDropDown size={18} color={"#0E94D3"} />
-                </div>
-              </div>
-
-              {exportDropdown && (
-                <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
-                  <ul className="w-full">
-                    <div className="navbar-dropdown-item">
-                      <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                        Export as CSV
-                      </li>
-                    </div>
-                    <div className="navbar-dropdown-item">
-                      <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                        onClick={exportPDF}
-                      >
-                        Export as PDF
-                      </li>
-                    </div>
-                  </ul>
-                </div>
-              )}
-            </div>
+        <div className="status-add-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${
+                isActiveClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Active
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Pending
+            </p>
+            <p
+              onClick={handleMenu3}
+              className={`status-text ${
+                isChangeClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Change Requested
+            </p>
           </div>
-        )}
+          {isActiveClicked && (
+            <div className="flex flex-row gap-x-2 mt-4">
+              <div className="relative" ref={exportRef}>
+                {/* Export Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleExportDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Export
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {exportDropdown && (
+                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
+                          Export as CSV
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={exportPDF}
+                        >
+                          Export as PDF
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="relative" ref={filterRef}>
+                {/* Filter Button */}
+                <div
+                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                  onClick={toggleFilterDropdown}
+                >
+                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                    Filter
+                  </h1>
+                  <div className="pointer-events-none flex text-gray-600">
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  </div>
+                </div>
+
+                {filterDropdown && (
+                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                    <ul className="w-full">
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("All");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          All
+                        </li>
+                      </div>
+                      <div className="navbar-dropdown-item">
+                        <li
+                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          onClick={() => {
+                            setSortOption("4Ps");
+                            setfilterDropdown(false);
+                          }}
+                        >
+                          4Ps
+                        </li>
+                      </div>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <table>
           <thead>
