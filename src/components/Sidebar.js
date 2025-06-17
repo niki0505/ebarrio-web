@@ -33,79 +33,63 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const Menus = [
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
-      user.role === "Justice" ||
-      user.role === "Technical Admin") && {
+      user.role === "Justice") && {
       title: "Dashboard",
       icon: <MdDashboard />,
       path: "/dashboard",
     },
-    (user.role === "Secretary" || user.role === "Technical Admin") && {
+    user.role === "Secretary" && {
       title: "Employees",
       icon: <IoPeople />,
       path: "/employees",
     },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Residents",
       icon: <IoIosPeople />,
       path: "/residents",
     },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Households",
       icon: <IoIosPeople />,
       path: "/households",
     },
-    (user.role === "Justice" ||
-      user.role === "Secretary" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Justice" || user.role === "Secretary") && {
       title: "Blotter Reports",
       icon: <MdEditDocument />,
       path: "/blotter-reports",
     },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Document Requests",
       icon: <IoDocumentTextSharp />,
       path: "/document-requests",
     },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Court Reservations",
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
-      user.role === "Justice" ||
-      user.role === "Technical Admin") && {
+      user.role === "Justice") && {
       title: "Announcements",
       icon: <BiSolidMegaphone />,
       path: "/announcements",
     },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
-      user.role === "Justice" ||
-      user.role === "Technical Admin") && {
+      user.role === "Justice") && {
       title: "SOS Update Reports",
       icon: <AiFillAlert />,
       path: "/sos-update-reports",
     },
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
-      user.role === "Justice" ||
-      user.role === "Technical Admin") && {
+      user.role === "Justice") && {
       title: "River Snapshots",
       icon: <BiSolidCctv />,
       path: "/river-snapshots",
     },
-    (user.role === "Secretary" ||
-      user.role === "Clerk" ||
-      user.role === "Technical Admin") && {
+    (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Emergency Hotlines",
       icon: <RiContactsBook3Fill />,
       path: "/emergency-hotlines",
