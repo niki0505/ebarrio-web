@@ -396,7 +396,7 @@ function Accounts({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Accounts</div>
+        <div className="header-text">User Accounts</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 

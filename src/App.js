@@ -162,7 +162,7 @@ function App() {
                       }
                     />
                     <Route
-                      path="accounts"
+                      path="user-accounts"
                       element={
                         <PrivateRoute
                           element={<Accounts />}

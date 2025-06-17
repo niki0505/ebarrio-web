@@ -117,19 +117,19 @@ function Dashboard({ isCollapsed }) {
             element.status !== "Archived" && element.status !== "Pending"
         ).length;
 
-      const fourps = residents
-        .filter((element) => element.is4Ps)
+      const fourps = household
+        .filter((element) => element.sociostatus === "NHTS 4Ps")
         .filter(
           (element) =>
             element.status !== "Archived" && element.status !== "Pending"
         ).length;
 
-      const soloparent = residents
-        .filter((element) => element.isSoloParent)
-        .filter(
-          (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
-        ).length;
+      // const soloparent = residents
+      //   .filter((element) => element.isSoloParent)
+      //   .filter(
+      //     (element) =>
+      //       element.status !== "Archived" && element.status !== "Pending"
+      //   ).length;
 
       const unemployed = residents
         .filter(
@@ -154,7 +154,7 @@ function Dashboard({ isCollapsed }) {
         PWD: PWD,
         pregnant: pregnant,
         fourps: fourps,
-        soloparent: soloparent,
+        // soloparent: soloparent,
         unemployed: unemployed,
       });
     };
@@ -692,7 +692,7 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div
+              {/* <div
                 className="form-group cursor-pointer"
                 onClick={() =>
                   navigation("/residents", {
@@ -718,7 +718,7 @@ function Dashboard({ isCollapsed }) {
                     <MdElderly />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div
                 className="form-group cursor-pointer"
