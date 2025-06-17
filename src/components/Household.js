@@ -54,6 +54,8 @@ function Household({ isCollapsed }) {
     const margin = 10;
 
     const generatePage = (household, index) => {
+      if (household.status === "Change Requested") return;
+
       const headMember = household.members.find(
         (member) => member.position === "Head"
       );
@@ -410,9 +412,7 @@ function Household({ isCollapsed }) {
           ],
           [
             {
-              content: `Household (HH) Number: ${
-                headMember.resID.householdno || ""
-              }`,
+              content: `Household (HH) Number: ${household.householdno || ""}`,
               colSpan: 3,
               styles: { fontSize: 11 },
             },
@@ -1181,17 +1181,22 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
     if (search) {
       const searchParts = search.toLowerCase().split(" ").filter(Boolean);
-      filtered = filtered.filter((resident) => {
-        const first = resident.firstname || "";
-        const middle = resident.middlename || "";
-        const last = resident.lastname || "";
+
+      filtered = filtered.filter((h) => {
+        const head = h.members.find((m) => m.position === "Head");
+
+        if (!head || !head.resID) return false;
+
+        const first = head.resID.firstname || "";
+        const middle = head.resID.middlename || "";
+        const last = head.resID.lastname || "";
+        const address = head.resID.address || "";
 
         const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
         return searchParts.every(
           (part) =>
-            fullName.includes(part) ||
-            resident.address.toLowerCase().includes(part)
+            fullName.includes(part) || address.toLowerCase().includes(part)
         );
       });
     }
@@ -1329,7 +1334,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                       e.currentTarget.style.backgroundColor = "";
                     }}
                   >
-                    <td>N/A</td>
+                    <td>{house.householdno}</td>
                     <td>{householdName}</td>
                     <td>{headName}</td>
                     <td>{headMember.resID.address}</td>

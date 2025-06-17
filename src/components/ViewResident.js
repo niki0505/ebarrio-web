@@ -1667,48 +1667,51 @@ function ViewResident({ isCollapsed }) {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label for="philhealthcategory" className="form-label">
-                    Family Planning Method
-                  </label>
-                  <select
-                    id="fpmethod"
-                    name="fpmethod"
-                    onChange={handleDropdownChange}
-                    value={residentForm.fpmethod}
-                    className="form-input"
-                  >
-                    <option value="" selected>
-                      Select
-                    </option>
-                    {fpmethodList.map((element) => (
-                      <option value={element}>{element}</option>
-                    ))}
-                  </select>
-                </div>
+                {residentForm.haveFPmethod === "Yes" && (
+                  <>
+                    <div className="form-group">
+                      <label for="philhealthcategory" className="form-label">
+                        Family Planning Method
+                      </label>
+                      <select
+                        id="fpmethod"
+                        name="fpmethod"
+                        onChange={handleDropdownChange}
+                        value={residentForm.fpmethod}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {fpmethodList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="form-group">
-                  <label for="philhealthcategory" className="form-label">
-                    Family Planning Status
-                  </label>
-                  <select
-                    id="fpstatus"
-                    name="fpstatus"
-                    onChange={handleDropdownChange}
-                    value={residentForm.fpstatus}
-                    className="form-input"
-                  >
-                    <option value="" selected>
-                      Select
-                    </option>
-                    {fpstatusList.map((element) => (
-                      <option value={element}>{element}</option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="form-group">
+                      <label for="philhealthcategory" className="form-label">
+                        Family Planning Status
+                      </label>
+                      <select
+                        id="fpstatus"
+                        name="fpstatus"
+                        onChange={handleDropdownChange}
+                        value={residentForm.fpstatus}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {fpstatusList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </>
             )}
-
             <div className="form-group">
               <label for="bloodtype" className="form-label">
                 Blood Type
@@ -1808,11 +1811,10 @@ function ViewResident({ isCollapsed }) {
                 maxLength={4}
               />
             </div>
-
             <div className="form-group">
-              <label className="form-label">Classification</label>
+              <label className="form-label">Classification by Age/Health</label>
               <div className="flex flex-col space-y-2">
-                <label className="flex items-center space-x-2">
+                {/* <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     name="is4Ps"
@@ -1820,16 +1822,16 @@ function ViewResident({ isCollapsed }) {
                     onChange={handleCheckboxChange}
                   />
                   <span>4Ps Beneficiary</span>
-                </label>
+                </label> */}
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    name="isSenior"
-                    checked={residentForm.isSenior}
+                    name="isNewborn"
+                    checked={residentForm.isNewborn}
                     onChange={handleCheckboxChange}
                     disabled
                   />
-                  <span>Senior Citizen</span>
+                  <span>Newborn</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input
@@ -1844,14 +1846,75 @@ function ViewResident({ isCollapsed }) {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    name="isChild"
-                    checked={residentForm.isChild}
+                    name="isUnder5"
+                    checked={residentForm.isUnder5}
                     onChange={handleCheckboxChange}
                     disabled
                   />
-                  <span>Child</span>
+                  <span>Under 5 y.o</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isAdolescent"
+                    checked={residentForm.isAdolescent}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Adolescent</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isAdult"
+                    checked={residentForm.isAdult}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Adult</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSenior"
+                    checked={residentForm.isSenior}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Senior Citizen</span>
                 </label>
                 {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isWomenOfReproductive"
+                      checked={residentForm.isWomenOfReproductive}
+                      onChange={handleCheckboxChange}
+                      disabled
+                    />
+                    <span>Women of Reproductive Age</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.age >= 0 &&
+                    residentForm.age <= 5
+                ) && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isSchoolAge"
+                      checked={residentForm.isSchoolAge}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>School of Age</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.sex === "Female" &&
+                    residentForm.age > 19
+                ) && (
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -1860,6 +1923,33 @@ function ViewResident({ isCollapsed }) {
                       onChange={handleCheckboxChange}
                     />
                     <span>Pregnant</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.sex === "Female" &&
+                    residentForm.age >= 10 &&
+                    residentForm.age <= 19
+                ) && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isAdolescentPregnant"
+                      checked={residentForm.isAdolescentPregnant}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Adolescent Pregnant</span>
+                  </label>
+                )}
+                {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isPostpartum"
+                      checked={residentForm.isPostpartum}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Postpartum</span>
                   </label>
                 )}
                 <label className="flex items-center space-x-2">
@@ -1871,7 +1961,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Person with Disability (PWD)</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                {/* <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     name="isSoloParent"
@@ -1879,9 +1969,10 @@ function ViewResident({ isCollapsed }) {
                     onChange={handleCheckboxChange}
                   />
                   <span>Solo Parent</span>
-                </label>
+                </label> */}
               </div>
             </div>
+
             <div className="form-group">
               <label className="form-label">Medical History</label>
               <div className="flex flex-col space-y-2">

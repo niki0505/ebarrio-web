@@ -92,11 +92,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Residents />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -105,11 +101,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Household />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -118,11 +110,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateResident />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -131,11 +119,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<EditResident />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -144,11 +128,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<ViewResident />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -157,7 +137,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Employees />}
-                          allowedRoles={["Secretary", "Technical Admin"]}
+                          allowedRoles={["Secretary"]}
                         />
                       }
                     />
@@ -184,11 +164,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CertificateRequests />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -197,11 +173,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<EmergencyHotlines />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -210,12 +182,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Announcements />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Justice",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -224,12 +191,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Dashboard />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Justice",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -238,11 +200,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CourtReservations />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk"]}
                         />
                       }
                     />
@@ -251,11 +209,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<BlotterReports />}
-                          allowedRoles={[
-                            "Justice",
-                            "Secretary",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -264,11 +218,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateBlotter />}
-                          allowedRoles={[
-                            "Justice",
-                            "Secretary",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -277,11 +227,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<SettleBlotter />}
-                          allowedRoles={[
-                            "Justice",
-                            "Secretary",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -290,12 +236,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<AccountSettings />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Justice",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -304,12 +245,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<SOSUpdateReports />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Justice",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -318,12 +254,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<RiverSnapshots />}
-                          allowedRoles={[
-                            "Secretary",
-                            "Clerk",
-                            "Justice",
-                            "Technical Admin",
-                          ]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
