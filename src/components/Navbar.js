@@ -144,13 +144,16 @@ const Navbar = ({ isCollapsed }) => {
         <div className="navbar-right">
           <div className="relative" ref={notifRef}>
             {notifications.some((n) => n.read === false) && (
-              <div className="absolute left-1 rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 bg-blue-500"></div>
+              <div className="absolute left-1 rounded-full w-2 h-2 ml-2 mt-1 mr-3 flex-shrink-0 bg-red-500"></div>
             )}
 
             <IoNotifications
-              className="navbar-icon"
+              className={`navbar-icon ${
+                user?.role !== "Technical Admin" ? "" : "mt-3"
+              }`}
               onClick={toggleNotificationDropdown}
             />
+
             {notificationDropdown && (
               <div className="absolute right-0 mt-4 bg-[#FAFAFA] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-[10px] w-[24rem] h-[20rem] border border-[#C1C0C0] flex flex-col">
                 {/* Header */}
@@ -273,7 +276,7 @@ const Navbar = ({ isCollapsed }) => {
           {/* User Information */}
           <div className="navbar-user-info">
             {user?.role === "Technical Admin" ? (
-              <h2 className="text-navy-blue font-bold text-base">
+              <h2 className="text-navy-blue font-bold text-base mt-2">
                 Technical Admin
               </h2>
             ) : (
@@ -289,7 +292,10 @@ const Navbar = ({ isCollapsed }) => {
           </div>
           {/* Profile Image and Dropdown */}
           <div className="relative" ref={profileRef}>
-            <IoIosArrowDown onClick={toggleProfileDropdown} />
+            <IoIosArrowDown
+              className={`${user?.role !== "Technical Admin" ? "" : "mt-3"}`}
+              onClick={toggleProfileDropdown}
+            />
             {profileDropdown && (
               <div className="navbar-dropdown">
                 <ul className="w-full">
