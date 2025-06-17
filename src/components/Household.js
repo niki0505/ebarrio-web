@@ -9,6 +9,7 @@ import { MdArrowDropDown } from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
 import SearchBar from "./SearchBar";
 import { useLocation } from "react-router-dom";
+import { FiDownload } from "react-icons/fi";
 
 function Household({ isCollapsed }) {
   const location = useLocation();
@@ -1238,35 +1239,13 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                 {/* Export Button */}
                 <div
                   className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
+                  onClick={exportPDF}
                 >
+                  <FiDownload className="text-[#0E94D3] mr-1" size={16} />
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
+                    PDF
                   </h1>
-                  <div className="pointer-events-none flex text-gray-600">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
                 </div>
-
-                {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li className="px-4 text-sm cursor-pointer text-[#0E94D3]">
-                          Export as CSV
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
               </div>
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
@@ -1275,7 +1254,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                   onClick={toggleFilterDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
+                    {sortOption}
                   </h1>
                   <div className="pointer-events-none flex text-gray-600">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />

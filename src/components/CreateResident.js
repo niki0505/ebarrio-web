@@ -1042,7 +1042,7 @@ function CreateResident({ isCollapsed }) {
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
-                      <p>Attach Image</p>
+                      <p>Attach Picture</p>
                     </div>
                   )}
                 </div>
@@ -1083,7 +1083,7 @@ function CreateResident({ isCollapsed }) {
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
-                      <p>Attach Image</p>
+                      <p>Attach Signature</p>
                     </div>
                   )}
                 </div>
