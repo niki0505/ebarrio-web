@@ -1748,7 +1748,7 @@ function EditResident({ isCollapsed }) {
 
             <div className="form-group">
               <label for="religion" className="form-label">
-                Religion<label className="text-red-600">*</label>
+                Religion
               </label>
               <select
                 id="religion"
@@ -1756,7 +1756,6 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 value={residentForm.religion}
                 className="form-input"
-                required
               >
                 <option value="" selected>
                   Select

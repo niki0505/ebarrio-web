@@ -54,6 +54,8 @@ function Household({ isCollapsed }) {
     const margin = 10;
 
     const generatePage = (household, index) => {
+      if (household.status === "Change Requested") return;
+
       const headMember = household.members.find(
         (member) => member.position === "Head"
       );
