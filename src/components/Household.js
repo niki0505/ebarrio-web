@@ -82,8 +82,10 @@ function Household({ isCollapsed }) {
 
       doc.text(`Municipality/City/District:`, margin, 40);
       doc.line(margin + 58, 40, margin + 150, 40);
+      doc.text("Bacoor", margin + 58, 39);
       doc.text(`Province:`, margin, 48);
       doc.line(margin + 28, 48, margin + 150, 48);
+      doc.text("Cavite", margin + 28, 47);
       doc.text(`Interviewed by:`, margin + 170, 40);
       doc.line(margin + 205, 40, margin + 300, 40);
       doc.text(`Reviewed by:`, margin + 170, 48);
@@ -154,11 +156,11 @@ function Household({ isCollapsed }) {
       //To display the code for civil status
       const getCivilStatusCode = (civilstatus) => {
         const civilstatusMap = {
-          M: "Married",
-          S: "Single",
-          W: "Widow-er",
-          SP: "Separated",
-          C: "Cohabitation",
+          Married: "M",
+          Single: "S",
+          "Widow-er": "W",
+          Separated: "SP",
+          Cohabitation: "C",
         };
         return civilstatusMap[civilstatus] || "N/A";
       };
@@ -166,8 +168,8 @@ function Household({ isCollapsed }) {
       //To display the code for membership type
       const getPhilhealthTypeCode = (philhealthtype) => {
         const philhealthtypeMap = {
-          M: "Member",
-          D: "Dependent",
+          Member: "M",
+          Dependent: "D",
         };
         return philhealthtypeMap[philhealthtype] || "N/A";
       };
@@ -175,13 +177,13 @@ function Household({ isCollapsed }) {
       //To display the code for philhealth category
       const getPhilhealthCategoryCode = (philhealthcategory) => {
         const philhealthcategoryMap = {
-          FEP: "Formal Economy Private",
-          FEG: "Formal Economy Government",
-          IE: "Informal Economy",
-          N: "NHTS",
-          SC: "Senior Citizen",
-          IP: "Indigenous People",
-          U: "Unknown",
+          "Formal Economy Private": "FEP",
+          "Formal Economy Government": "FEG",
+          "Informal Economy": "IE",
+          NHTS: "N",
+          "Senior Citizen": "SC",
+          "Indigenous People": "IP",
+          Unknown: "U",
         };
         return philhealthcategoryMap[philhealthcategory] || "N/A";
       };
@@ -190,10 +192,10 @@ function Household({ isCollapsed }) {
       const getMedicalHistoryCode = (member) => {
         let history = [];
 
-        if (member.haveDiabetes) history.push("DB");
-        if (member.haveHypertension) history.push("HPN");
-        if (member.haveSurgery) history.push("S");
-        if (member.haveTubercolosis) history.push("TB");
+        if (member.resID?.haveDiabetes) history.push("DB");
+        if (member.resID?.haveHypertension) history.push("HPN");
+        if (member.resID?.haveSurgery) history.push("S");
+        if (member.resID?.haveTubercolosis) history.push("TB");
 
         if (history.length === 0) return "N/A";
 
@@ -202,7 +204,7 @@ function Household({ isCollapsed }) {
 
       // To display the code for using any fp method
       const getUsingFPMethodCode = (member) => {
-        if (member.haveFPmethod) {
+        if (member.resID?.haveFPmethod) {
           return "Y";
         } else {
           return "N";
@@ -212,12 +214,12 @@ function Household({ isCollapsed }) {
       //To display the code for FP status
       const getFPStatusCode = (fpstatus) => {
         const fpstatusMap = {
-          "N/A": "New Acceptor",
-          CU: "Current User",
-          CM: "Changing Method",
-          CC: "Changing Clinic",
-          DO: "Dropout",
-          R: "Restarter",
+          "New Acceptor": "N/A",
+          "Current User": "CU",
+          "Changing Method": "CM",
+          "Changing Clinic": "CC",
+          Dropout: "DO",
+          Restarter: "R",
         };
 
         return fpstatusMap[fpstatus] || "N/A";
@@ -227,18 +229,18 @@ function Household({ isCollapsed }) {
       const getClassificationCode = (member) => {
         let classification = [];
 
-        if (member.isNewborn) classification.push("N");
-        if (member.isAdult) classification.push("AB");
-        if (member.isSenior) classification.push("SC");
-        if (member.isWRA) classification.push("WRA");
-        if (member.isSchool) classification.push("S");
-        if (member.isAdolescent) classification.push("A");
-        if (member.isPregnant) classification.push("P");
-        if (member.isAdolescentPregnant) classification.push("AP");
-        if (member.isPostpartum) classification.push("PP");
-        if (member.isInfant) classification.push("I");
-        if (member.isUnder) classification.push("U");
-        if (member.isPWD) classification.push("PWD");
+        if (member.resID?.isNewborn) classification.push("N");
+        if (member.resID?.isAdult) classification.push("AB");
+        if (member.resID?.isSenior) classification.push("SC");
+        if (member.resID?.isWomenOfReproductive) classification.push("WRA");
+        if (member.resID?.isSchoolAge) classification.push("S");
+        if (member.resID?.isAdolescent) classification.push("A");
+        if (member.resID?.isPregnant) classification.push("P");
+        if (member.resID?.isAdolescentPregnant) classification.push("AP");
+        if (member.resID?.isPostpartum) classification.push("PP");
+        if (member.resID?.isInfant) classification.push("I");
+        if (member.resID?.isUnder5) classification.push("U");
+        if (member.resID?.isPWD) classification.push("PWD");
 
         if (classification.length === 0) return "N/A";
 
@@ -247,19 +249,19 @@ function Household({ isCollapsed }) {
 
       const getEducationCode = (education) => {
         const educationMap = {
-          N: "None",
-          K: "Kinder",
-          ES: "Elementary Student",
-          EU: "Elementary Undergrad",
-          EG: "Elementary Graduate",
-          HS: "High School Student",
-          HU: "High School Undergrad",
-          HG: "High School Graduate",
-          V: "Vocational Course",
-          CS: "College Student",
-          CU: "College Undergrad",
-          CG: "College Graduate",
-          PG: "Postgraduate",
+          None: "N",
+          Kinder: "K",
+          "Elementary Student": "ES",
+          "Elementary Undergrad": "EU",
+          "Elementary Graduate": "EG",
+          "High School Student": "HS",
+          "High School Undergrad": "HU",
+          "High School Graduate": "HG",
+          "Vocational Course": "V",
+          "College Student": "CS",
+          "College Undergrad": "CU",
+          "College Graduate": "CG",
+          Postgraduate: "PG",
         };
         return educationMap[education] || "N/A";
       };
@@ -300,9 +302,7 @@ function Household({ isCollapsed }) {
                 `${
                   household.ethnicity === "IP Household" ? "[x]" : "[ ]"
                 } IP Household\n` +
-                `If IP Household, indicate tribe: ${
-                  household.ethnicity || "N/A"
-                }`,
+                `If IP Household, indicate tribe: ${household.tribe || "N/A"}`,
               rowSpan: 2,
               colSpan: 3,
               styles: { valign: "top", fontSize: 11 },
@@ -367,7 +367,7 @@ function Household({ isCollapsed }) {
           ],
           [
             {
-              content: `Barangay:`,
+              content: `Barangay: Aniban 2`,
               colSpan: 3,
               styles: { fontSize: 11 },
             },
@@ -950,19 +950,31 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: formatDate(member.resID?.lastmenstrual),
+              content:
+                member.resID.sex === "Female" && member.resID.lastmenstrual
+                  ? formatDate(member.resID.lastmenstrual)
+                  : "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: getUsingFPMethodCode(member),
+              content:
+                member.resID.sex === "Female"
+                  ? getUsingFPMethodCode(member)
+                  : "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: member.resID.fpmethod || "N/A",
+              content:
+                member.resID.sex === "Female"
+                  ? member.resID.fpmethod || "N/A"
+                  : "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {
-              content: getFPStatusCode(member.resID.fpStatus),
+              content:
+                member.resID.sex === "Female"
+                  ? getFPStatusCode(member.resID.fpStatus)
+                  : "",
               styles: { fontSize: 12, halign: "center", valign: "middle" },
             },
             {

@@ -111,9 +111,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       path: "/emergency-hotlines",
     },
     (user.role === "Secretary" || user.role === "Technical Admin") && {
-      title: "Accounts Management",
+      title: "User Accounts Management",
       icon: <FaUsersCog />,
-      path: "/accounts",
+      path: "/user-accounts",
     },
     (user.role === "Secretary" || user.role === "Technical Admin") && {
       title: "Activity Logs",

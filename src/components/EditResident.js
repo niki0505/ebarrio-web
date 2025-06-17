@@ -79,13 +79,20 @@ function EditResident({ isCollapsed }) {
     householdno: "",
     householdposition: "",
     head: "",
-    is4Ps: false,
+    // is4Ps: false,
     isSenior: false,
     isInfant: false,
-    isChild: false,
+    isNewborn: false,
+    isUnder5: false,
+    isSchoolAge: false,
+    isAdolescent: false,
+    isAdolescentPregnant: false,
+    isAdult: false,
+    isPostpartum: false,
+    isWomenOfReproductive: false,
     isPregnant: false,
     isPWD: false,
-    isSoloParent: false,
+    // isSoloParent: false,
     philhealthid: "",
     philhealthtype: "",
     philhealthcategory: "",
@@ -94,7 +101,7 @@ function EditResident({ isCollapsed }) {
     haveTubercolosis: false,
     haveSurgery: false,
     lastmenstrual: "",
-    haveFPmethod: false,
+    haveFPmethod: "",
     fpmethod: "",
     fpstatus: "",
   });
@@ -333,7 +340,7 @@ function EditResident({ isCollapsed }) {
   const civilstatusList = [
     "Single",
     "Married",
-    "Widower",
+    "Widow-er",
     "Separated",
     "Annulled",
     "Cohabitation",
@@ -898,19 +905,27 @@ function EditResident({ isCollapsed }) {
         age--;
       }
 
-      const isSenior =
-        age > 60 ||
-        (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+      const isSenior = age >= 60;
 
-      const isInfant = age === 0;
-      const isChild = age >= 1 && age <= 17;
+      const ageInDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+
+      const isNewborn = age === 0 && ageInDays <= 28;
+      const isInfant = (age === 0 && ageInDays > 28) || age === 1;
+      const isUnder5 = age >= 2 && age <= 4;
+      const isAdolescent = age >= 10 && age <= 19;
+      const isAdult = age > 25;
+      const isWomenOfReproductive = age >= 15 && age <= 49;
 
       setResidentForm((prev) => ({
         ...prev,
         age,
         isSenior,
+        isNewborn,
         isInfant,
-        isChild,
+        isUnder5,
+        isAdolescent,
+        isAdult,
+        isWomenOfReproductive,
       }));
     }
   }, [residentForm.birthdate]);
@@ -1665,45 +1680,49 @@ function EditResident({ isCollapsed }) {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label for="philhealthcategory" className="form-label">
-                    Family Planning Method
-                  </label>
-                  <select
-                    id="fpmethod"
-                    name="fpmethod"
-                    onChange={handleDropdownChange}
-                    value={residentForm.fpmethod}
-                    className="form-input"
-                  >
-                    <option value="" selected>
-                      Select
-                    </option>
-                    {fpmethodList.map((element) => (
-                      <option value={element}>{element}</option>
-                    ))}
-                  </select>
-                </div>
+                {residentForm.haveFPmethod === "Yes" && (
+                  <>
+                    <div className="form-group">
+                      <label for="philhealthcategory" className="form-label">
+                        Family Planning Method
+                      </label>
+                      <select
+                        id="fpmethod"
+                        name="fpmethod"
+                        onChange={handleDropdownChange}
+                        value={residentForm.fpmethod}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {fpmethodList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                <div className="form-group">
-                  <label for="philhealthcategory" className="form-label">
-                    Family Planning Status
-                  </label>
-                  <select
-                    id="fpstatus"
-                    name="fpstatus"
-                    onChange={handleDropdownChange}
-                    value={residentForm.fpstatus}
-                    className="form-input"
-                  >
-                    <option value="" selected>
-                      Select
-                    </option>
-                    {fpstatusList.map((element) => (
-                      <option value={element}>{element}</option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="form-group">
+                      <label for="philhealthcategory" className="form-label">
+                        Family Planning Status
+                      </label>
+                      <select
+                        id="fpstatus"
+                        name="fpstatus"
+                        onChange={handleDropdownChange}
+                        value={residentForm.fpstatus}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {fpstatusList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </>
             )}
 
@@ -1729,7 +1748,7 @@ function EditResident({ isCollapsed }) {
 
             <div className="form-group">
               <label for="religion" className="form-label">
-                Religion
+                Religion<label className="text-red-600">*</label>
               </label>
               <select
                 id="religion"
@@ -1737,6 +1756,7 @@ function EditResident({ isCollapsed }) {
                 onChange={handleDropdownChange}
                 value={residentForm.religion}
                 className="form-input"
+                required
               >
                 <option value="" selected>
                   Select
@@ -1810,7 +1830,7 @@ function EditResident({ isCollapsed }) {
             <div className="form-group">
               <label className="form-label">Classification</label>
               <div className="flex flex-col space-y-2">
-                <label className="flex items-center space-x-2">
+                {/* <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     name="is4Ps"
@@ -1818,16 +1838,16 @@ function EditResident({ isCollapsed }) {
                     onChange={handleCheckboxChange}
                   />
                   <span>4Ps Beneficiary</span>
-                </label>
+                </label> */}
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    name="isSenior"
-                    checked={residentForm.isSenior}
+                    name="isNewborn"
+                    checked={residentForm.isNewborn}
                     onChange={handleCheckboxChange}
                     disabled
                   />
-                  <span>Senior Citizen</span>
+                  <span>Newborn</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input
@@ -1842,14 +1862,75 @@ function EditResident({ isCollapsed }) {
                 <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    name="isChild"
-                    checked={residentForm.isChild}
+                    name="isUnder5"
+                    checked={residentForm.isUnder5}
                     onChange={handleCheckboxChange}
                     disabled
                   />
-                  <span>Child</span>
+                  <span>Under 5 y.o</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isAdolescent"
+                    checked={residentForm.isAdolescent}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Adolescent</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isAdult"
+                    checked={residentForm.isAdult}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Adult</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isSenior"
+                    checked={residentForm.isSenior}
+                    onChange={handleCheckboxChange}
+                    disabled
+                  />
+                  <span>Senior Citizen</span>
                 </label>
                 {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isWomenOfReproductive"
+                      checked={residentForm.isWomenOfReproductive}
+                      onChange={handleCheckboxChange}
+                      disabled
+                    />
+                    <span>Women of Reproductive Age</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.age >= 0 &&
+                    residentForm.age <= 5
+                ) && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isSchoolAge"
+                      checked={residentForm.isSchoolAge}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>School of Age</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.sex === "Female" &&
+                    residentForm.age > 19
+                ) && (
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -1858,6 +1939,33 @@ function EditResident({ isCollapsed }) {
                       onChange={handleCheckboxChange}
                     />
                     <span>Pregnant</span>
+                  </label>
+                )}
+                {Boolean(
+                  residentForm.age &&
+                    residentForm.sex === "Female" &&
+                    residentForm.age >= 10 &&
+                    residentForm.age <= 19
+                ) && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isAdolescentPregnant"
+                      checked={residentForm.isAdolescentPregnant}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Adolescent Pregnant</span>
+                  </label>
+                )}
+                {residentForm.sex === "Female" && (
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      name="isPostpartum"
+                      checked={residentForm.isPostpartum}
+                      onChange={handleCheckboxChange}
+                    />
+                    <span>Postpartum</span>
                   </label>
                 )}
                 <label className="flex items-center space-x-2">
@@ -1869,7 +1977,7 @@ function EditResident({ isCollapsed }) {
                   />
                   <span>Person with Disability (PWD)</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                {/* <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     name="isSoloParent"
@@ -1877,7 +1985,7 @@ function EditResident({ isCollapsed }) {
                     onChange={handleCheckboxChange}
                   />
                   <span>Solo Parent</span>
-                </label>
+                </label> */}
               </div>
             </div>
             <div className="form-group">
@@ -2496,7 +2604,8 @@ function EditResident({ isCollapsed }) {
                               >
                                 <option value="">Select Position</option>
                                 <option value="Spouse">Spouse</option>
-                                <option value="Child">Child</option>
+                                <option value="Son">Son</option>
+                                <option value="Daughter">Daughter</option>
                                 <option value="Parent">Parent</option>
                                 <option value="Sibling">Sibling</option>
                                 <option value="Grandparent">Grandparent</option>
