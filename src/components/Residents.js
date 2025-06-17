@@ -19,6 +19,7 @@ import { AuthContext } from "../context/AuthContext";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
 import { removeBackground } from "@imgly/background-removal";
+import ResidentReject from "./ResidentReject";
 
 function Residents({ isCollapsed }) {
   const location = useLocation();
@@ -29,6 +30,7 @@ function Residents({ isCollapsed }) {
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
+  const [isRejectClicked, setRejectClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
   const { user } = useContext(AuthContext);
@@ -247,6 +249,12 @@ function Residents({ isCollapsed }) {
     setCertClicked(true);
   };
 
+  const rejectBtn = (e, resID) => {
+    e.stopPropagation();
+    setSelectedResID(resID);
+    setRejectClicked(true);
+  };
+
   const archiveBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
@@ -296,7 +304,9 @@ function Residents({ isCollapsed }) {
     if (isActiveClicked) {
       filtered = residents.filter((res) => res.status === "Active");
     } else if (isArchivedClicked) {
-      filtered = residents.filter((res) => res.status === "Archived");
+      filtered = residents.filter(
+        (res) => res.status === "Archived" || res.status === "Rejected"
+      );
     } else if (isPendingClicked) {
       filtered = residents.filter((res) => res.status === "Pending");
     }
@@ -667,7 +677,7 @@ function Residents({ isCollapsed }) {
                 isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
-              Archived
+              Archived/Rejected
             </p>
           </div>
           {isActiveClicked && (
@@ -928,12 +938,12 @@ function Residents({ isCollapsed }) {
                             >
                               RECOVER
                             </button>
-                          ) : (
+                          ) : res.status === "Pending" ? (
                             <>
                               <button
                                 className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                 type="submit"
-                                onClick={(e) => recoverBtn(e, res._id)}
+                                onClick={(e) => rejectBtn(e, res._id)}
                               >
                                 REJECT
                               </button>
@@ -952,7 +962,7 @@ function Residents({ isCollapsed }) {
                                 VIEW
                               </button>
                             </>
-                          )}
+                          ) : null}
                         </td>
                       ) : (
                         <>
@@ -1038,6 +1048,12 @@ function Residents({ isCollapsed }) {
           <CreateCertificate
             resID={selectedResID}
             onClose={() => setCertClicked(false)}
+          />
+        )}
+        {isRejectClicked && (
+          <ResidentReject
+            resID={selectedResID}
+            onClose={() => setRejectClicked(false)}
           />
         )}
       </main>
