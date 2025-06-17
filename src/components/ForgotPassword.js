@@ -289,7 +289,7 @@ function ForgotPassword() {
                 <div className="flex flex-col gap-4">
                   <input
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => handleUsernameChange(e)}
                     className="form-input"
@@ -358,7 +358,7 @@ function ForgotPassword() {
                                 type={
                                   showResetNewPassword ? "text" : "password"
                                 }
-                                placeholder="Enter new password"
+                                placeholder="New Password"
                                 onChange={(e) => passwordValidation(e)}
                                 className="form-input w-full"
                               />
@@ -561,7 +561,7 @@ function ForgotPassword() {
                           <div className="relative w-full">
                             <input
                               type={showSecurityPassword ? "text" : "password"}
-                              placeholder="Enter answer"
+                              placeholder="Answer"
                               name="answer"
                               onChange={handleInputChange}
                               className="form-input w-full"

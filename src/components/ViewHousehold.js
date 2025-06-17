@@ -380,15 +380,21 @@ function ViewHousehold({ onClose, householdID }) {
                               <td className="border border-gray-300 px-4 py-2">
                                 {member.resID.isSenior ||
                                 member.resID.isInfant ||
-                                member.resID.isChild ||
                                 member.resID.isPregnant ||
                                 member.resID.isPWD ||
-                                member.resID.is4Ps ||
-                                member.resID.isSoloParent ? (
+                                member.resID.isNewborn ||
+                                member.resID.isUnder5 ||
+                                member.resID.isSchoolAge ||
+                                member.resID.isAdolescent ||
+                                member.resID.isAdolescentPregnant ||
+                                member.resID.isAdult ||
+                                member.resID.isPostpartum ||
+                                member.resID.isWomenOfReproductive ? (
                                   <>
                                     {member.resID.isSenior && (
                                       <div>Senior Citizen</div>
                                     )}
+                                    {member.resID.isInfant && <div>Infant</div>}
                                     {member.resID.isPregnant && (
                                       <div>Pregnant</div>
                                     )}
@@ -396,6 +402,28 @@ function ViewHousehold({ onClose, householdID }) {
                                     {member.resID.is4Ps && <div>4Ps</div>}
                                     {member.resID.isSoloParent && (
                                       <div>Solo Parent</div>
+                                    )}
+                                    {member.resID.isNewborn && (
+                                      <div>Newborn</div>
+                                    )}
+                                    {member.resID.isUnder5 && (
+                                      <div>Under 5 y.o.</div>
+                                    )}
+                                    {member.resID.isSchoolAge && (
+                                      <div>School Age</div>
+                                    )}
+                                    {member.resID.isAdolescent && (
+                                      <div>Adolescent</div>
+                                    )}
+                                    {member.resID.isAdolescentPregnant && (
+                                      <div>Adolescent Pregnant</div>
+                                    )}
+                                    {member.resID.isAdult && <div>Adult</div>}
+                                    {member.resID.isPostpartum && (
+                                      <div>Postpartum</div>
+                                    )}
+                                    {member.resID.isWomenOfReproductive && (
+                                      <div>Women of Reproductive Age</div>
                                     )}
                                   </>
                                 ) : (
