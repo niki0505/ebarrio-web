@@ -22,6 +22,7 @@ function Household({ isCollapsed }) {
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
   const [isChangeClicked, setChangedClicked] = useState(false);
+  const [isRejectedClicked, setRejectedClicked] = useState(false);
   const [filteredHousehold, setFilteredHousehold] = useState([]);
   const [search, setSearch] = useState("");
   const [sortOption, setSortOption] = useState(selectedSort || "All");
@@ -1144,14 +1145,23 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
     setActiveClicked(true);
     setPendingClicked(false);
     setChangedClicked(false);
+    setRejectedClicked(false);
   };
   const handleMenu2 = () => {
     setPendingClicked(true);
     setActiveClicked(false);
     setChangedClicked(false);
+    setRejectedClicked(false);
   };
   const handleMenu3 = () => {
     setChangedClicked(true);
+    setPendingClicked(false);
+    setActiveClicked(false);
+    setRejectedClicked(false);
+  };
+  const handleMenu4 = () => {
+    setRejectedClicked(true);
+    setChangedClicked(false);
     setPendingClicked(false);
     setActiveClicked(false);
   };
@@ -1169,6 +1179,8 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
       filtered = household.filter((res) => res.status === "Pending");
     } else if (isChangeClicked) {
       filtered = household.filter((res) => res.status === "Change Requested");
+    } else if (isRejectedClicked) {
+      filtered = household.filter((res) => res.status === "Rejected");
     }
 
     switch (sortOption) {
@@ -1201,7 +1213,14 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
       });
     }
     setFilteredHousehold(filtered);
-  }, [search, household, isActiveClicked, isPendingClicked, sortOption]);
+  }, [
+    search,
+    household,
+    isActiveClicked,
+    isPendingClicked,
+    isRejectedClicked,
+    sortOption,
+  ]);
 
   console.log(household);
 
@@ -1236,6 +1255,14 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               }`}
             >
               Change Requested
+            </p>
+            <p
+              onClick={handleMenu4}
+              className={`status-text ${
+                isRejectedClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Rejected
             </p>
           </div>
           {isActiveClicked && (
