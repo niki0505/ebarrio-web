@@ -37,17 +37,1082 @@ function Household({ isCollapsed }) {
 
   const exportPDF = async () => {
     const now = new Date().toLocaleString();
-    const doc = new jsPDF("landscape", "mm", "a4");
+    const doc = new jsPDF("landscape", "mm", [722.54, 472.44]);
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
+    const margin = 10;
 
-    // Footer
-    doc.setFontSize(10);
-    doc.text(`Exported by: ${user.name}`, 10, pageHeight - 15);
-    doc.text(`Exported on: ${now}`, 10, pageHeight - 10);
-    doc.text(`Page 1 of 1`, pageWidth - 30, pageHeight - 10);
+    const generatePage = (household, index) => {
+      const headMember = household.members.find(
+        (member) => member.position === "Head"
+      );
 
-    doc.save("Household_Profile.pdf");
+      // Sort members by position: Head first, then Spouse, then Son/Daughter, then others
+      const sortedMembers = household.members.sort((a, b) => {
+        // Prioritize Head
+        if (a.position === "Head") return -1;
+        if (b.position === "Head") return 1;
+
+        // Prioritize Spouse
+        if (a.position === "Spouse") return -1;
+        if (b.position === "Spouse") return 1;
+
+        // Prioritize Son (3rd)
+        if (a.position === "Son") return -1;
+        if (b.position === "Son") return 1;
+
+        // Prioritize Daughter (4th)
+        if (a.position === "Daughter") return -1;
+        if (b.position === "Daughter") return 1;
+
+        // For all other positions (e.g., Grandparent, Sibling, In-law), keep their current order
+        return 0;
+      });
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      const title = "HOUSEHOLD PROFILING FORM";
+      const titleWidth =
+        (doc.getStringUnitWidth(title) * doc.internal.getFontSize()) /
+        doc.internal.scaleFactor;
+      doc.text(title, (pageWidth - titleWidth) / 2, margin + 15);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(14);
+
+      doc.text(`Municipality/City/District:`, margin, 40);
+      doc.line(margin + 58, 40, margin + 150, 40);
+      doc.text(`Province:`, margin, 48);
+      doc.line(margin + 28, 48, margin + 150, 48);
+      doc.text(`Interviewed by:`, margin + 170, 40);
+      doc.line(margin + 205, 40, margin + 300, 40);
+      doc.text(`Reviewed by:`, margin + 170, 48);
+      doc.line(margin + 205, 48, margin + 300, 48);
+      const dateBoxX = pageWidth - margin - 80;
+      const dateBoxY = margin + 10;
+      doc.setLineWidth(0.5);
+      doc.rect(dateBoxX, dateBoxY, 80, 35);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Date of Visit (mm/dd/yyyy)", dateBoxX + 40, dateBoxY + 7, {
+        align: "center",
+      });
+      doc.line(dateBoxX, dateBoxY + 10, dateBoxX + 80, dateBoxY + 10);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text("First Quarter:", dateBoxX + 2, dateBoxY + 15);
+      doc.text("Second Quarter:", dateBoxX + 2, dateBoxY + 21);
+      doc.text("Third Quarter:", dateBoxX + 2, dateBoxY + 27);
+      doc.text("Fourth Quarter:", dateBoxX + 2, dateBoxY + 33);
+
+      //To display the code for relationship of members to HH head
+      const relationshipMap = {
+        1: "Head",
+        2: "Spouse",
+        3: "Son",
+        4: "Daughter",
+        5: "Others, specify relation",
+      };
+
+      const getRelationshipCode = (description) => {
+        // Check if the description exists in relationshipMap
+        const code = Object.entries(relationshipMap).find(
+          ([code, desc]) => desc === description
+        );
+        if (code) {
+          return code[0]; // Return the code if it exists
+        } else {
+          return `5 - ${description}`; // If not found, return "5" with the position description
+        }
+      };
+
+      //To display the code for sex
+      const getSexCode = (sex) => {
+        const sexMap = {
+          Male: "M",
+          Female: "F",
+        };
+        return sexMap[sex] || "N/A";
+      };
+
+      // To format the date
+      const formatDate = (dateString) => {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        const formattedMonth = month < 10 ? `0${month}` : month;
+        const formattedDay = day < 10 ? `0${day}` : day;
+
+        return `${formattedMonth}/${formattedDay}/${year}`;
+      };
+
+      //To display the code for civil status
+      const getCivilStatusCode = (civilstatus) => {
+        const civilstatusMap = {
+          M: "Married",
+          S: "Single",
+          W: "Widow-er",
+          SP: "Separated",
+          C: "Cohabitation",
+        };
+        return civilstatusMap[civilstatus] || "N/A";
+      };
+
+      //To display the code for membership type
+      const getPhilhealthTypeCode = (philhealthtype) => {
+        const philhealthtypeMap = {
+          M: "Member",
+          D: "Dependent",
+        };
+        return philhealthtypeMap[philhealthtype] || "N/A";
+      };
+
+      //To display the code for philhealth category
+      const getPhilhealthCategoryCode = (philhealthcategory) => {
+        const philhealthcategoryMap = {
+          FEP: "Formal Economy Private",
+          FEG: "Formal Economy Government",
+          IE: "Informal Economy",
+          N: "NHTS",
+          SC: "Senior Citizen",
+          IP: "Indigenous People",
+          U: "Unknown",
+        };
+        return philhealthcategoryMap[philhealthcategory] || "N/A";
+      };
+
+      // To display the code for medical history
+      const getMedicalHistoryCode = (member) => {
+        let history = [];
+
+        if (member.haveDiabetes) history.push("DB");
+        if (member.haveHypertension) history.push("HPN");
+        if (member.haveSurgery) history.push("S");
+        if (member.haveTubercolosis) history.push("TB");
+
+        if (history.length === 0) return "N/A";
+
+        return history.join(", ");
+      };
+
+      // To display the code for using any fp method
+      const getUsingFPMethodCode = (member) => {
+        if (member.haveFPmethod) {
+          return "Y";
+        } else {
+          return "N";
+        }
+      };
+
+      //To display the code for FP status
+      const getFPStatusCode = (fpstatus) => {
+        const fpstatusMap = {
+          "N/A": "New Acceptor",
+          CU: "Current User",
+          CM: "Changing Method",
+          CC: "Changing Clinic",
+          DO: "Dropout",
+          R: "Restarter",
+        };
+
+        return fpstatusMap[fpstatus] || "N/A";
+      };
+
+      //To display the code for age/class
+      const getClassificationCode = (member) => {
+        let classification = [];
+
+        if (member.isNewborn) classification.push("N");
+        if (member.isAdult) classification.push("AB");
+        if (member.isSenior) classification.push("SC");
+        if (member.isWRA) classification.push("WRA");
+        if (member.isSchool) classification.push("S");
+        if (member.isAdolescent) classification.push("A");
+        if (member.isPregnant) classification.push("P");
+        if (member.isAdolescentPregnant) classification.push("AP");
+        if (member.isPostpartum) classification.push("PP");
+        if (member.isInfant) classification.push("I");
+        if (member.isUnder) classification.push("U");
+        if (member.isPWD) classification.push("PWD");
+
+        if (classification.length === 0) return "N/A";
+
+        return classification.join(", ");
+      };
+
+      const getEducationCode = (education) => {
+        const educationMap = {
+          N: "None",
+          K: "Kinder",
+          ES: "Elementary Student",
+          EU: "Elementary Undergrad",
+          EG: "Elementary Graduate",
+          HS: "High School Student",
+          HU: "High School Undergrad",
+          HG: "High School Graduate",
+          V: "Vocational Course",
+          CS: "College Student",
+          CU: "College Undergrad",
+          CG: "College Graduate",
+          PG: "Postgraduate",
+        };
+        return educationMap[education] || "N/A";
+      };
+
+      doc.setFontSize(12);
+
+      autoTable(doc, {
+        startY: 60,
+        margin: { left: margin, right: margin },
+        head: [
+          [
+            { content: "Household Information", colSpan: 3 },
+            { content: "Name of Respondent", colSpan: 3 },
+            { content: "Ethnicity (Please Tick)", colSpan: 3 },
+            { content: "Socioeconomic Status (Please Tick)", colSpan: 3 },
+            { content: "Environmental Health Data", colSpan: 14 },
+          ],
+        ],
+        body: [
+          [
+            {
+              content: `Sitio/Purok: `,
+              colSpan: 3,
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              content: `Lastname: ${headMember.resID.lastname || "N/A"}
+`,
+              colSpan: 3,
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              content:
+                `${
+                  household.ethnicity === "IP Household" ? "[x]" : "[ ]"
+                } IP Household\n` +
+                `If IP Household, indicate tribe: ${
+                  household.ethnicity || "N/A"
+                }`,
+              rowSpan: 2,
+              colSpan: 3,
+              styles: { valign: "top", fontSize: 11 },
+            },
+            {
+              content:
+                `${
+                  household.sociostatus === "NHTS 4Ps" ? "[x]" : "[ ]"
+                } NHTS 4Ps\n` +
+                `${
+                  household.sociostatus === "NHTS Non-4Ps" ? "[x]" : "[ ]"
+                } NHTS Non-4Ps\n` +
+                `${
+                  household.sociostatus === "Non-NHTS" ? "[x]" : "[ ]"
+                } Non-NHTS\n\n` +
+                `If NHTS, please indicate the NHTS No.: ${
+                  household.nhtsno || "N/A"
+                }`,
+              rowSpan: 3,
+              colSpan: 3,
+              styles: { valign: "top", fontSize: 11 },
+            },
+            {
+              content: `Type of Water Source: ${
+                household.watersource === "Point Source"
+                  ? "LEVEL I"
+                  : household.watersource === "Communcal Faucet"
+                  ? "LEVEL II"
+                  : household.watersource === "Individual Connection"
+                  ? "LEVEL III"
+                  : household.watersource === "Others"
+                  ? "Others"
+                  : "N/A"
+              }`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+            {
+              content: `Type of Toilet Facility: ${
+                household.toiletfacility ===
+                "Poor/flush type connected to septic tank"
+                  ? "A"
+                  : household.toiletfacility ===
+                    "Pour/flush toilet connected to septic tank AND to sewerage system"
+                  ? "B"
+                  : household.toiletfacility === "Ventilated Pit latrine"
+                  ? "C"
+                  : household.toiletfacility === "Water-sealed toilet"
+                  ? "D"
+                  : household.toiletfacility === "Overhung latrine"
+                  ? "E"
+                  : household.toiletfacility === "Open pit latrine"
+                  ? "F"
+                  : household.toiletfacility === "Without toilet"
+                  ? "G"
+                  : "N/A"
+              }`,
+              colSpan: 9,
+              styles: { fontSize: 11 },
+            },
+            { content: "", colSpan: 2 },
+          ],
+          [
+            {
+              content: `Barangay:`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+            {
+              content: `First Name: ${headMember.resID.firstname || "N/A"}`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+            {
+              content: `select from the following:\n\nLEVEL I - Point Source\nLEVEL II - Communal Faucet\nLEVEL III - Individual Connection\nOthers - For doubtful sources, open dug well etc.\n\n*write the type of toilet facility in the box provided`,
+              rowSpan: 3,
+              colSpan: 3,
+              styles: { fontSize: 10, valign: "top" },
+            },
+            {
+              content:
+                `select from the following:\n\n` +
+                `A - Poor/flush type connected to septic tank           E - Overhung latrine\n` +
+                `B - Pour/flush toilet connected to septic tank AND to sewerage system           F - Open pit latrine\n` +
+                `C - Ventilated Pit latrine                                        G - Without toilet\n` +
+                `D - Water-sealed toilet\n\n` +
+                `*write the type of toilet facility in the box provided`,
+              rowSpan: 3,
+              colSpan: 11,
+              styles: { fontSize: 10, valign: "top" },
+            },
+          ],
+          [
+            {
+              content: `Household (HH) Number: ${
+                headMember.resID.householdno || "N/A"
+              }`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+            {
+              content: `Middle Name: ${headMember.resID.middlename || "N/A"}`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+
+            { content: "", colSpan: 3 },
+          ],
+          [
+            { content: "", colSpan: 3 },
+            {
+              content: `Relationship to HH Head: Head`,
+              colSpan: 3,
+              styles: { fontSize: 11 },
+            },
+            {
+              content: `${
+                household.ethnicity === "Non-IP Household" ? "[x]" : "[ ]"
+              } Non-IP Household\n`,
+              rowSpan: 1,
+              colSpan: 3,
+              styles: { valign: "top", fontSize: 11 },
+            },
+            { content: "", colSpan: 3 },
+            { content: "", colSpan: 3 },
+          ],
+
+          [
+            {
+              content: `Name of Household Members`,
+              colSpan: 3,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Relationship of members to HH Head`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Sex`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Date of Birth`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Civil Status`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Philheath ID Number`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Membership Type`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Philhealth Category`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Medical History`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Last Menstrual Period (LMP)`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Women of Reproductive Age`,
+              colSpan: 3,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Classification by Age/Health Risk Group`,
+              colSpan: 8,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Educational Attainment`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Religion`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              content: `Remarks`,
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+          ],
+          [
+            {
+              colSpan: 3,
+              content:
+                "(Please provide the names of the members of the household starting from the household head followed by the spouse, son/daughter (oldest to youngest), and other members)",
+              style: {
+                fontSize: 10,
+                halign: "center",
+                valign: "middle",
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "1 - Head\n2-Spouse\n3 - Son\n4 - Daughter\n5 - Others, specify relation",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content: "M - Male\nF - Female",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content: "Write the birthday in this date format:\nmm/dd/yyyy",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "M - Married\nS - Single\nW - Widow-er\nSP - Separated\nC - Cohabitation",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content: "",
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content: "M - Member\nD - Dependent",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "FEP - Formal Economy Private\nFEG - Formal Economy Government\nIE - Informal Economy\nN - NHTS\nSC - Senior Citizen\nIP - Indigenous People\nU - Unknown",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "HPN - Hypertension\nDB - Diabetes\nTB - Tuberculosis\nS - Surgery",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content: "Write the LMP in this date format:\nmm/dd/yyyy",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Using any FP method?",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Family Planning Method Used",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 1,
+              content: "FP Status",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+              },
+            },
+            {
+              colSpan: 8,
+              content: `N  - Newborn                    AB - Adult > 25 y.o
+P  - Pregnant                   AP - Adolescent Pregnant
+SC - Senior Citizen             PP - Postpartum
+WRA - Women with Rep. Age       I  - Infant
+S  - School of Age (0-5 y.o)    U  - Under 5 y.o
+A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "N - None\nK - Kinder\nES - Elem Student\nEU - Elem Undergrad\nEG - Elem Graduate\nHS - HS Student\nHU - HS Undergrad\nHG - HS Graduate\nV - Vocational Course\nCS - College Student\nCU - College Undergrad\nCG - College Graduate\nPG - Postgraduate",
+              styles: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "Example:\nRoman Catholic, Christian, INC, Catholic, Islam, Baptist, Born Again, Christian, Buddhism, Church of God, Jehovah's Witness, Protestant, Seventh Day Adventist, LDS-Mormons, Evangelical, Pentecostal, Unknown, Other",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+                fontStyle: "italic",
+              },
+            },
+            {
+              colSpan: 1,
+              rowSpan: 2,
+              content:
+                "Write additional notes such as occupation, nutritional status, or any other detail related to each member of the household",
+              styles: {
+                fontSize: 11,
+                halign: "center",
+                valign: "top",
+                fontStyle: "italic",
+              },
+            },
+          ],
+          [
+            {
+              colSpan: 1,
+              content: "Last Name",
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "First Name",
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Middle Name",
+              styles: {
+                halign: "center",
+                valign: "middle",
+                fontStyle: "bold",
+                fontSize: 13,
+              },
+            },
+
+            {
+              colSpan: 1,
+              content: "Y - Yes\nN - No",
+              style: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              content:
+                "Choose from the following:COC, POP, Injectables, IUD, Condom, LAM, BTL, Implant, SDM, DPT, Withdrawal, Others",
+              style: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 1,
+              content:
+                "N/A - New Acceptor\nCU - Current User\nCM - Changing Method\nCC - Changing Clinic\nDO - Dropout\nR - Restarter",
+              style: {
+                fontSize: 11,
+              },
+            },
+            {
+              colSpan: 2,
+              content: "1st Quarter",
+              style: {
+                fontSize: 11,
+                halign: "center",
+                valign: "middle",
+              },
+            },
+            {
+              colSpan: 2,
+              content: "2nd Quarter",
+              style: {
+                fontSize: 11,
+                halign: "center",
+                valign: "middle",
+              },
+            },
+            {
+              colSpan: 2,
+              content: "3rd Quarter",
+              style: {
+                fontSize: 11,
+                halign: "center",
+                valign: "middle",
+              },
+            },
+            {
+              colSpan: 2,
+              content: "4th Quarter",
+              style: {
+                fontSize: 11,
+                halign: "center",
+                valign: "middle",
+              },
+            },
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            {
+              colSpan: 1,
+              content: "Age",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Class",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Age",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Class",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Age",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Class",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Age",
+              style: {
+                fontSize: 10,
+              },
+            },
+            {
+              colSpan: 1,
+              content: "Class",
+              style: {
+                fontSize: 10,
+              },
+            },
+            null,
+            null,
+            null,
+          ],
+
+          ...sortedMembers.map((member) => [
+            {
+              content: member.resID?.lastname || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID?.firstname || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID?.middlename || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getRelationshipCode(member.position),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getSexCode(member.resID?.sex),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: formatDate(member.resID?.birthdate || "N/A"),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getCivilStatusCode(member.resID?.civilstatus),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID?.philhealthid || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getPhilhealthTypeCode(member.resID?.philhealthtype),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getPhilhealthCategoryCode(
+                member.resID?.philhealthcategory
+              ),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getMedicalHistoryCode(member),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: formatDate(member.resID?.lastmenstrual),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getUsingFPMethodCode(member),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID.fpmethod || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getFPStatusCode(member.resID.fpStatus),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID.age || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getClassificationCode(member),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //age2 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //class2 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //age3 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //class3 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //age4 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //class4 cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: getEducationCode(member.resID?.educationalattainment),
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: member.resID?.religion || "N/A",
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+            {
+              content: "", //remarks cell
+              styles: { fontSize: 12, halign: "center", valign: "middle" },
+            },
+          ]),
+
+          ...Array(
+            14 - sortedMembers.length > 0 ? 14 - sortedMembers.length : 0
+          ).fill([
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+          ]),
+        ],
+        columnStyles: {
+          0: { cellWidth: 35 }, // Last Name
+          1: { cellWidth: 35 }, // First Name
+          2: { cellWidth: 35 }, // Middle Name
+          3: { cellWidth: 35 }, // Relationship of members
+          4: { cellWidth: 18 }, // Sex
+          5: { cellWidth: 34 }, // Date of Birth
+          6: { cellWidth: 35 }, // Civil Status
+          7: { cellWidth: 40 }, // Philhealth ID Number
+          8: { cellWidth: 35 }, // Membership Type
+          9: { cellWidth: 36 }, // Philhealth Category
+          10: { cellWidth: 35 }, // Medical History
+          11: { cellWidth: 34 }, // Last Menstrual Period (LMP)
+          12: { cellWidth: 20 }, // WRA - Using any FP Method?
+          13: { cellWidth: 35 }, // WRA - Family Planning Method Used
+          14: { cellWidth: 30 }, // WRA - FP Status
+          15: { cellWidth: 14 }, // Classification - Age Q1
+          16: { cellWidth: 14 }, // Classification - Class Q1
+          17: { cellWidth: 14 }, // Classification - Age Q2
+          18: { cellWidth: 14 }, // Classification - Class Q2
+          19: { cellWidth: 14 }, // Classification - Age Q3
+          20: { cellWidth: 14 }, // Classification - Class Q3
+          21: { cellWidth: 14 }, // Classification - Age Q4
+          22: { cellWidth: 14 }, // Classification - Class Q4
+          23: { cellWidth: 35 }, // Educational Attainment
+          24: { cellWidth: 35 }, // Religion
+          25: { cellWidth: 28 }, // Remarks
+        },
+        headStyles: {
+          fillColor: [255, 255, 255],
+          textColor: 0,
+          fontStyle: "bold",
+          fontSize: 14,
+          halign: "center",
+          valign: "middle",
+          lineWidth: 0.5,
+          lineColor: 0,
+          cellPadding: 1.5,
+        },
+        bodyStyles: {
+          fillColor: [255, 255, 255],
+          textColor: 0,
+          halign: "left",
+          valign: "top",
+          lineWidth: 0.5,
+          lineColor: 0,
+          cellPadding: 2,
+          minCellHeight: 13,
+        },
+        didParseCell: function (data) {},
+        theme: "grid",
+      });
+
+      const pageCount = doc.internal.getNumberOfPages();
+      const currentPage = index + 1;
+
+      doc.setFontSize(14);
+      const footerText = `Exported by: ${user.name} | Exported on: ${now}`;
+      const pageText = `Page ${currentPage} of ${pageCount}`;
+
+      // Footer positioning
+      doc.text(footerText, margin, pageHeight - 10);
+      doc.text(pageText, pageWidth - margin - 30, pageHeight - 10);
+    };
+
+    // Loop through each household and generate a new page for each
+    filteredHousehold.forEach((household, index) => {
+      if (index > 0) doc.addPage(); // Add new page after the first household
+      generatePage(household, index);
+    });
+
+    // Save the generated PDF
+    doc.save(`Household_Profiling_Form_${now}.pdf`);
   };
 
   const handleMenu1 = () => {

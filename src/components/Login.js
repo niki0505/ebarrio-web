@@ -152,7 +152,7 @@ const Login = () => {
               <div className="flex flex-col gap-4">
                 <input
                   type="text"
-                  placeholder="Enter username"
+                  placeholder="Username"
                   value={username}
                   onChange={(e) => handleUsernameChange(e)}
                   className="form-input"
@@ -163,7 +163,7 @@ const Login = () => {
                 <div className="relative w-full">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => handlePasswordChange(e)}
                     className="form-input w-full"
