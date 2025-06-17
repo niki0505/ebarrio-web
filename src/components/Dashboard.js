@@ -29,6 +29,9 @@ import {
 import { IoDocumentTextSharp } from "react-icons/io5";
 import { PiCourtBasketballFill } from "react-icons/pi";
 import { FaMale, FaFemale } from "react-icons/fa";
+import { FaHandsHelping } from "react-icons/fa";
+import { FaHouse } from "react-icons/fa6";
+import { MdWorkOff } from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
 
 function Dashboard({ isCollapsed }) {
@@ -510,7 +513,7 @@ function Dashboard({ isCollapsed }) {
                 className="form-group cursor-pointer"
                 onClick={() => navigation("/residents")}
               >
-                <div className="demog-card-container">
+                <div className="demog-card-container hover:bg-[#FFB200]/10">
                   <div class="demog-card-left-border bg-[#FFB200]"></div>
 
                   <div class="flex-grow">
@@ -532,20 +535,20 @@ function Dashboard({ isCollapsed }) {
                 className="form-group cursor-pointer"
                 onClick={() => navigation("/households")}
               >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#FFB200]"></div>
+                <div className="demog-card-container hover:bg-[#EB5B00]/10">
+                  <div class="demog-card-left-border bg-[#EB5B00]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.totalHouseholds}
                     </h2>
-                    <p class="text-[#FFB200] font-title text-[16px] font-semibold">
+                    <p class="text-[#EB5B00] font-title text-[16px] font-semibold">
                       Total Households
                     </p>
                   </div>
 
                   <div class="demog-icon">
-                    <IoIosPeople />
+                    <FaHouse />
                   </div>
                 </div>
               </div>
@@ -560,8 +563,8 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#0079FF]"></div>
+                <div className="demog-card-container hover:bg-[#0079FF]/10">
+                  <div class="demog-card-left-border bg-[#0079FF] "></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
@@ -588,7 +591,7 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container">
+                <div className="demog-card-container hover:bg-[#FF90BB]/10">
                   <div class="demog-card-left-border bg-[#FF90BB]"></div>
 
                   <div class="flex-grow">
@@ -700,20 +703,20 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+                <div className="demog-card-container hover:bg-[#AF47D2]/10">
+                  <div class="demog-card-left-border bg-[#AF47D2]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.fourps}
                     </h2>
-                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                    <p class="text-[#AF47D2] font-title text-[16px] font-semibold">
                       4Ps
                     </p>
                   </div>
 
                   <div class="demog-icon">
-                    <MdElderly />
+                    <FaHandsHelping />
                   </div>
                 </div>
               </div>
@@ -756,20 +759,20 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+                <div className="demog-card-container hover:bg-[#7C838B]/10">
+                  <div class="demog-card-left-border bg-[#7C838B]"></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
                       {residentsData.unemployed}
                     </h2>
-                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                    <p class="text-[#7C838B] font-title text-[16px] font-semibold">
                       Unemployed
                     </p>
                   </div>
 
                   <div class="demog-icon">
-                    <MdElderly />
+                    <MdWorkOff />
                   </div>
                 </div>
               </div>
@@ -784,7 +787,7 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container">
+                <div className="demog-card-container hover:bg-[#06D001]/10">
                   <div class="demog-card-left-border bg-[#06D001]"></div>
 
                   <div class="flex-grow">

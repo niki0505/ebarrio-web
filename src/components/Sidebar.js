@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { InfoContext } from "../context/InfoContext";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
@@ -22,7 +23,7 @@ import { MdOutlineUpdate } from "react-icons/md";
 import { useState } from "react";
 import { AiFillAlert } from "react-icons/ai";
 import { PiUserSwitchFill } from "react-icons/pi";
-import { InfoContext } from "../context/InfoContext";
+import { BsFillHouseFill } from "react-icons/bs";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
@@ -50,7 +51,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
       title: "Households",
-      icon: <IoIosPeople />,
+      icon: <BsFillHouseFill />,
       path: "/households",
     },
     (user.role === "Justice" || user.role === "Secretary") && {
