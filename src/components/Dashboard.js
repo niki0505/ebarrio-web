@@ -667,7 +667,7 @@ function Dashboard({ isCollapsed }) {
               <div
                 className="form-group cursor-pointer"
                 onClick={() =>
-                  navigation("/residents", {
+                  navigation("/households", {
                     state: {
                       selectedSort: "4Ps",
                     },

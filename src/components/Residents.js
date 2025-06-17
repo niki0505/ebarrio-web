@@ -319,12 +319,12 @@ function Residents({ isCollapsed }) {
       case "Pregnant":
         filtered = filtered.filter((res) => res.isPregnant);
         break;
-      case "4Ps":
-        filtered = filtered.filter((res) => res.is4Ps);
-        break;
-      case "Solo Parent":
-        filtered = filtered.filter((res) => res.isSoloParent);
-        break;
+      // case "4Ps":
+      //   filtered = filtered.filter((res) => res.is4Ps);
+      //   break;
+      // case "Solo Parent":
+      //   filtered = filtered.filter((res) => res.isSoloParent);
+      //   break;
       case "Unemployed":
         filtered = filtered.filter(
           (res) => res.employmentstatus === "Unemployed"
@@ -752,7 +752,7 @@ function Residents({ isCollapsed }) {
                           Pregnant
                         </li>
                       </div>
-                      <div className="navbar-dropdown-item">
+                      {/* <div className="navbar-dropdown-item">
                         <li
                           className="px-4 text-sm cursor-pointer text-[#0E94D3]"
                           onClick={() => {
@@ -773,7 +773,7 @@ function Residents({ isCollapsed }) {
                         >
                           Solo Parent
                         </li>
-                      </div>
+                      </div> */}
                       <div className="navbar-dropdown-item">
                         <li
                           className="px-4 text-sm cursor-pointer text-[#0E94D3]"
