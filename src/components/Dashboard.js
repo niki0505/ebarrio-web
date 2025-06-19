@@ -76,7 +76,9 @@ function Dashboard({ isCollapsed }) {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
         (element) =>
-          element.status !== "Archived" && element.status !== "Pending"
+          element.status !== "Archived" &&
+          element.status !== "Pending" &&
+          element.status !== "Rejected"
       ).length;
 
       const male = residents
