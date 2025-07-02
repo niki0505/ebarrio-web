@@ -243,7 +243,7 @@ function AccountSettings({ isCollapsed }) {
       hasErrors = true;
     }
 
-    if (usernameErrors !== 0) {
+    if (usernameErrors.length !== 0) {
       hasErrors = true;
     }
 

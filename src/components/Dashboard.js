@@ -76,56 +76,72 @@ function Dashboard({ isCollapsed }) {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
         (element) =>
-          element.status !== "Archived" && element.status !== "Pending"
+          element.status !== "Archived" &&
+          element.status !== "Pending" &&
+          element.status !== "Rejected"
       ).length;
 
       const male = residents
         .filter((element) => element.sex === "Male")
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const female = residents
         .filter((element) => element.sex === "Female")
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const seniorCitizens = residents
         .filter((element) => element.age >= 60)
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const voters = residents
         .filter((element) => element.voter === "Yes")
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const PWD = residents
         .filter((element) => element.isPWD)
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const pregnant = residents
         .filter((element) => element.isPregnant)
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       const fourps = household
         .filter((element) => element.sociostatus === "NHTS 4Ps")
         .filter(
           (element) =>
-            element.status !== "Archived" && element.status !== "Pending"
+            element.status !== "Archived" &&
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         ).length;
 
       // const soloparent = residents
@@ -139,13 +155,16 @@ function Dashboard({ isCollapsed }) {
         .filter(
           (element) =>
             element.employmentstatus === "Unemployed" &&
-            element.status !== "Pending"
+            element.status !== "Pending" &&
+            element.status !== "Rejected"
         )
         .filter((element) => element.status !== "Archived").length;
 
       const totalHouseholds = household.filter(
         (element) =>
-          element.status !== "Archived" && element.status !== "Pending"
+          element.status !== "Archived" &&
+          element.status !== "Pending" &&
+          element.status !== "Rejected"
       ).length;
 
       setClassificationsData({
