@@ -931,36 +931,40 @@ function Residents({ isCollapsed }) {
                               </button>
                             </div>
                           ) : res.status === "Archived" ? (
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={(e) => recoverBtn(e, res._id)}
-                            >
-                              RECOVER
-                            </button>
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => recoverBtn(e, res._id)}
+                              >
+                                RECOVER
+                              </button>
+                            </div>
                           ) : res.status === "Pending" ? (
                             <>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => rejectBtn(e, res._id)}
-                              >
-                                REJECT
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => approveBtn(e, res._id)}
-                              >
-                                APPROVE
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={() => viewBtn(res._id)}
-                              >
-                                VIEW
-                              </button>
+                              <div className="btn-container">
+                                <button
+                                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                  type="submit"
+                                  onClick={(e) => rejectBtn(e, res._id)}
+                                >
+                                  REJECT
+                                </button>
+                                <button
+                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  type="submit"
+                                  onClick={(e) => approveBtn(e, res._id)}
+                                >
+                                  APPROVE
+                                </button>
+                                <button
+                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  type="submit"
+                                  onClick={() => viewBtn(res._id)}
+                                >
+                                  VIEW
+                                </button>
+                              </div>
                             </>
                           ) : null}
                         </td>

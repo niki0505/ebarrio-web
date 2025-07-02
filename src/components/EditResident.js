@@ -2350,7 +2350,7 @@ function EditResident({ isCollapsed }) {
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
 
-          <div className="form-group space-x-5">
+          <div className="form-group">
             <label className="form-label">Head of the Household</label>
             <div className="flex flex-row space-x-10">
               <div className="flex flex-row justify-center gap-1">
@@ -2434,146 +2434,155 @@ function EditResident({ isCollapsed }) {
             {/* Head = Yes: show members table */}
             {residentForm.head === "Yes" && (
               <>
-                <div className="form-group mt-4">
-                  <div className="form-group">
-                    <label className="form-label">
-                      Ethnicity<label className="text-red-600">*</label>
-                    </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
-                        <input
-                          type="radio"
-                          name="ethnicity"
-                          onChange={handleHouseholdRadioChange}
-                          value="IP Household"
-                          checked={householdForm.ethnicity === "IP Household"}
-                        />
-                        <h1>IP Household</h1>
-                      </div>
-                      <div className="flex flex-row justify-center gap-1">
-                        <input
-                          type="radio"
-                          name="ethnicity"
-                          onChange={handleHouseholdRadioChange}
-                          value="Non-IP Household"
-                          checked={
-                            householdForm.ethnicity === "Non-IP Household"
-                          }
-                        />
-                        <h1>Non-IP Household</h1>
+                <div className="mt-4">
+                  <div className="form-grid">
+                    <div className="col-span-2">
+                      <label className="form-label">
+                        Ethnicity<label className="text-red-600">*</label>
+                      </label>
+                      <div className="flex flex-row space-x-10">
+                        <div className="flex flex-row justify-center gap-1">
+                          <input
+                            type="radio"
+                            name="ethnicity"
+                            onChange={handleHouseholdRadioChange}
+                            value="IP Household"
+                            checked={householdForm.ethnicity === "IP Household"}
+                          />
+                          <h1>IP Household</h1>
+                        </div>
+                        <div className="flex flex-row justify-center gap-1">
+                          <input
+                            type="radio"
+                            name="ethnicity"
+                            onChange={handleHouseholdRadioChange}
+                            value="Non-IP Household"
+                            checked={
+                              householdForm.ethnicity === "Non-IP Household"
+                            }
+                          />
+                          <h1>Non-IP Household</h1>
+                        </div>
                       </div>
                     </div>
+
+                    {householdForm.ethnicity === "IP Household" && (
+                      <div className="form-group">
+                        <label className="form-label">Tribe</label>
+                        <input
+                          name="tribe"
+                          value={householdForm.tribe}
+                          onChange={householdLettersAndSpaceOnly}
+                          placeholder="Enter tribe"
+                          className="form-input"
+                        />
+                      </div>
+                    )}
                   </div>
 
-                  {householdForm.ethnicity === "IP Household" && (
+                  <div className="form-grid">
+                    <div className="col-span-2">
+                      <label className="form-label">
+                        Socioeconomic Status
+                        <label className="text-red-600">*</label>
+                      </label>
+                      <div className="flex flex-row space-x-10">
+                        <div className="flex flex-row justify-center gap-1">
+                          <input
+                            type="radio"
+                            name="sociostatus"
+                            onChange={handleHouseholdRadioChange}
+                            value="NHTS 4Ps"
+                            checked={householdForm.sociostatus === "NHTS 4Ps"}
+                          />
+                          <h1>NHTS 4Ps</h1>
+                        </div>
+                        <div className="flex flex-row justify-center gap-1">
+                          <input
+                            type="radio"
+                            name="sociostatus"
+                            onChange={handleHouseholdRadioChange}
+                            value="NHTS Non-4Ps"
+                            checked={
+                              householdForm.sociostatus === "NHTS Non-4Ps"
+                            }
+                          />
+                          <h1>NHTS Non-4Ps</h1>
+                        </div>
+                        <div className="flex flex-row justify-center gap-1">
+                          <input
+                            type="radio"
+                            name="sociostatus"
+                            onChange={handleHouseholdRadioChange}
+                            value="Non-NHTS"
+                            checked={householdForm.sociostatus === "Non-NHTS"}
+                          />
+                          <h1>Non-NHTS</h1>
+                        </div>
+                      </div>
+                    </div>
+
+                    {(householdForm.sociostatus === "NHTS 4Ps" ||
+                      householdForm.sociostatus === "NHTS Non-4Ps") && (
+                      <div className="form-group">
+                        <label className="form-label">NHTS No.</label>
+                        <input
+                          name="nhtsno"
+                          value={householdForm.nhtsno}
+                          onChange={householdNumbersAndNoSpaceOnly}
+                          placeholder="Enter no."
+                          className="form-input"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-grid">
                     <div className="form-group">
-                      <label className="form-label">Tribe</label>
-                      <input
-                        name="tribe"
-                        value={householdForm.tribe}
-                        onChange={householdLettersAndSpaceOnly}
-                        placeholder="Enter tribe"
+                      <label for="employmentstatus" className="form-label">
+                        Type of Water Source
+                        <label className="text-red-600">*</label>
+                      </label>
+                      <select
+                        id="watersource"
+                        name="watersource"
+                        value={householdForm.watersource}
+                        onChange={handleHouseholdDropdownChange}
                         className="form-input"
-                      />
+                        required
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {watersourceList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
                     </div>
-                  )}
 
-                  <div className="form-group">
-                    <label className="form-label">
-                      Socioeconomic Status
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="NHTS 4Ps"
-                          checked={householdForm.sociostatus === "NHTS 4Ps"}
-                        />
-                        <h1>NHTS 4Ps</h1>
-                      </div>
-                      <div className="flex flex-row justify-center gap-1">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="NHTS Non-4Ps"
-                          checked={householdForm.sociostatus === "NHTS Non-4Ps"}
-                        />
-                        <h1>NHTS Non-4Ps</h1>
-                      </div>
-                      <div className="flex flex-row justify-center gap-1">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="Non-NHTS"
-                          checked={householdForm.sociostatus === "Non-NHTS"}
-                        />
-                        <h1>Non-NHTS</h1>
-                      </div>
-                    </div>
-                  </div>
-
-                  {(householdForm.sociostatus === "NHTS 4Ps" ||
-                    householdForm.sociostatus === "NHTS Non-4Ps") && (
                     <div className="form-group">
-                      <label className="form-label">NHTS No.</label>
-                      <input
-                        name="nhtsno"
-                        value={householdForm.nhtsno}
-                        onChange={householdNumbersAndNoSpaceOnly}
-                        placeholder="Enter no."
+                      <label for="employmentstatus" className="form-label">
+                        Type of Toilet Facility
+                        <label className="text-red-600">*</label>
+                      </label>
+                      <select
+                        id="toiletfacility"
+                        name="toiletfacility"
+                        value={householdForm.toiletfacility}
+                        onChange={handleHouseholdDropdownChange}
                         className="form-input"
-                      />
+                        required
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {toiletfacilityList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
                     </div>
-                  )}
-
-                  <div className="form-group">
-                    <label for="employmentstatus" className="form-label">
-                      Type of Water Source
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="watersource"
-                      name="watersource"
-                      value={householdForm.watersource}
-                      onChange={handleHouseholdDropdownChange}
-                      className="form-input"
-                      required
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {watersourceList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
                   </div>
 
-                  <div className="form-group">
-                    <label for="employmentstatus" className="form-label">
-                      Type of Toilet Facility
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="toiletfacility"
-                      name="toiletfacility"
-                      value={householdForm.toiletfacility}
-                      onChange={handleHouseholdDropdownChange}
-                      className="form-input"
-                      required
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {toiletfacilityList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
                   <table className="min-w-full border border-gray-300">
                     <thead>
                       <tr>
