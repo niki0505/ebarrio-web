@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import AppLogo from "../assets/applogo-darkbg.png";
+import { InfoContext } from "../context/InfoContext";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
@@ -22,9 +23,11 @@ import { MdOutlineUpdate } from "react-icons/md";
 import { useState } from "react";
 import { AiFillAlert } from "react-icons/ai";
 import { PiUserSwitchFill } from "react-icons/pi";
+import { BsFillHouseFill } from "react-icons/bs";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
+  const { pendingReservationCount } = useContext(InfoContext);
   const location = useLocation();
   if (!user) return null;
 
@@ -45,6 +48,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       title: "Residents",
       icon: <IoIosPeople />,
       path: "/residents",
+    },
+    (user.role === "Secretary" || user.role === "Clerk") && {
+      title: "Households",
+      icon: <BsFillHouseFill />,
+      path: "/households",
     },
     (user.role === "Justice" || user.role === "Secretary") && {
       title: "Blotter Reports",
@@ -87,12 +95,12 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <RiContactsBook3Fill />,
       path: "/emergency-hotlines",
     },
-    user.role === "Secretary" && {
-      title: "Accounts Management",
+    (user.role === "Secretary" || user.role === "Technical Admin") && {
+      title: "User Accounts Management",
       icon: <FaUsersCog />,
-      path: "/accounts",
+      path: "/user-accounts",
     },
-    user.role === "Secretary" && {
+    (user.role === "Secretary" || user.role === "Technical Admin") && {
       title: "Activity Logs",
       icon: <PiUserSwitchFill />,
       path: "/activity-logs",

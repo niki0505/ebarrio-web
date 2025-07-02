@@ -67,7 +67,7 @@ function Accounts({ isCollapsed }) {
   };
 
   useEffect(() => {
-    let otherUsers = users.filter((u) => u._id !== user.userID);
+    let otherUsers = [];
     if (isCurrentClicked) {
       otherUsers = users.filter(
         (emp) =>
@@ -79,6 +79,14 @@ function Accounts({ isCollapsed }) {
       otherUsers = users.filter((emp) => emp.status === "Password Not Set");
     } else if (isArchivedClicked) {
       otherUsers = users.filter((emp) => emp.status === "Archived");
+    }
+
+    if (user.userID) {
+      otherUsers = otherUsers.filter(
+        (u) => u._id !== user.userID && u.role !== "Technical Admin"
+      );
+    } else {
+      otherUsers.filter((u) => u.role !== "Technical Admin");
     }
     if (search) {
       otherUsers = otherUsers.filter((user) => {
@@ -193,7 +201,8 @@ function Accounts({ isCollapsed }) {
     const title = "Barangay Aniban 2 Accounts Reports";
     const now = new Date().toLocaleString();
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
-    const rows = filteredUsers
+    const rows = users
+      .filter((user) => user.status === "Inactive" || user.status === "Active")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -278,7 +287,8 @@ function Accounts({ isCollapsed }) {
     });
 
     // Table
-    const rows = filteredUsers
+    const rows = users
+      .filter((user) => user.status === "Inactive" || user.status === "Active")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -386,7 +396,7 @@ function Accounts({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Accounts</div>
+        <div className="header-text">User Accounts</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 

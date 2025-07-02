@@ -54,32 +54,32 @@ const Login = () => {
 
       console.log(res.status);
       if (res.status === 200) {
-        // try {
-        //   await api.put(`/login/${username}`);
-        //   setIsAuthenticated(true);
-        // } catch (error) {
-        //   console.log("Error logging in", error);
-        // }
-        if (res.data.message === "Credentials verified") {
-          try {
-            const response = await api.get(`/getmobilenumber/${username}`);
-            sendOTP(username, response.data.empID?.resID.mobilenumber);
-            navigation("/otp", {
-              state: {
-                username: username,
-                mobilenumber: response.data.empID?.resID.mobilenumber,
-              },
-            });
-          } catch (error) {
-            console.log("Error getting mobile number", error);
-          }
-        } else if (res.data.message === "Token verified successfully.") {
-          navigation("/set-password", {
-            state: {
-              username: username,
-            },
-          });
+        try {
+          await api.put(`/login/${username}`);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.log("Error logging in", error);
         }
+        // if (res.data.message === "Credentials verified") {
+        //   try {
+        //     const response = await api.get(`/getmobilenumber/${username}`);
+        //     sendOTP(username, response.data);
+        //     navigation("/otp", {
+        //       state: {
+        //         username: username,
+        //         mobilenumber: response.data,
+        //       },
+        //     });
+        //   } catch (error) {
+        //     console.log("Error getting mobile number", error);
+        //   }
+        // } else if (res.data.message === "Token verified successfully.") {
+        //   navigation("/set-password", {
+        //     state: {
+        //       username: username,
+        //     },
+        //   });
+        // }
       }
     } catch (error) {
       const response = error.response;
@@ -91,6 +91,18 @@ const Login = () => {
         alert("An unexpected error occurred.");
       }
     }
+  };
+
+  const handleUsernameChange = (e) => {
+    const input = e.target.value;
+    const filtered = input.replace(/[^a-z0-9_]/g, "");
+    setUsername(filtered);
+  };
+
+  const handlePasswordChange = (e) => {
+    const input = e.target.value;
+    const filtered = input.replace(/[^a-zA-Z0-9!@\$%\^&\*\+#_]/g, "");
+    setPassword(filtered);
   };
 
   return (
@@ -140,18 +152,23 @@ const Login = () => {
               <div className="flex flex-col gap-4">
                 <input
                   type="text"
-                  placeholder="Enter username"
-                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => handleUsernameChange(e)}
                   className="form-input"
+                  minLength={3}
+                  maxLength={16}
                   required
                 />
                 <div className="relative w-full">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter password"
+                    placeholder="Password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handlePasswordChange(e)}
                     className="form-input w-full"
+                    minLength={8}
+                    maxLength={64}
                     required
                   />
                   <button

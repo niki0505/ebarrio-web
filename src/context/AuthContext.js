@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
       setIsAuthenticated(false);
+      setUser(null);
       navigation("/login");
     } catch (error) {
       console.log("Error", error);

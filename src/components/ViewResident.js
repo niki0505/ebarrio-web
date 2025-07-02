@@ -12,7 +12,7 @@ import { BiSolidImageAlt } from "react-icons/bi";
 import api from "../api";
 import { GrNext } from "react-icons/gr";
 
-function EditResident({ isCollapsed }) {
+function ViewResident({ isCollapsed }) {
   const navigation = useNavigate();
   const confirm = useConfirm();
   const [isIDProcessing, setIsIDProcessing] = useState(false);
@@ -79,20 +79,13 @@ function EditResident({ isCollapsed }) {
     householdno: "",
     householdposition: "",
     head: "",
-    // is4Ps: false,
+    is4Ps: false,
     isSenior: false,
     isInfant: false,
-    isNewborn: false,
-    isUnder5: false,
-    isSchoolAge: false,
-    isAdolescent: false,
-    isAdolescentPregnant: false,
-    isAdult: false,
-    isPostpartum: false,
-    isWomenOfReproductive: false,
+    isChild: false,
     isPregnant: false,
     isPWD: false,
-    // isSoloParent: false,
+    isSoloParent: false,
     philhealthid: "",
     philhealthtype: "",
     philhealthcategory: "",
@@ -101,7 +94,7 @@ function EditResident({ isCollapsed }) {
     haveTubercolosis: false,
     haveSurgery: false,
     lastmenstrual: "",
-    haveFPmethod: "",
+    haveFPmethod: false,
     fpmethod: "",
     fpstatus: "",
   });
@@ -242,6 +235,8 @@ function EditResident({ isCollapsed }) {
     }
   }, [residentInfo.householdno]);
 
+  console.log(householdForm);
+
   const renderSiblingsDropdown = () => {
     const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
 
@@ -340,7 +335,7 @@ function EditResident({ isCollapsed }) {
   const civilstatusList = [
     "Single",
     "Married",
-    "Widow-er",
+    "Widower",
     "Separated",
     "Annulled",
     "Cohabitation",
@@ -905,27 +900,19 @@ function EditResident({ isCollapsed }) {
         age--;
       }
 
-      const isSenior = age >= 60;
+      const isSenior =
+        age > 60 ||
+        (age === 60 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
 
-      const ageInDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
-
-      const isNewborn = age === 0 && ageInDays <= 28;
-      const isInfant = (age === 0 && ageInDays > 28) || age === 1;
-      const isUnder5 = age >= 2 && age <= 4;
-      const isAdolescent = age >= 10 && age <= 19;
-      const isAdult = age > 25;
-      const isWomenOfReproductive = age >= 15 && age <= 49;
+      const isInfant = age === 0;
+      const isChild = age >= 1 && age <= 17;
 
       setResidentForm((prev) => ({
         ...prev,
         age,
         isSenior,
-        isNewborn,
         isInfant,
-        isUnder5,
-        isAdolescent,
-        isAdult,
-        isWomenOfReproductive,
+        isChild,
       }));
     }
   }, [residentForm.birthdate]);
@@ -1278,6 +1265,83 @@ function EditResident({ isCollapsed }) {
     }));
   };
 
+  async function uploadToFirebaseImages(data) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_images/${Date.now()}_${randomString}.png`;
+    const storageRef = ref(storage, fileName);
+
+    // Convert to Blob if it’s not already
+    let blob;
+    if (data instanceof Blob) {
+      blob = data;
+    } else {
+      blob = new Blob([data], { type: "image/png" });
+    }
+
+    await uploadBytes(storageRef, blob, { contentType: "image/png" });
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+  const approveBtn = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to approve this resident?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const response = await api.get(`/getresidentimages/${resID}`);
+      const { picture, signature } = response.data;
+
+      const pictureBlob = await fetch(picture).then((res) => res.blob());
+      const signatureBlob = await fetch(signature).then((res) => res.blob());
+
+      let pictureURL, signatureURL;
+
+      console.log("Attempting to remove background...");
+
+      // Try removing background from picture
+      try {
+        const removedBgPicture = await removeBackground(pictureBlob);
+        pictureURL = await uploadToFirebaseImages(
+          new Blob([removedBgPicture], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from picture. Uploading original."
+        );
+        pictureURL = await uploadToFirebase(pictureBlob);
+      }
+
+      // Try removing background from signature
+      try {
+        const removedBgSignature = await removeBackground(signatureBlob);
+        signatureURL = await uploadToFirebaseImages(
+          new Blob([removedBgSignature], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from signature. Uploading original."
+        );
+        signatureURL = await uploadToFirebase(signatureBlob);
+      }
+
+      await api.post(`/approveresident/${resID}`, {
+        pictureURL,
+        signatureURL,
+      });
+
+      alert("Resident has been approved successfully.");
+      navigation("/residents");
+    } catch (error) {
+      console.log("Error in approving resident details", error);
+      alert("Something went wrong while approving the resident.");
+    }
+  };
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="flex flex-row gap-x-3 items-center">
@@ -1377,7 +1441,7 @@ function EditResident({ isCollapsed }) {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit();
+            approveBtn();
           }}
         >
           <div className="form-grid">
@@ -1725,7 +1789,6 @@ function EditResident({ isCollapsed }) {
                 )}
               </>
             )}
-
             <div className="form-group">
               <label for="bloodtype" className="form-label">
                 Blood Type
@@ -1825,9 +1888,8 @@ function EditResident({ isCollapsed }) {
                 maxLength={4}
               />
             </div>
-
             <div className="form-group">
-              <label className="form-label">Classification</label>
+              <label className="form-label">Classification by Age/Health</label>
               <div className="flex flex-col space-y-2">
                 {/* <label className="flex items-center space-x-2">
                   <input
@@ -1987,6 +2049,7 @@ function EditResident({ isCollapsed }) {
                 </label> */}
               </div>
             </div>
+
             <div className="form-group">
               <label className="form-label">Medical History</label>
               <div className="flex flex-col space-y-2">
@@ -2350,7 +2413,7 @@ function EditResident({ isCollapsed }) {
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
 
-          <div className="form-group">
+          <div className="form-group space-x-5">
             <label className="form-label">Head of the Household</label>
             <div className="flex flex-row space-x-10">
               <div className="flex flex-row justify-center gap-1">
@@ -2434,155 +2497,146 @@ function EditResident({ isCollapsed }) {
             {/* Head = Yes: show members table */}
             {residentForm.head === "Yes" && (
               <>
-                <div className="mt-4">
-                  <div className="form-grid">
-                    <div className="col-span-2">
-                      <label className="form-label">
-                        Ethnicity<label className="text-red-600">*</label>
-                      </label>
-                      <div className="flex flex-row space-x-10">
-                        <div className="flex flex-row justify-center gap-1">
-                          <input
-                            type="radio"
-                            name="ethnicity"
-                            onChange={handleHouseholdRadioChange}
-                            value="IP Household"
-                            checked={householdForm.ethnicity === "IP Household"}
-                          />
-                          <h1>IP Household</h1>
-                        </div>
-                        <div className="flex flex-row justify-center gap-1">
-                          <input
-                            type="radio"
-                            name="ethnicity"
-                            onChange={handleHouseholdRadioChange}
-                            value="Non-IP Household"
-                            checked={
-                              householdForm.ethnicity === "Non-IP Household"
-                            }
-                          />
-                          <h1>Non-IP Household</h1>
-                        </div>
-                      </div>
-                    </div>
-
-                    {householdForm.ethnicity === "IP Household" && (
-                      <div className="form-group">
-                        <label className="form-label">Tribe</label>
+                <div className="form-group mt-4">
+                  <div className="form-group">
+                    <label className="form-label">
+                      Ethnicity<label className="text-red-600">*</label>
+                    </label>
+                    <div className="flex flex-row space-x-10">
+                      <div className="flex flex-row justify-center gap-1">
                         <input
-                          name="tribe"
-                          value={householdForm.tribe}
-                          onChange={householdLettersAndSpaceOnly}
-                          placeholder="Enter tribe"
-                          className="form-input"
+                          type="radio"
+                          name="ethnicity"
+                          onChange={handleHouseholdRadioChange}
+                          value="IP Household"
+                          checked={householdForm.ethnicity === "IP Household"}
                         />
+                        <h1>IP Household</h1>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="form-grid">
-                    <div className="col-span-2">
-                      <label className="form-label">
-                        Socioeconomic Status
-                        <label className="text-red-600">*</label>
-                      </label>
-                      <div className="flex flex-row space-x-10">
-                        <div className="flex flex-row justify-center gap-1">
-                          <input
-                            type="radio"
-                            name="sociostatus"
-                            onChange={handleHouseholdRadioChange}
-                            value="NHTS 4Ps"
-                            checked={householdForm.sociostatus === "NHTS 4Ps"}
-                          />
-                          <h1>NHTS 4Ps</h1>
-                        </div>
-                        <div className="flex flex-row justify-center gap-1">
-                          <input
-                            type="radio"
-                            name="sociostatus"
-                            onChange={handleHouseholdRadioChange}
-                            value="NHTS Non-4Ps"
-                            checked={
-                              householdForm.sociostatus === "NHTS Non-4Ps"
-                            }
-                          />
-                          <h1>NHTS Non-4Ps</h1>
-                        </div>
-                        <div className="flex flex-row justify-center gap-1">
-                          <input
-                            type="radio"
-                            name="sociostatus"
-                            onChange={handleHouseholdRadioChange}
-                            value="Non-NHTS"
-                            checked={householdForm.sociostatus === "Non-NHTS"}
-                          />
-                          <h1>Non-NHTS</h1>
-                        </div>
-                      </div>
-                    </div>
-
-                    {(householdForm.sociostatus === "NHTS 4Ps" ||
-                      householdForm.sociostatus === "NHTS Non-4Ps") && (
-                      <div className="form-group">
-                        <label className="form-label">NHTS No.</label>
+                      <div className="flex flex-row justify-center gap-1">
                         <input
-                          name="nhtsno"
-                          value={householdForm.nhtsno}
-                          onChange={householdNumbersAndNoSpaceOnly}
-                          placeholder="Enter no."
-                          className="form-input"
+                          type="radio"
+                          name="ethnicity"
+                          onChange={handleHouseholdRadioChange}
+                          value="Non-IP Household"
+                          checked={
+                            householdForm.ethnicity === "Non-IP Household"
+                          }
                         />
+                        <h1>Non-IP Household</h1>
                       </div>
-                    )}
-                  </div>
-
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label for="employmentstatus" className="form-label">
-                        Type of Water Source
-                        <label className="text-red-600">*</label>
-                      </label>
-                      <select
-                        id="watersource"
-                        name="watersource"
-                        value={householdForm.watersource}
-                        onChange={handleHouseholdDropdownChange}
-                        className="form-input"
-                        required
-                      >
-                        <option value="" selected>
-                          Select
-                        </option>
-                        {watersourceList.map((element) => (
-                          <option value={element}>{element}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label for="employmentstatus" className="form-label">
-                        Type of Toilet Facility
-                        <label className="text-red-600">*</label>
-                      </label>
-                      <select
-                        id="toiletfacility"
-                        name="toiletfacility"
-                        value={householdForm.toiletfacility}
-                        onChange={handleHouseholdDropdownChange}
-                        className="form-input"
-                        required
-                      >
-                        <option value="" selected>
-                          Select
-                        </option>
-                        {toiletfacilityList.map((element) => (
-                          <option value={element}>{element}</option>
-                        ))}
-                      </select>
                     </div>
                   </div>
 
+                  {householdForm.ethnicity === "IP Household" && (
+                    <div className="form-group">
+                      <label className="form-label">Tribe</label>
+                      <input
+                        name="tribe"
+                        value={householdForm.tribe}
+                        onChange={householdLettersAndSpaceOnly}
+                        placeholder="Enter tribe"
+                        className="form-input"
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      Socioeconomic Status
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <div className="flex flex-row space-x-10">
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="NHTS 4Ps"
+                          checked={householdForm.sociostatus === "NHTS 4Ps"}
+                        />
+                        <h1>NHTS 4Ps</h1>
+                      </div>
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="NHTS Non-4Ps"
+                          checked={householdForm.sociostatus === "NHTS Non-4Ps"}
+                        />
+                        <h1>NHTS Non-4Ps</h1>
+                      </div>
+                      <div className="flex flex-row justify-center gap-1">
+                        <input
+                          type="radio"
+                          name="sociostatus"
+                          onChange={handleHouseholdRadioChange}
+                          value="Non-NHTS"
+                          checked={householdForm.sociostatus === "Non-NHTS"}
+                        />
+                        <h1>Non-NHTS</h1>
+                      </div>
+                    </div>
+                  </div>
+
+                  {(householdForm.sociostatus === "NHTS 4Ps" ||
+                    householdForm.sociostatus === "NHTS Non-4Ps") && (
+                    <div className="form-group">
+                      <label className="form-label">NHTS No.</label>
+                      <input
+                        name="nhtsno"
+                        value={householdForm.nhtsno}
+                        onChange={householdNumbersAndNoSpaceOnly}
+                        placeholder="Enter no."
+                        className="form-input"
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label for="employmentstatus" className="form-label">
+                      Type of Water Source
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="watersource"
+                      name="watersource"
+                      value={householdForm.watersource}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                      required
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {watersourceList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label for="employmentstatus" className="form-label">
+                      Type of Toilet Facility
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="toiletfacility"
+                      name="toiletfacility"
+                      value={householdForm.toiletfacility}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                      required
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {toiletfacilityList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
                   <table className="min-w-full border border-gray-300">
                     <thead>
                       <tr>
@@ -2612,8 +2666,7 @@ function EditResident({ isCollapsed }) {
                               >
                                 <option value="">Select Position</option>
                                 <option value="Spouse">Spouse</option>
-                                <option value="Son">Son</option>
-                                <option value="Daughter">Daughter</option>
+                                <option value="Child">Child</option>
                                 <option value="Parent">Parent</option>
                                 <option value="Sibling">Sibling</option>
                                 <option value="Grandparent">Grandparent</option>
@@ -3138,10 +3191,17 @@ function EditResident({ isCollapsed }) {
 
           <div className="function-btn-container">
             <button
+              type="button"
+              // onClick={handleReset}
+              className="actions-btn bg-btn-color-red hover:bg-red-700"
+            >
+              Reject
+            </button>
+            <button
               type="submit"
               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
             >
-              Submit
+              Approve
             </button>
           </div>
         </form>
@@ -3153,4 +3213,4 @@ function EditResident({ isCollapsed }) {
   );
 }
 
-export default EditResident;
+export default ViewResident;

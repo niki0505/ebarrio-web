@@ -5,6 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "../Stylesheets/Dashboard.css";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import {
   BarChart,
@@ -28,12 +29,17 @@ import {
 import { IoDocumentTextSharp } from "react-icons/io5";
 import { PiCourtBasketballFill } from "react-icons/pi";
 import { FaMale, FaFemale } from "react-icons/fa";
+import { FaHandsHelping } from "react-icons/fa";
+import { FaHouse } from "react-icons/fa6";
+import { MdWorkOff } from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
 
 function Dashboard({ isCollapsed }) {
+  const navigation = useNavigate();
   const [residentsData, setResidentsData] = useState({});
   const [documentData, setDocumentData] = useState({});
   const [blotterData, setBlotterData] = useState({});
+  const [classificationsData, setClassificationsData] = useState({});
   const [reservationData, setReservationData] = useState({});
   const {
     announcements,
@@ -46,6 +52,8 @@ function Dashboard({ isCollapsed }) {
     fetchCertificates,
     blotterreports,
     fetchBlotterReports,
+    fetchHouseholds,
+    household,
   } = useContext(InfoContext);
   const [events, setEvents] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
@@ -58,6 +66,7 @@ function Dashboard({ isCollapsed }) {
       fetchAnnouncements();
       fetchReservations();
       fetchBlotterReports();
+      fetchHouseholds();
       setIsFetched(true);
     }
   }, []);
@@ -66,31 +75,109 @@ function Dashboard({ isCollapsed }) {
   useEffect(() => {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
-        (element) => element.status !== "Archived"
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
       ).length;
 
       const male = residents
         .filter((element) => element.sex === "Male")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const female = residents
         .filter((element) => element.sex === "Female")
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const seniorCitizens = residents
         .filter((element) => element.age >= 60)
-        .filter((element) => element.status !== "Archived").length;
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
 
       const voters = residents
         .filter((element) => element.voter === "Yes")
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
+
+      const PWD = residents
+        .filter((element) => element.isPWD)
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
+
+      const pregnant = residents
+        .filter((element) => element.isPregnant)
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
+
+      const fourps = household
+        .filter((element) => element.sociostatus === "NHTS 4Ps")
+        .filter(
+          (element) =>
+            element.status !== "Archived" && element.status !== "Pending"
+        ).length;
+
+      // const soloparent = residents
+      //   .filter((element) => element.isSoloParent)
+      //   .filter(
+      //     (element) =>
+      //       element.status !== "Archived" && element.status !== "Pending"
+      //   ).length;
+
+      const unemployed = residents
+        .filter(
+          (element) =>
+            element.employmentstatus === "Unemployed" &&
+            element.status !== "Pending"
+        )
         .filter((element) => element.status !== "Archived").length;
+
+      const totalHouseholds = household.filter(
+        (element) =>
+          element.status !== "Archived" && element.status !== "Pending"
+      ).length;
+
+      setClassificationsData({
+        Newborn: residents.filter((r) => r.isNewborn).length,
+        Infant: residents.filter((r) => r.isInfant).length,
+        "Under 5 y.o": residents.filter((r) => r.isUnder5).length,
+        "School of Age": residents.filter((r) => r.isSchoolAge).length,
+        Adolescent: residents.filter((r) => r.isAdolescent).length,
+        "Adolescent Pregnant": residents.filter((r) => r.isAdolescentPregnant)
+          .length,
+        Adult: residents.filter((r) => r.isAdult).length,
+        Postpartum: residents.filter((r) => r.isPostpartum).length,
+        "Women of Reproductive Age": residents.filter(
+          (r) => r.isWomenOfReproductive
+        ).length,
+        "Senior Citizens": residents.filter((r) => r.isSenior).length,
+        Pregnant: residents.filter((r) => r.isPregnant).length,
+        PWD: residents.filter((r) => r.isPWD).length,
+      });
 
       setResidentsData({
         total: totalResidents,
+        totalHouseholds: totalHouseholds,
         male: male,
         female: female,
         seniorCitizens: seniorCitizens,
         voters: voters,
+        PWD: PWD,
+        pregnant: pregnant,
+        fourps: fourps,
+        // soloparent: soloparent,
+        unemployed: unemployed,
       });
     };
     fetchResidentData();
@@ -184,7 +271,7 @@ function Dashboard({ isCollapsed }) {
   }, [blotterreports]);
 
   useEffect(() => {
-    if (user.role === "Secretary") {
+    if (user.role === "Secretary" || user.role === "Technical Admin") {
       const announcementEvents = (announcements || [])
         .filter((a) => a.status !== "Archived")
         .filter((a) => a.times)
@@ -278,7 +365,11 @@ function Dashboard({ isCollapsed }) {
         );
 
       setEvents([...announcementEvents, ...approvedReservationEvents]);
-    } else if (user.role === "Justice" || user.role === "Secretary") {
+    } else if (
+      user.role === "Justice" ||
+      user.role === "Secretary" ||
+      user.role === "Technical Admin"
+    ) {
       const scheduledBlotters = (blotterreports || [])
         .filter((b) => b.status === "Scheduled")
         .map((b) => ({
@@ -323,6 +414,13 @@ function Dashboard({ isCollapsed }) {
     ([month, counts]) => ({
       month,
       ...counts,
+    })
+  );
+
+  const classificationArray = Object.entries(classificationsData).map(
+    ([key, value]) => ({
+      category: key,
+      Total: value,
     })
   );
 
@@ -407,10 +505,15 @@ function Dashboard({ isCollapsed }) {
         <div className="header-text">Dashboard</div>
 
         <div className="form-grid mt-4">
-          {(user.role === "Secretary" || user.role === "Clerk") && (
+          {(user.role === "Secretary" ||
+            user.role === "Clerk" ||
+            user.role === "Technical Admin") && (
             <>
-              <div className="form-group">
-                <div className="demog-card-container">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() => navigation("/residents")}
+              >
+                <div className="demog-card-container hover:bg-[#FFB200]/10">
                   <div class="demog-card-left-border bg-[#FFB200]"></div>
 
                   <div class="flex-grow">
@@ -428,9 +531,40 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#0079FF]"></div>
+              <div
+                className="form-group cursor-pointer"
+                onClick={() => navigation("/households")}
+              >
+                <div className="demog-card-container hover:bg-[#EB5B00]/10">
+                  <div class="demog-card-left-border bg-[#EB5B00]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.totalHouseholds}
+                    </h2>
+                    <p class="text-[#EB5B00] font-title text-[16px] font-semibold">
+                      Total Households
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <FaHouse />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Male",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container hover:bg-[#0079FF]/10">
+                  <div class="demog-card-left-border bg-[#0079FF] "></div>
 
                   <div class="flex-grow">
                     <h2 class="font-title text-[24px] font-bold">
@@ -447,8 +581,17 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
-                <div className="demog-card-container">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Female",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container hover:bg-[#FF90BB]/10">
                   <div class="demog-card-left-border bg-[#FF90BB]"></div>
 
                   <div class="flex-grow">
@@ -466,7 +609,16 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              {/* <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Senior Citizens",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
                   <div class="demog-card-left-border bg-[#00DFA2]"></div>
 
@@ -485,8 +637,157 @@ function Dashboard({ isCollapsed }) {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "PWD",
+                    },
+                  })
+                }
+              >
                 <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.PWD}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      PWD
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Pregnant",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.pregnant}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Pregnant
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div> */}
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/households", {
+                    state: {
+                      selectedSort: "4Ps",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container hover:bg-[#AF47D2]/10">
+                  <div class="demog-card-left-border bg-[#AF47D2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.fourps}
+                    </h2>
+                    <p class="text-[#AF47D2] font-title text-[16px] font-semibold">
+                      4Ps
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <FaHandsHelping />
+                  </div>
+                </div>
+              </div>
+
+              {/* <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Solo Parent",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container">
+                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.soloparent}
+                    </h2>
+                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
+                      Solo Parent
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdElderly />
+                  </div>
+                </div>
+              </div> */}
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Unemployed",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container hover:bg-[#7C838B]/10">
+                  <div class="demog-card-left-border bg-[#7C838B]"></div>
+
+                  <div class="flex-grow">
+                    <h2 class="font-title text-[24px] font-bold">
+                      {residentsData.unemployed}
+                    </h2>
+                    <p class="text-[#7C838B] font-title text-[16px] font-semibold">
+                      Unemployed
+                    </p>
+                  </div>
+
+                  <div class="demog-icon">
+                    <MdWorkOff />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="form-group cursor-pointer"
+                onClick={() =>
+                  navigation("/residents", {
+                    state: {
+                      selectedSort: "Voters",
+                    },
+                  })
+                }
+              >
+                <div className="demog-card-container hover:bg-[#06D001]/10">
                   <div class="demog-card-left-border bg-[#06D001]"></div>
 
                   <div class="flex-grow">
@@ -506,11 +807,65 @@ function Dashboard({ isCollapsed }) {
             </>
           )}
         </div>
+        {(user.role === "Secretary" ||
+          user.role === "Clerk" ||
+          user.role === "Technical Admin") && (
+          <div className="col-span-2 white-bg-container">
+            <h2 className="text-base font-medium text-center text-navy-blue">
+              Classification by Age/Health
+            </h2>
+            {classificationArray.length > 0 ? (
+              <div className="w-full h-[20rem]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={classificationArray}
+                    margin={{ top: 20, right: 30, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="category"
+                      tick={{ fontSize: 14, fill: "#04384E" }}
+                      interval={0}
+                      angle={-30}
+                      textAnchor="end"
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar
+                      dataKey="Total"
+                      fill="#0096FF"
+                      className="cursor-pointer"
+                      onClick={(data, index) => {
+                        const clickedCategory =
+                          classificationArray[index].category;
+
+                        navigation("/residents", {
+                          state: {
+                            selectedSort: clickedCategory,
+                          },
+                        });
+                      }}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="w-full h-[20rem] flex items-center justify-center">
+                <h1 className="text-center text-gray-600">
+                  No classification data available.
+                </h1>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="mt-8">
           <h1 className="text-[20px] font-title font-semibold">Reports</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-            {(user.role === "Secretary" || user.role === "Clerk") && (
+            {(user.role === "Secretary" ||
+              user.role === "Clerk" ||
+              user.role === "Technical Admin") && (
               <>
                 {/* Document Requests */}
                 <div className="col-span-1 white-bg-container">
@@ -659,7 +1014,9 @@ function Dashboard({ isCollapsed }) {
             )}
 
             {/* Blotter Reports */}
-            {(user.role === "Justice" || user.role === "Secretary") && (
+            {(user.role === "Justice" ||
+              user.role === "Secretary" ||
+              user.role === "Technical Admin") && (
               <div className="col-span-2 white-bg-container">
                 <h2 className="text-base font-medium text-center text-navy-blue">
                   Blotter Reports
@@ -743,7 +1100,9 @@ function Dashboard({ isCollapsed }) {
           </h1>
           <div className="white-bg-container">
             <div className="form-grid mt-4 mb-4">
-              {(user.role === "Secretary" || user.role === "Clerk") && (
+              {(user.role === "Secretary" ||
+                user.role === "Clerk" ||
+                user.role === "Technical Admin") && (
                 <>
                   <div className="form-group">
                     <div className="flex flex-row items-center">
@@ -803,7 +1162,9 @@ function Dashboard({ isCollapsed }) {
                   </div>
                 </>
               )}
-              {(user.role === "Secretary" || user.role === "Justice") && (
+              {(user.role === "Secretary" ||
+                user.role === "Justice" ||
+                user.role === "Technical Admin") && (
                 <div className="form-group">
                   <div className="flex flex-row items-center">
                     <div className="bg-[#00796B] w-4 h-4 rounded-md"></div>

@@ -42,6 +42,8 @@ import { ToastContainer } from "react-toastify";
 import SOSUpdateReports from "./components/SOSUpdateReports";
 import RiverSnapshots from "./components/RiverSnapshots";
 import ActivityLogs from "./components/ActivityLogs";
+import Household from "./components/Household";
+import ViewResident from "./components/ViewResident";
 
 function App() {
   return (
@@ -95,6 +97,15 @@ function App() {
                       }
                     />
                     <Route
+                      path="households"
+                      element={
+                        <PrivateRoute
+                          element={<Household />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
                       path="create-resident"
                       element={
                         <PrivateRoute
@@ -113,6 +124,15 @@ function App() {
                       }
                     />
                     <Route
+                      path="view-resident"
+                      element={
+                        <PrivateRoute
+                          element={<ViewResident />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
                       path="employees"
                       element={
                         <PrivateRoute
@@ -122,11 +142,11 @@ function App() {
                       }
                     />
                     <Route
-                      path="accounts"
+                      path="user-accounts"
                       element={
                         <PrivateRoute
                           element={<Accounts />}
-                          allowedRoles={["Secretary"]}
+                          allowedRoles={["Secretary", "Technical Admin"]}
                         />
                       }
                     />
@@ -135,7 +155,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<ActivityLogs />}
-                          allowedRoles={["Secretary"]}
+                          allowedRoles={["Secretary", "Technical Admin"]}
                         />
                       }
                     />

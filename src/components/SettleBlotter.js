@@ -101,8 +101,18 @@ function SettleBlotter({ isCollapsed }) {
     }));
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const handleWitnessChange = (e) => {
     const { name, value } = e.target;
+
+    const formattedValue = value
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "witnessname") {
       const matches = residents.filter((res) => {
@@ -116,7 +126,7 @@ function SettleBlotter({ isCollapsed }) {
       setSettleForm((prevForm) => ({
         ...prevForm,
         witnessID: "",
-        witnessname: value,
+        witnessname: formattedValue,
       }));
     } else {
       setSettleForm((prevForm) => ({
@@ -489,6 +499,7 @@ function SettleBlotter({ isCollapsed }) {
                       onChange={handleChangeSig2}
                       type="file"
                       name="witnesssignature"
+                      accept="image/jpeg, image/png"
                       style={{ display: "none" }}
                       ref={hiddenInputRef2}
                     />

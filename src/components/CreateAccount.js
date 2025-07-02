@@ -60,6 +60,8 @@ function CreateAccount({ onClose }) {
     }));
   };
 
+  console.log(userForm.username);
+
   const passwordValidation = (e) => {
     const { name, value } = e.target;
     let errors = [];
@@ -238,6 +240,8 @@ function CreateAccount({ onClose }) {
                     name="username"
                     onChange={usernameValidation}
                     required
+                    minLength={3}
+                    maxLength={16}
                     className="form-input h-[30px]"
                     placeholder="Enter username"
                   />

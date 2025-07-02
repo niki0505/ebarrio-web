@@ -53,6 +53,23 @@ function CreateContact({ onClose }) {
     onClose();
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  const lettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setName(capitalized);
+  };
+
   const mobileInputChange = (e) => {
     let { name, value } = e.target;
     value = value.replace(/\D/g, "");
@@ -113,7 +130,7 @@ function CreateContact({ onClose }) {
                     id="name"
                     name="name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={lettersAndSpaceOnly}
                     className="form-input h-[30px]"
                     required
                   />

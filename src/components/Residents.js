@@ -3,7 +3,7 @@ import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
@@ -18,20 +18,26 @@ import BarangayID from "./id/BarangayID";
 import { AuthContext } from "../context/AuthContext";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
+import { removeBackground } from "@imgly/background-removal";
+import ResidentReject from "./ResidentReject";
 
 function Residents({ isCollapsed }) {
+  const location = useLocation();
   const confirm = useConfirm();
   const navigation = useNavigate();
+  const { selectedSort } = location.state || {};
   const { fetchResidents, residents } = useContext(InfoContext);
   const [filteredResidents, setFilteredResidents] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
+  const [isRejectClicked, setRejectClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
-  const [sortOption, setSortOption] = useState("All");
+  const [isPendingClicked, setPendingClicked] = useState(false);
+  const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
 
@@ -62,6 +68,25 @@ function Residents({ isCollapsed }) {
     const file = new File([blob], fileName, { type: blob.type });
     const storageRef = ref(storage, fileName);
     await uploadBytes(storageRef, file);
+
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  }
+
+  async function uploadToFirebaseImages(data) {
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const fileName = `id_images/${Date.now()}_${randomString}.png`;
+    const storageRef = ref(storage, fileName);
+
+    // Convert to Blob if it’s not already
+    let blob;
+    if (data instanceof Blob) {
+      blob = data;
+    } else {
+      blob = new Blob([data], { type: "image/png" });
+    }
+
+    await uploadBytes(storageRef, blob, { contentType: "image/png" });
 
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
@@ -139,6 +164,76 @@ function Residents({ isCollapsed }) {
     fetchResidents();
   }, []);
 
+  const approveBtn = async (e, resID) => {
+    e.stopPropagation();
+    const isConfirmed = await confirm(
+      "Are you sure you want to approve this resident?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const response = await api.get(`/getresidentimages/${resID}`);
+      const { picture, signature } = response.data;
+
+      const pictureBlob = await fetch(picture).then((res) => res.blob());
+      const signatureBlob = await fetch(signature).then((res) => res.blob());
+
+      let pictureURL, signatureURL;
+
+      console.log("Attempting to remove background...");
+
+      // Try removing background from picture
+      try {
+        const removedBgPicture = await removeBackground(pictureBlob);
+        pictureURL = await uploadToFirebaseImages(
+          new Blob([removedBgPicture], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from picture. Uploading original."
+        );
+        pictureURL = await uploadToFirebase(pictureBlob);
+      }
+
+      // Try removing background from signature
+      try {
+        const removedBgSignature = await removeBackground(signatureBlob);
+        signatureURL = await uploadToFirebaseImages(
+          new Blob([removedBgSignature], { type: "image/png" })
+        );
+      } catch (err) {
+        console.warn(
+          "Failed to remove background from signature. Uploading original."
+        );
+        signatureURL = await uploadToFirebase(signatureBlob);
+      }
+
+      await api.post(`/approveresident/${resID}`, {
+        pictureURL,
+        signatureURL,
+      });
+
+      setActiveClicked(true);
+      setPendingClicked(false);
+      alert("Resident has been approved successfully.");
+    } catch (error) {
+      console.log("Error in approving resident details", error);
+      alert("Something went wrong while approving the resident.");
+    }
+  };
+
+  const viewBtn = async (resID) => {
+    try {
+      await api.post(`/viewresidentdetails/${resID}`);
+      navigation("/view-resident", { state: { resID } });
+    } catch (error) {
+      console.log("Error in viewing resident details", error);
+    }
+  };
+
   const editBtn = async (resID) => {
     try {
       await api.post(`/viewresidentdetails/${resID}`);
@@ -152,6 +247,12 @@ function Residents({ isCollapsed }) {
     e.stopPropagation();
     setSelectedResID(resID);
     setCertClicked(true);
+  };
+
+  const rejectBtn = (e, resID) => {
+    e.stopPropagation();
+    setSelectedResID(resID);
+    setRejectClicked(true);
   };
 
   const archiveBtn = async (e, resID) => {
@@ -203,7 +304,11 @@ function Residents({ isCollapsed }) {
     if (isActiveClicked) {
       filtered = residents.filter((res) => res.status === "Active");
     } else if (isArchivedClicked) {
-      filtered = residents.filter((res) => res.status === "Archived");
+      filtered = residents.filter(
+        (res) => res.status === "Archived" || res.status === "Rejected"
+      );
+    } else if (isPendingClicked) {
+      filtered = residents.filter((res) => res.status === "Pending");
     }
 
     switch (sortOption) {
@@ -216,10 +321,48 @@ function Residents({ isCollapsed }) {
         filtered = filtered.filter((res) => res.sex?.toLowerCase() === "male");
         break;
       case "Senior Citizens":
-        filtered = filtered.filter((res) => res.age >= 60);
+        filtered = filtered.filter((res) => res.age >= 60 || res.isSenior);
+        break;
+      case "PWD":
+        filtered = filtered.filter((res) => res.isPWD);
+        break;
+      case "Pregnant":
+        filtered = filtered.filter((res) => res.isPregnant);
+        break;
+      case "Unemployed":
+        filtered = filtered.filter(
+          (res) => res.employmentstatus === "Unemployed"
+        );
         break;
       case "Voters":
         filtered = filtered.filter((res) => res.voter === "Yes");
+        break;
+      case "Newborn":
+        filtered = filtered.filter((res) => res.isNewborn);
+        break;
+      case "Infant":
+        filtered = filtered.filter((res) => res.isInfant);
+        break;
+      case "Under 5 y.o":
+        filtered = filtered.filter((res) => res.isUnder5);
+        break;
+      case "School of Age":
+        filtered = filtered.filter((res) => res.isSchoolAge);
+        break;
+      case "Adolescent":
+        filtered = filtered.filter((res) => res.isAdolescent);
+        break;
+      case "Adolescent Pregnant":
+        filtered = filtered.filter((res) => res.isAdolescentPregnant);
+        break;
+      case "Adult":
+        filtered = filtered.filter((res) => res.isAdult);
+        break;
+      case "Postpartum":
+        filtered = filtered.filter((res) => res.isPostpartum);
+        break;
+      case "Women of Reproductive Age":
+        filtered = filtered.filter((res) => res.isWomenOfReproductive);
         break;
       default:
         break;
@@ -241,14 +384,28 @@ function Residents({ isCollapsed }) {
       });
     }
     setFilteredResidents(filtered);
-  }, [search, residents, isActiveClicked, isArchivedClicked, sortOption]);
+  }, [
+    search,
+    residents,
+    isActiveClicked,
+    isArchivedClicked,
+    isPendingClicked,
+    sortOption,
+  ]);
 
   const handleMenu1 = () => {
     setActiveClicked(true);
     setArchivedClicked(false);
+    setPendingClicked(false);
   };
   const handleMenu2 = () => {
     setArchivedClicked(true);
+    setActiveClicked(false);
+    setPendingClicked(false);
+  };
+  const handleMenu3 = () => {
+    setPendingClicked(true);
+    setArchivedClicked(false);
     setActiveClicked(false);
   };
 
@@ -469,6 +626,26 @@ function Residents({ isCollapsed }) {
     };
   }, [exportDropdown, filterDropdown]);
 
+  const sortOptionsList = [
+    "All",
+    "Female",
+    "Male",
+    "Newborn",
+    "Infant",
+    "Under 5 y.o",
+    "School of Age",
+    "Adolescent",
+    "Adolescent Pregnant",
+    "Adult",
+    "Postpartum",
+    "Women of Reproductive Age",
+    "Senior Citizens",
+    "Pregnant",
+    "PWD",
+    "Unemployed",
+    "Voters",
+  ];
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -487,12 +664,20 @@ function Residents({ isCollapsed }) {
               Active
             </p>
             <p
+              onClick={handleMenu3}
+              className={`status-text ${
+                isPendingClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Pending
+            </p>
+            <p
               onClick={handleMenu2}
               className={`status-text ${
                 isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
-              Archived
+              Archived/Rejected
             </p>
           </div>
           {isActiveClicked && (
@@ -542,7 +727,7 @@ function Residents({ isCollapsed }) {
                   onClick={toggleFilterDropdown}
                 >
                   <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
+                    {sortOption}
                   </h1>
                   <div className="pointer-events-none flex text-gray-600">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
@@ -550,63 +735,21 @@ function Residents({ isCollapsed }) {
                 </div>
 
                 {filterDropdown && (
-                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("All");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          All
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Female");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Female
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Male");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Male
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Senior Citizens");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Senior Citizens
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
-                          onClick={() => {
-                            setSortOption("Voters");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Voters
-                        </li>
-                      </div>
+                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md max-h-60 overflow-y-auto">
+                    <ul className="dropdown-list">
+                      {sortOptionsList.map((option) => (
+                        <div className="navbar-dropdown-item" key={option}>
+                          <li
+                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            onClick={() => {
+                              setSortOption(option);
+                              setfilterDropdown(false);
+                            }}
+                          >
+                            {option}
+                          </li>
+                        </div>
+                      ))}
                     </ul>
                   </div>
                 )}
@@ -787,15 +930,43 @@ function Residents({ isCollapsed }) {
                                 EDIT
                               </button>
                             </div>
-                          ) : (
-                            <button
-                              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                              type="submit"
-                              onClick={(e) => recoverBtn(e, res._id)}
-                            >
-                              RECOVER
-                            </button>
-                          )}
+                          ) : res.status === "Archived" ? (
+                            <div className="btn-container">
+                              <button
+                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                type="submit"
+                                onClick={(e) => recoverBtn(e, res._id)}
+                              >
+                                RECOVER
+                              </button>
+                            </div>
+                          ) : res.status === "Pending" ? (
+                            <>
+                              <div className="btn-container">
+                                <button
+                                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                  type="submit"
+                                  onClick={(e) => rejectBtn(e, res._id)}
+                                >
+                                  REJECT
+                                </button>
+                                <button
+                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  type="submit"
+                                  onClick={(e) => approveBtn(e, res._id)}
+                                >
+                                  APPROVE
+                                </button>
+                                <button
+                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  type="submit"
+                                  onClick={() => viewBtn(res._id)}
+                                >
+                                  VIEW
+                                </button>
+                              </div>
+                            </>
+                          ) : null}
                         </td>
                       ) : (
                         <>
@@ -881,6 +1052,12 @@ function Residents({ isCollapsed }) {
           <CreateCertificate
             resID={selectedResID}
             onClose={() => setCertClicked(false)}
+          />
+        )}
+        {isRejectClicked && (
+          <ResidentReject
+            resID={selectedResID}
+            onClose={() => setRejectClicked(false)}
           />
         )}
       </main>
