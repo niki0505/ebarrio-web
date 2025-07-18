@@ -164,7 +164,7 @@ const Navbar = ({ isCollapsed }) => {
                 <div className="notif-header-container">
                   <div className="notif-title-container">
                     <h1 className="notif-title">Notifications</h1>
-                    <h1 className="notif-icon">
+                    <h1 className="text-xs bg-[#BC0F0F] text-[#fff] px-1 rounded-full ml-2">
                       {notifications.reduce(
                         (count, notification) =>
                           notification.read ? count : count + 1,

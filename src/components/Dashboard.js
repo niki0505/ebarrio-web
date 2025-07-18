@@ -74,96 +74,45 @@ function Dashboard({ isCollapsed }) {
   useEffect(() => {
     const fetchResidentData = async () => {
       const totalResidents = residents.filter(
-        (element) =>
-          element.status !== "Archived" &&
-          element.status !== "Pending" &&
-          element.status !== "Rejected"
+        (element) => element.status === "Active"
       ).length;
 
       const male = residents
         .filter((element) => element.sex === "Male")
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const female = residents
         .filter((element) => element.sex === "Female")
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const seniorCitizens = residents
         .filter((element) => element.age >= 60)
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const voters = residents
         .filter((element) => element.voter === "Yes")
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const PWD = residents
         .filter((element) => element.isPWD)
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const pregnant = residents
         .filter((element) => element.isPregnant)
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
       const fourps = household
         .filter((element) => element.sociostatus === "NHTS 4Ps")
-        .filter(
-          (element) =>
-            element.status !== "Archived" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        ).length;
+        .filter((element) => element.status === "Active").length;
 
-      // const soloparent = residents
-      //   .filter((element) => element.isSoloParent)
-      //   .filter(
-      //     (element) =>
-      //       element.status !== "Archived" && element.status !== "Pending"
-      //   ).length;
-
-      const unemployed = residents
-        .filter(
-          (element) =>
-            element.employmentstatus === "Unemployed" &&
-            element.status !== "Pending" &&
-            element.status !== "Rejected"
-        )
-        .filter((element) => element.status !== "Archived").length;
+      const unemployed = residents.filter(
+        (element) =>
+          element.employmentstatus === "Unemployed" &&
+          element.status === "Active"
+      ).length;
 
       const totalHouseholds = household.filter(
-        (element) =>
-          element.status !== "Archived" &&
-          element.status !== "Pending" &&
-          element.status !== "Rejected"
+        (element) => element.status === "Active"
       ).length;
 
       setClassificationsData({
@@ -194,7 +143,6 @@ function Dashboard({ isCollapsed }) {
         PWD: PWD,
         pregnant: pregnant,
         fourps: fourps,
-        // soloparent: soloparent,
         unemployed: unemployed,
       });
     };
