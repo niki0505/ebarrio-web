@@ -1,6 +1,4 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
@@ -9,7 +7,13 @@ import { storage } from "../firebase";
 import { FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+
+//STYLES
+import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
 import { GrNext } from "react-icons/gr";
 
 function CreateBlotter({ isCollapsed }) {
@@ -421,19 +425,19 @@ function CreateBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
+        <div className="breadcrumbs-container">
           <h1
             onClick={() => navigation("/blotter-reports")}
-            className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+            className="breadcrumbs-inactive-text"
           >
             Blotter Reports
           </h1>
-          <GrNext className="text-[#7D7979] text-lg font-bold" />
+          <GrNext className="breadcrumbs-arrow" />
           <h1 className="header-text">Blotter Form</h1>
         </div>
 
         <form
-          className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6"
+          className="white-bg-container"
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
@@ -462,7 +466,7 @@ function CreateBlotter({ isCollapsed }) {
                 />
                 {blotterForm.complainantname?.length > 0 &&
                   complainantSuggestions?.length > 0 && (
-                    <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    <ul className="blotter-suggestions-list">
                       {complainantSuggestions.map((res) => {
                         const fullName = `${res.firstname} ${
                           res.middlename ? res.middlename + " " : ""
@@ -470,7 +474,7 @@ function CreateBlotter({ isCollapsed }) {
                         return (
                           <li
                             key={res.id}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            className="blotter-suggestions-item"
                             onClick={() =>
                               handleComplainantSuggestionClick(res)
                             }
@@ -514,9 +518,7 @@ function CreateBlotter({ isCollapsed }) {
                 required
               />
               {mobileNumError ? (
-                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                  {mobileNumError}
-                </label>
+                <label className="error-msg">{mobileNumError}</label>
               ) : null}
             </div>
           </div>
@@ -588,7 +590,7 @@ function CreateBlotter({ isCollapsed }) {
               />
               {blotterForm.subjectname?.length > 0 &&
                 subjectSuggestions?.length > 0 && (
-                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                  <ul className="blotter-suggestions-list">
                     {subjectSuggestions.map((res) => {
                       const fullName = `${res.firstname} ${
                         res.middlename ? res.middlename + " " : ""
@@ -596,7 +598,7 @@ function CreateBlotter({ isCollapsed }) {
                       return (
                         <li
                           key={res.id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          className="blotter-suggestions-item"
                           onClick={() => handleSubjectSuggestionClick(res)}
                         >
                           {fullName}
@@ -656,10 +658,10 @@ function CreateBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 onChange={handleInputChange}
-                className="w-full h-[15rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                className="h-[15rem] textarea-container"
                 required
               />
-              <h3 className="text-end">{blotterForm.details.length}/1000</h3>
+              <h3 className="textarea-length-text">{blotterForm.details.length}/1000</h3>
             </div>
           </div>
 

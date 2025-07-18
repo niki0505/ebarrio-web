@@ -1,12 +1,14 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import AppLogo from "../assets/applogo-darkbg.png";
 import api from "../api";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
+
+//ICONS
 import { IoArrowBack } from "react-icons/io5";
 import { RiQuestionnaireFill, RiLockPasswordFill } from "react-icons/ri";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 function ForgotPassword() {
   const navigation = useNavigate();
@@ -260,7 +262,7 @@ function ForgotPassword() {
       {!isExisting && (
         <>
           <div
-            className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+            className="login-container"
             style={{
               backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
             }}
@@ -268,9 +270,9 @@ function ForgotPassword() {
             <img
               src={AppLogo}
               alt="App Logo"
-              className="w-[312px] h-[312px] translate-x-[-20vw]"
+              className="login-logo translate-x-[-25vw]"
             />
-            <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-8">
+            <div className="right-login-container">
               <div>
                 <h1 className="header-text">Forgot Password</h1>
                 <label className="text-[#808080] font-subTitle font-semibold">
@@ -280,7 +282,7 @@ function ForgotPassword() {
               </div>
 
               <form
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-8"
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSubmit();
@@ -300,16 +302,10 @@ function ForgotPassword() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <button
-                    type="submit"
-                    className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-                  >
+                  <button type="submit" className="login-btn">
                     Submit
                   </button>
-                  <a
-                    href="/login"
-                    className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-                  >
+                  <a href="/login" className="login-forgot-btn">
                     Remember your password?
                   </a>
                 </div>
@@ -339,7 +335,7 @@ function ForgotPassword() {
                     className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
                   <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] justify-center items-center">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] justify-center items-center">
                       <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
                         <div>
                           <h1 className="header-text text-start">
@@ -434,7 +430,7 @@ function ForgotPassword() {
                         <button
                           type="button"
                           onClick={handleSuccessful}
-                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full mt-5 text-[20px] hover:bg-[#0A7A9D]"
+                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
                         >
                           Submit
                         </button>
@@ -457,7 +453,7 @@ function ForgotPassword() {
                     className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
                   <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
                       <IoArrowBack
                         className="text-2xl"
                         onClick={() => setOTPClicked(false)}
@@ -527,7 +523,7 @@ function ForgotPassword() {
                     className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
                   <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
                       <IoArrowBack
                         className="text-2xl"
                         onClick={() => setQuestionsClicked(false)}
@@ -610,7 +606,7 @@ function ForgotPassword() {
                     className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
                   />
                   <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem]">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem]">
                       <IoArrowBack
                         className="text-2xl"
                         onClick={() => setIsExisting(false)}

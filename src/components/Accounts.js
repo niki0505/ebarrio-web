@@ -1,22 +1,27 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
-import CreateAccount from "./CreateAccount";
-import SearchBar from "./SearchBar";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
-import EditAccount from "./EditAccount";
-import Aniban2logo from "../assets/aniban2logo.jpg";
-import AppLogo from "../assets/applogo-lightbg.png";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
+//SCREENS
+import CreateAccount from "./CreateAccount";
+import SearchBar from "./SearchBar";
+import EditAccount from "./EditAccount";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/Accounts.css";
 
 //ICONS
 import { FaEdit } from "react-icons/fa";
 import { FaUserXmark, FaUserCheck } from "react-icons/fa6";
 import { MdArrowDropDown } from "react-icons/md";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function Accounts({ isCollapsed }) {
   const confirm = useConfirm();
@@ -275,14 +280,15 @@ function Accounts({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Accounts Reports", pageWidth / 2, 55, {
+    doc.text("Accounts Reports", pageWidth / 2, 57, {
       align: "center",
     });
 
@@ -428,27 +434,22 @@ function Accounts({ isCollapsed }) {
             </p>
           </div>
           {isCurrentClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="export-sort-btn-container">
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                  <h1 className="export-sort-btn-text">Export</h1>
+                  <div className="export-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu w-36">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -456,7 +457,7 @@ function Accounts({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -469,24 +470,19 @@ function Accounts({ isCollapsed }) {
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleFilterDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Sort
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                  <h1 className="export-sort-btn-text">Sort</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {filterDropdown && (
-                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Newest");
                             setfilterDropdown(false);
@@ -497,7 +493,7 @@ function Accounts({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Oldest");
                             setfilterDropdown(false);
@@ -511,91 +507,77 @@ function Accounts({ isCollapsed }) {
                 )}
               </div>
 
-              <button
-                className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
-                onClick={handleAdd}
-              >
-                <h1 className="font-medium text-sm text-[#fff] m-0">
-                  Add New User
-                </h1>
+              <button className="add-new-btn" onClick={handleAdd}>
+                <h1 className="add-new-btn-text ">Add New User</h1>
               </button>
             </div>
           )}
         </div>
 
-        <hr className="mt-4 border border-gray-300" />
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>User Role</th>
-              {isCurrentClicked && <th>Status</th>}
-              {isArchivedClicked && <th>Date Archived</th>}
-              {(isPendingClicked || isCurrentClicked) && <th>Date Created</th>}
-              {(isPendingClicked || isCurrentClicked) && <th>Action</th>}
-            </tr>
-          </thead>
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-          <tbody className="bg-[#fff]">
-            {filteredUsers.length === 0 ? (
+        <div className="table-container">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={isArchivedClicked ? 4 : 6}>No results found</td>
+                <th>Name</th>
+                <th>Username</th>
+                <th>User Role</th>
+                {isCurrentClicked && <th>Status</th>}
+                {isArchivedClicked && <th>Date Archived</th>}
+                {(isPendingClicked || isCurrentClicked) && (
+                  <th>Date Created</th>
+                )}
+                {(isPendingClicked || isCurrentClicked) && <th>Action</th>}
               </tr>
-            ) : (
-              currentRows.map((user) => (
-                <tr
-                  key={user._id}
-                  style={{
-                    cursor: "pointer",
-                    transition: "background-color 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
-                >
-                  <td className="text-center text-xs font-bold p-2 font-subTitle">
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 10,
-                        paddingLeft: "40px",
-                      }}
-                    >
-                      <img
-                        width={40}
-                        style={{
-                          borderRadius: "50%",
-                          height: 40,
-                          width: 40,
-                          objectFit: "cover",
-                          marginLeft: 10,
-                        }}
-                        alt="User"
-                        src={user.empID?.resID?.picture || user.resID?.picture}
-                      />
-                      {user.empID
-                        ? user.empID.resID.middlename
-                          ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
-                          : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
-                        : user.resID
-                        ? user.resID.middlename
-                          ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
-                          : `${user.resID.lastname} ${user.resID.firstname}`
-                        : "No name available"}
-                    </div>
-                  </td>
-                  <td>{user.username}</td>
-                  <td>{user.role}</td>
-                  {isCurrentClicked && (
+            </thead>
+
+            <tbody className="bg-[#fff]">
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={isArchivedClicked ? 4 : 6}>No results found</td>
+                </tr>
+              ) : (
+                currentRows.map((user) => (
+                  <tr
+                    key={user._id}
+                    className="accounts-table-row"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
                     <td>
-                      <span
-                        className={`text-xs font-semibold px-2 py-1 rounded-full
+                      <div className="accounts-name-container">
+                        <img
+                          width={40}
+                          className="accounts-img-container"
+                          alt="User"
+                          src={
+                            user.empID?.resID?.picture || user.resID?.picture
+                          }
+                        />
+                        {user.empID
+                          ? user.empID.resID.middlename
+                            ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
+                            : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
+                          : user.resID
+                          ? user.resID.middlename
+                            ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
+                            : `${user.resID.lastname} ${user.resID.firstname}`
+                          : "No name available"}
+                      </div>
+                    </td>
+                    <td>{user.username}</td>
+                    <td>{user.role}</td>
+                    {isCurrentClicked && (
+                      <td>
+                        <span
+                          className={`accounts-status-badge
                       ${
                         user.status === "Inactive"
                           ? "bg-red-100 text-red-800"
@@ -605,87 +587,90 @@ function Accounts({ isCollapsed }) {
                           ? "bg-yellow-100 text-yellow-800"
                           : ""
                       }`}
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                  )}
+                        >
+                          {user.status}
+                        </span>
+                      </td>
+                    )}
 
-                  {isArchivedClicked && (
-                    <td>
-                      {user.updatedAt.substring(
-                        0,
-                        user.updatedAt.indexOf(" at")
-                      )}
-                    </td>
-                  )}
-                  {(isPendingClicked || isCurrentClicked) && (
-                    <td>
-                      {user.createdAt.substring(
-                        0,
-                        user.createdAt.indexOf(" at")
-                      )}
-                    </td>
-                  )}
+                    {isArchivedClicked && (
+                      <td>
+                        {user.updatedAt.substring(
+                          0,
+                          user.updatedAt.indexOf(" at")
+                        )}
+                      </td>
+                    )}
+                    {(isPendingClicked || isCurrentClicked) && (
+                      <td>
+                        {user.createdAt.substring(
+                          0,
+                          user.createdAt.indexOf(" at")
+                        )}
+                      </td>
+                    )}
 
-                  {!isArchivedClicked && (
-                    <td className="flex justify-center gap-x-8">
-                      {(user.status === "Inactive" ||
-                        user.status === "Active" ||
-                        user.status === "Password Not Set") && (
-                        <div className="table-actions-container">
-                          <button
-                            type="button"
-                            className="table-actions-btn"
-                            onClick={() => handleEdit(user._id, user.username)}
-                          >
-                            <FaEdit className="text-lg text-[#06D001]" />
-                            <label className="text-xs font-semibold text-[#06D001]">
-                              Edit
-                            </label>
-                          </button>
-                        </div>
-                      )}
+                    {!isArchivedClicked && (
+                      <td className="accounts-action-cell">
+                        {(user.status === "Inactive" ||
+                          user.status === "Active" ||
+                          user.status === "Password Not Set") && (
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              className="table-actions-btn"
+                              onClick={() =>
+                                handleEdit(user._id, user.username)
+                              }
+                            >
+                              <FaEdit className="table-actions-icons text-[#06D001]" />
+                              <label className="table-actions-text text-[#06D001]">
+                                Edit
+                              </label>
+                            </button>
+                          </div>
+                        )}
 
-                      {(user.status === "Inactive" ||
-                        user.status === "Active") && (
-                        <div className="table-actions-container">
-                          <button
-                            type="button"
-                            className="table-actions-btn"
-                            onClick={() => handleDeactivate(user._id)}
-                          >
-                            <FaUserXmark className="text-lg text-btn-color-red" />
-                            <label className="text-xs font-semibold text-btn-color-red">
-                              Deactivate
-                            </label>
-                          </button>
-                        </div>
-                      )}
+                        {(user.status === "Inactive" ||
+                          user.status === "Active") && (
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              className="table-actions-btn"
+                              onClick={() => handleDeactivate(user._id)}
+                            >
+                              <FaUserXmark className="table-actions-icons text-btn-color-red" />
+                              <label className="table-actions-text text-btn-color-red">
+                                Deactivate
+                              </label>
+                            </button>
+                          </div>
+                        )}
 
-                      {user.status === "Deactivated" && (
-                        <div className="table-actions-container">
-                          <button
-                            type="button"
-                            className="table-actions-btn"
-                            onClick={() => handleActivate(user._id)}
-                          >
-                            <FaUserCheck className="text-lg text-[#06D001]" />
-                            <label className="text-xs font-semibold text-[#06D001]">
-                              Activate
-                            </label>
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                        {user.status === "Deactivated" && (
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              className="table-actions-btn"
+                              onClick={() => handleActivate(user._id)}
+                            >
+                              <FaUserCheck className="table-actions-icons" />
+                              <label className="table-actions-text text-[#06D001]">
+                                Activate
+                              </label>
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -694,7 +679,7 @@ function Accounts({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -702,7 +687,7 @@ function Accounts({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -712,11 +697,11 @@ function Accounts({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -725,7 +710,7 @@ function Accounts({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

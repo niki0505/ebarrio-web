@@ -1,7 +1,11 @@
 import { useState } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function Reject({ onClose, certID }) {
   const [remarks, setRemarks] = useState("");
@@ -48,13 +52,9 @@ function Reject({ onClose, certID }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[11rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                  className="h-[11rem] textarea-container"
                 ></textarea>
-                <div
-                  style={{ fontSize: "12px", color: "gray", textAlign: "end" }}
-                >
-                  {remarks.length}/255
-                </div>
+                <div className="textarea-length-text">{remarks.length}/255</div>
                 <div className="flex justify-center">
                   <button
                     onClick={handleSubmit}

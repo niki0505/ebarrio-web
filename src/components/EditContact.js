@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function EditContact({ onClose, emergencyID, emergencyDetails }) {
   const confirm = useConfirm();

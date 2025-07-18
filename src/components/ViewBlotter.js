@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
-import SettleBlotter from "./SettleBlotter";
+import { useNavigate } from "react-router-dom";
+
+//SCREENS
 import BlotterReject from "./BlotterReject";
 import BlotterPrint from "./blotter/BlotterPrint";
-import { useNavigate } from "react-router-dom";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function ViewBlotter({ onClose, blotterID }) {
   const confirm = useConfirm();

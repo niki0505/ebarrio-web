@@ -1,6 +1,8 @@
-import React from "react";
-import { IoSearch } from "react-icons/io5";
+//STYLES
 import "../Stylesheets/SearchBar.css";
+
+//ICONS
+import { IoSearch } from "react-icons/io5";
 
 const Searchbar = ({ handleSearch, searchValue }) => {
   return (

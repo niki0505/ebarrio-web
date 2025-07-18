@@ -1,18 +1,24 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
 import { InfoContext } from "../context/InfoContext";
-import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { FiCamera, FiUpload } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+
+//SCREENS
+import OpenCamera from "./OpenCamera";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/AccountSettings.css";
+
+//ICONS
 import { useConfirm } from "../context/ConfirmContext";
 import { BiSolidImageAlt } from "react-icons/bi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FiCamera, FiUpload } from "react-icons/fi";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
@@ -1125,15 +1131,15 @@ function AccountSettings({ isCollapsed }) {
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Account Settings</div>
-        <div className="flex flex-col lg:flex-row mt-4 gap-10">
+        <div className="settings-container">
           {/* Left Panel */}
-          <div className="flex flex-col mt-4">
+          <div className="settings-left-container">
             {user.role !== "Technical Admin" && (
               <p
                 onClick={handleMenu1}
-                className={`cursor-pointer text-base font-bold ${
+                className={`settings-left-tab ${
                   isProfileClicked
-                    ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                    ? "settings-left-tab-active"
                     : "p-2 font-medium"
                 }`}
               >
@@ -1143,9 +1149,9 @@ function AccountSettings({ isCollapsed }) {
 
             <p
               onClick={handleMenu2}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isUsernameClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  ? "settings-left-tab-active"
                   : "p-2 font-medium"
               }`}
             >
@@ -1153,9 +1159,9 @@ function AccountSettings({ isCollapsed }) {
             </p>
             <p
               onClick={handleMenu3}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isPasswordClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  ? "settings-left-tab-active"
                   : "p-2 font-medium"
               }`}
             >
@@ -1163,9 +1169,9 @@ function AccountSettings({ isCollapsed }) {
             </p>
             <p
               onClick={handleMenu4}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isQuestionsClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70"
+                  ? "settings-left-tab-active"
                   : "p-2 font-medium"
               }`}
             >
@@ -1199,12 +1205,9 @@ function AccountSettings({ isCollapsed }) {
                               {isIDProcessing ? (
                                 <p>Processing...</p>
                               ) : id ? (
-                                <img
-                                  src={id}
-                                  className="w-full h-full object-contain bg-white"
-                                />
+                                <img src={id} className="upload-img" />
                               ) : (
-                                <div className="flex flex-col items-center">
+                                <div className="upload-placeholder-container">
                                   <BiSolidImageAlt className="w-16 h-16" />
                                   <p>Attach Image</p>
                                 </div>
@@ -1245,12 +1248,9 @@ function AccountSettings({ isCollapsed }) {
                               {isSignProcessing ? (
                                 <p>Processing...</p>
                               ) : signature ? (
-                                <img
-                                  src={signature}
-                                  className="w-full h-full object-contain bg-white"
-                                />
+                                <img src={signature} className="upload-img" />
                               ) : (
-                                <div className="flex flex-col items-center">
+                                <div className="upload-placeholder-container">
                                   <BiSolidImageAlt className="w-16 h-16" />
                                   <p>Attach Image</p>
                                 </div>
@@ -1519,8 +1519,8 @@ function AccountSettings({ isCollapsed }) {
                           <label className="form-label ">
                             Registered Voter
                           </label>
-                          <div className="flex flex-row space-x-10">
-                            <div className="flex flex-row justify-center gap-1">
+                          <div className="radio-container">
+                            <div className="radio-item">
                               <input
                                 type="radio"
                                 name="voter"
@@ -1530,7 +1530,7 @@ function AccountSettings({ isCollapsed }) {
                               />
                               <h1>Yes</h1>
                             </div>
-                            <div className="flex flex-row justify-center gap-1">
+                            <div className="radio-item">
                               <input
                                 type="radio"
                                 name="voter"
@@ -1554,10 +1554,10 @@ function AccountSettings({ isCollapsed }) {
                           />
                         </div>
 
-                        <div className="form-group space-x-5">
+                        <div className="form-group">
                           <label className="form-label">Deceased</label>
-                          <div className="flex flex-row space-x-10">
-                            <div className="flex flex-row justify-center gap-1">
+                          <div className="radio-container">
+                            <div className="radio-item">
                               <input
                                 type="radio"
                                 name="deceased"
@@ -1567,7 +1567,7 @@ function AccountSettings({ isCollapsed }) {
                               />
                               <h1>Yes</h1>
                             </div>
-                            <div className="flex flex-row justify-center gap-1">
+                            <div className="radio-item">
                               <input
                                 type="radio"
                                 name="deceased"
@@ -1613,7 +1613,7 @@ function AccountSettings({ isCollapsed }) {
                             maxLength={13}
                           />
                           {mobileNumError ? (
-                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                            <label className="error-msg">
                               {mobileNumError}
                             </label>
                           ) : null}
@@ -1629,7 +1629,7 @@ function AccountSettings({ isCollapsed }) {
                             maxLength={13}
                           />
                           {telephoneNumError ? (
-                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                            <label className="error-msg">
                               {telephoneNumError}
                             </label>
                           ) : null}
@@ -1680,7 +1680,7 @@ function AccountSettings({ isCollapsed }) {
                             className="form-input"
                           />
                           {emMobileNumError ? (
-                            <label className="text-red-500 font-semibold font-subTitle text-[14px]">
+                            <label className="error-msg">
                               {emMobileNumError}
                             </label>
                           ) : null}
@@ -1993,7 +1993,7 @@ function AccountSettings({ isCollapsed }) {
                       <div className="function-btn-container">
                         <button
                           type="submit"
-                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                          className="settings-btn actions-btn"
                         >
                           Save Changes
                         </button>
@@ -2006,7 +2006,7 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Change Username */}
             {isUsernameClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Change Username</div>
                 <div className="p-4">
                   <div>
@@ -2034,10 +2034,7 @@ function AccountSettings({ isCollapsed }) {
                     {usernameErrors.length > 0 && (
                       <div style={{ marginTop: 5, width: 300 }}>
                         {usernameErrors.map((error, index) => (
-                          <p
-                            key={index}
-                            className="text-red-500 font-semibold font-subTitle text-[14px]"
-                          >
+                          <p key={index} className="error-msg">
                             {error}
                           </p>
                         ))}
@@ -2062,22 +2059,20 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowUserPassword((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showUserPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
                     </div>
                     {curPasswordError ? (
-                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                        {curPasswordError}
-                      </label>
+                      <label className="error-msg">{curPasswordError}</label>
                     ) : null}
                   </div>
 
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handleUsernameChange}
                     >
@@ -2090,7 +2085,7 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Change Password */}
             {isPasswordClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Change Password</div>
                 <div className="p-4">
                   <div className="employee-form-group">
@@ -2112,16 +2107,14 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowCurrPassword((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
                       </button>
                     </div>
                     {curPasswordError ? (
-                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                        {curPasswordError}
-                      </label>
+                      <label className="error-msg">{curPasswordError}</label>
                     ) : null}
                   </div>
                   <div className="employee-form-group mt-4">
@@ -2143,7 +2136,7 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowNewPassword((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showNewPassword ? <FaEye /> : <FaEyeSlash />}
@@ -2152,10 +2145,7 @@ function AccountSettings({ isCollapsed }) {
                     {passwordErrors.length > 0 && (
                       <div style={{ marginTop: 5, width: 300 }}>
                         {passwordErrors.map((error, index) => (
-                          <p
-                            key={index}
-                            className="text-red-500 font-semibold font-subTitle text-[14px]"
-                          >
+                          <p key={index} className="error-msg">
                             {error}
                           </p>
                         ))}
@@ -2181,7 +2171,7 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
@@ -2190,10 +2180,7 @@ function AccountSettings({ isCollapsed }) {
                     {repasswordErrors.length > 0 && (
                       <div style={{ marginTop: 5, width: 300 }}>
                         {repasswordErrors.map((error, index) => (
-                          <p
-                            key={index}
-                            className="text-red-500 font-semibold font-subTitle text-[14px]"
-                          >
+                          <p key={index} className="error-msg">
                             {error}
                           </p>
                         ))}
@@ -2202,7 +2189,7 @@ function AccountSettings({ isCollapsed }) {
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handlePasswordChange}
                     >
@@ -2215,7 +2202,7 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Edit Security Questions */}
             {isQuestionsClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Edit Security Questions</div>
                 <div className="p-4">
                   <div>
@@ -2256,7 +2243,7 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowAnswer1((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
@@ -2302,7 +2289,7 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowAnswer2((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
@@ -2327,21 +2314,19 @@ function AccountSettings({ isCollapsed }) {
                       <button
                         type="button"
                         onClick={() => setShowSecurityPass((prev) => !prev)}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                        className="eye-toggle"
                         tabIndex={-1}
                       >
                         {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
                       </button>
                     </div>
                     {curPasswordError ? (
-                      <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                        {curPasswordError}
-                      </label>
+                      <label className="error-msg">{curPasswordError}</label>
                     ) : null}
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handleQuestionsChange}
                     >

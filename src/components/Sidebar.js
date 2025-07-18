@@ -1,14 +1,15 @@
 import { NavLink } from "react-router-dom";
-import "../Stylesheets/SideBar.css";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
-import AppLogo from "../assets/applogo-darkbg.png";
 import { InfoContext } from "../context/InfoContext";
+
+//STYLES
+import "../Stylesheets/SideBar.css";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
-import { PiCourtBasketballFill } from "react-icons/pi";
+import { PiCourtBasketballFill, PiUserSwitchFill } from "react-icons/pi";
 import { RiContactsBook3Fill } from "react-icons/ri";
 import { FaUsersCog } from "react-icons/fa";
 import { MdDashboard, MdEditDocument } from "react-icons/md";
@@ -19,11 +20,9 @@ import {
   BiSolidMegaphone,
   BiSolidCctv,
 } from "react-icons/bi";
-import { MdOutlineUpdate } from "react-icons/md";
-import { useState } from "react";
 import { AiFillAlert } from "react-icons/ai";
-import { PiUserSwitchFill } from "react-icons/pi";
 import { BsFillHouseFill } from "react-icons/bs";
+import AppLogo from "../assets/applogo-darkbg.png";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
@@ -96,7 +95,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       path: "/emergency-hotlines",
     },
     (user.role === "Secretary" || user.role === "Technical Admin") && {
-      title: "User Accounts Management",
+      title: "User Accounts",
       icon: <FaUsersCog />,
       path: "/user-accounts",
     },
@@ -151,9 +150,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
             }`}
           >
             <h1 className="sidebar-app-name">eBarrio</h1>
-            <label className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#808080] font-subTitle font-semibold hidden md:block lg:block">
+            <h1 className="text-[rgba(255,255,255,0.50)] text-[12px] text-[#808080] font-subTitle font-semibold hidden md:block lg:block">
               Barangay Management <br /> Disaster Response System
-            </label>
+            </h1>
           </span>
         </div>
 
@@ -179,9 +178,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 <NavLink
                   to={menu.path}
                   className={`flex items-center sidebar-menu-item-link ${
-                    isActive
-                      ? "bg-gray-500 w-full h-full rounded-lg text-white font-bold"
-                      : ""
+                    isActive ? "sidebar-active" : ""
                   }`}
                 >
                   <span

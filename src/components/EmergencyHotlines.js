@@ -1,21 +1,28 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
-import CreateContact from "./CreateContact";
-import EditContact from "./EditContact";
-import SearchBar from "./SearchBar";
 import { useConfirm } from "../context/ConfirmContext";
+import { AuthContext } from "../context/AuthContext";
 import api from "../api";
-import Aniban2logo from "../assets/aniban2logo.jpg";
-import AppLogo from "../assets/applogo-lightbg.png";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+//SCREENS
+import CreateContact from "./CreateContact";
+import EditContact from "./EditContact";
+import SearchBar from "./SearchBar";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+
 //ICONS
 import { FaArchive, FaEdit } from "react-icons/fa";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { AuthContext } from "../context/AuthContext";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function EmergencyHotlines({ isCollapsed }) {
   const confirm = useConfirm();
@@ -311,30 +318,27 @@ function EmergencyHotlines({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="export-sort-btn-container">
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div 
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                <div
+                  className="relative flex items-center bg-[#fff] border-btn-color-red h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                   onClick={toggleExportDropdown}
                 >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
+                  <h1 className="text-sm font-medium mr-2 text-btn-color-red">
                     Export
                   </h1>
                   <div className="pointer-events-none flex text-gray-600">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                    <MdArrowDropDown size={18} color={"#F63131"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
-                  <div
-                    className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md"
-                    style={{ marginLeft: "-70px" }}
-                  >
+                  <div className="export-sort-dropdown-menu w-36">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option !text-[#BC0F0F]"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -342,7 +346,7 @@ function EmergencyHotlines({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option !text-[#BC0F0F]"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -353,103 +357,104 @@ function EmergencyHotlines({ isCollapsed }) {
                 )}
               </div>
               <button
-                className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+                className="hover:bg-red-600 bg-btn-color-red h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
                 onClick={handleAdd}
               >
-                <h1 className="font-medium text-sm text-[#fff] m-0">
-                  Add New Contact
-                </h1>
+                <h1 className="add-new-btn-text">Add New Contact</h1>
               </button>
             </div>
           )}
         </div>
-        <hr className="mt-4 border border-gray-300" />
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-        <table>
-          <thead className="bg-[#BC0F0F]">
-            <tr>
-              <th>Public Service Facilities</th>
-              <th>Contact Number</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody className="bg-[#fff]">
-            {filteredEmergencyHotlines.length === 0 ? (
+        <div className="table-container">
+          <table>
+            <thead className="bg-[#BC0F0F]">
               <tr>
-                <td colSpan={3}>No results found</td>
+                <th>Public Service Facilities</th>
+                <th>Contact Number</th>
+                <th>Action</th>
               </tr>
-            ) : (
-              currentRows.map((emergency) => (
-                <tr
-                  key={emergency._id}
-                  className="border-t transition-colors duration-300 ease-in-out"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
-                >
-                  <td>{emergency.name}</td>
-                  <td>{emergency.contactnumber}</td>
-                  <td className="flex justify-center gap-x-8">
-                    {emergency.status === "Active" ? (
-                      <>
-                        <div className="table-actions-container">
-                          <button
-                            type="button"
-                            className="table-actions-btn"
-                            onClick={() =>
-                              handleEdit(
-                                emergency._id,
-                                emergency.name,
-                                emergency.contactnumber
-                              )
-                            }
-                          >
-                            <FaEdit className="text-lg text-[#06D001]" />
-                            <label className="text-xs font-semibold text-[#06D001]">
-                              Edit
-                            </label>
-                          </button>
-                        </div>
+            </thead>
 
+            <tbody className="bg-[#fff]">
+              {filteredEmergencyHotlines.length === 0 ? (
+                <tr>
+                  <td colSpan={3}>No results found</td>
+                </tr>
+              ) : (
+                currentRows.map((emergency) => (
+                  <tr
+                    key={emergency._id}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    <td>{emergency.name}</td>
+                    <td>{emergency.contactnumber}</td>
+                    <td className="flex justify-center gap-x-8">
+                      {emergency.status === "Active" ? (
+                        <>
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              className="table-actions-btn"
+                              onClick={() =>
+                                handleEdit(
+                                  emergency._id,
+                                  emergency.name,
+                                  emergency.contactnumber
+                                )
+                              }
+                            >
+                              <FaEdit className="text-lg text-[#06D001]" />
+                              <label className="table-actions-text text-[#06D001]">
+                                Edit
+                              </label>
+                            </button>
+                          </div>
+
+                          <div className="table-actions-container">
+                            <button
+                              type="button"
+                              className="table-actions-btn"
+                              onClick={() => handleArchive(emergency._id)}
+                            >
+                              <FaArchive className="text-lg text-btn-color-red" />
+                              <label className="table-actions-text text-btn-color-red">
+                                Archive
+                              </label>
+                            </button>
+                          </div>
+                        </>
+                      ) : (
                         <div className="table-actions-container">
                           <button
                             type="button"
                             className="table-actions-btn"
-                            onClick={() => handleArchive(emergency._id)}
+                            onClick={() => handleRecover(emergency._id)}
                           >
                             <FaArchive className="text-lg text-btn-color-red" />
-                            <label className="text-xs font-semibold text-btn-color-red">
-                              Archive
+                            <label className="table-actions-text text-btn-color-red">
+                              Recover
                             </label>
                           </button>
                         </div>
-                      </>
-                    ) : (
-                      <div className="table-actions-container">
-                        <button
-                          type="button"
-                          className="table-actions-btn"
-                          onClick={() => handleRecover(emergency._id)}
-                        >
-                          <FaArchive className="text-lg text-btn-color-red" />
-                          <label className="text-xs font-semibold text-btn-color-red">
-                            Recover
-                          </label>
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -458,7 +463,7 @@ function EmergencyHotlines({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="!border-[#BC0F0F] !text-btn-color-red table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -466,8 +471,8 @@ function EmergencyHotlines({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
-                <MdArrowDropDown size={18} color={"#0E94D3"} />
+              <div className="table-pagination-select-icon">
+                <MdArrowDropDown size={18} color={"#F63131"} />
               </div>
             </div>
           </div>
@@ -476,22 +481,22 @@ function EmergencyHotlines({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              <MdKeyboardArrowLeft color={"#F63131"} className="text-xl" />
             </button>
             <button
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              <MdKeyboardArrowRight color={"#F63131"} className="text-xl" />
             </button>
           </div>
         </div>

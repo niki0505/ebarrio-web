@@ -6,7 +6,6 @@
 }
 .sidebar {
   @apply fixed 
-    bg-[#04384e] 
     text-white 
     p-4 
     transition-all
@@ -20,6 +19,13 @@
     w-[theme('spacing.sidebar-collapsed')]
     md:w-[theme('spacing.sidebar')]
     lg:w-[theme('spacing.sidebar')];
+  background-image: linear-gradient(
+    to bottom,
+    #0e94d3 0%,
+    #0a70a0 50%,
+    #095e86 75%,
+    #074c6d 100%
+  );
 }
 .sidebar-toggle-btn {
   @apply text-white 
@@ -64,8 +70,11 @@
 .sidebar-menu-item-title {
   @apply font-title text-[16px] font-light ml-3 hidden md:block lg:block;
 }
+.sidebar-active {
+  @apply bg-[#fff] w-full h-full rounded-lg text-white font-bold bg-opacity-40;
+}
 
-/*Hide Scroll Bar*/
+/*--------------------------------------------HIDE SCROLL BAR--------------------------------------------*/
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
