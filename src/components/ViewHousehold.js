@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
 import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
+
+//STYLES
+import "../App.css";
 
 function ViewHousehold({ onClose, householdID }) {
   const confirm = useConfirm();
@@ -268,101 +270,85 @@ function ViewHousehold({ onClose, householdID }) {
                     <h1 className="mt-8 font-bold">Members:</h1>
                     {selectedHousehold.members &&
                     selectedHousehold.members.length > 0 ? (
-                      <div className="overflow-x-auto mt-2 max-h-[16rem]">
-                        <table className="min-w-full table-auto border-collapse border border-gray-300 text-xs">
+                      <div className="h-auto mt-2">
+                        <table className="household-tbl-container">
                           <thead>
                             <tr>
-                              <th className="border border-gray-300 px-4 py-2">
-                                #
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Name
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">#</th>
+                              <th className="household-tbl-th">Name</th>
+                              <th className="household-tbl-th">
                                 Position in the Family
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Sex
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Age
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Birthdate
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Civil Status
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">Sex</th>
+                              <th className="household-tbl-th">Age</th>
+                              <th className="household-tbl-th">Birthdate</th>
+                              <th className="household-tbl-th">Civil Status</th>
+                              <th className="household-tbl-th">
                                 PhilHealth ID
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Membership Type
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 PhilHealth Category
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Medical History
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Last Menstrual Period
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Using any FP method?
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Family Planning Method
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                FP Status
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">FP Status</th>
+                              <th className="household-tbl-th">
                                 Classification
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
+                              <th className="household-tbl-th">
                                 Educational Attainment
                               </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Religion
-                              </th>
+                              <th className="household-tbl-th">Religion</th>
                             </tr>
                           </thead>
                           <tbody>
                             {sortedMembers.map((member, index) => (
                               <tr key={index}>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {index + 1}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.lastname},{" "}
                                   {member.resID.firstname}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.position}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.sex}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.age}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.birthdate}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.civilstatus}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.philhealthid || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.philhealthtype || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.philhealthcategory || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.haveDiabetes ||
                                   member.resID.haveHypertension ||
                                   member.resID.haveTubercolosis ||
@@ -385,19 +371,19 @@ function ViewHousehold({ onClose, householdID }) {
                                     "N/A"
                                   )}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.lastmenstrual || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.haveFPmethod || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.fpmethod || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.fpstatus || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.isSenior ||
                                   member.resID.isInfant ||
                                   member.resID.isPregnant ||
@@ -452,10 +438,10 @@ function ViewHousehold({ onClose, householdID }) {
                                     "N/A"
                                   )}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.educationalattainment || "N/A"}
                                 </td>
-                                <td className="border border-gray-300 px-4 py-2">
+                                <td className="household-tbl-th">
                                   {member.resID.religion || "N/A"}
                                 </td>
                               </tr>
@@ -472,44 +458,34 @@ function ViewHousehold({ onClose, householdID }) {
                     <h1 className="mt-8 font-bold">Vehicles:</h1>
                     {selectedHousehold.vehicles &&
                     selectedHousehold.vehicles.length > 0 ? (
-                      <div className="overflow-x-auto mt-2 max-h-[16rem]">
-                        <table className="min-w-full table-auto border-collapse border border-gray-300 text-xs">
+                      <div className="h-auto mt-2">
+                        <table className="household-tbl-container">
                           <thead>
                             <tr>
-                              <th className="border border-gray-300 px-4 py-2">
-                                #
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Model
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Color
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Kind
-                              </th>
-                              <th className="border border-gray-300 px-4 py-2">
-                                Plate Number
-                              </th>
+                              <th className="household-tbl-th">#</th>
+                              <th className="household-tbl-th">Model</th>
+                              <th className="household-tbl-th">Color</th>
+                              <th className="household-tbl-th">Kind</th>
+                              <th className="household-tbl-th">Plate Number</th>
                             </tr>
                           </thead>
                           <tbody>
                             {selectedHousehold.vehicles.map(
                               (vehicle, index) => (
                                 <tr key={index}>
-                                  <td className="border border-gray-300 px-4 py-2">
+                                  <td className="household-tbl-th">
                                     {index + 1}
                                   </td>
-                                  <td className="border border-gray-300 px-4 py-2">
+                                  <td className="household-tbl-th">
                                     {vehicle.model}
                                   </td>
-                                  <td className="border border-gray-300 px-4 py-2">
+                                  <td className="household-tbl-th">
                                     {vehicle.color}
                                   </td>
-                                  <td className="border border-gray-300 px-4 py-2">
+                                  <td className="household-tbl-th">
                                     {vehicle.kind}
                                   </td>
-                                  <td className="border border-gray-300 px-4 py-2">
+                                  <td className="household-tbl-th">
                                     {vehicle.platenumber}
                                   </td>
                                 </tr>

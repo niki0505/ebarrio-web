@@ -1,4 +1,4 @@
-/*PAGE GRID*/
+/*--------------------------------------------PAGE GRID--------------------------------------------*/
 .page-grid {
   @apply relative font-title;
 }
@@ -6,7 +6,7 @@
   @apply ml-[theme('spacing.sidebar-collapsed')];
   width: calc(100% - theme("spacing.sidebar-collapsed"));
 }
-/*MAIN CONTENT*/
+/*--------------------------------------------MAIN CONTENT--------------------------------------------*/
 .main {
   @apply p-[1.25rem] 
   bg-main-color
@@ -20,31 +20,33 @@
 .header-text {
   @apply text-[30px] font-bold font-title text-navy-blue;
 }
-.subHeader-text {
-  @apply font-subTitle text-navy-blue;
+.subheader-text {
+  @apply text-[20px] font-title font-semibold;
 }
-
 .white-bg-container {
   @apply bg-[#fff] rounded-[10px] p-4 mt-4 shadow-[0px_1px_2px_1px_rgba(0,0,0,0.3)];
 }
 
-/*BUTTONS*/
+/*--------------------------------------------BUTTONS--------------------------------------------*/
 .add-btn {
   @apply flex ml-auto items-center w-auto justify-end space-x-2 mt-5 cursor-pointer text-btn-color-blue;
 }
 .btn-container {
-  @apply p-5 flex justify-end gap-4 mt-[-20px];
+  @apply p-5 flex justify-end gap-4 mt-[-10px];
 }
 .actions-btn {
   @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
 }
 
-/*TABLE*/
+/*--------------------------------------------TABLE--------------------------------------------*/
+.table-container {
+  @apply px-4 overflow-x-auto;
+}
 table {
   @apply overflow-y-auto mt-4 h-auto min-w-full table-auto border border-[#C1C0C0];
 }
 thead {
-  @apply bg-[#04384E];
+  @apply bg-btn-color-blue;
 }
 th {
   @apply text-center font-[750px] text-sm p-3 text-[#fff];
@@ -56,19 +58,41 @@ td {
   @apply text-center text-xs font-bold p-2 font-subTitle;
 }
 .profile-container {
-  @apply text-start p-5 flex flex-row;
+  @apply text-start flex flex-row items-center justify-center;
 }
 .profile-img {
-  @apply h-[110px] w-[120px] bg-white shadow-lg bg-white rounded-xl;
+  @apply h-[110px] w-[110px] bg-white rounded-full object-contain;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 .table-actions-container {
-  @apply flex flex-col items-center justify-center h-full;
+  @apply flex flex-col items-center justify-center;
 }
 .table-actions-btn {
   @apply flex flex-col items-center;
 }
+.table-actions-icons {
+  @apply text-[24px];
+}
+.table-actions-text {
+  @apply text-xs font-bold;
+}
+.table-pagination {
+  @apply flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4;
+}
+.table-pagination-size {
+  @apply flex items-center space-x-1;
+}
+.table-pagination-select {
+  @apply border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3];
+}
+.table-pagination-select-icon {
+  @apply pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1;
+}
+.table-pagination-btn {
+  @apply px-2 py-1 rounded;
+}
 
-/*MODAL*/
+/*--------------------------------------------MODAL--------------------------------------------*/
 .modal-container {
   @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
 }
@@ -94,32 +118,29 @@ td {
   @apply h-full overflow-y-auto flex-col space-y-2 pr-4;
 }
 
-/*LOGIN SIGN UP OTP*/
+/*--------------------------------------------LOGIN, SIGNUP, OTP--------------------------------------------*/
 .login-container {
-  @apply flex flex-row h-screen font-title;
-}
-.left-login-container {
-  @apply w-3/5 h-screen bg-cover bg-center flex items-center justify-center;
+  @apply w-screen h-screen flex items-center justify-center overflow-hidden relative;
 }
 .right-login-container {
-  @apply w-2/5 flex items-center justify-center bg-[#FFFBFC] rounded-md mt-5 mb-5 mr-5;
+  @apply absolute right-0 h-screen overflow-y-auto bg-[#FFFBFC] shadow-lg p-24 lg:w-1/2 md:w-1/2 w-full flex flex-col justify-center gap-8 transition-all duration-1000 ease-in-out;
 }
-.login-form-container {
-  @apply flex flex-col gap-4 w-2/3 max-w-md;
+.login-btn {
+  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D];
 }
-.error-input-message {
-  @apply text-red-600 text-sm font-semibold;
+.login-forgot-btn {
+  @apply text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px];
+}
+.login-logo {
+  @apply w-[350px] h-[350px] absolute transition-all duration-[2000ms] ease-in-out;
 }
 
-/* PENDING, SCHEDULED, SETTLED, REJECTED */
+/*--------------------------------------------MENUS--------------------------------------------*/
 .status-add-container {
-  @apply flex justify-between mt-5 flex-col sm:flex-row md:flex-row;
+  @apply flex justify-between mt-5 flex-col sm:flex-row md:flex-row px-4;
 }
 .status-container {
   @apply flex flex-row gap-x-8 mt-5;
-}
-.add-container {
-  @apply flex items-center w-auto space-x-2 mt-5 cursor-pointer text-btn-color-blue sm:justify-start;
 }
 .status-text {
   @apply cursor-pointer text-base font-bold;
@@ -127,7 +148,109 @@ td {
 .status-line {
   @apply border-b-4 border-btn-color-blue;
 }
+.add-container {
+  @apply flex items-center w-auto space-x-2 mt-5 cursor-pointer text-btn-color-blue sm:justify-start;
+}
+.export-sort-btn-container {
+  @apply flex flex-row gap-x-2 mt-4;
+}
+.export-sort-btn {
+  @apply flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded;
+}
+.export-sort-btn-text {
+  @apply text-sm font-medium mr-2 text-[#0E94D3];
+}
+.export-sort-btn-dropdown-icon {
+  @apply pointer-events-none flex text-gray-600;
+}
+.export-sort-dropdown-menu {
+  @apply absolute mt-2 bg-white shadow-md z-10 rounded-md;
+}
+.export-sort-dropdown-option {
+  @apply px-4 text-sm cursor-pointer text-[#0E94D3];
+}
+.add-new-btn {
+  @apply hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border;
+}
+.add-new-btn-text {
+  @apply font-medium text-sm text-[#fff] m-0;
+}
 
+/*--------------------------------------------EXTRAS--------------------------------------------*/
+.line-container {
+  @apply mt-4 px-4;
+}
+.line {
+  @apply border border-gray-300;
+}
+.eye-toggle {
+  @apply absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500;
+}
+.error-msg {
+  @apply text-red-500 font-semibold font-subTitle text-[14px];
+}
+
+/*--------------------------------------------TEXT AREA--------------------------------------------*/
+.textarea-container {
+  @apply w-full resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2;
+}
+.textarea-length-text {
+  @apply w-full text-right text-sm text-gray-500;
+}
+
+/*--------------------------------------------ATTACH IMAGE--------------------------------------------*/
+.upload-placeholder-container {
+  @apply flex flex-col items-center;
+}
+.upload-img {
+  @apply w-full h-full object-contain bg-white;
+}
+
+/*--------------------------------------------BREADCRUMBS--------------------------------------------*/
+.breadcrumbs-container {
+  @apply flex flex-col md:flex-row lg:flex-row gap-x-3 items-center;
+}
+.breadcrumbs-inactive-text {
+  @apply text-[30px] font-bold font-title text-[#7D7979] cursor-pointer;
+}
+.breadcrumbs-arrow {
+  @apply text-[#7D7979] text-lg font-bold;
+}
+
+/*--------------------------------------------BLOTTER--------------------------------------------*/
+.blotter-suggestions-list {
+  @apply absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black;
+}
+.blotter-suggestions-item {
+  @apply px-3 py-2 hover:bg-gray-100 cursor-pointer;
+}
+.timedate-container {
+  @apply flex items-center space-x-2 space-y-4 w-full;
+}
+/*--------------------------------------------ADDITIONAL INFO--------------------------------------------*/
+
+.add-info-table-container {
+  @apply grid grid-cols-[128px_110px_1fr_110px_1fr] border border-[#C1C0C0];
+}
+.add-info-img-container {
+  @apply row-span-6 w-32 px-2 py-1 font-semibold text-white border border-[#C1C0C0] flex items-center justify-center bg-white;
+}
+.add-info-title {
+  @apply w-28 px-2 py-1 font-semibold bg-[#0E94D3] text-white border border-[#C1C0C0];
+}
+.add-info-container {
+  @apply bg-white px-2 py-1 border border-[#C1C0C0];
+}
+
+/*--------------------------------------------HOUSEHOLD--------------------------------------------*/
+.household-tbl-container {
+  @apply min-w-full table-auto border-collapse border border-gray-300 text-xs;
+}
+.household-tbl-th {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+/*--------------------------------------------HIDE DEFAULT ICON--------------------------------------------*/
 /* Hide default eye icon in some browsers */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
@@ -139,14 +262,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 }
 
 /*RESPONSIVE*/
-@media (max-width: 640px) {
-}
-
 @media (max-width: 768px) {
   .main {
     @apply ml-[theme('spacing.sidebar-collapsed')];
   }
-}
-
-@media (max-width: 1024) {
 }

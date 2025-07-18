@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateContact({ onClose }) {
   const confirm = useConfirm();
@@ -14,7 +18,7 @@ function CreateContact({ onClose }) {
   const handleSubmit = async () => {
     let hasErrors = false;
     if (contactNumber === "+63") {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number");
       hasErrors = true;
     }
 
@@ -90,7 +94,7 @@ function CreateContact({ onClose }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number.");
+        setMobileNumError("Invalid mobile number");
       }
     }
   };
@@ -149,9 +153,7 @@ function CreateContact({ onClose }) {
                     required
                   />
                   {mobileNumError ? (
-                    <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                      {mobileNumError}
-                    </label>
+                    <label className="error-msg">{mobileNumError}</label>
                   ) : null}
                 </div>
                 <div className="flex justify-center">

@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { AuthContext } from "../context/AuthContext";
-import { IoClose } from "react-icons/io5";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
+import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
+
+//SCREENS
 import IndigencyPrint from "./certificates/IndigencyPrint";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
-import api from "../api";
-import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateCertificate({ resID, onClose }) {
   const confirm = useConfirm();

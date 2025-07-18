@@ -1,9 +1,9 @@
-import { IoIosWarning } from "react-icons/io";
-import { IoPrint } from "react-icons/io5";
+//STYLES
+import "../Stylesheets/Dialog.css";
 
+//ICONS
 import { IoClose } from "react-icons/io5";
 import { MdOutlineQuestionMark } from "react-icons/md";
-import "../Stylesheets/Dialog.css";
 
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
   return (

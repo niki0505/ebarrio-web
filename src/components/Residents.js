@@ -1,25 +1,38 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
-import CreateCertificate from "./CreateCertificate";
 import api from "../api";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import BarangayID from "./id/BarangayID";
 import { AuthContext } from "../context/AuthContext";
+import { removeBackground } from "@imgly/background-removal";
+//SCREENS
+import SearchBar from "./SearchBar";
+import CreateCertificate from "./CreateCertificate";
+import BarangayID from "./id/BarangayID";
+import ResidentReject from "./ResidentReject";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
-import { removeBackground } from "@imgly/background-removal";
-import ResidentReject from "./ResidentReject";
+
+//ICONS
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
+import { IoArchiveSharp } from "react-icons/io5";
+import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
+import { HiDocumentAdd } from "react-icons/hi";
+import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
+import { CgEyeAlt } from "react-icons/cg";
 
 function Residents({ isCollapsed }) {
   const location = useLocation();
@@ -505,8 +518,9 @@ function Residents({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
@@ -515,7 +529,7 @@ function Residents({ isCollapsed }) {
     doc.text(
       `${sortOption === "All" ? "Residents" : sortOption}`,
       pageWidth / 2,
-      55,
+      57,
       { align: "center" }
     );
 
@@ -681,27 +695,22 @@ function Residents({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="export-sort-btn-container">
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                  <h1 className="export-sort-btn-text">Export</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -709,7 +718,7 @@ function Residents({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -722,14 +731,9 @@ function Residents({ isCollapsed }) {
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleFilterDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    {sortOption}
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                  <h1 className="export-sort-btn-text">{sortOption}</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
@@ -740,7 +744,7 @@ function Residents({ isCollapsed }) {
                       {sortOptionsList.map((option) => (
                         <div className="navbar-dropdown-item" key={option}>
                           <li
-                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            className="export-sort-dropdown-option"
                             onClick={() => {
                               setSortOption(option);
                               setfilterDropdown(false);
@@ -755,253 +759,273 @@ function Residents({ isCollapsed }) {
                 )}
               </div>
 
-              <button
-                className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border hover:bg-[#0A7A9D]"
-                onClick={handleAdd}
-              >
-                <h1 className="font-medium text-sm text-[#fff] m-0">
-                  Add New Resident
-                </h1>
+              <button className="add-new-btn" onClick={handleAdd}>
+                <h1 className="add-new-btn-text">Add New Resident</h1>
               </button>
             </div>
           )}
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Sex</th>
-              <th>Mobile No.</th>
-              <th>Address</th>
-              {sortOption === "Voters" && <th>Precinct</th>}
-              <th></th>
-            </tr>
-          </thead>
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-          <tbody className="bg-[#fff]">
-            {filteredResidents.length === 0 ? (
-              <tr className="bg-white">
-                <td colSpan={sortOption === "Voters" ? 7 : 6}>
-                  No results found
-                </td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Mobile No.</th>
+                <th>Address</th>
+                {sortOption === "Voters" && <th>Precinct</th>}
+                <th></th>
               </tr>
-            ) : (
-              currentRows
-                .sort((a, b) => {
-                  const nameA = `${a.lastname}`.toLowerCase();
-                  const nameB = `${b.lastname}`.toLowerCase();
-                  return nameA.localeCompare(nameB);
-                })
-                .map((res) => (
-                  <React.Fragment key={res._id}>
-                    <tr
-                      onClick={() => handleRowClick(res._id)}
-                      className="border-t transition-colors duration-300 ease-in-out"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#f0f0f0";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "";
-                      }}
-                    >
-                      {expandedRow === res._id ? (
-                        <td colSpan={sortOption === "Voters" ? 7 : 6}>
-                          {/* Additional Information for the resident */}
-                          <div className="profile-container">
-                            <img src={res.picture} className="profile-img" />
-                            <div className="ml-10 mr-28 text-xs">
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Name: </h1>
-                                <p className="font-medium">
-                                  {res.middlename
-                                    ? `${res.firstname} ${res.middlename} ${res.lastname}`
-                                    : `${res.firstname} ${res.lastname}`}
-                                </p>
-                              </div>
+            </thead>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Age: </h1>
-                                <p className="font-medium">{res.age}</p>
-                              </div>
-
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Sex: </h1>
-                                <p className="font-medium">{res.sex}</p>
-                              </div>
-
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Civil Status: </h1>
-                                <p className="font-medium">{res.civilstatus}</p>
-                              </div>
-
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Mobile Number: </h1>
-                                <p className="font-medium">
-                                  {res.mobilenumber}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Address: </h1>
-                                <p className="font-medium">{res.address}</p>
-                              </div>
-                            </div>
-                            <div className="text-xs">
-                              {res.voter === "Yes" ? (
-                                <>
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Status: </h1>
-                                    <p className="font-medium">Voter</p>
+            <tbody className="bg-[#fff]">
+              {filteredResidents.length === 0 ? (
+                <tr className="bg-white">
+                  <td colSpan={sortOption === "Voters" ? 7 : 6}>
+                    No results found
+                  </td>
+                </tr>
+              ) : (
+                currentRows
+                  .sort((a, b) => {
+                    const nameA = `${a.lastname}`.toLowerCase();
+                    const nameB = `${b.lastname}`.toLowerCase();
+                    return nameA.localeCompare(nameB);
+                  })
+                  .map((res) => (
+                    <React.Fragment key={res._id}>
+                      <tr
+                        onClick={() => handleRowClick(res._id)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#f0f0f0";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "";
+                        }}
+                      >
+                        {expandedRow === res._id ? (
+                          <td colSpan={sortOption === "Voters" ? 7 : 6}>
+                            {/* Additional Information for the resident */}
+                            <div className="profile-container">
+                              <div className="my-4 text-xs">
+                                <div className="add-info-table-container">
+                                  <div className="add-info-img-container">
+                                    <img
+                                      src={res.picture}
+                                      alt="Profile"
+                                      className="profile-img"
+                                    />
                                   </div>
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Precinct: </h1>
-                                    <p className="font-medium">
-                                      {res.precinct ? res.precinct : "N/A"}
-                                    </p>
+                                  {/* Name */}
+                                  <div className="add-info-title">Name</div>
+                                  <div className="add-info-container">
+                                    {res.middlename
+                                      ? `${res.firstname} ${res.middlename} ${res.lastname}`
+                                      : `${res.firstname} ${res.lastname}`}
                                   </div>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Status: </h1>
-                                    <p className="font-medium">Not Voter</p>
+                                  {/* Status */}
+                                  <div className="add-info-title">Status</div>
+                                  <div className="add-info-container">
+                                    {res.voter === "Yes"
+                                      ? "Voter"
+                                      : "Not Voter"}
                                   </div>
-                                </>
-                              )}
+                                  {/* Age */}
+                                  <div className="add-info-title">Age</div>
+                                  <div className="add-info-container">
+                                    {res.age}
+                                  </div>
+                                  {/* Precinct */}
+                                  <div className="add-info-title">Precinct</div>
+                                  <div className="add-info-container">
+                                    {res.precinct || "N/A"}
+                                  </div>
+                                  {/* Sex */}
+                                  <div className="add-info-title">Sex</div>
+                                  <div className="add-info-container">
+                                    {res.sex}
+                                  </div>
 
-                              <div className="mt-4 mb-2">
-                                <h1 className="font-bold text-sm">
-                                  EMERGENCY CONTACT{" "}
-                                </h1>
-                              </div>
+                                  <div className="border border-[#C1C0C0] bg-white col-span-2 flex items-center justify-center">
+                                    Emergency Contact
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Name: </h1>
-                                <p className="font-medium">
-                                  {res.emergencyname}
-                                </p>
-                              </div>
+                                  {/* Civil Status */}
+                                  <div className="add-info-title">
+                                    Civil Status
+                                  </div>
+                                  <div className="add-info-container">
+                                    {res.civilstatus}
+                                  </div>
+                                  {/* Name */}
+                                  <div className="add-info-title">Name</div>
+                                  <div className="add-info-container">
+                                    {res.emergencyname}
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Mobile: </h1>
-                                <p className="font-medium">
-                                  {res.emergencymobilenumber}
-                                </p>
-                              </div>
+                                  {/* Mobile Number */}
+                                  <div className="add-info-title">
+                                    Mobile Number
+                                  </div>
+                                  <div className="add-info-container">
+                                    {res.mobilenumber}
+                                  </div>
+                                  <div className="add-info-title">
+                                    Mobile Number
+                                  </div>
+                                  <div className="add-info-container">
+                                    {res.emergencymobilenumber}
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Address: </h1>
-                                <p className="font-medium">
-                                  {res.emergencyaddress}
-                                </p>
+                                  {/* Address */}
+                                  <div className="add-info-title">Address</div>
+                                  <div className="add-info-container min-w-[250px] max-w-[250px]">
+                                    {res.address}
+                                  </div>
+                                  <div className="add-info-title min-w-[250px] max-w-[250px]">
+                                    Address
+                                  </div>
+                                  <div className="add-info-container">
+                                    {res.emergencyaddress}
+                                  </div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          {res.status === "Active" ? (
-                            <div className="btn-container">
-                              <button
-                                className="actions-btn bg-btn-color-red hover:bg-red-700"
-                                type="submit"
-                                onClick={(e) => archiveBtn(e, res._id)}
-                              >
-                                ARCHIVE
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => handleBRGYID(e, res._id)}
-                              >
-                                BRGY ID
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => certBtn(e, res._id)}
-                              >
-                                DOCUMENT
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={() => editBtn(res._id)}
-                              >
-                                EDIT
-                              </button>
-                            </div>
-                          ) : res.status === "Archived" ? (
-                            <div className="btn-container">
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => recoverBtn(e, res._id)}
-                              >
-                                RECOVER
-                              </button>
-                            </div>
-                          ) : res.status === "Pending" ? (
-                            <>
+                            {res.status === "Active" ? (
                               <div className="btn-container">
                                 <button
-                                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                                  className="table-actions-container"
                                   type="submit"
-                                  onClick={(e) => rejectBtn(e, res._id)}
+                                  onClick={(e) => archiveBtn(e, res._id)}
                                 >
-                                  REJECT
+                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue text-xs">
+                                    ARCHIVE
+                                  </label>
+                                </button>
+
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => handleBRGYID(e, res._id)}
+                                >
+                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue text-xs">
+                                    BRGY ID
+                                  </label>
                                 </button>
                                 <button
-                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  className="table-actions-container"
                                   type="submit"
-                                  onClick={(e) => approveBtn(e, res._id)}
+                                  onClick={(e) => certBtn(e, res._id)}
                                 >
-                                  APPROVE
+                                  <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue text-xs">
+                                    DOCUMENT
+                                  </label>
                                 </button>
                                 <button
-                                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                                  className="table-actions-container"
                                   type="submit"
-                                  onClick={() => viewBtn(res._id)}
+                                  onClick={() => editBtn(res._id)}
                                 >
-                                  VIEW
+                                  <FaEdit className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue text-xs">
+                                    EDIT
+                                  </label>
                                 </button>
                               </div>
-                            </>
-                          ) : null}
-                        </td>
-                      ) : (
-                        <>
-                          <td>
-                            {res.middlename
-                              ? `${res.lastname} ${res.middlename} ${res.firstname}`
-                              : `${res.lastname} ${res.firstname}`}
+                            ) : res.status === "Archived" ? (
+                              <div className="btn-container">
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => recoverBtn(e, res._id)}
+                                >
+                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue text-xs">
+                                    RECOVER
+                                  </label>
+                                </button>
+                              </div>
+                            ) : res.status === "Pending" ? (
+                              <>
+                                <div className="btn-container">
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => rejectBtn(e, res._id)}
+                                  >
+                                    <FaCircleXmark className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      REJECT
+                                    </label>
+                                  </button>
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => approveBtn(e, res._id)}
+                                  >
+                                    <FaCircleCheck className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      APPROVE
+                                    </label>
+                                  </button>
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={() => viewBtn(res._id)}
+                                  >
+                                    <CgEyeAlt className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      VIEW
+                                    </label>
+                                  </button>
+                                </div>
+                              </>
+                            ) : null}
                           </td>
-                          <td>{res.age}</td>
-                          <td>{res.sex}</td>
-                          <td>{res.mobilenumber}</td>
-                          <td>{res.address}</td>
-                          {sortOption === "Voters" && (
-                            <td>{res.precinct ? res.precinct : "N/A"}</td>
-                          )}
-                          {/* Dropdown Arrow */}
-                          <td className="text-center">
-                            <span
-                              className={`cursor-pointer transition-transform ${
-                                expandedRow === res._id ? "rotate-180" : ""
-                              }`}
-                            >
-                              ▼
-                            </span>
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  </React.Fragment>
-                ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                        ) : (
+                          <>
+                            <td>
+                              {res.middlename
+                                ? `${res.lastname} ${res.middlename} ${res.firstname}`
+                                : `${res.lastname} ${res.firstname}`}
+                            </td>
+                            <td>{res.age}</td>
+                            <td>{res.sex}</td>
+                            <td>{res.mobilenumber}</td>
+                            <td>{res.address}</td>
+                            {sortOption === "Voters" && (
+                              <td>{res.precinct ? res.precinct : "N/A"}</td>
+                            )}
+                            {/* Dropdown Arrow */}
+                            <td className="text-center">
+                              <span
+                                className={`cursor-pointer transition-transform ${
+                                  expandedRow === res._id ? "rotate-180" : ""
+                                }`}
+                              >
+                                ▼
+                              </span>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    </React.Fragment>
+                  ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -1010,7 +1034,7 @@ function Residents({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -1018,7 +1042,7 @@ function Residents({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -1028,11 +1052,11 @@ function Residents({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -1041,7 +1065,7 @@ function Residents({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

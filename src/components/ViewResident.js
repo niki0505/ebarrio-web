@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation } from "react-router-dom";
-import { FiCamera, FiUpload } from "react-icons/fi";
 import { useConfirm } from "../context/ConfirmContext";
 import { useNavigate } from "react-router-dom";
-import { BiSolidImageAlt } from "react-icons/bi";
 import api from "../api";
+
+//SCREENS
+import OpenCamera from "./OpenCamera";
+
+//ICONS
+import { FiCamera, FiUpload } from "react-icons/fi";
+import { BiSolidImageAlt } from "react-icons/bi";
 import { GrNext } from "react-icons/gr";
+import { LuCirclePlus } from "react-icons/lu";
 
 function ViewResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -1347,12 +1352,12 @@ function ViewResident({ isCollapsed }) {
       <div className="flex flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
-          className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+          className="breadcrumbs-inactive-text"
         >
           Residents
         </h1>
-        <GrNext className="text-[#7D7979] text-lg font-bold" />
-        <h1 className="header-text">Edit Resident</h1>
+        <GrNext className="breadcrumbs-arrow" />
+        <h1 className="header-text">Pending Resident</h1>
       </div>
 
       {/* Personal Information */}
@@ -1376,10 +1381,7 @@ function ViewResident({ isCollapsed }) {
                   {isIDProcessing ? (
                     <p>Processing...</p>
                   ) : id ? (
-                    <img
-                      src={id}
-                      className="w-full h-full object-contain bg-white"
-                    />
+                    <img src={id} className="upload-img" />
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
@@ -1720,8 +1722,8 @@ function ViewResident({ isCollapsed }) {
 
                 <div className="form-group">
                   <label className="form-label">Using any FP method?</label>
-                  <div className="flex flex-row space-x-10">
-                    <div className="flex flex-row justify-center gap-1">
+                  <div className="radio-container">
+                    <div className="radio-item">
                       <input
                         type="radio"
                         name="haveFPmethod"
@@ -1731,7 +1733,7 @@ function ViewResident({ isCollapsed }) {
                       />
                       <h1>Yes</h1>
                     </div>
-                    <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-item">
                       <input
                         type="radio"
                         name="haveFPmethod"
@@ -1852,8 +1854,8 @@ function ViewResident({ isCollapsed }) {
 
             <div className="form-group">
               <label className="form-label">Registered Voter</label>
-              <div className="flex flex-row space-x-10">
-                <div className="flex flex-row justify-center gap-1">
+              <div className="radio-container">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="voter"
@@ -1863,7 +1865,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <h1>Yes</h1>
                 </div>
-                <div className="flex flex-row justify-center gap-1">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="voter"
@@ -1890,8 +1892,8 @@ function ViewResident({ isCollapsed }) {
             </div>
             <div className="form-group">
               <label className="form-label">Classification by Age/Health</label>
-              <div className="flex flex-col space-y-2">
-                {/* <label className="flex items-center space-x-2">
+              <div className="checkbox-container">
+                {/* <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="is4Ps"
@@ -1900,7 +1902,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>4Ps Beneficiary</span>
                 </label> */}
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isNewborn"
@@ -1910,7 +1912,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Newborn</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isInfant"
@@ -1920,7 +1922,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Infant</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isUnder5"
@@ -1930,7 +1932,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Under 5 y.o</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isAdolescent"
@@ -1940,7 +1942,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Adolescent</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isAdult"
@@ -1950,7 +1952,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Adult</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isSenior"
@@ -1961,7 +1963,7 @@ function ViewResident({ isCollapsed }) {
                   <span>Senior Citizen</span>
                 </label>
                 {residentForm.sex === "Female" && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isWomenOfReproductive"
@@ -1977,7 +1979,7 @@ function ViewResident({ isCollapsed }) {
                     residentForm.age >= 0 &&
                     residentForm.age <= 5
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isSchoolAge"
@@ -1992,7 +1994,7 @@ function ViewResident({ isCollapsed }) {
                     residentForm.sex === "Female" &&
                     residentForm.age > 19
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isPregnant"
@@ -2008,7 +2010,7 @@ function ViewResident({ isCollapsed }) {
                     residentForm.age >= 10 &&
                     residentForm.age <= 19
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isAdolescentPregnant"
@@ -2019,7 +2021,7 @@ function ViewResident({ isCollapsed }) {
                   </label>
                 )}
                 {residentForm.sex === "Female" && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isPostpartum"
@@ -2029,7 +2031,7 @@ function ViewResident({ isCollapsed }) {
                     <span>Postpartum</span>
                   </label>
                 )}
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isPWD"
@@ -2038,7 +2040,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Person with Disability (PWD)</span>
                 </label>
-                {/* <label className="flex items-center space-x-2">
+                {/* <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isSoloParent"
@@ -2052,8 +2054,8 @@ function ViewResident({ isCollapsed }) {
 
             <div className="form-group">
               <label className="form-label">Medical History</label>
-              <div className="flex flex-col space-y-2">
-                <label className="flex items-center space-x-2">
+              <div className="checkbox-container">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveHypertension"
@@ -2062,7 +2064,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Hypertension</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveDiabetes"
@@ -2071,7 +2073,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Diabetes</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveTubercolosis"
@@ -2080,7 +2082,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <span>Tubercolosis</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveSurgery"
@@ -2092,10 +2094,10 @@ function ViewResident({ isCollapsed }) {
               </div>
             </div>
 
-            <div className="form-group space-x-5">
+            <div className="form-group">
               <label className="form-label">Deceased</label>
-              <div className="flex flex-row space-x-10">
-                <div className="flex flex-row justify-center gap-1">
+              <div className="radio-container">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="deceased"
@@ -2105,7 +2107,7 @@ function ViewResident({ isCollapsed }) {
                   />
                   <h1>Yes</h1>
                 </div>
-                <div className="flex flex-row justify-center gap-1">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="deceased"
@@ -2150,9 +2152,7 @@ function ViewResident({ isCollapsed }) {
                 className="form-input"
               />
               {mobileNumError ? (
-                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                  {mobileNumError}
-                </label>
+                <label className="error-msg">{mobileNumError}</label>
               ) : null}
             </div>
             <div className="form-group">
@@ -2166,9 +2166,7 @@ function ViewResident({ isCollapsed }) {
                 maxLength={13}
               />
               {telephoneNumError ? (
-                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                  {telephoneNumError}
-                </label>
+                <label className="error-msg">{telephoneNumError}</label>
               ) : null}
             </div>
 
@@ -2218,9 +2216,7 @@ function ViewResident({ isCollapsed }) {
                 className="form-input"
               />
               {emMobileNumError ? (
-                <label className="text-red-500 font-semibold font-subTitle text-[14px]">
-                  {emMobileNumError}
-                </label>
+                <label className="error-msg">{emMobileNumError}</label>
               ) : null}
             </div>
 
@@ -2413,10 +2409,10 @@ function ViewResident({ isCollapsed }) {
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
 
-          <div className="form-group space-x-5">
+          <div className="form-group">
             <label className="form-label">Head of the Household</label>
-            <div className="flex flex-row space-x-10">
-              <div className="flex flex-row justify-center gap-1">
+            <div className="radio-container">
+              <div className="radio-item">
                 <input
                   type="radio"
                   name="head"
@@ -2426,7 +2422,7 @@ function ViewResident({ isCollapsed }) {
                 />
                 <h1>Yes</h1>
               </div>
-              <div className="flex flex-row justify-center gap-1">
+              <div className="radio-item">
                 <input
                   type="radio"
                   name="head"
@@ -2439,71 +2435,75 @@ function ViewResident({ isCollapsed }) {
             </div>
             {residentForm.head === "No" && (
               <>
-                <div className="form-group">
-                  <label for="householdno" className="form-label">
-                    Household
-                  </label>
-                  <select
-                    id="householdno"
-                    name="householdno"
-                    value={residentForm.householdno}
-                    onChange={handleDropdownChange}
-                    className="form-input"
-                  >
-                    <option value="" selected>
-                      Select
-                    </option>
-                    {household.map((h) => {
-                      const head = h.members.find((m) => m.position === "Head");
-                      const headName = head.resID
-                        ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
-                        : "Unnamed";
-                      return (
-                        <option key={h._id} value={h._id}>
-                          {headName}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label for="HOAname" className="form-label">
-                    Position
-                  </label>
-                  <select
-                    id="householdposition"
-                    name="householdposition"
-                    value={residentForm.householdposition}
-                    onChange={handleDropdownChange}
-                    className="form-input"
-                  >
-                    <option value="">Select Position</option>
-                    <option value="Spouse">Spouse</option>
-                    <option value="Child">Child</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Sibling">Sibling</option>
-                    <option value="Grandparent">Grandparent</option>
-                    <option value="Grandchild">Grandchild</option>
-                    <option value="In-law">In-law</option>
-                    <option value="Relative">Relative</option>
-                    <option value="Housemate">Housemate</option>
-                    <option value="Househelp">Househelp</option>
-                    <option value="Other">Other</option>
-                  </select>
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label for="householdno" className="form-label">
+                      Household
+                    </label>
+                    <select
+                      id="householdno"
+                      name="householdno"
+                      value={residentForm.householdno}
+                      onChange={handleDropdownChange}
+                      className="form-input"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {household.map((h) => {
+                        const head = h.members.find(
+                          (m) => m.position === "Head"
+                        );
+                        const headName = head.resID
+                          ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
+                          : "Unnamed";
+                        return (
+                          <option key={h._id} value={h._id}>
+                            {headName}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label for="HOAname" className="form-label">
+                      Position
+                    </label>
+                    <select
+                      id="householdposition"
+                      name="householdposition"
+                      value={residentForm.householdposition}
+                      onChange={handleDropdownChange}
+                      className="form-input"
+                    >
+                      <option value="">Select Position</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Child">Child</option>
+                      <option value="Parent">Parent</option>
+                      <option value="Sibling">Sibling</option>
+                      <option value="Grandparent">Grandparent</option>
+                      <option value="Grandchild">Grandchild</option>
+                      <option value="In-law">In-law</option>
+                      <option value="Relative">Relative</option>
+                      <option value="Housemate">Housemate</option>
+                      <option value="Househelp">Househelp</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
                 </div>
               </>
             )}
 
             {/* Head = Yes: show members table */}
             {residentForm.head === "Yes" && (
-              <>
-                <div className="form-group mt-4">
-                  <div className="form-group">
+              <div className="mt-4">
+                <div className="form-grid">
+                  <div className="col-span-2">
                     <label className="form-label">
                       Ethnicity<label className="text-red-600">*</label>
                     </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-container">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="ethnicity"
@@ -2513,7 +2513,7 @@ function ViewResident({ isCollapsed }) {
                         />
                         <h1>IP Household</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="ethnicity"
@@ -2540,14 +2540,16 @@ function ViewResident({ isCollapsed }) {
                       />
                     </div>
                   )}
+                </div>
 
-                  <div className="form-group">
+                <div className="form-grid">
+                  <div className="col-span-2">
                     <label className="form-label">
                       Socioeconomic Status
                       <label className="text-red-600">*</label>
                     </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-container">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2557,7 +2559,7 @@ function ViewResident({ isCollapsed }) {
                         />
                         <h1>NHTS 4Ps</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2567,7 +2569,7 @@ function ViewResident({ isCollapsed }) {
                         />
                         <h1>NHTS Non-4Ps</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2593,7 +2595,9 @@ function ViewResident({ isCollapsed }) {
                       />
                     </div>
                   )}
+                </div>
 
+                <div className="form-grid">
                   <div className="form-group">
                     <label for="employmentstatus" className="form-label">
                       Type of Water Source
@@ -2637,113 +2641,27 @@ function ViewResident({ isCollapsed }) {
                       ))}
                     </select>
                   </div>
-                  <table className="min-w-full border border-gray-300">
-                    <thead>
-                      <tr>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Position
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Name
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* Existing Members */}
-                      {(householdForm.members || []).map((member, index) => (
-                        <tr key={member._id}>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {editingMemberId === member._id ? (
-                              <select
-                                value={editedPosition}
-                                onChange={(e) =>
-                                  setEditedPosition(e.target.value)
-                                }
-                                className="form-input"
-                              >
-                                <option value="">Select Position</option>
-                                <option value="Spouse">Spouse</option>
-                                <option value="Child">Child</option>
-                                <option value="Parent">Parent</option>
-                                <option value="Sibling">Sibling</option>
-                                <option value="Grandparent">Grandparent</option>
-                                <option value="Grandchild">Grandchild</option>
-                                <option value="In-law">In-law</option>
-                                <option value="Relative">Relative</option>
-                                <option value="Housemate">Housemate</option>
-                                <option value="Househelp">Househelp</option>
-                                <option value="Other">Other</option>
-                              </select>
-                            ) : (
-                              member.position
-                            )}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {member.resID?.firstname}{" "}
-                            {member.resID?.middlename
-                              ? member.resID.middlename + " "
-                              : ""}
-                            {member.resID?.lastname}
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {editingMemberId === member._id ? (
-                              <>
-                                <button
-                                  type="button"
-                                  className="btn btn-success mr-2"
-                                  onClick={() => handleSavePosition(member)}
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary"
-                                  onClick={handleCancelEdit}
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  type="button"
-                                  className="btn btn-warning mr-2"
-                                  onClick={() => {
-                                    setEditingMemberId(member._id);
-                                    setEditedPosition(member.position);
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                                {member.position !== "Head" && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    onClick={() => handleRemoveMember(member)}
-                                  >
-                                    Remove
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                </div>
 
-                      {/* New Members */}
-                      {newMembers.map((member, index) => (
-                        <tr key={member.tempId}>
-                          <td className="border border-gray-300 px-4 py-2">
+                <table className="household-tbl-container">
+                  <thead>
+                    <tr>
+                      <th className="household-tbl-th">Position</th>
+                      <th className="household-tbl-th">Name</th>
+                      <th className="household-tbl-th">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Existing Members */}
+                    {(householdForm.members || []).map((member, index) => (
+                      <tr key={member._id}>
+                        <td className="household-tbl-th">
+                          {editingMemberId === member._id ? (
                             <select
-                              value={member.position}
-                              onChange={(e) => {
-                                const updated = [...newMembers];
-                                updated[index].position = e.target.value;
-                                setNewMembers(updated);
-                              }}
+                              value={editedPosition}
+                              onChange={(e) =>
+                                setEditedPosition(e.target.value)
+                              }
                               className="form-input"
                             >
                               <option value="">Select Position</option>
@@ -2759,97 +2677,165 @@ function ViewResident({ isCollapsed }) {
                               <option value="Househelp">Househelp</option>
                               <option value="Other">Other</option>
                             </select>
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            <div className="relative">
-                              <input
-                                type="text"
-                                placeholder="Enter name"
-                                value={member.resident}
-                                onChange={(e) =>
-                                  handleMemberInputChange(index, e.target.value)
-                                }
-                                className="form-input"
-                              />
-                              {memberSuggestions[index] &&
-                                memberSuggestions[index].length > 0 && (
-                                  <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
-                                    {memberSuggestions[index].map((res) => {
-                                      const fullName = `${res.firstname} ${
-                                        res.middlename
-                                          ? res.middlename + " "
-                                          : ""
-                                      }${res.lastname}`;
-                                      return (
-                                        <li
-                                          key={res._id}
-                                          className="p-2 hover:bg-gray-200 cursor-pointer"
-                                          onClick={() =>
-                                            handleMemberSuggestionClick(
-                                              index,
-                                              res
-                                            )
-                                          }
-                                        >
-                                          {fullName}
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                )}
-                            </div>
-                          </td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            <button
-                              type="button"
-                              className="btn btn-success mr-2"
-                              onClick={() => handleSaveNewMember(member)}
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-secondary"
-                              onClick={() =>
-                                handleCancelNewMember(member.tempId)
-                              }
-                            >
-                              Cancel
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          ) : (
+                            member.position
+                          )}
+                        </td>
+                        <td className="household-tbl-th">
+                          {member.resID?.firstname}{" "}
+                          {member.resID?.middlename
+                            ? member.resID.middlename + " "
+                            : ""}
+                          {member.resID?.lastname}
+                        </td>
+                        <td className="household-tbl-th">
+                          {editingMemberId === member._id ? (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-success mr-2"
+                                onClick={() => handleSavePosition(member)}
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={handleCancelEdit}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-warning mr-2"
+                                onClick={() => {
+                                  setEditingMemberId(member._id);
+                                  setEditedPosition(member.position);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              {member.position !== "Head" && (
+                                <button
+                                  type="button"
+                                  className="btn btn-danger"
+                                  onClick={() => handleRemoveMember(member)}
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
 
-                  <button
-                    type="button"
-                    className="btn btn-primary mt-4"
-                    onClick={handleAddMember}
-                  >
-                    Add Member
-                  </button>
-                </div>
+                    {/* New Members */}
+                    {newMembers.map((member, index) => (
+                      <tr key={member.tempId}>
+                        <td className="household-tbl-th">
+                          <select
+                            value={member.position}
+                            onChange={(e) => {
+                              const updated = [...newMembers];
+                              updated[index].position = e.target.value;
+                              setNewMembers(updated);
+                            }}
+                            className="form-input"
+                          >
+                            <option value="">Select Position</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Child">Child</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Grandchild">Grandchild</option>
+                            <option value="In-law">In-law</option>
+                            <option value="Relative">Relative</option>
+                            <option value="Housemate">Housemate</option>
+                            <option value="Househelp">Househelp</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </td>
+                        <td className="household-tbl-th">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              placeholder="Enter name"
+                              value={member.resident}
+                              onChange={(e) =>
+                                handleMemberInputChange(index, e.target.value)
+                              }
+                              className="form-input"
+                            />
+                            {memberSuggestions[index] &&
+                              memberSuggestions[index].length > 0 && (
+                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
+                                  {memberSuggestions[index].map((res) => {
+                                    const fullName = `${res.firstname} ${
+                                      res.middlename ? res.middlename + " " : ""
+                                    }${res.lastname}`;
+                                    return (
+                                      <li
+                                        key={res._id}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                        onClick={() =>
+                                          handleMemberSuggestionClick(
+                                            index,
+                                            res
+                                          )
+                                        }
+                                      >
+                                        {fullName}
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              )}
+                          </div>
+                        </td>
+                        <td className="household-tbl-th">
+                          <button
+                            type="button"
+                            className="btn btn-success mr-2"
+                            onClick={() => handleSaveNewMember(member)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => handleCancelNewMember(member.tempId)}
+                          >
+                            Cancel
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <button
+                  type="button"
+                  className="household-tbl-add-btn"
+                  onClick={handleAddMember}
+                >
+                  <LuCirclePlus className="text-lg" />
+                  <label>Add Member</label>
+                </button>
 
                 <div className="form-group mt-6">
-                  <table className="min-w-full border border-gray-300">
+                  <table className="household-tbl-container">
                     <thead>
                       <tr>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Model
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Color
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Kind
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Plate Number
-                        </th>
-                        <th className="border border-gray-300 px-4 py-2">
-                          Actions
-                        </th>
+                        <th className="household-tbl-th">Model</th>
+                        <th className="household-tbl-th">Color</th>
+                        <th className="household-tbl-th">Kind</th>
+                        <th className="household-tbl-th">Plate Number</th>
+                        <th className="household-tbl-th">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -2858,7 +2844,7 @@ function ViewResident({ isCollapsed }) {
                         <tr key={index}>
                           {editingVehicleIndex === index ? (
                             <>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <input
                                   type="text"
                                   value={editedVehicle.model}
@@ -2871,7 +2857,7 @@ function ViewResident({ isCollapsed }) {
                                   className="form-input w-full"
                                 />
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <input
                                   type="text"
                                   value={editedVehicle.color}
@@ -2884,7 +2870,7 @@ function ViewResident({ isCollapsed }) {
                                   className="form-input w-full"
                                 />
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <select
                                   value={editedVehicle.kind}
                                   onChange={(e) =>
@@ -2906,7 +2892,7 @@ function ViewResident({ isCollapsed }) {
                                   <option value="Other">Other</option>
                                 </select>
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <input
                                   type="text"
                                   value={editedVehicle.platenumber}
@@ -2919,7 +2905,7 @@ function ViewResident({ isCollapsed }) {
                                   className="form-input w-full"
                                 />
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <div className="flex flex-wrap gap-2">
                                   <button
                                     type="button"
@@ -2940,19 +2926,19 @@ function ViewResident({ isCollapsed }) {
                             </>
                           ) : (
                             <>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 {vehicle.model}
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 {vehicle.color}
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 {vehicle.kind}
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 {vehicle.platenumber}
                               </td>
-                              <td className="border border-gray-300 px-4 py-2">
+                              <td className="household-tbl-th">
                                 <div className="flex flex-wrap gap-2">
                                   <button
                                     type="button"
@@ -2980,7 +2966,7 @@ function ViewResident({ isCollapsed }) {
                       {/* New Vehicles */}
                       {newVehicles.map((vehicle, index) => (
                         <tr key={vehicle.tempId}>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="household-tbl-th">
                             <input
                               value={vehicle.model}
                               onChange={(e) =>
@@ -2993,7 +2979,7 @@ function ViewResident({ isCollapsed }) {
                               className="form-input w-full"
                             />
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="household-tbl-th">
                             <input
                               value={vehicle.color}
                               onChange={(e) =>
@@ -3006,7 +2992,7 @@ function ViewResident({ isCollapsed }) {
                               className="form-input w-full"
                             />
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="household-tbl-th">
                             <select
                               value={vehicle.kind}
                               onChange={(e) =>
@@ -3029,7 +3015,7 @@ function ViewResident({ isCollapsed }) {
                               <option value="Other">Other</option>
                             </select>
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="household-tbl-th">
                             <input
                               value={vehicle.platenumber}
                               onChange={(e) =>
@@ -3042,7 +3028,7 @@ function ViewResident({ isCollapsed }) {
                               className="form-input w-full"
                             />
                           </td>
-                          <td className="border border-gray-300 px-4 py-2">
+                          <td className="household-tbl-th">
                             <button
                               type="button"
                               onClick={() =>
@@ -3065,13 +3051,14 @@ function ViewResident({ isCollapsed }) {
 
                   <button
                     type="button"
-                    className="btn btn-primary mt-4"
+                    className="household-tbl-add-btn"
                     onClick={handleAddVehicle}
                   >
-                    Add Vehicle
+                    <LuCirclePlus className="text-lg" />
+                    <label> Add Vehicle</label>
                   </button>
                 </div>
-              </>
+              </div>
             )}
           </div>
 

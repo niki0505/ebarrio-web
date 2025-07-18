@@ -1,10 +1,14 @@
 import { useEffect, useState, useContext } from "react";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import DatePicker from "react-multi-date-picker";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateReservation({ onClose }) {
   const confirm = useConfirm();
@@ -297,13 +301,8 @@ function CreateReservation({ onClose }) {
                     {reservationForm.date.map((date) => {
                       const times = reservationForm.times[date] || {};
                       return (
-                        <div
-                          key={date}
-                          className="flex items-center space-x-2 space-y-4 w-full"
-                        >
-                          <span className="font-subTitle text-[14px] font-medium w-full pl-2 mt-3">
-                            {date}
-                          </span>
+                        <div key={date} className="timedate-container">
+                          <span className="timedate-label">{date}</span>
 
                           <input
                             type="time"

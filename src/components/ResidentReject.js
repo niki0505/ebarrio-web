@@ -1,8 +1,12 @@
 import { useState } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function ResidentReject({ onClose, resID }) {
   const confirm = useConfirm();
@@ -57,13 +61,9 @@ function ResidentReject({ onClose, resID }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[11rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
+                  className="h-[11rem] textarea-container"
                 ></textarea>
-                <div
-                  style={{ fontSize: "12px", color: "gray", textAlign: "end" }}
-                >
-                  {remarks.length}/255
-                </div>
+                <div className="textarea-length-text">{remarks.length}/255</div>
                 <div className="flex justify-center">
                   <button
                     onClick={handleSubmit}

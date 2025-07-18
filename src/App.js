@@ -1,5 +1,5 @@
-import logo from "./logo.svg";
-import React, { useState } from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import CreateResident from "./components/CreateResident";
 import {
   BrowserRouter as Router,
@@ -45,9 +45,21 @@ import ActivityLogs from "./components/ActivityLogs";
 import Household from "./components/Household";
 import ViewResident from "./components/ViewResident";
 
+// Scrolls to the top of the page when switching pages
+const ResetScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  return null;
+};
+
 function App() {
   return (
     <Router>
+      <ResetScrollToTop />
       <AuthProvider>
         <SocketProvider>
           <OtpProvider>

@@ -1,22 +1,33 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
-import CreateEmployee from "./CreateEmployee";
-import SearchBar from "./SearchBar";
-import "../Stylesheets/Employees.css";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useConfirm } from "../context/ConfirmContext";
-import EditEmployee from "./EditEmployee";
 import api from "../api";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import EmployeeID from "./id/EmployeeID";
 import { AuthContext } from "../context/AuthContext";
+
+//SCREENS
+import CreateEmployee from "./CreateEmployee";
+import SearchBar from "./SearchBar";
+import EditEmployee from "./EditEmployee";
+import EmployeeID from "./id/EmployeeID";
+
+//STYLES
+import "../Stylesheets/Employees.css";
+
+//ICONS
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
+import { IoArchiveSharp } from "react-icons/io5";
+import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -332,14 +343,15 @@ function Employees({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Employees Reports", pageWidth / 2, 55, { align: "center" });
+    doc.text("Employees Reports", pageWidth / 2, 57, { align: "center" });
 
     const rows = filteredEmployees
       .sort((a, b) => {
@@ -464,28 +476,26 @@ function Employees({ isCollapsed }) {
             </p>
           </div>
           {isActiveClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="export-sort-btn-container">
               {sortOption === "All" && (
                 <div className="relative" ref={exportRef}>
                   {/* Export Button */}
                   <div
-                    className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+                    className="export-sort-btn"
                     onClick={toggleExportDropdown}
                   >
-                    <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                      Export
-                    </h1>
-                    <div className="pointer-events-none flex text-gray-600">
+                    <h1 className="export-sort-btn-text">Export</h1>
+                    <div className="export-sort-btn-dropdown-icon ">
                       <MdArrowDropDown size={18} color={"#0E94D3"} />
                     </div>
                   </div>
 
                   {exportDropdown && (
-                    <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                    <div className="export-sort-dropdown-menu w-36">
                       <ul className="w-full">
                         <div className="navbar-dropdown-item">
                           <li
-                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            className="export-sort-dropdown-option"
                             onClick={exportCSV}
                           >
                             Export as CSV
@@ -493,7 +503,7 @@ function Employees({ isCollapsed }) {
                         </div>
                         <div className="navbar-dropdown-item">
                           <li
-                            className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                            className="export-sort-dropdown-option"
                             onClick={exportPDF}
                           >
                             Export as PDF
@@ -507,24 +517,19 @@ function Employees({ isCollapsed }) {
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] h-7 border-[#0E94D3] px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleFilterDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Filter
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                  <h1 className="export-sort-btn-text">Filter</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {filterDropdown && (
-                  <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("All");
                             setfilterDropdown(false);
@@ -535,7 +540,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Captain");
                             setfilterDropdown(false);
@@ -546,7 +551,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Secretary");
                             setfilterDropdown(false);
@@ -557,7 +562,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Clerk");
                             setfilterDropdown(false);
@@ -568,7 +573,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Kagawad");
                             setfilterDropdown(false);
@@ -579,7 +584,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Tanod");
                             setfilterDropdown(false);
@@ -590,7 +595,7 @@ function Employees({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("Justice");
                             setfilterDropdown(false);
@@ -604,212 +609,230 @@ function Employees({ isCollapsed }) {
                 )}
               </div>
 
-              <button
-                className="bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border hover:bg-[#0A7A9D]"
-                onClick={handleAdd}
-              >
-                <h1 className="font-medium text-sm text-[#fff] m-0">
-                  Add New Employee
-                </h1>
+              <button className="add-new-btn" onClick={handleAdd}>
+                <h1 className="add-new-btn-text">Add New Employee</h1>
               </button>
             </div>
           )}
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Sex</th>
-              <th>Mobile No.</th>
-              <th>Address</th>
-              <th>Position</th>
-              <th></th>
-            </tr>
-          </thead>
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-          <tbody className="bg-[#fff]">
-            {filteredEmployees.length === 0 ? (
-              <tr className="bg-white">
-                <td colSpan={6}>No results found</td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Mobile No.</th>
+                <th>Address</th>
+                <th>Position</th>
+                <th></th>
               </tr>
-            ) : (
-              currentRows
-                .sort((a, b) => {
-                  const nameA = `${a.resID.lastname}`.toLowerCase();
-                  const nameB = `${b.resID.lastname}`.toLowerCase();
-                  return nameA.localeCompare(nameB);
-                })
-                .map((emp) => (
-                  <React.Fragment key={emp._id}>
-                    <tr
-                      onClick={() => handleRowClick(emp._id)}
-                      className="border-t transition-colors duration-300 ease-in-out"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#f0f0f0";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "";
-                      }}
-                    >
-                      {expandedRow === emp._id ? (
-                        <td colSpan={7}>
-                          {/* Additional Information for the resident */}
-                          <div className="profile-container">
-                            <img
-                              src={emp.resID.picture}
-                              className="profile-img"
-                            />
-                            <div className="ml-5 mr-28 text-xs">
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Name: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.middlename
-                                    ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                    : `${emp.resID.firstname} ${emp.resID.lastname}`}
-                                </p>
-                              </div>
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Age: </h1>
-                                <p className="font-medium">{emp.resID.age}</p>
-                              </div>
+            </thead>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Sex: </h1>
-                                <p className="font-medium">{emp.resID.sex}</p>
-                              </div>
+            <tbody className="bg-[#fff]">
+              {filteredEmployees.length === 0 ? (
+                <tr className="bg-white">
+                  <td colSpan={6}>No results found</td>
+                </tr>
+              ) : (
+                currentRows
+                  .sort((a, b) => {
+                    const nameA = `${a.resID.lastname}`.toLowerCase();
+                    const nameB = `${b.resID.lastname}`.toLowerCase();
+                    return nameA.localeCompare(nameB);
+                  })
+                  .map((emp) => (
+                    <React.Fragment key={emp._id}>
+                      <tr
+                        onClick={() => handleRowClick(emp._id)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#f0f0f0";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "";
+                        }}
+                      >
+                        {expandedRow === emp._id ? (
+                          <td colSpan={7}>
+                            {/* Additional Information for the resident */}
+                            <div className="profile-container">
+                              <div className="my-4 text-xs">
+                                <div className="add-info-table-container">
+                                  <div className="add-info-img-container">
+                                    <img
+                                      src={emp.resID.picture}
+                                      alt="Profile"
+                                      className="profile-img"
+                                    />
+                                  </div>
+                                  {/* Name */}
+                                  <div className="add-info-title">Name</div>
+                                  <div className="add-info-container">
+                                    {emp.resID.middlename
+                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
+                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Civil Status: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.civilstatus}
-                                </p>
-                              </div>
+                                  {/* Position */}
+                                  <div className="add-info-title">Position</div>
+                                  <div className="add-info-container">
+                                    {emp.position}
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Mobile Number: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.mobilenumber}
-                                </p>
-                              </div>
+                                  {/* Age */}
+                                  <div className="add-info-title">Age</div>
+                                  <div className="add-info-container">
+                                    {emp.resID.age}
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Address: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.address}
-                                </p>
-                              </div>
+                                  <div className="add-info-title">
+                                    Chairmanship
+                                  </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Position: </h1>
-                                <p className="font-medium">{emp.position}</p>
-                              </div>
-                              {emp.position === "Kagawad" && (
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Chairmanship: </h1>
-                                  <p className="font-medium">
-                                    {emp.chairmanship}
-                                  </p>
+                                  <div className="add-info-container">
+                                    {emp.chairmanship || "N/A"}
+                                  </div>
+
+                                  {/* Sex */}
+                                  <div className="add-info-title">Sex</div>
+                                  <div className="add-info-container">
+                                    {emp.resID.sex}
+                                  </div>
+
+                                  {/* Emergency Contact */}
+                                  <div className="border border-[#C1C0C0] bg-white col-span-2 flex items-center justify-center">
+                                    Emergency Contact
+                                  </div>
+
+                                  {/* Civil Status */}
+                                  <div className="add-info-title">
+                                    Civil Status
+                                  </div>
+                                  <div className="add-info-container">
+                                    {emp.resID.civilstatus}
+                                  </div>
+
+                                  {/* Name */}
+                                  <div className="add-info-title">Name</div>
+                                  <div className="add-info-container">
+                                    {emp.resID.emergencyname}
+                                  </div>
+                                  {/* Mobile Number */}
+                                  <div className="add-info-title">
+                                    Mobile Number
+                                  </div>
+                                  <div className="add-info-container">
+                                    {emp.resID.mobilenumber}
+                                  </div>
+
+                                  <div className="add-info-title">
+                                    Mobile Number
+                                  </div>
+                                  <div className="add-info-container">
+                                    {emp.resID.emergencymobilenumber}
+                                  </div>
+
+                                  {/* Address */}
+                                  <div className="add-info-title">Address</div>
+                                  <div className="add-info-container">
+                                    {emp.resID.address}
+                                  </div>
+                                  <div className="add-info-title">Address</div>
+                                  <div className="add-info-container min-w-[250px] max-w-[250px]">
+                                    {emp.resID.emergencyaddress}
+                                  </div>
                                 </div>
-                              )}
+                              </div>
                             </div>
-                            <div className="text-xs">
-                              <div className="mb-2">
-                                <h1 className="font-bold text-sm">
-                                  EMERGENCY CONTACT{" "}
-                                </h1>
-                              </div>
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Name: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.emergencyname}
-                                </p>
-                              </div>
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Mobile: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.emergencymobilenumber}
-                                </p>
-                              </div>
 
-                              <div className="flex flex-row gap-x-2">
-                                <h1 className="font-bold">Address: </h1>
-                                <p className="font-medium">
-                                  {emp.resID.emergencyaddress}
-                                </p>
+                            {emp.status === "Active" ? (
+                              <div className="btn-container">
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => archiveBtn(e, emp._id)}
+                                >
+                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue table-actions-text">
+                                    ARCHIVE
+                                  </label>
+                                </button>
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => handleEmployeeID(e, emp._id)}
+                                >
+                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue table-actions-text">
+                                    EMPLOYEE ID
+                                  </label>
+                                </button>
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => editBtn(e, emp._id)}
+                                >
+                                  <FaEdit className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue table-actions-text">
+                                    EDIT
+                                  </label>
+                                </button>
                               </div>
-                            </div>
-                          </div>
-                          {emp.status === "Active" ? (
-                            <div className="btn-container">
-                              <button
-                                className="actions-btn bg-btn-color-red hover:bg-red-700"
-                                type="submit"
-                                onClick={(e) => archiveBtn(e, emp._id)}
-                              >
-                                ARCHIVE
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => handleEmployeeID(e, emp._id)}
-                              >
-                                EMPLOYEE ID
-                              </button>
-                              <button
-                                className="actions-btn bg-btn-color-blue"
-                                type="submit"
-                                onClick={(e) => editBtn(e, emp._id)}
-                              >
-                                EDIT POSITION
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="btn-container">
-                              <button
-                                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                type="submit"
-                                onClick={(e) => recoverBtn(e, emp._id)}
-                              >
-                                RECOVER
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      ) : (
-                        <>
-                          <td>
-                            {emp.resID.middlename
-                              ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                              : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                            ) : (
+                              <div className="btn-container">
+                                <button
+                                  className="table-actions-container"
+                                  type="submit"
+                                  onClick={(e) => recoverBtn(e, emp._id)}
+                                >
+                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <label className="text-btn-color-blue table-actions-text">
+                                    RECOVER
+                                  </label>
+                                </button>
+                              </div>
+                            )}
                           </td>
-                          <td>{emp.resID.age}</td>
-                          <td>{emp.resID.sex}</td>
-                          <td>{emp.resID.mobilenumber}</td>
-                          <td>{emp.resID.address}</td>
-                          <td>{emp.position}</td>
+                        ) : (
+                          <>
+                            <td>
+                              {emp.resID.middlename
+                                ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+                                : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                            </td>
+                            <td>{emp.resID.age}</td>
+                            <td>{emp.resID.sex}</td>
+                            <td>{emp.resID.mobilenumber}</td>
+                            <td>{emp.resID.address}</td>
+                            <td>{emp.position}</td>
 
-                          {/* Dropdown Arrow */}
-                          <td className="text-center">
-                            <span
-                              className={`cursor-pointer transition-transform ${
-                                expandedRow === emp.resID ? "rotate-180" : ""
-                              }`}
-                            >
-                              ▼
-                            </span>
-                          </td>
-                        </>
-                      )}
-                    </tr>
-                  </React.Fragment>
-                ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                            {/* Dropdown Arrow */}
+                            <td className="text-center">
+                              <span
+                                className={`cursor-pointer transition-transform ${
+                                  expandedRow === emp.resID ? "rotate-180" : ""
+                                }`}
+                              >
+                                ▼
+                              </span>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    </React.Fragment>
+                  ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -818,7 +841,7 @@ function Employees({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -826,7 +849,7 @@ function Employees({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -836,11 +859,11 @@ function Employees({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -849,7 +872,7 @@ function Employees({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

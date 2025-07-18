@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
 import { MdAutorenew } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
@@ -247,7 +250,7 @@ function CreateAccount({ onClose }) {
                   />
                   <div className="text-start">
                     {usernameErrors.length > 0 && (
-                      <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
+                      <ul className="error-msg">
                         {usernameErrors.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}
@@ -274,7 +277,7 @@ function CreateAccount({ onClose }) {
                     />
                     <div className="text-start">
                       {passwordErrors.length > 0 && (
-                        <ul className="text-red-500 font-semibold font-subTitle text-[14px]">
+                        <ul className="error-msg">
                           {passwordErrors.map((err, idx) => (
                             <li key={idx}>{err}</li>
                           ))}
@@ -283,10 +286,10 @@ function CreateAccount({ onClose }) {
                     </div>
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      className="eye-toggle mr-1"
                       onClick={generatePassword}
                     >
-                      <MdAutorenew className="text-gray-500 mr-1" />
+                      <MdAutorenew />
                     </button>
                   </div>
                 </div>

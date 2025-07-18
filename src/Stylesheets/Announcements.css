@@ -31,7 +31,7 @@
 .announcement-info-label {
   @apply text-[#808080] text-sm font-subTitle font-bold;
 }
-.announcement-info-value {
+.announcement-heart-value {
   @apply text-sm font-subTitle font-bold;
 }
 .announcement-pinned-panel {
@@ -49,8 +49,42 @@
 .announcement-heart {
   @apply text-btn-color-red text-xs;
 }
-.create-announcement-attachment {
-  @apply w-full border border-solid border-gray-300 p-4 rounded-[15px];
+.announcement-time {
+  @apply text-[#808080] text-xs font-medium font-subTitle;
+}
+.announcement-uploadedby-container {
+  @apply flex items-center mb-4;
+}
+.announcement-uploadedby-position {
+  @apply text-sm text-[#808080] font-medium font-subTitle;
+}
+.announcement-heart-container {
+  @apply flex flex-row items-center gap-1 mt-2;
+}
+.announcement-menu-text {
+  @apply text-sm font-semibold ml-2 font-subTitle;
+}
+
+.create-announcement-form-container {
+  @apply h-full flex flex-col gap-2;
+}
+.create-announcement-scrollable-area {
+  @apply flex-[1.5] w-full overflow-y-auto flex-col space-y-2 mb-4;
+}
+.create-announcement-uploader {
+  @apply flex items-center w-full;
+}
+.create-announcement-info-container {
+  @apply flex flex-col items-start ml-2;
+}
+.create-announcement-attach-box {
+  @apply w-full border border-solid border-gray-300 p-4 rounded-[15px] relative;
+}
+.create-announcement-close-btn {
+  @apply absolute top-2 right-2 cursor-pointer hover:text-red-600 font-medium text-xl;
+}
+.create-announcement-attach-img {
+  @apply w-full h-[30rem] mt-2 rounded-[15px] object-cover;
 }
 .create-announcement-fixed-btns {
   @apply flex flex-row items-center justify-between border p-3 w-full rounded-[8px] border-btn-color-gray mb-4;
@@ -58,3 +92,17 @@
 .create-announcement-event-details {
   @apply w-[30rem] h-[15rem] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-lg flex flex-col justify-center items-center;
 }
+.create-announcement-text {
+  @apply ml-3 font-subTitle text-[#808080] font-semibold text-[16px];
+}
+.create-announcement-bottom-container {
+  @apply flex-[0.5] w-full;
+}
+.create-announcement-icons {
+  @apply w-[2rem] h-[2rem];
+}
+
+.timedate-label {
+  @apply font-subTitle text-[14px] font-medium w-full pl-2 mt-3;
+}
+

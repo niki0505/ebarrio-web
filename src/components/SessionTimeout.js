@@ -1,8 +1,12 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/CommonStyle.css";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
-import { IoClose } from "react-icons/io5";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/SessionTimeout.css";
+
+//ICONS
 import { MdOutlineQuestionMark } from "react-icons/md";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -73,8 +77,8 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
   return (
     <>
       {showModal && (
-        <div className="h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-95 z-50">
-          <div className="modal-content w-[30rem] max-h-[24rem] bg-white rounded shadow flex flex-col overflow-hidden">
+        <div className="session-container">
+          <div className="session-modal">
             <div className="dialog-title-bar flex-shrink-0 px-4 py-2">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -84,9 +88,9 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
               </div>
             </div>
 
-            <div className="modal-form-container flex-1 overflow-y-auto px-4 py-2 flex flex-col items-center">
-              <div className="bg-[rgba(4,56,78,0.3)] p-3 rounded-full">
-                <MdOutlineQuestionMark className="text-white text-4xl" />
+            <div className="session-content-container modal-form-container">
+              <div className="session-icon-container">
+                <MdOutlineQuestionMark className="session-icon" />
               </div>
 
               <h2 className="mt-2">Session Expired</h2>
@@ -109,7 +113,7 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    className="eye-toggle"
                     tabIndex={-1}
                   >
                     {showPassword ? <FaEye /> : <FaEyeSlash />}
