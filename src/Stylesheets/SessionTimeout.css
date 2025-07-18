@@ -1,0 +1,15 @@
+.session-container {
+  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-95 z-50;
+}
+.session-modal {
+  @apply w-[30rem] max-h-[24rem] bg-white rounded shadow flex flex-col overflow-hidden justify-center items-center;
+}
+.session-content-container {
+  @apply flex-1 overflow-y-auto px-4 py-2 flex flex-col items-center;
+}
+.session-icon-container {
+  @apply bg-[rgba(4,56,78,0.3)] p-3 rounded-full;
+}
+.session-icon {
+  @apply text-white text-4xl;
+}

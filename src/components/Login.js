@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
+
+//ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -107,7 +109,7 @@ const Login = () => {
 
   return (
     <div
-      className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+      className="login-container"
       style={{
         backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
       }}
@@ -116,21 +118,20 @@ const Login = () => {
       <img
         src={AppLogo}
         alt="App Logo"
-        className={`w-[350px] h-[350px] absolute transition-all duration-[2000ms] ease-in-out
+        className={`login-logo
           ${animateScale ? "scale-100 opacity-100" : "scale-50 opacity-0"}
-          ${animateMove ? "translate-x-[-20vw]" : "translate-x-0"}
+          ${animateMove ? "translate-x-[-25vw]" : "translate-x-0"}
         `}
       />
 
       {/* Login panel */}
       {showLoginPanel && (
         <div
-          className={`absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4 
-            transition-all duration-1000 ease-in-out
+          className={`right-login-container
             ${
               animateLoginPanel
-                ? "translate-y-0 opacity-100"
-                : "translate-y-full opacity-0"
+                ? "translate-x-0 opacity-100"
+                : "translate-x-full opacity-0"
             }
           `}
         >
@@ -147,7 +148,7 @@ const Login = () => {
                 e.preventDefault();
                 handleLogin();
               }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-8"
             >
               <div className="flex flex-col gap-4">
                 <input
@@ -174,7 +175,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    className="eye-toggle"
                     tabIndex={-1}
                   >
                     {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -183,16 +184,10 @@ const Login = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <button
-                  type="submit"
-                  className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue text-[20px] hover:bg-[#0A7A9D]"
-                >
+                <button type="submit" className="login-btn">
                   Login
                 </button>
-                <a
-                  href="/forgot-password"
-                  className="text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px]"
-                >
+                <a href="/forgot-password" className="login-forgot-btn">
                   Forgot password?
                 </a>
               </div>

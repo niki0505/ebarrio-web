@@ -1,3 +1,4 @@
+//STYLES
 import "../Stylesheets/CommonStyle.css";
 import "../Stylesheets/Announcements.css";
 

@@ -1,20 +1,19 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
-import { FaCalendarAlt } from "react-icons/fa";
-import { FiCalendar, FiUpload } from "react-icons/fi";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import DatePicker from "react-multi-date-picker";
 
+//STYLES
+import "../App.css";
+
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function EditAnnouncement({ onClose, announcementID }) {
   const confirm = useConfirm();
@@ -324,22 +323,22 @@ function EditAnnouncement({ onClose, announcementID }) {
             </div>
 
             <form
-              className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-4"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="h-full flex flex-col gap-2">
-                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2 mb-4">
+              <div className="create-announcement-form-container">
+                <div className="create-announcement-scrollable-area">
                   {/*UPLOADER - DETAILS*/}
-                  <div className="flex items-center w-full">
+                  <div className="create-announcement-uploader">
                     <img
                       src={user.picture}
                       alt="Profile"
                       className="navbar-profile-img"
                     />
-                    <div className="flex flex-col items-start ml-2">
+                    <div className="create-announcement-info-container">
                       <label className="text-base font-semibold">
                         {user.name}
                       </label>
@@ -350,7 +349,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                   </div>
 
                   {/*CATEGORY, TITLE, CONTENT*/}
-                  <div className="flex flex-row w-full gap-x-4">
+                  <div className="create-announcement-body">
                     <div className="employee-form-group">
                       <label for="resID" className="form-label">
                         Category<label className="text-red-600">*</label>
@@ -392,6 +391,9 @@ function EditAnnouncement({ onClose, announcementID }) {
                       onChange={handleInputChange}
                       className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                     />
+                    <div className="textarea-length-text">
+                      {announcementForm.content.length}/1000
+                    </div>
                   </div>
                   {/* Event Details */}
                   {announcementForm.eventdetails && (
@@ -409,23 +411,21 @@ function EditAnnouncement({ onClose, announcementID }) {
                       <label className="font-semibold text-navy-blue">
                         Attachment
                       </label>
-                      <div className="create-announcement-attachment">
-                        <label
-                          style={{ cursor: "pointer" }}
+                      <div className="create-announcement-attach-box">
+                        <IoClose
                           onClick={handleRemovePic}
-                        >
-                          X
-                        </label>
+                          class="create-announcement-close-btn"
+                        ></IoClose>
                         <img
                           src={announcementForm.picture}
-                          className="w-full h-[30rem] mt-2 rounded-[15px]"
+                          className="create-announcement-attach-img"
                         />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex-[0.5] w-full">
+                <div className="create-announcement-bottom-container">
                   {/*ADD TO YOUR POST AND SUBMIT BUTTON*/}
                   <div className="create-announcement-fixed-btns">
                     <label className="font-semibold text-navy-blue">
@@ -437,7 +437,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                         onClick={handleUploadPicture}
                         className=" text-[#50C700] "
                       >
-                        <MdInsertPhoto className="w-[2rem] h-[2rem]" />
+                        <MdInsertPhoto className="create-announcement-icons" />
                       </button>
                       <input
                         name="picture"
@@ -452,7 +452,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                         onClick={handleEvent}
                         className=" text-[#FFB200] "
                       >
-                        <MdCalendarMonth className="w-[2rem] h-[2rem]" />
+                        <MdCalendarMonth className="create-announcement-icons" />
                       </button>
 
                       {/*SHOW EVENT DETAILS */}
@@ -516,9 +516,9 @@ function EditAnnouncement({ onClose, announcementID }) {
                                       return (
                                         <div
                                           key={date}
-                                          className="flex items-center space-x-2 space-y-4 w-full"
+                                          className="timedate-container"
                                         >
-                                          <span className="font-subTitle text-[14px] font-medium w-full pl-2 mt-3">
+                                          <span className="timedate-label">
                                             {date}
                                           </span>
                                           <input

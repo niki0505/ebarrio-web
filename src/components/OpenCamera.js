@@ -1,6 +1,8 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
 import { removeBackground } from "@imgly/background-removal";
+
+//STYLES
 import "../Stylesheets/OpenCamera.css";
 
 import { IoClose } from "react-icons/io5";
@@ -104,7 +106,7 @@ function OpenCamera({ onDone, onClose }) {
                   </p>
                 )}
 
-                <div className="flex flex-row gap-x-5 items-center justify-center">
+                <div className="camera-container">
                   {imageSrc && !loading ? (
                     <button
                       className="actions-btn bg-btn-color-blue"
@@ -118,11 +120,7 @@ function OpenCamera({ onDone, onClose }) {
                       className="btn-disabled actions-btn bg-btn-color-blue"
                       disabled
                     >
-                      <svg
-                        className="mr-3 w-5 h-5 animate-spin text-white"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
+                      <svg className="spinner" viewBox="0 0 24 24" fill="none">
                         <circle
                           className="opacity-25"
                           cx="12"

@@ -1,18 +1,20 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import { FiCamera, FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
+import { FiUpload } from "react-icons/fi";
 import { GrNext } from "react-icons/gr";
 
 function SettleBlotter({ isCollapsed }) {
@@ -257,14 +259,14 @@ function SettleBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="flex flex-row gap-x-3 items-center">
+        <div className="breadcrumbs-container">
           <h1
             onClick={() => navigation("/blotter-reports")}
-            className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+            className="breadcrumbs-inactive-text"
           >
             Blotter Reports
           </h1>
-          <GrNext className="text-[#7D7979] text-lg font-bold" />
+          <GrNext className="breadcrumbs-arrow" />
           <h1 className="header-text">Settle Agreement</h1>
         </div>
 

@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
-import Lottie from "react-lottie"; 
+import { useEffect } from "react";
+import Lottie from "react-lottie";
+
+//STYLES
 import "../Stylesheets/CommonStyle.css";
 
 function LoadingScreen() {

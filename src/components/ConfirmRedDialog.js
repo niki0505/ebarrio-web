@@ -1,6 +1,8 @@
-import { IoClose } from "react-icons/io5";
-import { IoArchiveSharp } from "react-icons/io5";
+//STYLES
 import "../Stylesheets/Dialog.css";
+
+//ICONS
+import { IoClose, IoArchiveSharp } from "react-icons/io5";
 
 const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
   return (

@@ -1,24 +1,30 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation } from "react-router-dom";
-import SearchBar from "./SearchBar";
 import { useConfirm } from "../context/ConfirmContext";
-import CreateReservation from "./CreateReservation";
-import CourtReject from "./CourtReject";
 import api from "../api";
-import Aniban2logo from "../assets/aniban2logo.jpg";
-import AppLogo from "../assets/applogo-lightbg.png";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+//SCREENS
+import SearchBar from "./SearchBar";
+import CreateReservation from "./CreateReservation";
+import CourtReject from "./CourtReject";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+
 //ICONS
-import { FaCheckCircle } from "react-icons/fa";
-import { FaCircleXmark } from "react-icons/fa6";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function CourtReservations({ isCollapsed }) {
   const confirm = useConfirm();
@@ -307,14 +313,15 @@ function CourtReservations({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Court Reservations Reports", pageWidth / 2, 55, {
+    doc.text("Court Reservations Reports", pageWidth / 2, 57, {
       align: "center",
     });
 
@@ -431,24 +438,19 @@ function CourtReservations({ isCollapsed }) {
             {isApprovedClicked && (
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                  <h1 className="export-sort-btn-text">Export</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu w-36">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -456,7 +458,7 @@ function CourtReservations({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -470,24 +472,19 @@ function CourtReservations({ isCollapsed }) {
 
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
-              <div
-                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleFilterDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Sort
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
+              <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                <h1 className="export-sort-btn-text">Sort</h1>
+                <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>
               </div>
 
               {filterDropdown && (
-                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                <div className="export-sort-dropdown-menu">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Newest");
                           setfilterDropdown(false);
@@ -498,7 +495,7 @@ function CourtReservations({ isCollapsed }) {
                     </div>
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Oldest");
                           setfilterDropdown(false);
@@ -512,108 +509,108 @@ function CourtReservations({ isCollapsed }) {
               )}
             </div>
 
-            <button
-              className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
-              onClick={handleAdd}
-            >
-              <h1 className="font-medium text-sm text-[#fff] m-0">
-                Add New Reservation
-              </h1>
+            <button className="add-new-btn" onClick={handleAdd}>
+              <h1 className="add-new-btn-text">Add New Reservation</h1>
             </button>
           </div>
         </div>
 
-        <hr className="mt-4 border border-gray-300" />
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-        <table>
-          <thead>
-            <tr>
-              {isApprovedClicked && <th>No.</th>}
-              <th>Name</th>
-              <th>Purpose</th>
-              <th>Date & Time</th>
-              {isRejectedClicked && <th>Remarks</th>}
-              {isPendingClicked && <th>Action</th>}
-            </tr>
-          </thead>
-
-          <tbody className="bg-[#fff]">
-            {filteredReservations.length === 0 ? (
-              <tr className="bg-white">
-                <td colSpan={4} className="text-center p-2">
-                  No results found
-                </td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                {isApprovedClicked && <th>No.</th>}
+                <th>Name</th>
+                <th>Purpose</th>
+                <th>Date & Time</th>
+                {isRejectedClicked && <th>Remarks</th>}
+                {isPendingClicked && <th>Action</th>}
               </tr>
-            ) : (
-              currentRows.map((court) => {
-                return (
-                  <tr key={court._id}>
-                    {isApprovedClicked && (
-                      <td className="p-2">{court.reservationno}</td>
-                    )}
-                    <td className="p-2">
-                      {court.resID.middlename
-                        ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
-                        : `${court.resID.lastname} ${court.resID.firstname}`}
-                    </td>
-                    <td className="p-2">{court.purpose}</td>
-                    <td>
-                      {court.times && Object.entries(court.times).length > 0 ? (
-                        Object.entries(court.times).map(
-                          ([dateKey, time], index) => (
-                            <div key={index}>
-                              {formatDateRange(time.starttime, time.endtime)}
-                            </div>
-                          )
-                        )
-                      ) : (
-                        <div>No times available</div>
-                      )}
-                    </td>
-                    {isPendingClicked && court.status == "Pending" && (
-                      <td className="flex justify-center gap-x-8">
-                        <>
-                          <div className="table-actions-container">
-                            <button
-                              type="button"
-                              onClick={(e) => approveBtn(e, court._id)}
-                              className="table-actions-btn"
-                            >
-                              <FaCheckCircle className="text-lg text-[#06D001]" />
-                              <label className="text-xs font-semibold text-[#06D001]">
-                                Approve
-                              </label>
-                            </button>
-                          </div>
+            </thead>
 
-                          <div className="table-actions-container">
-                            <button
-                              type="button"
-                              onClick={(e) => rejectBtn(e, court._id)}
-                              className="table-actions-btn"
-                            >
-                              <FaCircleXmark className="text-lg text-btn-color-red" />
-                              <label className="text-xs font-semibold text-btn-color-red">
-                                Reject
-                              </label>
-                            </button>
-                          </div>
-                        </>
-                      </td>
-                    )}
-                    {isRejectedClicked &&
-                      (court.status == "Rejected" ||
-                        court.status == "Cancelled") && (
-                        <td>{court.remarks}</td>
+            <tbody className="bg-[#fff]">
+              {filteredReservations.length === 0 ? (
+                <tr className="bg-white">
+                  <td colSpan={4} className="text-center p-2">
+                    No results found
+                  </td>
+                </tr>
+              ) : (
+                currentRows.map((court) => {
+                  return (
+                    <tr key={court._id}>
+                      {isApprovedClicked && (
+                        <td className="p-2">{court.reservationno}</td>
                       )}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                      <td className="p-2">
+                        {court.resID.middlename
+                          ? `${court.resID.lastname} ${court.resID.middlename} ${court.resID.firstname}`
+                          : `${court.resID.lastname} ${court.resID.firstname}`}
+                      </td>
+                      <td className="p-2">{court.purpose}</td>
+                      <td>
+                        {court.times &&
+                        Object.entries(court.times).length > 0 ? (
+                          Object.entries(court.times).map(
+                            ([dateKey, time], index) => (
+                              <div key={index}>
+                                {formatDateRange(time.starttime, time.endtime)}
+                              </div>
+                            )
+                          )
+                        ) : (
+                          <div>No times available</div>
+                        )}
+                      </td>
+                      {isPendingClicked && court.status == "Pending" && (
+                        <td className="flex justify-center gap-x-8">
+                          <>
+                            <div className="table-actions-container">
+                              <button
+                                type="button"
+                                onClick={(e) => approveBtn(e, court._id)}
+                                className="table-actions-btn"
+                              >
+                                <FaCircleCheck className="text-lg text-[#06D001]" />
+                                <label className="table-actions-text text-[#06D001]">
+                                  Approve
+                                </label>
+                              </button>
+                            </div>
+
+                            <div className="table-actions-container">
+                              <button
+                                type="button"
+                                onClick={(e) => rejectBtn(e, court._id)}
+                                className="table-actions-btn"
+                              >
+                                <FaCircleXmark className="text-lg text-btn-color-red" />
+                                <label className="table-actions-text text-btn-color-red">
+                                  Reject
+                                </label>
+                              </button>
+                            </div>
+                          </>
+                        </td>
+                      )}
+                      {isRejectedClicked &&
+                        (court.status == "Rejected" ||
+                          court.status == "Cancelled") && (
+                          <td>{court.remarks}</td>
+                        )}
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -622,7 +619,7 @@ function CourtReservations({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -630,7 +627,7 @@ function CourtReservations({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -644,7 +641,7 @@ function CourtReservations({ isCollapsed }) {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -653,7 +650,7 @@ function CourtReservations({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

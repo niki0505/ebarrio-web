@@ -1,6 +1,6 @@
-/*EMPLOYEES*/
+/*--------------------------------------------EMPLOYEES--------------------------------------------*/
 
-/*CREATE EMPLOYEES*/
+/*--------------------------------------------CREATE EMPLOYEE--------------------------------------------*/
 .employee-form-container {
   @apply flex flex-col items-center justify-center w-full gap-[15px] mt-[50px];
 }

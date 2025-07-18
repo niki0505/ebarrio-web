@@ -1,10 +1,9 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
 import api from "../api";
+
+//ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function SetPassword() {
   const location = useLocation();

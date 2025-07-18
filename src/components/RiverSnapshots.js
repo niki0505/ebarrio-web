@@ -47,7 +47,9 @@ function RiverSnapshots({ isCollapsed }) {
           <p
             onClick={handleMenu1}
             className={`status-text ${
-              isRecentClicked ? "status-line" : "text-[#808080]"
+              isRecentClicked
+                ? "status-line !border-[#BC0F0F]"
+                : "text-[#808080]"
             }`}
           >
             Recent
@@ -55,7 +57,9 @@ function RiverSnapshots({ isCollapsed }) {
           <p
             onClick={handleMenu2}
             className={`status-text ${
-              isHistoryClicked ? "status-line" : "text-[#808080]"
+              isHistoryClicked
+                ? "status-line !border-[#BC0F0F]"
+                : "text-[#808080]"
             }`}
           >
             History
