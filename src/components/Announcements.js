@@ -1,14 +1,18 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
-import CreateAnnouncement from "./CreateAnnouncement";
 import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
-import "../Stylesheets/Announcements.css";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+
+//SCREENS
 import EditAnnouncement from "./EditAnnouncement";
+import CreateAnnouncement from "./CreateAnnouncement";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/Announcements.css";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
@@ -226,7 +230,7 @@ function Announcements({ isCollapsed }) {
                   onClick={handleAdd}
                   className="announcement-create-button"
                 >
-                  <label className="ml-3 font-subTitle text-[#808080] font-semibold text-[16px]">
+                  <label className="create-announcement-text">
                     Create Announcement
                   </label>
                 </button>
@@ -257,7 +261,7 @@ function Announcements({ isCollapsed }) {
               .map((announcement) => (
                 <div key={announcement._id} className="announcement-card">
                   <div className="announcement-pin-date-menu">
-                    <h1 className="text-[#808080] text-xs font-medium font-subTitle">
+                    <h1 className="announcement-time">
                       {dayjs(announcement.createdAt).fromNow()}
                     </h1>
 
@@ -294,9 +298,7 @@ function Announcements({ isCollapsed }) {
                             onClick={() => handleRecover(announcement._id)}
                           >
                             <FaEdit className="ml-2" />
-                            <li className="text-sm font-semibold ml-2 font-subTitle">
-                              Recover
-                            </li>
+                            <li className="announcement-menu-text">Recover</li>
                           </div>
                         ) : (
                           <>
@@ -305,16 +307,14 @@ function Announcements({ isCollapsed }) {
                               onClick={() => handleEdit(announcement._id)}
                             >
                               <FaEdit className="ml-2" />
-                              <li className="text-sm font-semibold ml-2 font-subTitle">
-                                Edit
-                              </li>
+                              <li className="announcement-menu-text">Edit</li>
                             </div>
                             <div
                               className="navbar-dropdown-item justify-start"
                               onClick={() => handleArchive(announcement._id)}
                             >
                               <IoArchiveSharp className="text-red-600 ml-2" />
-                              <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
+                              <li className="text-red-600 announcement-menu-text">
                                 Archive
                               </li>
                             </div>
@@ -325,7 +325,7 @@ function Announcements({ isCollapsed }) {
                   )}
 
                   {/* UPLOADED BY - DETAILS */}
-                  <div className="flex items-center mb-4">
+                  <div className="announcement-uploadedby-container">
                     <img
                       src={announcement.uploadedby?.resID?.picture}
                       alt="Profile"
@@ -336,7 +336,7 @@ function Announcements({ isCollapsed }) {
                         {announcement.uploadedby?.resID?.firstname}{" "}
                         {announcement.uploadedby?.resID?.lastname}
                       </label>
-                      <label className="text-sm text-[#808080] font-medium font-subTitle">
+                      <label className="announcement-uploadedby-position">
                         {announcement.uploadedby?.position}
                       </label>
                     </div>
@@ -347,13 +347,13 @@ function Announcements({ isCollapsed }) {
                     <label className="announcement-info-label">
                       Category:{" "}
                     </label>
-                    <label className="announcement-info-value">
+                    <label className="announcement-heart-value">
                       {announcement.category}
                     </label>
                   </div>
                   <div>
                     <label className="announcement-info-label">Title: </label>
-                    <label className="announcement-info-value">
+                    <label className="announcement-heart-value">
                       {announcement.title}
                     </label>
                   </div>
@@ -372,9 +372,9 @@ function Announcements({ isCollapsed }) {
                       />
                     )}
 
-                  <div className="flex flex-row items-center gap-1 mt-2">
+                  <div className="announcement-heart-container">
                     <FaHeart className="announcement-heart" />
-                    <h3 className="announcement-info-value">
+                    <h3 className="announcement-heart-value">
                       {announcement.hearts}
                     </h3>
                   </div>
@@ -390,7 +390,7 @@ function Announcements({ isCollapsed }) {
             {pinnedAnnouncements.map((announcement) => (
               <div key={announcement._id} className="announcement-card">
                 <div className="announcement-pin-date-menu">
-                  <h1 className="text-[#808080] text-xs font-medium font-subTitle">
+                  <h1 className="announcement-time">
                     {dayjs(announcement.createdAt).fromNow()}
                   </h1>
                   <div>
@@ -422,16 +422,14 @@ function Announcements({ isCollapsed }) {
                           onClick={() => handleEdit(announcement._id)}
                         >
                           <FaEdit className="ml-2" />
-                          <li className="text-sm font-semibold ml-2 font-subTitle">
-                            Edit
-                          </li>
+                          <li className="announcement-menu-text">Edit</li>
                         </div>
                         <div
                           className="navbar-dropdown-item justify-start"
                           onClick={handleArchive}
                         >
                           <IoArchiveSharp className="text-red-600 ml-2" />
-                          <li className="text-sm font-semibold text-red-600 ml-2 font-subTitle">
+                          <li className="text-red-600 announcement-menu-text">
                             Archive
                           </li>
                         </div>
@@ -441,7 +439,7 @@ function Announcements({ isCollapsed }) {
                 </div>
 
                 {/* UPLOADED BY - DETAILS */}
-                <div className="flex items-center mb-4">
+                <div className="announcement-uploadedby-container">
                   <img
                     src={announcement.uploadedby?.resID?.picture}
                     alt="Profile"
@@ -462,13 +460,13 @@ function Announcements({ isCollapsed }) {
 
                 <div>
                   <label className="announcement-info-label">Category: </label>
-                  <label className="announcement-info-value">
+                  <label className="announcement-heart-value">
                     {announcement.category}
                   </label>
                 </div>
                 <div>
                   <label className="announcement-info-label">Title: </label>
-                  <label className="announcement-info-value">
+                  <label className="announcement-heart-value">
                     {announcement.title}
                   </label>
                 </div>
@@ -487,9 +485,9 @@ function Announcements({ isCollapsed }) {
                   />
                 )}
 
-                <div className="flex flex-row items-center gap-1 mt-2">
+                <div className="announcement-heart-container">
                   <FaHeart className="announcement-heart" />
-                  <h3 className="announcement-info-value">
+                  <h3 className="announcement-heart-value">
                     {announcement.hearts}
                   </h3>
                 </div>

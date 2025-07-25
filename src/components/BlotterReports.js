@@ -1,18 +1,24 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
-import ViewBlotter from "./ViewBlotter";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { AuthContext } from "../context/AuthContext";
+import api from "../api";
+
+//SCREENS
+import SearchBar from "./SearchBar";
+import ViewBlotter from "./ViewBlotter";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
-import api from "../api";
 
 function BlotterReports({ isCollapsed }) {
   const navigation = useNavigate();
@@ -239,14 +245,15 @@ function BlotterReports({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Blotter Reports", pageWidth / 2, 55, {
+    doc.text("Blotter Reports", pageWidth / 2, 57, {
       align: "center",
     });
 
@@ -412,28 +419,23 @@ function BlotterReports({ isCollapsed }) {
             </p>
           </div>
 
-          <div className="flex flex-row gap-x-2 mt-4">
+          <div className="export-sort-btn-container">
             {isSettledClicked && (
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                  <h1 className="export-sort-btn-text">Export</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
-                  <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -441,7 +443,7 @@ function BlotterReports({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -455,24 +457,19 @@ function BlotterReports({ isCollapsed }) {
 
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
-              <div
-                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleFilterDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Sort
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
+              <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                <h1 className="export-sort-btn-text">Sort</h1>
+                <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>
               </div>
 
               {filterDropdown && (
-                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                <div className="export-sort-dropdown-menu">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Newest");
                           setfilterDropdown(false);
@@ -483,7 +480,7 @@ function BlotterReports({ isCollapsed }) {
                     </div>
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Oldest");
                           setfilterDropdown(false);
@@ -497,105 +494,108 @@ function BlotterReports({ isCollapsed }) {
               )}
             </div>
 
-            <button
-              className="hover:bg-[#0A7A9D] bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
-              onClick={handleAdd}
-            >
-              <h1 className="font-medium text-sm text-[#fff] m-0">
-                Add New Blotter
-              </h1>
+            <button className="add-new-btn" onClick={handleAdd}>
+              <h1 className="add-new-btn-text">Add New Blotter</h1>
             </button>
           </div>
         </div>
 
-        <hr className="mt-4 border border-gray-300" />
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-        <table>
-          <thead>
-            <tr>
-              {isSettledClicked && <th>No.</th>}
-              <th>Complainant</th>
-              <th>Subject of the Complaint</th>
-              <th>Type of the Incident</th>
-              {isPendingClicked && <th>Date Submitted</th>}
-              {isScheduledClicked && <th>Date Scheduled</th>}
-              {isSettledClicked && <th>Witness</th>}
-              {isSettledClicked && <th>Date Settled</th>}
-            </tr>
-          </thead>
-
-          <tbody className="bg-[#fff]">
-            {filteredBlotterReports.length === 0 ? (
-              <tr className="bg-white">
-                <td
-                  colSpan={isSettledClicked ? 6 : 4}
-                  className="text-center p-2"
-                >
-                  No results found
-                </td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                {isSettledClicked && <th>No.</th>}
+                <th>Complainant</th>
+                <th>Subject of the Complaint</th>
+                <th>Type of the Incident</th>
+                {isPendingClicked && <th>Date Submitted</th>}
+                {isScheduledClicked && <th>Date Scheduled</th>}
+                {isSettledClicked && <th>Witness</th>}
+                {isSettledClicked && <th>Date Settled</th>}
               </tr>
-            ) : (
-              currentRows.map((blot) => {
-                return (
-                  <tr
-                    key={blot._id}
-                    onClick={() => handleRowClick(blot._id)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f0f0f0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                    }}
-                  >
-                    {isSettledClicked && (
-                      <td className="p-2">{blot.blotterno}</td>
-                    )}
+            </thead>
 
-                    <td className="p-2">
-                      {blot.complainantID
-                        ? `${blot.complainantID.lastname} ${
-                            blot.complainantID.firstname
-                          } ${blot.complainantID.middlename || ""}`.trim()
-                        : blot.complainantname}
-                    </td>
-                    <td className="p-2">
-                      {blot.subjectID
-                        ? `${blot.subjectID.lastname} ${
-                            blot.subjectID.firstname
-                          } ${blot.subjectID.middlename || ""}`.trim()
-                        : blot.subjectname}
-                    </td>
-                    <td className="p-2">{blot.typeofthecomplaint}</td>
-                    {isPendingClicked && (
-                      <td className="p-2">{blot.createdAt.split(" at ")[0]}</td>
-                    )}
-                    {isScheduledClicked && (
+            <tbody className="bg-[#fff]">
+              {filteredBlotterReports.length === 0 ? (
+                <tr className="bg-white">
+                  <td
+                    colSpan={isSettledClicked ? 6 : 4}
+                    className="text-center p-2"
+                  >
+                    No results found
+                  </td>
+                </tr>
+              ) : (
+                currentRows.map((blot) => {
+                  return (
+                    <tr
+                      key={blot._id}
+                      onClick={() => handleRowClick(blot._id)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                      }}
+                    >
+                      {isSettledClicked && (
+                        <td className="p-2">{blot.blotterno}</td>
+                      )}
+
                       <td className="p-2">
-                        {blot.starttime?.split(" at ")[0]},{" "}
-                        {blot.starttime?.split(" at ")[1]} -{" "}
-                        {blot.endtime?.split(" at ")[1]}
+                        {blot.complainantID
+                          ? `${blot.complainantID.lastname} ${
+                              blot.complainantID.firstname
+                            } ${blot.complainantID.middlename || ""}`.trim()
+                          : blot.complainantname}
                       </td>
-                    )}
-                    {isSettledClicked && (
                       <td className="p-2">
-                        {blot.witnessID
-                          ? `${blot.witnessID.lastname} ${
-                              blot.witnessID.firstname
-                            } ${blot.witnessID.middlename || ""}`.trim()
-                          : blot.witnessname}
+                        {blot.subjectID
+                          ? `${blot.subjectID.lastname} ${
+                              blot.subjectID.firstname
+                            } ${blot.subjectID.middlename || ""}`.trim()
+                          : blot.subjectname}
                       </td>
-                    )}
-                    {isSettledClicked && (
-                      <td className="p-2">{blot.updatedAt.split(" at ")[0]}</td>
-                    )}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                      <td className="p-2">{blot.typeofthecomplaint}</td>
+                      {isPendingClicked && (
+                        <td className="p-2">
+                          {blot.createdAt.split(" at ")[0]}
+                        </td>
+                      )}
+                      {isScheduledClicked && (
+                        <td className="p-2">
+                          {blot.starttime?.split(" at ")[0]},{" "}
+                          {blot.starttime?.split(" at ")[1]} -{" "}
+                          {blot.endtime?.split(" at ")[1]}
+                        </td>
+                      )}
+                      {isSettledClicked && (
+                        <td className="p-2">
+                          {blot.witnessID
+                            ? `${blot.witnessID.lastname} ${
+                                blot.witnessID.firstname
+                              } ${blot.witnessID.middlename || ""}`.trim()
+                            : blot.witnessname}
+                        </td>
+                      )}
+                      {isSettledClicked && (
+                        <td className="p-2">
+                          {blot.updatedAt.split(" at ")[0]}
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -604,7 +604,7 @@ function BlotterReports({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="appearance-none border-[#0E94D3] w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -612,7 +612,7 @@ function BlotterReports({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1 text-[#0E94D3]">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -622,11 +622,11 @@ function BlotterReports({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -635,7 +635,7 @@ function BlotterReports({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

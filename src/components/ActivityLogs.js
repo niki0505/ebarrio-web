@@ -1,15 +1,20 @@
-import "../Stylesheets/CommonStyle.css";
-import "../Stylesheets/Announcements.css";
 import { useContext, useEffect, useState, useRef } from "react";
 import { InfoContext } from "../context/InfoContext";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
-import Aniban2logo from "../assets/aniban2logo.jpg";
-import AppLogo from "../assets/applogo-lightbg.png";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/Announcements.css";
+import "../Stylesheets/ActivityLogs.css";
+
+//ICONS
+import { MdArrowDropDown } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
 
 function ActivityLogs({ isCollapsed }) {
   const { fetchActivityLogs, activitylogs } = useContext(InfoContext);
@@ -168,14 +173,15 @@ function ActivityLogs({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Activity Logs", pageWidth / 2, 55, {
+    doc.text("Activity Logs", pageWidth / 2, 57, {
       align: "center",
     });
 
@@ -272,18 +278,14 @@ function ActivityLogs({ isCollapsed }) {
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Activity Logs</div>
 
-        <hr className="mt-4 border border-gray-300" />
-
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex gap-4 items-center">
-            <div className="flex flex-col items-start justify-center mt-8">
-              <label className="mr-2 font-title font-semibold text-base">
-                User
-              </label>
+        <div className="logs-filter-container">
+          <div className="logs-filter-controls">
+            <div className="logs-filter-item">
+              <label className="logs-filter-label">User</label>
               <select
                 value={selectedUser}
                 onChange={(e) => setSelectedUser(e.target.value)}
-                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+                className="logs-filter-select"
               >
                 <option value="">All Users</option>
                 {users
@@ -295,42 +297,38 @@ function ActivityLogs({ isCollapsed }) {
                   ))}
               </select>
             </div>
-            <div className="flex flex-col items-start justify-center mt-8">
-              <label className="mr-2 font-title font-semibold text-base">
-                From
-              </label>
+            <div className="logs-filter-item">
+              <label className="logs-filter-label">From</label>
               <input
                 type="date"
                 value={fromDate}
                 max={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+                className="logs-filter-select"
               />
             </div>
 
-            <div className="flex flex-col items-start justify-center mt-8">
-              <label className="mr-2 font-title font-semibold text-base">
-                To
-              </label>
+            <div className="logs-filter-item">
+              <label className="logs-filter-label">To</label>
               <input
                 type="date"
                 value={toDate}
                 max={new Date().toISOString().split("T")[0]}
                 onChange={(e) => setToDate(e.target.value)}
-                className="border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm"
+                className="logs-filter-select"
               />
             </div>
 
             <button
               onClick={handleReset}
-              className="hover:bg-gray-400 mt-12 bg-btn-color-gray h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0"
+              className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
             >
               Reset
             </button>
 
             <button
               onClick={handleSubmit}
-              className="hover:bg-[#0A7A9D] mt-12 bg-[#0E94D3] h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0"
+              className="bg-[#0E94D3] hover:bg-[#0A7A9D] logs-reset-submit-btn"
             >
               Submit
             </button>
@@ -339,23 +337,21 @@ function ActivityLogs({ isCollapsed }) {
           <div className="relative" ref={exportRef}>
             {/* Export Button */}
             <div
-              className="mt-12 relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
+              className="mt-12 export-sort-btn"
               onClick={toggleExportDropdown}
             >
-              <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                Export
-              </h1>
-              <div className="pointer-events-none flex text-gray-600">
+              <h1 className="export-sort-btn-text">Export</h1>
+              <div className="export-sort-btn-dropdown-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
 
             {exportDropdown && (
-              <div className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md">
+              <div className="export-sort-dropdown-menu">
                 <ul className="w-full">
                   <div className="navbar-dropdown-item">
                     <li
-                      className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                      className="export-sort-dropdown-option"
                       onClick={exportCSV}
                     >
                       Export as CSV
@@ -363,7 +359,7 @@ function ActivityLogs({ isCollapsed }) {
                   </div>
                   <div className="navbar-dropdown-item">
                     <li
-                      className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                      className="export-sort-dropdown-option"
                       onClick={exportPDF}
                     >
                       Export as PDF
@@ -375,90 +371,80 @@ function ActivityLogs({ isCollapsed }) {
           </div>
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>User</th>
-              <th>Action</th>
-              <th>Description</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-          <tbody className="bg-[#fff]">
-            {displayedLogs.length === 0 ? (
+        <div className="table-container">
+          <table>
+            <thead>
               <tr>
-                <td colSpan={5}>No results found</td>
+                <th>No.</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>Timestamp</th>
               </tr>
-            ) : (
-              currentRows.map((log) => (
-                <tr
-                  key={log._id}
-                  className="border-t transition-colors duration-300 ease-in-out"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f0f0f0";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "";
-                  }}
-                >
-                  <td>{log.logno}</td>
-                  <td>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 10,
-                        textAlign: "left",
-                      }}
-                    >
-                      <img
-                        width={40}
-                        style={{
-                          borderRadius: "50%",
-                          height: 40,
-                          width: 40,
-                          objectFit: "cover",
-                          marginLeft: 10,
-                        }}
-                        alt="User"
-                        src={
-                          log.userID?.empID?.resID?.picture ||
-                          log.userID?.resID?.picture ||
-                          null
-                        }
-                      />
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <div>
-                          {log.userID?.empID?.resID
-                            ? log.userID.empID.resID.middlename
-                              ? `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.middlename} ${log.userID.empID.resID.firstname}`
-                              : `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.firstname}`
-                            : log.userID?.resID
-                            ? log.userID.resID.middlename
-                              ? `${log.userID.resID.lastname} ${log.userID.resID.middlename} ${log.userID.resID.firstname}`
-                              : `${log.userID.resID.lastname} ${log.userID.resID.firstname}`
-                            : "No name available"}
-                        </div>
-                        <div style={{ color: "gray" }}>
-                          {log.userID?.username}
+            </thead>
+
+            <tbody className="bg-[#fff]">
+              {displayedLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={5}>No results found</td>
+                </tr>
+              ) : (
+                currentRows.map((log) => (
+                  <tr
+                    key={log._id}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                    }}
+                  >
+                    <td>{log.logno}</td>
+                    <td>
+                      <div className="logs-user-cell">
+                        <img
+                          width={40}
+                          className="logs-user-img"
+                          alt="User"
+                          src={
+                            log.userID?.empID?.resID?.picture ||
+                            log.userID?.resID?.picture ||
+                            null
+                          }
+                        />
+                        <div className="flex flex-col">
+                          <div>
+                            {log.userID?.empID?.resID
+                              ? log.userID.empID.resID.middlename
+                                ? `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.middlename} ${log.userID.empID.resID.firstname}`
+                                : `${log.userID.empID.resID.lastname} ${log.userID.empID.resID.firstname}`
+                              : log.userID?.resID
+                              ? log.userID.resID.middlename
+                                ? `${log.userID.resID.lastname} ${log.userID.resID.middlename} ${log.userID.resID.firstname}`
+                                : `${log.userID.resID.lastname} ${log.userID.resID.firstname}`
+                              : "No name available"}
+                          </div>
+                          <div style={{ color: "gray" }}>
+                            {log.userID?.username}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{log.action}</td>
-                  <td>{log.description}</td>
-                  <td>{log.createdAt}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                    </td>
+                    <td>{log.action}</td>
+                    <td>{log.description}</td>
+                    <td>{log.createdAt}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -467,7 +453,7 @@ function ActivityLogs({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -475,7 +461,7 @@ function ActivityLogs({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>

@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
-import { FaEyeSlash } from "react-icons/fa";
+
+//STYLES
+import "../App.css";
+
+//ICONS
 import { MdAutorenew } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function EditAccount({ onClose, userID, userUsername }) {
   const confirm = useConfirm();
@@ -133,10 +136,10 @@ function EditAccount({ onClose, userID, userUsername }) {
                     />
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      className="eye-toggle"
                       onClick={generatePassword}
                     >
-                      <MdAutorenew className="text-gray-500" />
+                      <MdAutorenew />
                     </button>
                   </div>
                 </div>

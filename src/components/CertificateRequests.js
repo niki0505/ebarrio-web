@@ -1,25 +1,37 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
 import { useConfirm } from "../context/ConfirmContext";
+import { AuthContext } from "../context/AuthContext";
+import api from "../api";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+//SCREENS
+import SearchBar from "./SearchBar";
 import IndigencyPrint from "./certificates/IndigencyPrint";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
-import { AuthContext } from "../context/AuthContext";
 import Reject from "./Reject";
-import api from "../api";
-import { MdArrowDropDown } from "react-icons/md";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
+import { IoIosPrint, IoIosSend } from "react-icons/io";
+import { RiUserReceived2Fill } from "react-icons/ri";
+import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 
 function CertificateRequests({ isCollapsed }) {
   const location = useLocation();
@@ -353,14 +365,15 @@ function CertificateRequests({ isCollapsed }) {
 
     //Header
     doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
     doc.setFontSize(14);
-    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 45, {
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
       align: "center",
     });
 
     //Title
     doc.setFontSize(12);
-    doc.text("Document Requests Reports", pageWidth / 2, 55, {
+    doc.text("Document Requests Reports", pageWidth / 2, 57, {
       align: "center",
     });
 
@@ -492,32 +505,26 @@ function CertificateRequests({ isCollapsed }) {
             </p>
           </div>
 
-          <div className="flex flex-row gap-x-2 mt-4">
+          <div className="export-sort-btn-container">
             {isIssuedClicked && (
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleExportDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    Export
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                  <h1 className="export-sort-btn-text">Export</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {exportDropdown && (
                   <div
-                    className="absolute mt-2 w-36 bg-white shadow-md z-10 rounded-md"
+                    className="export-sort-dropdown-menu"
                     style={{ marginLeft: "-70px" }}
                   >
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportCSV}
                         >
                           Export as CSV
@@ -525,7 +532,7 @@ function CertificateRequests({ isCollapsed }) {
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={exportPDF}
                         >
                           Export as PDF
@@ -539,24 +546,19 @@ function CertificateRequests({ isCollapsed }) {
 
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
-              <div
-                className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                onClick={toggleFilterDropdown}
-              >
-                <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                  Sort
-                </h1>
-                <div className="pointer-events-none flex text-gray-600">
+              <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                <h1 className="export-sort-btn-text">Sort</h1>
+                <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>
               </div>
 
               {filterDropdown && (
-                <div className="absolute mt-2 bg-white shadow-md z-10 rounded-md">
+                <div className="export-sort-dropdown-menu">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Newest");
                           setfilterDropdown(false);
@@ -567,7 +569,7 @@ function CertificateRequests({ isCollapsed }) {
                     </div>
                     <div className="navbar-dropdown-item">
                       <li
-                        className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                        className="export-sort-dropdown-option"
                         onClick={() => {
                           setSortOption("Oldest");
                           setfilterDropdown(false);
@@ -583,279 +585,314 @@ function CertificateRequests({ isCollapsed }) {
           </div>
         </div>
 
-        <hr className="mt-4 border border-gray-300" />
+        <div className="line-container">
+          <hr className="line" />
+        </div>
 
-        <table>
-          <thead>
-            <tr>
-              {isIssuedClicked && <th>No.</th>}
-              <th>Name</th>
-              <th>Type of Certificate</th>
-              {isPendingClicked && <th>Date Requested</th>}
-              {isIssuedClicked && <th>Date Issued</th>}
-              {isIssuedClicked && <th>Status</th>}
-              {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody className="bg-[#fff]">
-            {filteredCertificates.length === 0 ? (
-              <tr className="bg-white">
-                <td colSpan={isIssuedClicked ? 6 : 4}>No results found</td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                {isIssuedClicked && <th>No.</th>}
+                <th>Name</th>
+                <th>Type of Certificate</th>
+                {isPendingClicked && <th>Date Requested</th>}
+                {isIssuedClicked && <th>Date Issued</th>}
+                {isIssuedClicked && <th>Status</th>}
+                {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
+                <th></th>
               </tr>
-            ) : (
-              currentRows.map((cert) => (
-                <React.Fragment key={cert._id}>
-                  <tr
-                    onClick={() => handleRowClick(cert._id)}
-                    className="border-t transition-colors duration-300 ease-in-out"
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f0f0f0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                    }}
-                  >
-                    {expandedRow === cert._id ? (
-                      <td colSpan={isIssuedClicked ? 6 : 4}>
-                        {/* Additional Information for the resident */}
-                        {(cert.typeofcertificate === "Barangay Clearance" ||
-                          cert.typeofcertificate === "Barangay Indigency") && (
-                          <>
-                            <div className="profile-container">
-                              <div className="ml-5 text-xs">
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Name:</h1>
-                                  <p className="font-medium">
-                                    {cert.resID.middlename
-                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                  </p>
-                                </div>
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">
-                                    Type of Certificate:
-                                  </h1>
-                                  <p className="font-medium">
-                                    {cert.typeofcertificate}
-                                  </p>
-                                </div>
+            </thead>
 
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">
-                                    Purpose of Request:
-                                  </h1>
-                                  <p className="font-medium">{cert.purpose}</p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Date Requested:</h1>
-                                  <p className="font-medium">
-                                    {cert.createdAt.substring(
-                                      0,
-                                      cert.createdAt.indexOf(" at")
-                                    )}
-                                  </p>
-                                </div>
-
-                                {(cert.status === "Rejected" ||
-                                  cert.status === "Cancelled") && (
-                                  <div className="flex flex-row gap-x-2">
-                                    <h1 className="font-bold">Remarks:</h1>
-                                    <p className="font-medium">
-                                      {cert.remarks}
+            <tbody className="bg-[#fff]">
+              {filteredCertificates.length === 0 ? (
+                <tr className="bg-[#fff]">
+                  <td colSpan={isIssuedClicked ? 6 : 4}>No results found</td>
+                </tr>
+              ) : (
+                currentRows.map((cert) => (
+                  <React.Fragment key={cert._id}>
+                    <tr
+                      onClick={() => handleRowClick(cert._id)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                      }}
+                    >
+                      {expandedRow === cert._id ? (
+                        <td colSpan={isIssuedClicked ? 6 : 4}>
+                          {/* Additional Information for the resident */}
+                          {(cert.typeofcertificate === "Barangay Clearance" ||
+                            cert.typeofcertificate ===
+                              "Barangay Indigency") && (
+                            <>
+                              <div className="profile-container">
+                                <div className="my-4 text-xs">
+                                  <div className="grid grid-cols-[1fr_1fr] border border-[#C1C0C0]">
+                                    {/* Name */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Name
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.resID.middlename
+                                        ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                        : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                    </p>
+                                    {/* Type of Certificate */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Type of Certificate
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.typeofcertificate}
+                                    </p>
+                                    {/*  Purpose of Request */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Purpose of Request
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.purpose}
+                                    </p>
+                                    {/*     Date Requested */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Date Requested
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.createdAt.substring(
+                                        0,
+                                        cert.createdAt.indexOf(" at")
+                                      )}
                                     </p>
                                   </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="btn-container">
-                              {cert.status === "Pending" ? (
-                                <>
-                                  <button
-                                    className="actions-btn bg-btn-color-red hover:bg-red-700"
-                                    type="submit"
-                                    onClick={(e) => rejectBtn(e, cert._id)}
-                                  >
-                                    REJECT
-                                  </button>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => certBtn(e, cert._id)}
-                                  >
-                                    ISSUE
-                                  </button>
-                                </>
-                              ) : cert.status === "Not Yet Collected" ? (
-                                <>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => notifyBtn(e, cert._id)}
-                                  >
-                                    NOTIFY
-                                  </button>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => certBtn(e, cert._id)}
-                                  >
-                                    PRINT
-                                  </button>
-
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => collectedBtn(e, cert._id)}
-                                  >
-                                    COLLECTED
-                                  </button>
-                                </>
-                              ) : null}
-                            </div>
-                          </>
-                        )}
-                        {cert.typeofcertificate ===
-                          "Barangay Business Clearance" && (
-                          <>
-                            <div className="profile-container">
-                              <div className="ml-5 text-xs">
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Name:</h1>
-                                  <p className="font-medium">
-                                    {cert.resID.middlename
-                                      ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
-                                      : `${cert.resID.firstname} ${cert.resID.lastname}`}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">
-                                    Type of Certificate:
-                                  </h1>
-                                  <p className="font-medium">
-                                    {cert.typeofcertificate}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Business Name:</h1>
-                                  <p className="font-medium">
-                                    {cert.businessname}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">
-                                    Line of Business:
-                                  </h1>
-                                  <p className="font-medium">
-                                    {cert.lineofbusiness}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">
-                                    Location of Business:
-                                  </h1>
-                                  <p className="font-medium">
-                                    {cert.locationofbusiness ===
-                                    "Resident's Address"
-                                      ? `${cert.resID.address}`
-                                      : `${cert.locationofbusiness}`}
-                                  </p>
-                                </div>
-
-                                <div className="flex flex-row gap-x-2">
-                                  <h1 className="font-bold">Date Requested:</h1>
-                                  <p className="font-medium">
-                                    {cert.createdAt.substring(
-                                      0,
-                                      cert.createdAt.indexOf(" at")
-                                    )}
-                                  </p>
                                 </div>
                               </div>
-                            </div>
-                            <div className="btn-container">
-                              {cert.status === "Pending" ? (
+                              {(cert.status === "Rejected" ||
+                                cert.status === "Cancelled") && (
                                 <>
-                                  <button
-                                    className="actions-btn bg-btn-color-red hover:bg-red-700"
-                                    type="submit"
-                                    onClick={(e) => rejectBtn(e, cert._id)}
-                                  >
-                                    REJECT
-                                  </button>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => certBtn(e, cert._id)}
-                                  >
-                                    ISSUE
-                                  </button>
+                                  {/* Remarks */}
+                                  <h1 className="text-start text-red-600">
+                                    Remarks:
+                                  </h1>
+                                  <p className="text-start">{cert.remarks}</p>
                                 </>
-                              ) : cert.status === "Not Yet Collected" ? (
-                                <>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => notifyBtn(e, cert._id)}
-                                  >
-                                    NOTIFY
-                                  </button>
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => certBtn(e, cert._id)}
-                                  >
-                                    PRINT
-                                  </button>
+                              )}
 
-                                  <button
-                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-                                    type="submit"
-                                    onClick={(e) => collectedBtn(e, cert._id)}
-                                  >
-                                    COLLECTED
-                                  </button>
-                                </>
-                              ) : null}
-                            </div>
-                          </>
-                        )}
-                      </td>
-                    ) : (
-                      <>
-                        {isIssuedClicked && <td>{cert.certno}</td>}
-                        <td>
-                          {cert.resID.middlename
-                            ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
-                            : `${cert.resID.lastname} ${cert.resID.firstname}`}
+                              <div className="btn-container">
+                                {cert.status === "Pending" ? (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => rejectBtn(e, cert._id)}
+                                    >
+                                      <FaCircleXmark className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        REJECT
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      <FaCircleCheck className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        ISSUE
+                                      </label>
+                                    </button>
+                                  </>
+                                ) : cert.status === "Not Yet Collected" ? (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => notifyBtn(e, cert._id)}
+                                    >
+                                      <IoIosSend className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        NOTIFY
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      <IoIosPrint className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        PRINT
+                                      </label>
+                                    </button>
+
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => collectedBtn(e, cert._id)}
+                                    >
+                                      <RiUserReceived2Fill className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        COLLECTED
+                                      </label>
+                                    </button>
+                                  </>
+                                ) : null}
+                              </div>
+                            </>
+                          )}
+                          {cert.typeofcertificate ===
+                            "Barangay Business Clearance" && (
+                            <>
+                              <div className="profile-container">
+                                <div className="my-4 text-xs">
+                                  <div className="grid grid-cols-[1fr_1fr] border border-[#C1C0C0]">
+                                    {/* Name */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Name
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.resID.middlename
+                                        ? `${cert.resID.firstname} ${cert.resID.middlename} ${cert.resID.lastname}`
+                                        : `${cert.resID.firstname} ${cert.resID.lastname}`}
+                                    </p>
+                                    {/* Type of Certificate */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Type of Certificate
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.typeofcertificate}
+                                    </p>
+                                    {/*  Business Name */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Business Name
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.businessname}
+                                    </p>
+                                    {/* Line of Business */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Line of Business
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.lineofbusiness}
+                                    </p>
+                                    {/* Location of Business */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Line of Business
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.locationofbusiness ===
+                                      "Resident's Address"
+                                        ? `${cert.resID.address}`
+                                        : `${cert.locationofbusiness}`}
+                                    </p>
+                                    {/* Date Requested */}
+                                    <h1 className="add-info-title min-w-[200px] max-w-[200px]">
+                                      Date Requested
+                                    </h1>
+                                    <p className="add-info-container">
+                                      {cert.createdAt.substring(
+                                        0,
+                                        cert.createdAt.indexOf(" at")
+                                      )}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="btn-container">
+                                {cert.status === "Pending" ? (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => rejectBtn(e, cert._id)}
+                                    >
+                                      <FaCircleXmark className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        REJECT
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      <FaCircleCheck className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        ISSUE
+                                      </label>
+                                    </button>
+                                  </>
+                                ) : cert.status === "Not Yet Collected" ? (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => notifyBtn(e, cert._id)}
+                                    >
+                                      <IoIosSend className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        NOTIFY
+                                      </label>
+                                    </button>
+
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, cert._id)}
+                                    >
+                                      <IoIosPrint className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        PRINT
+                                      </label>
+                                    </button>
+
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => collectedBtn(e, cert._id)}
+                                    >
+                                      <RiUserReceived2Fill className="text-btn-color-blue table-actions-icons" />
+                                      <label className="text-btn-color-blue table-actions-text">
+                                        COLLECTED
+                                      </label>
+                                    </button>
+                                  </>
+                                ) : null}
+                              </div>
+                            </>
+                          )}
                         </td>
-                        <td>{cert.typeofcertificate}</td>
-                        {isPendingClicked && (
+                      ) : (
+                        <>
+                          {isIssuedClicked && <td>{cert.certno}</td>}
                           <td>
-                            {cert.createdAt.substring(
-                              0,
-                              cert.createdAt.indexOf(" at")
-                            )}
+                            {cert.resID.middlename
+                              ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
+                              : `${cert.resID.lastname} ${cert.resID.firstname}`}
                           </td>
-                        )}
-                        {(isIssuedClicked || isRejectedClicked) && (
-                          <td>
-                            {cert.updatedAt.substring(
-                              0,
-                              cert.updatedAt.indexOf(" at")
-                            )}
-                          </td>
-                        )}
-                        {isIssuedClicked && (
-                          <td>
-                            <span
-                              className={`text-xs font-semibold px-2 py-1 rounded-full
+                          <td>{cert.typeofcertificate}</td>
+                          {isPendingClicked && (
+                            <td>
+                              {cert.createdAt.substring(
+                                0,
+                                cert.createdAt.indexOf(" at")
+                              )}
+                            </td>
+                          )}
+                          {(isIssuedClicked || isRejectedClicked) && (
+                            <td>
+                              {cert.updatedAt.substring(
+                                0,
+                                cert.updatedAt.indexOf(" at")
+                              )}
+                            </td>
+                          )}
+                          {isIssuedClicked && (
+                            <td>
+                              <span
+                                className={`table-actions-text font-semibold table-pagination-btn-full
                       ${
                         cert.status === "Not Yet Collected"
                           ? "bg-red-100 text-red-800"
@@ -863,32 +900,33 @@ function CertificateRequests({ isCollapsed }) {
                           ? "bg-green-100 text-green-800"
                           : cert.status === "Deactivated"
                       }`}
+                              >
+                                {cert.status}
+                              </span>
+                            </td>
+                          )}
+
+                          {/* Dropdown Arrow */}
+                          <td className="text-center">
+                            <span
+                              className={`cursor-pointer transition-transform ${
+                                expandedRow === cert.resID ? "rotate-180" : ""
+                              }`}
                             >
-                              {cert.status}
+                              ▼
                             </span>
                           </td>
-                        )}
-
-                        {/* Dropdown Arrow */}
-                        <td className="text-center">
-                          <span
-                            className={`cursor-pointer transition-transform ${
-                              expandedRow === cert.resID ? "rotate-180" : ""
-                            }`}
-                          >
-                            ▼
-                          </span>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                </React.Fragment>
-              ))
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-end items-center mt-4 text-sm text-gray-700 gap-x-4">
-          <div className="flex items-center space-x-1">
+                        </>
+                      )}
+                    </tr>
+                  </React.Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="table-pagination">
+          <div className="table-pagination-size">
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
@@ -897,7 +935,7 @@ function CertificateRequests({ isCollapsed }) {
                   setRowsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3]"
+                className="table-pagination-select"
               >
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
@@ -905,7 +943,7 @@ function CertificateRequests({ isCollapsed }) {
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1">
+              <div className="table-pagination-select-icon">
                 <MdArrowDropDown size={18} color={"#0E94D3"} />
               </div>
             </div>
@@ -915,11 +953,11 @@ function CertificateRequests({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div className="flex items-center">
+          <div>
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
             </button>
@@ -928,7 +966,7 @@ function CertificateRequests({ isCollapsed }) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="px-2 py-1 rounded"
+              className="table-pagination-btn"
             >
               <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
             </button>

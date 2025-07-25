@@ -1,15 +1,21 @@
-import "../Stylesheets/CommonStyle.css";
-import "../Stylesheets/Announcements.css";
 import { useContext, useEffect, useState, useRef } from "react";
 import { InfoContext } from "../context/InfoContext";
-import ViewHousehold from "./ViewHousehold";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { MdArrowDropDown } from "react-icons/md";
 import { AuthContext } from "../context/AuthContext";
-import SearchBar from "./SearchBar";
 import { useLocation } from "react-router-dom";
 import { FiDownload } from "react-icons/fi";
+
+//SCREENS
+import ViewHousehold from "./ViewHousehold";
+import SearchBar from "./SearchBar";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/Announcements.css";
+
+//ICONS
+import { MdArrowDropDown } from "react-icons/md";
 
 function Household({ isCollapsed }) {
   const location = useLocation();
@@ -41,6 +47,23 @@ function Household({ isCollapsed }) {
   useEffect(() => {
     fetchHouseholds();
   }, []);
+
+  //To handle close when click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        filterDropdown
+      ) {
+        setfilterDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filterDropdown]);
 
   const handleRowClick = (householdID) => {
     setHouseholdClicked(true);
@@ -1266,39 +1289,29 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
             </p>
           </div>
           {isActiveClicked && (
-            <div className="flex flex-row gap-x-2 mt-4">
+            <div className="export-sort-btn-container">
               <div className="relative" ref={exportRef}>
                 {/* Export Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={exportPDF}
-                >
+                <div className="export-sort-btn" onClick={exportPDF}>
                   <FiDownload className="text-[#0E94D3] mr-1" size={16} />
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    PDF
-                  </h1>
+                  <h1 className="export-sort-btn-text">PDF</h1>
                 </div>
               </div>
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
-                <div
-                  className="relative flex items-center bg-[#fff] border-[#0E94D3] h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
-                  onClick={toggleFilterDropdown}
-                >
-                  <h1 className="text-sm font-medium mr-2 text-[#0E94D3]">
-                    {sortOption}
-                  </h1>
-                  <div className="pointer-events-none flex text-gray-600">
+                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+                  <h1 className="export-sort-btn-text">{sortOption}</h1>
+                  <div className="export-sort-btn-dropdown-icon">
                     <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
 
                 {filterDropdown && (
-                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md">
+                  <div className="export-sort-dropdown-menu">
                     <ul className="w-full">
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("All");
                             setfilterDropdown(false);
@@ -1309,7 +1322,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                       </div>
                       <div className="navbar-dropdown-item">
                         <li
-                          className="px-4 text-sm cursor-pointer text-[#0E94D3]"
+                          className="export-sort-dropdown-option"
                           onClick={() => {
                             setSortOption("4Ps");
                             setfilterDropdown(false);
@@ -1326,59 +1339,65 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
           )}
         </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Household Name</th>
-              <th>Head of the Household</th>
-              <th>Address</th>
-              <th>Household Size</th>
-              <th>Number of Vehicles</th>
-            </tr>
-          </thead>
+        <div className="line-container">
+          <hr className="lines" />
+        </div>
 
-          <tbody className="bg-[#fff]">
-            {filteredHousehold.length === 0 ? (
-              <tr className="bg-white">
-                <td colSpan={6}>No results found</td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Household Name</th>
+                <th>Head of the Household</th>
+                <th>Address</th>
+                <th>Household Size</th>
+                <th>Number of Vehicles</th>
               </tr>
-            ) : (
-              filteredHousehold.map((house, index) => {
-                const headMember = house.members.find(
-                  (member) => member.position === "Head"
-                );
-                const headName = `${headMember.resID.lastname} ${headMember.resID.firstname}`;
-                const householdName = `${headMember.resID.lastname}'s Residence`;
-                return (
-                  <tr
-                    key={index}
-                    onClick={() => handleRowClick(house._id)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f0f0f0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "";
-                    }}
-                  >
-                    <td>{house.householdno}</td>
-                    <td>{householdName}</td>
-                    <td>{headName}</td>
-                    <td>{headMember.resID.address}</td>
-                    <td>{house.members.length}</td>
-                    <td>{house.vehicles.length}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-        {isHouseholdClicked && (
-          <ViewHousehold
-            onClose={() => setHouseholdClicked(false)}
-            householdID={selectedHousehold}
-          />
-        )}
+            </thead>
+
+            <tbody className="bg-[#fff]">
+              {filteredHousehold.length === 0 ? (
+                <tr className="bg-white">
+                  <td colSpan={6}>No results found</td>
+                </tr>
+              ) : (
+                filteredHousehold.map((house, index) => {
+                  const headMember = house.members.find(
+                    (member) => member.position === "Head"
+                  );
+                  const headName = `${headMember.resID.lastname} ${headMember.resID.firstname}`;
+                  const householdName = `${headMember.resID.lastname}'s Residence`;
+                  return (
+                    <tr
+                      key={index}
+                      onClick={() => handleRowClick(house._id)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                      }}
+                    >
+                      <td>{house.householdno}</td>
+                      <td>{householdName}</td>
+                      <td>{headName}</td>
+                      <td>{headMember.resID.address}</td>
+                      <td>{house.members.length}</td>
+                      <td>{house.vehicles.length}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+          {isHouseholdClicked && (
+            <ViewHousehold
+              onClose={() => setHouseholdClicked(false)}
+              householdID={selectedHousehold}
+            />
+          )}
+        </div>
       </main>
     </>
   );

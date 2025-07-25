@@ -1,6 +1,4 @@
 import { useRef, useState, useContext, useEffect } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
@@ -8,10 +6,14 @@ import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import DatePicker from "react-multi-date-picker";
 import React from "react";
+import { InfoContext } from "../context/InfoContext";
+
+//STYLES
+import "../App.css";
 
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
-import { InfoContext } from "../context/InfoContext";
+import { IoClose } from "react-icons/io5";
 
 function CreateAnnouncement({ onClose }) {
   const confirm = useConfirm();
@@ -302,22 +304,22 @@ function CreateAnnouncement({ onClose }) {
             </div>
 
             <form
-              className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="h-full flex flex-col gap-2">
-                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2 mb-4">
+              <div className="create-announcement-form-container">
+                <div className="create-announcement-scrollable-area">
                   {/*UPLOADER - DETAILS*/}
-                  <div className="flex items-center w-full">
+                  <div className="create-announcement-uploader">
                     <img
                       src={user.picture}
                       alt="Profile"
                       className="navbar-profile-img"
                     />
-                    <div className="flex flex-col items-start ml-2">
+                    <div className="create-announcement-info-container">
                       <label className="text-base font-semibold">
                         {user.name}
                       </label>
@@ -327,7 +329,7 @@ function CreateAnnouncement({ onClose }) {
                     </div>
                   </div>
                   {/*CATEGORY, TITLE, CONTENT*/}
-                  <div className="flex flex-row w-full gap-x-4">
+                  <div className="create-announcement-body">
                     <div className="employee-form-group">
                       <label for="resID" className="form-label">
                         Category<label className="text-red-600">*</label>
@@ -378,7 +380,7 @@ function CreateAnnouncement({ onClose }) {
                       className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                       required
                     />
-                    <div className="w-full text-right text-sm text-gray-500 mt-1">
+                    <div className="textarea-length-text">
                       {announcementForm.content.length}/1000
                     </div>
                   </div>
@@ -405,22 +407,22 @@ function CreateAnnouncement({ onClose }) {
                       <label className="font-semibold text-navy-blue">
                         Attachment
                       </label>
-                      <div className="w-full border border-solid border-gray-300 p-4 rounded-[15px] relative">
+                      <div className="create-announcement-attach-box">
                         <IoClose
                           onClick={handleRemovePic}
-                          class="absolute top-2 right-2 cursor-pointer hover:text-red-600 font-medium text-xl"
+                          class="create-announcement-close-btn"
                         ></IoClose>
 
                         <img
                           src={announcementForm.picture}
-                          className="w-full h-[30rem] mt-2 rounded-[15px] object-cover"
+                          className="create-announcement-attach-img"
                         />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex-[0.5] w-full">
+                <div className="create-announcement-bottom-container">
                   {/*ADD TO YOUR POST AND SUBMIT BUTTON*/}
                   <div className="create-announcement-fixed-btns">
                     <label className="font-semibold text-navy-blue">
@@ -432,7 +434,7 @@ function CreateAnnouncement({ onClose }) {
                         onClick={handleUploadPicture}
                         className=" text-[#50C700] "
                       >
-                        <MdInsertPhoto className="w-[2rem] h-[2rem]" />
+                        <MdInsertPhoto className="create-announcement-icons" />
                       </button>
                       <input
                         name="picture"
@@ -447,7 +449,7 @@ function CreateAnnouncement({ onClose }) {
                         onClick={handleEvent}
                         className=" text-[#FFB200] "
                       >
-                        <MdCalendarMonth className="w-[2rem] h-[2rem]" />
+                        <MdCalendarMonth className="create-announcement-icons" />
                       </button>
 
                       {/*SHOW EVENT DETAILS */}
@@ -511,9 +513,9 @@ function CreateAnnouncement({ onClose }) {
                                       return (
                                         <div
                                           key={date}
-                                          className="flex items-center space-x-2 space-y-4 w-full"
+                                          className="timedate-container"
                                         >
-                                          <span className="font-subTitle text-[14px] font-medium w-full pl-2 mt-3">
+                                          <span className="timedate-label">
                                             {date}
                                           </span>
                                           <input

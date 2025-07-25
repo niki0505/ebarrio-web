@@ -1,10 +1,9 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../context/OtpContext";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
 import api from "../api";
 
+//ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
 
 function Signup() {
@@ -207,7 +206,7 @@ function Signup() {
   return (
     <>
       <div
-        className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+        className="login-container"
         style={{
           backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
         }}
@@ -215,9 +214,9 @@ function Signup() {
         <img
           src={AppLogo}
           alt="App Logo"
-          className="w-[312px] h-[312px] translate-x-[-20vw]"
+          className="login-logo translate-x-[-25vw]"
         />
-        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-8">
+        <div className="right-login-container">
           <h1 className="header-text">Create your account</h1>
 
           <div className="flex flex-col gap-4">
@@ -228,9 +227,7 @@ function Signup() {
               value={firstname}
               className="form-input"
             />
-            {fnameError ? (
-              <p className="error-input-message">{fnameError}</p>
-            ) : null}
+            {fnameError ? <p className="error-msg">{fnameError}</p> : null}
 
             <input
               type="text"
@@ -239,9 +236,7 @@ function Signup() {
               value={lastname}
               className="form-input"
             />
-            {lnameError ? (
-              <p className="error-input-message">{lnameError}</p>
-            ) : null}
+            {lnameError ? <p className="error-msg">{lnameError}</p> : null}
 
             <input
               type="text"
@@ -252,7 +247,7 @@ function Signup() {
               className="form-input"
             />
             {mobilenumError ? (
-              <p className="error-input-message">{mobilenumError}</p>
+              <p className="error-msg">{mobilenumError}</p>
             ) : null}
 
             <input
@@ -265,7 +260,7 @@ function Signup() {
 
             {usernameErrors.length > 0 &&
               usernameErrors.map((error, index) => (
-                <p key={index} className="error-input-message">
+                <p key={index} className="error-msg">
                   {error}
                 </p>
               ))}
@@ -280,7 +275,7 @@ function Signup() {
 
             {passwordErrors.length > 0 &&
               passwordErrors.map((error, index) => (
-                <p key={index} className="error-input-message">
+                <p key={index} className="error-msg">
                   {error}
                 </p>
               ))}
@@ -293,17 +288,15 @@ function Signup() {
               className="form-input"
             />
             {password2Errors ? (
-              <p className="error-input-message">{password2Errors}</p>
+              <p className="error-msg">{password2Errors}</p>
             ) : null}
           </div>
 
-          <button
-            onClick={handleSignUp}
-            type="submit"
-            className="px-8 py-3 rounded-[8px] items-center text-[#fff] shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue font-bold text-[20px] hover:bg-[#0A7A9D]"
-          >
-            Sign up
-          </button>
+          <div className="flex flex-col">
+            <button onClick={handleSignUp} type="submit" className="login-btn">
+              Sign up
+            </button>
+          </div>
         </div>
       </div>
     </>

@@ -1,15 +1,20 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { FiCamera, FiUpload } from "react-icons/fi";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+
+//SCREENS
+import OpenCamera from "./OpenCamera";
+
+//ICONS
+import { FiCamera, FiUpload } from "react-icons/fi";
 import { BiSolidImageAlt } from "react-icons/bi";
 import { GrNext } from "react-icons/gr";
+import { LuCirclePlus } from "react-icons/lu";
 
 function CreateResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -1004,14 +1009,14 @@ function CreateResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      <div className="flex flex-col md:flex-row lg:flex-row gap-x-3 items-center">
+      <div className="breadcrumbs-container">
         <h1
           onClick={() => navigation("/residents")}
-          className="text-[30px] font-bold font-title text-[#7D7979] cursor-pointer"
+          className="breadcrumbs-inactive-text"
         >
           Residents
         </h1>
-        <GrNext className="text-[#7D7979] text-lg font-bold" />
+        <GrNext className="breadcrumbs-arrow" />
         <h1 className="header-text">Create Resident</h1>
       </div>
 
@@ -1380,8 +1385,8 @@ function CreateResident({ isCollapsed }) {
 
                 <div className="form-group">
                   <label className="form-label">Using any FP method?</label>
-                  <div className="flex flex-row space-x-10">
-                    <div className="flex flex-row justify-center gap-1">
+                  <div className="radio-container">
+                    <div className="radio-item">
                       <input
                         type="radio"
                         name="haveFPmethod"
@@ -1391,7 +1396,7 @@ function CreateResident({ isCollapsed }) {
                       />
                       <h1>Yes</h1>
                     </div>
-                    <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-item">
                       <input
                         type="radio"
                         name="haveFPmethod"
@@ -1512,8 +1517,8 @@ function CreateResident({ isCollapsed }) {
 
             <div className="form-group">
               <label className="form-label">Registered Voter</label>
-              <div className="flex flex-row space-x-10">
-                <div className="flex flex-row justify-center gap-1">
+              <div className="radio-container">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="voter"
@@ -1523,7 +1528,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <h1>Yes</h1>
                 </div>
-                <div className="flex flex-row justify-center gap-1">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="voter"
@@ -1550,8 +1555,8 @@ function CreateResident({ isCollapsed }) {
             </div>
             <div className="form-group">
               <label className="form-label">Classification by Age/Health</label>
-              <div className="flex flex-col space-y-2">
-                {/* <label className="flex items-center space-x-2">
+              <div className="checkbox-container">
+                {/* <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="is4Ps"
@@ -1560,7 +1565,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>4Ps Beneficiary</span>
                 </label> */}
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isNewborn"
@@ -1570,7 +1575,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Newborn</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isInfant"
@@ -1580,7 +1585,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Infant</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isUnder5"
@@ -1590,7 +1595,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Under 5 y.o</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isAdolescent"
@@ -1600,7 +1605,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Adolescent</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isAdult"
@@ -1610,7 +1615,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Adult</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isSenior"
@@ -1621,7 +1626,7 @@ function CreateResident({ isCollapsed }) {
                   <span>Senior Citizen</span>
                 </label>
                 {residentForm.sex === "Female" && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isWomenOfReproductive"
@@ -1637,7 +1642,7 @@ function CreateResident({ isCollapsed }) {
                     residentForm.age >= 0 &&
                     residentForm.age <= 5
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isSchoolAge"
@@ -1652,7 +1657,7 @@ function CreateResident({ isCollapsed }) {
                     residentForm.sex === "Female" &&
                     residentForm.age > 19
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isPregnant"
@@ -1668,7 +1673,7 @@ function CreateResident({ isCollapsed }) {
                     residentForm.age >= 10 &&
                     residentForm.age <= 19
                 ) && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isAdolescentPregnant"
@@ -1679,7 +1684,7 @@ function CreateResident({ isCollapsed }) {
                   </label>
                 )}
                 {residentForm.sex === "Female" && (
-                  <label className="flex items-center space-x-2">
+                  <label className="checkbox-btn-container">
                     <input
                       type="checkbox"
                       name="isPostpartum"
@@ -1689,7 +1694,7 @@ function CreateResident({ isCollapsed }) {
                     <span>Postpartum</span>
                   </label>
                 )}
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isPWD"
@@ -1698,7 +1703,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Person with Disability (PWD)</span>
                 </label>
-                {/* <label className="flex items-center space-x-2">
+                {/* <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="isSoloParent"
@@ -1712,8 +1717,8 @@ function CreateResident({ isCollapsed }) {
 
             <div className="form-group">
               <label className="form-label">Medical History</label>
-              <div className="flex flex-col space-y-2">
-                <label className="flex items-center space-x-2">
+              <div className="checkbox-container">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveHypertension"
@@ -1722,7 +1727,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Hypertension</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveDiabetes"
@@ -1731,7 +1736,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Diabetes</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveTubercolosis"
@@ -1740,7 +1745,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <span>Tubercolosis</span>
                 </label>
-                <label className="flex items-center space-x-2">
+                <label className="checkbox-btn-container">
                   <input
                     type="checkbox"
                     name="haveSurgery"
@@ -1752,10 +1757,10 @@ function CreateResident({ isCollapsed }) {
               </div>
             </div>
 
-            <div className="form-group space-x-5">
+            <div className="form-group">
               <label className="form-label">Deceased</label>
-              <div className="flex flex-row space-x-10">
-                <div className="flex flex-row justify-center gap-1">
+              <div className="radio-container">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="deceased"
@@ -1765,7 +1770,7 @@ function CreateResident({ isCollapsed }) {
                   />
                   <h1>Yes</h1>
                 </div>
-                <div className="flex flex-row justify-center gap-1">
+                <div className="radio-item">
                   <input
                     type="radio"
                     name="deceased"
@@ -2075,8 +2080,8 @@ function CreateResident({ isCollapsed }) {
 
           <div className="form-group">
             <label className="form-label">Head of the Household</label>
-            <div className="flex flex-row space-x-10">
-              <div className="flex flex-row justify-center gap-1">
+            <div className="radio-container">
+              <div className="radio-item">
                 <input
                   type="radio"
                   name="head"
@@ -2086,7 +2091,7 @@ function CreateResident({ isCollapsed }) {
                 />
                 <h1>Yes</h1>
               </div>
-              <div className="flex flex-row justify-center gap-1">
+              <div className="radio-item">
                 <input
                   type="radio"
                   name="head"
@@ -2166,8 +2171,8 @@ function CreateResident({ isCollapsed }) {
                     <label className="form-label">
                       Ethnicity<label className="text-red-600">*</label>
                     </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-container">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="ethnicity"
@@ -2177,7 +2182,7 @@ function CreateResident({ isCollapsed }) {
                         />
                         <h1>IP Household</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="ethnicity"
@@ -2212,8 +2217,8 @@ function CreateResident({ isCollapsed }) {
                       Socioeconomic Status
                       <label className="text-red-600">*</label>
                     </label>
-                    <div className="flex flex-row space-x-10">
-                      <div className="flex flex-row justify-center gap-1">
+                    <div className="radio-container">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2223,7 +2228,7 @@ function CreateResident({ isCollapsed }) {
                         />
                         <h1>NHTS 4Ps</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2233,7 +2238,7 @@ function CreateResident({ isCollapsed }) {
                         />
                         <h1>NHTS Non-4Ps</h1>
                       </div>
-                      <div className="flex flex-row justify-center gap-1">
+                      <div className="radio-item">
                         <input
                           type="radio"
                           name="sociostatus"
@@ -2307,20 +2312,18 @@ function CreateResident({ isCollapsed }) {
                   </div>
                 </div>
 
-                <table className="min-w-full border border-gray-300">
+                <table className="household-tbl-container">
                   <thead>
                     <tr>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Position
-                      </th>
-                      <th className="border border-gray-300 px-4 py-2">Name</th>
-                      <th className="border border-gray-300 px-4 py-2"></th>
+                      <th className="household-tbl-th">Position</th>
+                      <th className="household-tbl-th">Name</th>
+                      <th className="household-tbl-th"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {householdForm.members.map((member, index) => (
                       <tr key={index}>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <select
                             value={member.position}
                             onChange={(e) =>
@@ -2347,7 +2350,7 @@ function CreateResident({ isCollapsed }) {
                             <option value="Other">Other</option>
                           </select>
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <div className="relative">
                             <input
                               type="text"
@@ -2388,7 +2391,7 @@ function CreateResident({ isCollapsed }) {
                               )}
                           </div>
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           {/* Prevent removing the Head */}
                           {member.position !== "Head" && (
                             <button
@@ -2405,39 +2408,31 @@ function CreateResident({ isCollapsed }) {
                   </tbody>
                 </table>
 
-                <div className="flex"></div>
                 <div class="flex justify-end mt-2">
                   <button
                     type="button"
-                    class="btn btn-primary"
+                    className="household-tbl-add-btn"
                     onClick={addMember}
                   >
-                    Add Member
+                    <LuCirclePlus className="text-lg" />
+                    <label>Add Member</label>
                   </button>
                 </div>
 
-                <table className="min-w-full border border-gray-300">
+                <table className="household-tbl-container">
                   <thead>
                     <tr>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Model
-                      </th>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Color
-                      </th>
-                      <th className="border border-gray-300 px-4 py-2">Kind</th>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Plate Number
-                      </th>
-                      <th className="border border-gray-300 px-4 py-2">
-                        Actions
-                      </th>
+                      <th className="household-tbl-th">Model</th>
+                      <th className="household-tbl-th">Color</th>
+                      <th className="household-tbl-th">Kind</th>
+                      <th className="household-tbl-th">Plate Number</th>
+                      <th className="household-tbl-th">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {householdForm.vehicles.map((vehicle, index) => (
                       <tr key={index}>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <input
                             type="text"
                             className="form-input w-full"
@@ -2451,7 +2446,7 @@ function CreateResident({ isCollapsed }) {
                             }
                           />
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <input
                             type="text"
                             className="form-input w-full"
@@ -2465,7 +2460,7 @@ function CreateResident({ isCollapsed }) {
                             }
                           />
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <select
                             className="form-input w-full"
                             value={vehicle.kind || ""}
@@ -2484,7 +2479,7 @@ function CreateResident({ isCollapsed }) {
                             <option value="Other">Other</option>
                           </select>
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <input
                             type="text"
                             className="form-input w-full"
@@ -2498,7 +2493,7 @@ function CreateResident({ isCollapsed }) {
                             }
                           />
                         </td>
-                        <td className="border border-gray-300 px-4 py-2">
+                        <td className="household-tbl-th">
                           <button
                             type="button"
                             className="btn btn-secondary"
@@ -2515,10 +2510,11 @@ function CreateResident({ isCollapsed }) {
                 <div class="flex justify-end mt-2">
                   <button
                     type="button"
-                    className="btn btn-primary"
+                    className="household-tbl-add-btn"
                     onClick={addVehicle}
                   >
-                    Add Vehicle
+                    <LuCirclePlus className="text-lg" />
+                    <label> Add Vehicle</label>
                   </button>
                 </div>
               </div>
