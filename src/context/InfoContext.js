@@ -23,6 +23,7 @@ export const InfoProvider = ({ children }) => {
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
   const [household, setHousehold] = useState([]);
+  const [FAQslist, setFAQslist] = useState([]);
   const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
@@ -231,6 +232,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchFAQslist = async () => {
+    try {
+      const response = await api.get("/getfaqs");
+      setFAQslist(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       const fetchPendingReservations = async () => {
@@ -290,6 +300,7 @@ export const InfoProvider = ({ children }) => {
           blotterForm,
           announcementForm,
           household,
+          FAQslist,
           pendingReservationCount,
           setAnnouncementForm,
           fetchActivityLogs,
@@ -305,6 +316,7 @@ export const InfoProvider = ({ children }) => {
           fetchAnnouncements,
           fetchReservations,
           fetchBlotterReports,
+          fetchFAQslist,
         }}
       >
         {children}
