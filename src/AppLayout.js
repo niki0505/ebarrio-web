@@ -3,6 +3,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import { Outlet } from "react-router-dom";
 import SessionTimeout from "./components/SessionTimeout";
+import Chat from "./components/Chat";
 
 const AppLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -18,6 +19,8 @@ const AppLayout = () => {
       <div className="page-content">
         <Outlet />
       </div>
+
+      <Chat />
     </div>
   );
 };

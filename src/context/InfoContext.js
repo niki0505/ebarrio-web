@@ -24,6 +24,7 @@ export const InfoProvider = ({ children }) => {
   const [activitylogs, setActivityLogs] = useState([]);
   const [household, setHousehold] = useState([]);
   const [FAQslist, setFAQslist] = useState([]);
+  const [chats, setChats] = useState([]);
   const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
@@ -240,6 +241,14 @@ export const InfoProvider = ({ children }) => {
       console.error("❌ Failed to fetch FAQs:", error);
     }
   };
+  const fetchChats = async () => {
+    try {
+      const response = await api.get("/getchats");
+      setChats(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -302,6 +311,7 @@ export const InfoProvider = ({ children }) => {
           household,
           FAQslist,
           pendingReservationCount,
+          chats,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
@@ -317,6 +327,7 @@ export const InfoProvider = ({ children }) => {
           fetchReservations,
           fetchBlotterReports,
           fetchFAQslist,
+          fetchChats,
         }}
       >
         {children}
