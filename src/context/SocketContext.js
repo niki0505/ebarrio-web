@@ -39,7 +39,7 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("connect", () => {
-      newSocket.emit("register", user.userID);
+      newSocket.emit("register", user.userID, user.role);
       if (user?.role === "Secretary") {
         newSocket.emit("join_announcements");
         newSocket.emit("join_certificates");
