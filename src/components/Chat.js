@@ -84,6 +84,7 @@ const Chat = () => {
 
     // Emit the message to the server
     socket.emit("send_message", newMessage);
+    setMessage("");
   };
 
   console.log(activeChat);
