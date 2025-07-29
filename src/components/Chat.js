@@ -40,6 +40,13 @@ const Chat = () => {
 
         return updated;
       });
+
+      if (activeChat?._id === roomId) {
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, { from, to, message, timestamp }],
+        }));
+      }
     });
 
     return () => socket.off("receive_message");
