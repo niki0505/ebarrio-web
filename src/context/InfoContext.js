@@ -312,6 +312,7 @@ export const InfoProvider = ({ children }) => {
           FAQslist,
           pendingReservationCount,
           chats,
+          setChats,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
