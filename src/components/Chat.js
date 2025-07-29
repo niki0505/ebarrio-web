@@ -4,46 +4,21 @@ import { InfoContext, SocketContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
 
 const Chat = () => {
-  // const { fetchChats, chats } = useContext(InfoContext);
-  const [chats, setChats] = useState([]);
+  const { fetchChats, chats, setChats } = useContext(InfoContext);
+  // const [chats, setChats] = useState([]);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState("");
 
-  const toggleChat = () => setIsOpen(!isOpen);
-
   useEffect(() => {
-    const handleReceiveMessage = ({ from, to, message, timestamp }) => {
-      console.log("📥 Real-time message received:", message);
+    if (!socket) return;
 
-      // Check if this message belongs to the active chat
-      if (
-        activeChat &&
-        activeChat.participants.some((p) => p === from || p === to)
-      ) {
-        const newMsg = {
-          from,
-          to,
-          message,
-          timestamp,
-          _id: Date.now().toString(), // Temp ID, or backend can send it
-        };
-
-        setActiveChat((prev) => ({
-          ...prev,
-          messages: [...prev.messages, newMsg],
-        }));
-      }
-
-      // Optional: update preview in chat list
+    socket.on("receive_message", ({ from, to, message, timestamp, roomId }) => {
       setChats((prevChats) => {
         const updated = prevChats.map((chat) => {
-          const participantIds = chat.participants.map((p) =>
-            typeof p === "string" ? p : p._id
-          );
-          if (participantIds.includes(from) && participantIds.includes(to)) {
+          if (chat._id === roomId) {
             return {
               ...chat,
               messages: [...chat.messages, { from, to, message, timestamp }],
@@ -52,20 +27,25 @@ const Chat = () => {
           return chat;
         });
 
-        return updated.sort((a, b) => {
-          const aTime = a.messages.at(-1)?.timestamp || 0;
-          const bTime = b.messages.at(-1)?.timestamp || 0;
-          return bTime - aTime;
-        });
+        const exists = updated.find((c) => c._id === roomId);
+        if (!exists) {
+          console.log("🆕 New room received:", roomId);
+          // Optional: fetch the new chat details from backend
+        }
+
+        return updated;
       });
-    };
+    });
 
-    socket.on("receive_message", handleReceiveMessage);
+    return () => socket.off("receive_message");
+  }, [socket]);
 
-    return () => {
-      socket.off("receive_message", handleReceiveMessage);
-    };
-  }, []);
+  useEffect(() => {
+    if (!isOpen) return;
+    fetchChats();
+  }, [isOpen]);
+
+  const toggleChat = () => setIsOpen(!isOpen);
 
   const handleSelectChat = (chat) => {
     setActiveChat(chat);
