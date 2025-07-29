@@ -38,16 +38,26 @@ const Chat = () => {
       }
 
       // Optional: update preview in chat list
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
-          chat._id === activeChat?._id
-            ? {
-                ...chat,
-                messages: [...chat.messages, { from, to, message, timestamp }],
-              }
-            : chat
-        )
-      );
+      setChats((prevChats) => {
+        const updated = prevChats.map((chat) => {
+          const participantIds = chat.participants.map((p) =>
+            typeof p === "string" ? p : p._id
+          );
+          if (participantIds.includes(from) && participantIds.includes(to)) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { from, to, message, timestamp }],
+            };
+          }
+          return chat;
+        });
+
+        return updated.sort((a, b) => {
+          const aTime = a.messages.at(-1)?.timestamp || 0;
+          const bTime = b.messages.at(-1)?.timestamp || 0;
+          return bTime - aTime;
+        });
+      });
     };
 
     socket.on("receive_message", handleReceiveMessage);
@@ -55,7 +65,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceiveMessage);
     };
-  }, [activeChat]);
+  }, []);
 
   const handleSelectChat = (chat) => {
     setActiveChat(chat);
