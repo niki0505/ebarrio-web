@@ -18,11 +18,12 @@ const Chat = () => {
       console.log("🚫 Socket not ready");
       return;
     }
-    console.log("✅ Socket connected", socket.id);
-    socket.on("receive_message", ({ from, to, message, timestamp, roomId }) => {
+
+    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
+
       setChats((prevChats) => {
-        const updated = prevChats.map((chat) => {
+        let updated = prevChats.map((chat) => {
           if (chat._id === roomId) {
             return {
               ...chat,
@@ -32,25 +33,33 @@ const Chat = () => {
           return chat;
         });
 
-        const exists = updated.find((c) => c._id === roomId);
+        const exists = updated.some((c) => c._id === roomId);
         if (!exists) {
-          console.log("🆕 New room received:", roomId);
-          // Optional: fetch the new chat details from backend
+          // Optionally fetch new chat details from backend
+          console.log("🆕 New chat room. Consider fetching chat:", roomId);
         }
 
         return updated;
       });
 
-      if (activeChat?._id === roomId) {
-        setActiveChat((prev) => ({
-          ...prev,
-          messages: [...prev.messages, { from, to, message, timestamp }],
-        }));
-      }
-    });
+      // Append to currently open chat if it matches
+      setActiveChat((prev) => {
+        if (prev?._id === roomId) {
+          return {
+            ...prev,
+            messages: [...prev.messages, { from, to, message, timestamp }],
+          };
+        }
+        return prev;
+      });
+    };
 
-    return () => socket.off("receive_message");
-  }, [socket, activeChat]);
+    socket.on("receive_message", handleReceive);
+
+    return () => {
+      socket.off("receive_message", handleReceive);
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
