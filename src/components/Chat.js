@@ -20,22 +20,30 @@ const Chat = () => {
       return;
     }
 
-    const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
+    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
       setChats((prevChats) => {
-        const exists = prevChats.some((chat) => chat._id === roomId);
-        if (!exists) return prevChats; // Defer adding until fetched
-        return prevChats.map((chat) =>
-          chat._id === roomId
-            ? {
-                ...chat,
-                messages: [...chat.messages, { from, to, message, timestamp }],
-              }
-            : chat
-        );
+        let updated = prevChats.map((chat) => {
+          if (chat._id === roomId) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { from, to, message, timestamp }],
+            };
+          }
+          return chat;
+        });
+
+        const exists = updated.some((c) => c._id === roomId);
+        if (!exists) {
+          // Optionally fetch new chat details from backend
+          console.log("🆕 New chat room. Consider fetching chat:", roomId);
+        }
+
+        return updated;
       });
 
+      // Append to currently open chat if it matches
       setActiveChat((prev) => {
         if (prev?._id === roomId) {
           return {
@@ -45,24 +53,6 @@ const Chat = () => {
         }
         return prev;
       });
-
-      // 🔍 Fetch full chat only if it's not in current list
-      const exists = chats.some((c) => c._id === roomId);
-      if (!exists) {
-        try {
-          const res = await api.get(`/chat/${roomId}`);
-          const newChat = await res.json();
-
-          if (res.ok) {
-            console.log("🆕 New chat fetched from backend:", newChat);
-            setChats((prev) => [...prev, newChat]);
-          } else {
-            console.error("❌ Failed to fetch new chat:", newChat.message);
-          }
-        } catch (err) {
-          console.error("❌ Error fetching chat:", err);
-        }
-      }
     };
 
     socket.on("receive_message", handleReceive);
@@ -70,7 +60,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceive);
     };
-  }, [socket, chats]); // 👈 include chats to check if chat exists
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
