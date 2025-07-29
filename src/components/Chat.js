@@ -7,7 +7,6 @@ import api from "../api";
 
 const Chat = () => {
   const { fetchChats, chats, setChats } = useContext(InfoContext);
-  // const [chats, setChats] = useState([]);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +65,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceive);
     };
-  }, [socket, chats]);
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -110,7 +109,7 @@ const Chat = () => {
     setMessage("");
   };
 
-  console.log(chats);
+  console.log(activeChat);
 
   return (
     <>
@@ -188,24 +187,27 @@ const Chat = () => {
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
-                    {activeChat.messages.map((msg, i) => (
-                      <div
-                        key={i}
-                        className={`${
-                          msg.from === user.userID ? "text-right" : "text-left"
-                        }`}
-                      >
+                    {activeChat.messages.map((msg, i) => {
+                      const isOwnMessage =
+                        msg.from === user.userID ||
+                        msg.from?._id === user.userID;
+                      return (
                         <div
-                          className={`inline-block px-3 py-2 rounded max-w-sm ${
-                            msg.from === user.userID
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-100"
-                          }`}
+                          key={i}
+                          className={isOwnMessage ? "text-right" : "text-left"}
                         >
-                          {msg.message}
+                          <div
+                            className={`inline-block px-3 py-2 rounded max-w-sm ${
+                              isOwnMessage
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-100"
+                            }`}
+                          >
+                            {msg.message}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div className="border-t pt-2 flex items-center gap-2">
