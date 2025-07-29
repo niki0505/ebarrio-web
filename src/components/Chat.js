@@ -10,7 +10,7 @@ const Chat = () => {
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState(null);
+  const [activeChatId, setActiveChatId] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -49,17 +49,6 @@ const Chat = () => {
           console.error("❌ Failed to fetch new chat:", err.message);
         }
       }
-
-      // Update active chat if it's open
-      setActiveChat((prev) => {
-        if (prev?._id.toString() === roomId.toString()) {
-          return {
-            ...prev,
-            messages: [...prev.messages, { from, to, message, timestamp }],
-          };
-        }
-        return prev;
-      });
     };
 
     socket.on("receive_message", handleReceive);
@@ -77,8 +66,10 @@ const Chat = () => {
   const toggleChat = () => setIsOpen(!isOpen);
 
   const handleSelectChat = (chat) => {
-    setActiveChat(chat);
+    setActiveChatId(chat._id);
   };
+
+  const activeChat = chats.find((chat) => chat._id === activeChatId);
 
   const handleSend = async () => {
     if (!message.trim() || !activeChat || !socket) return;
