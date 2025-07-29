@@ -14,53 +14,53 @@ const Chat = () => {
   const [activeChat, setActiveChat] = useState(null);
   const [message, setMessage] = useState("");
 
-  // useEffect(() => {
-  //   if (!socket) {
-  //     console.log("🚫 Socket not ready");
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!socket) {
+      console.log("🚫 Socket not ready");
+      return;
+    }
 
-  //   const handleReceive = ({ from, to, message, timestamp, roomId }) => {
-  //     console.log("📥 Message received:", { from, to, message, roomId });
+    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
+      console.log("📥 Message received:", { from, to, message, roomId });
 
-  //     setChats((prevChats) => {
-  //       let updated = prevChats.map((chat) => {
-  //         if (chat._id === roomId) {
-  //           return {
-  //             ...chat,
-  //             messages: [...chat.messages, { from, to, message, timestamp }],
-  //           };
-  //         }
-  //         return chat;
-  //       });
+      setChats((prevChats) => {
+        let updated = prevChats.map((chat) => {
+          if (chat._id === roomId) {
+            return {
+              ...chat,
+              messages: [...chat.messages, { from, to, message, timestamp }],
+            };
+          }
+          return chat;
+        });
 
-  //       const exists = updated.some((c) => c._id === roomId);
-  //       if (!exists) {
-  //         // Optionally fetch new chat details from backend
-  //         console.log("🆕 New chat room. Consider fetching chat:", roomId);
-  //       }
+        const exists = updated.some((c) => c._id === roomId);
+        if (!exists) {
+          // Optionally fetch new chat details from backend
+          console.log("🆕 New chat room. Consider fetching chat:", roomId);
+        }
 
-  //       return updated;
-  //     });
+        return updated;
+      });
 
-  //     // Append to currently open chat if it matches
-  //     setActiveChat((prev) => {
-  //       if (prev?._id === roomId) {
-  //         return {
-  //           ...prev,
-  //           messages: [...prev.messages, { from, to, message, timestamp }],
-  //         };
-  //       }
-  //       return prev;
-  //     });
-  //   };
+      // Append to currently open chat if it matches
+      setActiveChat((prev) => {
+        if (prev?._id === roomId) {
+          return {
+            ...prev,
+            messages: [...prev.messages, { from, to, message, timestamp }],
+          };
+        }
+        return prev;
+      });
+    };
 
-  //   socket.on("receive_message", handleReceive);
+    socket.on("receive_message", handleReceive);
 
-  //   return () => {
-  //     socket.off("receive_message", handleReceive);
-  //   };
-  // }, [socket]);
+    return () => {
+      socket.off("receive_message", handleReceive);
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
