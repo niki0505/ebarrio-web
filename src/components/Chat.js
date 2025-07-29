@@ -19,7 +19,7 @@ const Chat = () => {
 
     const handleConnect = () => {
       console.log("🔌 Socket connected. Registering...");
-      socket.emit("register", user.userID);
+      socket.emit("register", user.userID, user.role);
     };
 
     socket.on("connect", handleConnect);
