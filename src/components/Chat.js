@@ -16,6 +16,7 @@ const Chat = () => {
     if (!socket) return;
 
     socket.on("receive_message", ({ from, to, message, timestamp, roomId }) => {
+      console.log("📥 Message received:", { from, to, message, roomId });
       setChats((prevChats) => {
         const updated = prevChats.map((chat) => {
           if (chat._id === roomId) {
