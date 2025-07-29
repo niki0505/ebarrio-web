@@ -20,12 +20,16 @@ const Chat = () => {
       return;
     }
 
-    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
+    const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
+      let chatExists = false;
+
+      // First try to update the message in an existing chat
       setChats((prevChats) => {
-        let updated = prevChats.map((chat) => {
+        const updated = prevChats.map((chat) => {
           if (chat._id === roomId) {
+            chatExists = true;
             return {
               ...chat,
               messages: [...chat.messages, { from, to, message, timestamp }],
@@ -33,17 +37,21 @@ const Chat = () => {
           }
           return chat;
         });
-
-        const exists = updated.some((c) => c._id === roomId);
-        if (!exists) {
-          // Optionally fetch new chat details from backend
-          console.log("🆕 New chat room. Consider fetching chat:", roomId);
-        }
-
         return updated;
       });
 
-      // Append to currently open chat if it matches
+      // If the chat wasn't found, fetch it from the backend
+      if (!chatExists) {
+        console.log("🆕 New chat room. Fetching chat:", roomId);
+        try {
+          const { data } = await api.get(`/getchat/${roomId}`); // Adjust route as needed
+          setChats((prevChats) => [...prevChats, data]);
+        } catch (err) {
+          console.error("❌ Failed to fetch new chat:", err.message);
+        }
+      }
+
+      // Update active chat if it's currently open
       setActiveChat((prev) => {
         if (prev?._id === roomId) {
           return {
