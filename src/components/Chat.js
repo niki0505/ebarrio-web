@@ -83,7 +83,7 @@ const Chat = () => {
     if (!message.trim() || !activeChat || !socket) return;
 
     const newMessage = {
-      from: { _id: user.userID },
+      from: user.userID,
       to: activeChat.participants.find((p) => p._id !== user.userID)?._id,
       message,
       timestamp: new Date(),
