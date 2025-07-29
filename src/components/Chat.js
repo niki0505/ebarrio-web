@@ -13,8 +13,11 @@ const Chat = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!socket) return;
-
+    if (!socket) {
+      console.log("🚫 Socket not ready");
+      return;
+    }
+    console.log("✅ Socket connected", socket.id);
     socket.on("receive_message", ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
       setChats((prevChats) => {
