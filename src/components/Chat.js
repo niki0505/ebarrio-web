@@ -22,7 +22,9 @@ const Chat = () => {
     const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
-      const chatIndex = chats.findIndex((chat) => chat._id === roomId);
+      const chatIndex = chats.findIndex(
+        (chat) => chat._id.toString() === roomId.toString()
+      );
 
       if (chatIndex !== -1) {
         // Update existing chat
@@ -50,7 +52,7 @@ const Chat = () => {
 
       // Update active chat if it's open
       setActiveChat((prev) => {
-        if (prev?._id === roomId) {
+        if (prev?._id.toString() === roomId.toString()) {
           return {
             ...prev,
             messages: [...prev.messages, { from, to, message, timestamp }],
@@ -65,7 +67,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceive);
     };
-  }, [socket]);
+  }, [socket, chats]);
 
   useEffect(() => {
     if (!isOpen) return;
