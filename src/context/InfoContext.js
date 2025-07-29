@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { SocketContext } from "./SocketContext";
 // Create a context for socket connection
-export const SocketContext = createContext();
+// export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
