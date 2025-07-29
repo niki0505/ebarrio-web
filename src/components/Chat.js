@@ -192,14 +192,12 @@ const Chat = () => {
                       <div
                         key={i}
                         className={`${
-                          msg.from._id === user.userID
-                            ? "text-right"
-                            : "text-left"
+                          msg.from === user.userID ? "text-right" : "text-left"
                         }`}
                       >
                         <div
                           className={`inline-block px-3 py-2 rounded max-w-sm ${
-                            msg.from._id === user.userID
+                            msg.from === user.userID
                               ? "bg-blue-600 text-white"
                               : "bg-gray-100"
                           }`}
