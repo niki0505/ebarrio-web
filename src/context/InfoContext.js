@@ -4,13 +4,13 @@ import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { SocketContext } from "./SocketContext";
 // Create a context for socket connection
-// export const SocketContext = createContext();
+export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-// const socket = io("https://api.ebarrio.online/website", {
-//   withCredentials: true,
-// });
+const sockett = io("https://api.ebarrio.online/website", {
+  withCredentials: true,
+});
 
 export const InfoProvider = ({ children }) => {
   const { socket } = useContext(SocketContext);
@@ -301,7 +301,7 @@ export const InfoProvider = ({ children }) => {
   }, [socket, user?.userID]);
 
   useEffect(() => {
-    socket.on("dbChange", (updatedData) => {
+    sockett.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
         setResidents(updatedData.data);
       } else if (updatedData.type === "employees") {
@@ -325,12 +325,12 @@ export const InfoProvider = ({ children }) => {
     });
 
     return () => {
-      socket.off("dbChange");
+      sockett.off("dbChange");
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket }}>
+    <SocketContext.Provider value={{ sockett }}>
       <InfoContext.Provider
         value={{
           residents,
