@@ -36,14 +36,13 @@ const Chat = () => {
 
         const exists = updated.some((c) => c._id === roomId);
         if (!exists) {
-          // Optionally fetch new chat details from backend
+          // Optional: Fetch new chat from backend here
           console.log("🆕 New chat room. Consider fetching chat:", roomId);
         }
 
         return updated;
       });
 
-      // Append to currently open chat if it matches
       setActiveChat((prev) => {
         if (prev?._id === roomId) {
           return {
@@ -55,9 +54,22 @@ const Chat = () => {
       });
     };
 
-    socket.on("receive_message", handleReceive);
+    // Ensure handler is attached only after socket is connected
+    const registerListener = () => {
+      console.log("🔌 Attaching message listener...");
+      socket.on("receive_message", handleReceive);
+    };
+
+    socket.on("connect", registerListener);
+
+    // Attach immediately if already connected
+    if (socket.connected) {
+      registerListener();
+    }
 
     return () => {
+      console.log("🧹 Cleaning up message listener...");
+      socket.off("connect", registerListener);
       socket.off("receive_message", handleReceive);
     };
   }, [socket]);
