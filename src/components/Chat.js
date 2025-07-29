@@ -98,14 +98,6 @@ const Chat = () => {
       messages: [...prev.messages, newMessage],
     }));
 
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat._id === activeChat._id
-          ? { ...chat, messages: [...chat.messages, newMessage] }
-          : chat
-      )
-    );
-
     setMessage("");
   };
 
