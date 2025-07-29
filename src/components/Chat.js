@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { X, MessageCircle } from "lucide-react";
-import { InfoContext, SocketContext } from "../context/InfoContext";
+import { InfoContext } from "../context/InfoContext";
+import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
 
 const Chat = () => {
