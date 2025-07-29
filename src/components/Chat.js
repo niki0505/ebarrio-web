@@ -34,7 +34,9 @@ const Chat = () => {
           return chat;
         });
 
-        const exists = updated.some((c) => c._id === roomId);
+        const exists = updated.some(
+          (c) => c._id?.toString() === roomId?.toString()
+        );
         if (!exists) {
           // Optional: Fetch new chat from backend here
           console.log("🆕 New chat room. Consider fetching chat:", roomId);
