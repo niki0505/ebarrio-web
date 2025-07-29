@@ -3,6 +3,7 @@ import { X, MessageCircle } from "lucide-react";
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
+import api from "../api";
 
 const Chat = () => {
   const { fetchChats, chats, setChats } = useContext(InfoContext);
