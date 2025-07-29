@@ -85,12 +85,13 @@ const Chat = () => {
     // Emit the message to the server
     socket.emit("send_message", newMessage);
 
-    // Optimistically update UI
-    setActiveChat((prev) => ({
-      ...prev,
-      messages: [...prev.messages, newMessage],
-    }));
-
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat._id === activeChatId
+          ? { ...chat, messages: [...chat.messages, newMessage] }
+          : chat
+      )
+    );
     setMessage("");
   };
 
