@@ -15,11 +15,12 @@ const Chat = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!socket || !isOpen) {
+    if (!socket) {
+      console.log("🚫 Socket not ready");
       return;
     }
 
-    const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
+    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
       setChats((prevChats) => {
@@ -33,17 +34,16 @@ const Chat = () => {
           return chat;
         });
 
-        const exists = updated.some(
-          (c) => c._id?.toString() === roomId?.toString()
-        );
+        const exists = updated.some((c) => c._id === roomId);
         if (!exists) {
-          // Optional: Fetch new chat from backend here
+          // Optionally fetch new chat details from backend
           console.log("🆕 New chat room. Consider fetching chat:", roomId);
         }
 
         return updated;
       });
 
+      // Append to currently open chat if it matches
       setActiveChat((prev) => {
         if (prev?._id === roomId) {
           return {
@@ -55,25 +55,12 @@ const Chat = () => {
       });
     };
 
-    // Ensure handler is attached only after socket is connected
-    const registerListener = () => {
-      console.log("🔌 Attaching message listener...");
-      socket.on("receive_message", handleReceive);
-    };
-
-    socket.on("connect", registerListener);
-
-    // Attach immediately if already connected
-    if (socket.connected) {
-      registerListener();
-    }
+    socket.on("receive_message", handleReceive);
 
     return () => {
-      console.log("🧹 Cleaning up message listener...");
-      socket.off("connect", registerListener);
       socket.off("receive_message", handleReceive);
     };
-  }, [socket, isOpen]);
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
