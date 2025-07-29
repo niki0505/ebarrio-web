@@ -15,6 +15,27 @@ const Chat = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    if (!socket || !user?.userID) return;
+
+    const handleConnect = () => {
+      console.log("🔌 Socket connected. Registering...");
+      socket.emit("register", user.userID);
+    };
+
+    socket.on("connect", handleConnect);
+
+    // Also emit immediately if already connected
+    if (socket.connected) {
+      handleConnect();
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.emit("unregister", user.userID);
+    };
+  }, [socket, user?.userID]);
+
+  useEffect(() => {
     if (!socket) {
       console.log("🚫 Socket not ready");
       return;
