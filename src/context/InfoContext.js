@@ -2,18 +2,16 @@ import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
-import { SocketContext } from "./SocketContext";
 // Create a context for socket connection
-// export const SocketContext = createContext();
+export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const sockett = io("https://api.ebarrio.online/website", {
+const socket = io("https://api.ebarrio.online/website", {
   withCredentials: true,
 });
 
 export const InfoProvider = ({ children }) => {
-  const { socket } = useContext(SocketContext);
   const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -267,41 +265,7 @@ export const InfoProvider = ({ children }) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if (!socket || !user?.userID) return;
-
-    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
-      console.log("📥 Message received:", { from, to, message, roomId });
-
-      setChats((prevChats) => {
-        let updated = prevChats.map((chat) => {
-          if (chat._id === roomId) {
-            return {
-              ...chat,
-              messages: [...chat.messages, { from, to, message, timestamp }],
-            };
-          }
-          return chat;
-        });
-
-        const exists = updated.some((c) => c._id === roomId);
-        if (!exists) {
-          console.log("🆕 New chat room. Consider fetching chat:", roomId);
-          // Optionally fetch that chat from the server here
-        }
-
-        return updated;
-      });
-    };
-
-    socket.on("receive_message", handleReceive);
-
-    return () => {
-      socket.off("receive_message", handleReceive);
-    };
-  }, [socket, user?.userID]);
-
-  useEffect(() => {
-    sockett.on("dbChange", (updatedData) => {
+    socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
         setResidents(updatedData.data);
       } else if (updatedData.type === "employees") {
@@ -325,12 +289,12 @@ export const InfoProvider = ({ children }) => {
     });
 
     return () => {
-      sockett.off("dbChange");
+      socket.off("dbChange");
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={{ sockett }}>
+    <SocketContext.Provider value={{ socket }}>
       <InfoContext.Provider
         value={{
           residents,
