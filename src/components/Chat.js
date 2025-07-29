@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { X, MessageCircle } from "lucide-react";
-import { InfoContext } from "../context/InfoContext";
+import { InfoContext, SocketContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
 
 const Chat = () => {
   const { fetchChats, chats, sendMessage } = useContext(InfoContext);
+  const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeChat, setActiveChat] = useState(null);
@@ -13,8 +14,22 @@ const Chat = () => {
   const toggleChat = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    fetchChats();
-  }, []);
+    socket.on("receive_message", ({ from, to, message, timestamp }) => {
+      console.log("📥 Real-time message:", message);
+
+      // If activeChat is open and includes the sender/receiver, update it
+      if (
+        activeChat &&
+        activeChat.participants.some((p) => p._id === from || p._id === to)
+      ) {
+        fetchChats(); // Optionally enhance this to append the new message without full fetch
+      }
+    });
+
+    return () => {
+      socket.off("receive_message");
+    };
+  }, [activeChat]);
 
   const handleSelectChat = (chat) => {
     setActiveChat(chat);
