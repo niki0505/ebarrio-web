@@ -4,7 +4,8 @@ import { InfoContext, SocketContext } from "../context/InfoContext";
 import { AuthContext } from "../context/AuthContext";
 
 const Chat = () => {
-  const { fetchChats, chats, sendMessage } = useContext(InfoContext);
+  // const { fetchChats, chats } = useContext(InfoContext);
+  const [chats, setChats] = useState([]);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
@@ -14,20 +15,45 @@ const Chat = () => {
   const toggleChat = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    socket.on("receive_message", ({ from, to, message, timestamp }) => {
-      console.log("📥 Real-time message:", message);
+    const handleReceiveMessage = ({ from, to, message, timestamp }) => {
+      console.log("📥 Real-time message received:", message);
 
-      // If activeChat is open and includes the sender/receiver, update it
+      // Check if this message belongs to the active chat
       if (
         activeChat &&
-        activeChat.participants.some((p) => p._id === from || p._id === to)
+        activeChat.participants.some((p) => p === from || p === to)
       ) {
-        fetchChats(); // Optionally enhance this to append the new message without full fetch
+        const newMsg = {
+          from,
+          to,
+          message,
+          timestamp,
+          _id: Date.now().toString(), // Temp ID, or backend can send it
+        };
+
+        setActiveChat((prev) => ({
+          ...prev,
+          messages: [...prev.messages, newMsg],
+        }));
       }
-    });
+
+      // Optional: update preview in chat list
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat._id === activeChat?._id
+            ? {
+                ...chat,
+                messages: [...chat.messages, { from, to, message, timestamp }],
+              }
+            : chat
+        )
+      );
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
-      socket.off("receive_message");
+      socket.off("receive_message", handleReceiveMessage);
     };
   }, [activeChat]);
 
@@ -36,11 +62,11 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (message.trim() && activeChat) {
-      await sendMessage(activeChat._id, message);
-      setMessage("");
-      fetchChats(); // Refresh after sending
-    }
+    // if (message.trim() && activeChat) {
+    //   await sendMessage(activeChat._id, message);
+    //   setMessage("");
+    //   fetchChats(); // Refresh after sending
+    // }
   };
 
   console.log(chats);
