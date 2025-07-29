@@ -20,7 +20,7 @@ const Chat = () => {
       return;
     }
 
-    const handleReceive = ({ from, to, message, timestamp, roomId }) => {
+    const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
       setChats((prevChats) => {
