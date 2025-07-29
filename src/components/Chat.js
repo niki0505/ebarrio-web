@@ -23,35 +23,33 @@ const Chat = () => {
     const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
 
-      let chatExists = false;
+      const chatIndex = chats.findIndex((chat) => chat._id === roomId);
 
-      // First try to update the message in an existing chat
-      setChats((prevChats) => {
-        const updated = prevChats.map((chat) => {
-          if (chat._id === roomId) {
-            chatExists = true;
-            return {
-              ...chat,
-              messages: [...chat.messages, { from, to, message, timestamp }],
-            };
-          }
-          return chat;
+      if (chatIndex !== -1) {
+        // Update existing chat
+        setChats((prevChats) => {
+          const updatedChats = [...prevChats];
+          updatedChats[chatIndex] = {
+            ...updatedChats[chatIndex],
+            messages: [
+              ...updatedChats[chatIndex].messages,
+              { from, to, message, timestamp },
+            ],
+          };
+          return updatedChats;
         });
-        return updated;
-      });
-
-      // If the chat wasn't found, fetch it from the backend
-      if (!chatExists) {
+      } else {
+        // Fetch new chat from backend
         console.log("🆕 New chat room. Fetching chat:", roomId);
         try {
-          const { data } = await api.get(`/getchat/${roomId}`); // Adjust route as needed
+          const { data } = await api.get(`/getchat/${roomId}`);
           setChats((prevChats) => [...prevChats, data]);
         } catch (err) {
           console.error("❌ Failed to fetch new chat:", err.message);
         }
       }
 
-      // Update active chat if it's currently open
+      // Update active chat if it's open
       setActiveChat((prev) => {
         if (prev?._id === roomId) {
           return {
@@ -68,7 +66,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceive);
     };
-  }, [socket]);
+  }, [socket, chats]);
 
   useEffect(() => {
     if (!isOpen) return;
