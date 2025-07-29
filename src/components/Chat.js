@@ -50,7 +50,7 @@ const Chat = () => {
     });
 
     return () => socket.off("receive_message");
-  }, [socket]);
+  }, [socket, activeChat]);
 
   useEffect(() => {
     if (!isOpen) return;
