@@ -15,8 +15,7 @@ const Chat = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (!socket) {
-      console.log("🚫 Socket not ready");
+    if (!socket || !isOpen) {
       return;
     }
 
@@ -74,7 +73,7 @@ const Chat = () => {
       socket.off("connect", registerListener);
       socket.off("receive_message", handleReceive);
     };
-  }, [socket]);
+  }, [socket, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
