@@ -80,11 +80,34 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    // if (message.trim() && activeChat) {
-    //   await sendMessage(activeChat._id, message);
-    //   setMessage("");
-    //   fetchChats(); // Refresh after sending
-    // }
+    if (!message.trim() || !activeChat || !socket) return;
+
+    const newMessage = {
+      from: { _id: user.userID },
+      to: activeChat.participants.find((p) => p._id !== user.userID)?._id,
+      message,
+      timestamp: new Date(),
+      roomId: activeChat._id,
+    };
+
+    // Emit the message to the server
+    socket.emit("send_message", newMessage);
+
+    // Optimistically update UI
+    setActiveChat((prev) => ({
+      ...prev,
+      messages: [...prev.messages, newMessage],
+    }));
+
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat._id === activeChat._id
+          ? { ...chat, messages: [...chat.messages, newMessage] }
+          : chat
+      )
+    );
+
+    setMessage("");
   };
 
   console.log(chats);
