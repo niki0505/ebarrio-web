@@ -36,15 +36,10 @@ export const SocketProvider = ({ children }) => {
 
     const newSocket = io("https://api.ebarrio.online", {
       withCredentials: true,
-      transports: ["polling", "websocket"],
-      forceNew: true,
-      autoConnect: true,
     });
 
     newSocket.on("connect", () => {
-      console.log("✅ WebSocket connected:", newSocket.id);
       newSocket.emit("register", user.userID, user.role);
-
       if (user?.role === "Secretary") {
         newSocket.emit("join_announcements");
         newSocket.emit("join_certificates");
@@ -61,78 +56,80 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on("announcement", (announcement) => {
       toast.info(
-        <div
-          onClick={() => navigation("/announcements")}
-          style={{ cursor: "pointer" }}
-        >
-          <strong>{announcement.title}</strong>
-          <div>{truncateNotifMessage(announcement.message)}</div>
-        </div>
+        <>
+          <div
+            onClick={() => navigation("/announcements")}
+            style={{ cursor: "pointer" }}
+          >
+            <strong>{announcement.title}</strong>
+            <div>{truncateNotifMessage(announcement.message)}</div>
+          </div>
+        </>
       );
     });
 
-    newSocket.on("notificationUpdate", setNotifications);
+    newSocket.on("notificationUpdate", (updatedNotifications) => {
+      setNotifications(updatedNotifications);
+    });
 
     newSocket.on("certificates", (certificate) => {
       toast.info(
-        <div
-          onClick={() =>
-            navigation("/document-requests", {
-              state:
-                certificate.cancelled !== undefined
-                  ? { cancelled: certificate.cancelled }
-                  : undefined,
-            })
-          }
-          style={{ cursor: "pointer" }}
-        >
-          <strong>{certificate.title}</strong>
-          <div>{certificate.message}</div>
-        </div>
+        <>
+          <div
+            onClick={() =>
+              navigation("/document-requests", {
+                state:
+                  certificate.cancelled !== undefined
+                    ? { cancelled: certificate.cancelled }
+                    : undefined,
+              })
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <strong>{certificate.title}</strong>
+            <div>{certificate.message}</div>
+          </div>
+        </>
       );
     });
 
     newSocket.on("blotterreports", (blotter) => {
       toast.info(
-        <div
-          onClick={() => navigation("/blotter-reports")}
-          style={{ cursor: "pointer" }}
-        >
-          <strong>📄 {blotter.title}</strong>
-          <div>{blotter.message}</div>
-        </div>
+        <>
+          <div
+            onClick={() => navigation("/blotter-reports")}
+            style={{ cursor: "pointer" }}
+          >
+            <strong>📄 {blotter.title}</strong>
+            <div>{blotter.message}</div>
+          </div>
+        </>
       );
     });
 
     newSocket.on("courtreservations", (court) => {
       toast.info(
-        <div
-          onClick={() =>
-            navigation("/court-reservations", {
-              state:
-                court.cancelled !== undefined
-                  ? { cancelled: court.cancelled }
-                  : undefined,
-            })
-          }
-          style={{ cursor: "pointer" }}
-        >
-          <strong>{court.title}</strong>
-          <div>{court.message}</div>
-        </div>
+        <>
+          <div
+            onClick={() =>
+              navigation("/court-reservations", {
+                state:
+                  court.cancelled !== undefined
+                    ? { cancelled: court.cancelled }
+                    : undefined,
+              })
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <strong>{court.title}</strong>
+            <div>{court.message}</div>
+          </div>
+        </>
       );
     });
 
     setSocket(newSocket);
-
-    return () => {
-      if (newSocket.connected) {
-        newSocket.emit("unregister", user.userID);
-      }
-      newSocket.disconnect();
-      console.log("🔌 WebSocket disconnected");
-    };
-  }, [isAuthenticated, user?.userID, user?.role]);
+  }, [user?.userID, user?.role]);
 
   useEffect(() => {
     if (!isAuthenticated && socket && user?.userID) {
