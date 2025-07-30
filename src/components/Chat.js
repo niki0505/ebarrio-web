@@ -84,6 +84,20 @@ const Chat = () => {
 
     // Emit the message to the server
     socket.emit("send_message", newMessage);
+
+    setChats((prevChats) => {
+      const updatedChats = [...prevChats];
+      const chatIndex = updatedChats.findIndex(
+        (chat) => chat._id === activeChat._id
+      );
+      if (chatIndex !== -1) {
+        updatedChats[chatIndex] = {
+          ...updatedChats[chatIndex],
+          messages: [...updatedChats[chatIndex].messages, newMessage],
+        };
+      }
+      return updatedChats;
+    });
     setMessage("");
   };
 
