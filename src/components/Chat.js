@@ -94,6 +94,7 @@ const Chat = () => {
         to: activeChat.participants.find((p) => p._id !== user.userID)?._id,
         message: "This chat has ended.",
         timestamp: new Date(),
+        roomId: activeChat._id,
       };
       socket.emit("send_message", systemMessage);
       await api.put(`/endchat/${chatID}`);
