@@ -104,7 +104,9 @@ const Chat = () => {
     }
   };
 
-  console.log(activeChat);
+  const isChatEnded =
+    activeChat?.messages?.[activeChat.messages.length - 1]?.message ===
+    "This chat has ended.";
 
   return (
     <>
@@ -189,6 +191,19 @@ const Chat = () => {
                       const isOwnMessage =
                         msg.from === user.userID ||
                         msg.from?._id === user.userID;
+                      const isSystemMessage =
+                        msg.message === "This chat has ended.";
+
+                      if (isSystemMessage) {
+                        return (
+                          <div
+                            key={i}
+                            className="text-center text-gray-500 text-sm italic"
+                          >
+                            {msg.message}
+                          </div>
+                        );
+                      }
                       return (
                         <div
                           key={i}
@@ -208,22 +223,24 @@ const Chat = () => {
                     })}
                   </div>
 
-                  <div className="border-t pt-2 flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Type a message..."
-                      className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
-                      onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    />
-                    <button
-                      onClick={handleSend}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                      Send
-                    </button>
-                  </div>
+                  {!isChatEnded && (
+                    <div className="border-t pt-2 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Type a message..."
+                        className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
+                        onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                      />
+                      <button
+                        onClick={handleSend}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center text-gray-400">
