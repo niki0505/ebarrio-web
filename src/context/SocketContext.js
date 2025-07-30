@@ -37,6 +37,7 @@ export const SocketProvider = ({ children }) => {
     const newSocket = io("https://api.ebarrio.online", {
       withCredentials: true,
       transports: ["websocket"],
+      forceNew: true,
     });
 
     newSocket.on("connect", () => {
