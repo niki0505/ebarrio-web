@@ -87,6 +87,15 @@ const Chat = () => {
     setMessage("");
   };
 
+  const endChat = async (chatID) => {
+    try {
+      await api.put(`/endchat/${chatID}`);
+      alert("Chat has been successfully ended.");
+    } catch (error) {
+      console.log("Error ending the chat");
+    }
+  };
+
   console.log(activeChat);
 
   return (
@@ -162,6 +171,9 @@ const Chat = () => {
                         )
                         .join(", ")}
                     </h2>
+                    <label onClick={() => endChat(activeChat._id)}>
+                      End the chat
+                    </label>
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
