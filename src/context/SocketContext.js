@@ -34,7 +34,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!isAuthenticated || !user?.userID) return;
 
-    const newSocket = io("https://api.ebarrio.online", {
+    const newSocket = io("wss://api.ebarrio.online", {
       transports: ["websocket"],
       upgrade: false,
       withCredentials: true,
