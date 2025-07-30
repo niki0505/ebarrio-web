@@ -25,6 +25,8 @@ export const InfoProvider = ({ children }) => {
   const [household, setHousehold] = useState([]);
   const [FAQslist, setFAQslist] = useState([]);
   const [chats, setChats] = useState([]);
+  const [roomId, setRoomId] = useState(null);
+  const [assignedAdmin, setAssignedAdmin] = useState(null);
   const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
@@ -312,6 +314,10 @@ export const InfoProvider = ({ children }) => {
           FAQslist,
           pendingReservationCount,
           chats,
+          roomId,
+          setRoomId,
+          assignedAdmin,
+          setAssignedAdmin,
           setChats,
           setAnnouncementForm,
           fetchActivityLogs,
