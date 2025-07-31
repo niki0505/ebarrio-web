@@ -21,6 +21,9 @@ const Chat = () => {
 
     const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
+      if (user.userID === from) {
+        return;
+      }
 
       const chatIndex = chats.findIndex(
         (chat) => chat._id.toString() === roomId.toString()
