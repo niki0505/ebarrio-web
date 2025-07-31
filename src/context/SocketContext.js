@@ -131,7 +131,11 @@ export const SocketProvider = ({ children }) => {
     });
 
     setSocket(newSocket);
-  }, [user?.userID, user?.role]);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [user?.userID, user?.role, isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated && socket && user?.userID) {
