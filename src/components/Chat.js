@@ -21,12 +21,17 @@ const Chat = () => {
 
     const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
-      if (user.userID === from) return;
+      if (user.userID === from && message !== "This chat has ended.") {
+        return;
+      }
 
-      setChats((prevChats) => {
-        const chatIndex = prevChats.findIndex((chat) => chat._id === roomId);
+      const chatIndex = chats.findIndex(
+        (chat) => chat._id.toString() === roomId.toString()
+      );
 
-        if (chatIndex !== -1) {
+      if (chatIndex !== -1) {
+        // Update existing chat
+        setChats((prevChats) => {
           const updatedChats = [...prevChats];
           updatedChats[chatIndex] = {
             ...updatedChats[chatIndex],
@@ -35,18 +40,18 @@ const Chat = () => {
               { from, to, message, timestamp },
             ],
           };
-
-          // If this is the active chat, update its messages too
-          if (activeChatId === roomId) {
-            setActiveChatId(roomId); // Trigger re-render
-          }
-
           return updatedChats;
-        } else {
-          console.log("🆕 New chat room. Fetching chat:", roomId);
-          return prevChats; // Don't add a new chat here
+        });
+      } else {
+        // Fetch new chat from backend
+        console.log("🆕 New chat room. Fetching chat:", roomId);
+        try {
+          const { data } = await api.get(`/getchat/${roomId}`);
+          setChats((prevChats) => [...prevChats, data]);
+        } catch (err) {
+          console.error("❌ Failed to fetch new chat:", err.message);
         }
-      });
+      }
     };
 
     socket.on("receive_message", handleReceive);
