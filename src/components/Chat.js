@@ -261,7 +261,7 @@ const Chat = () => {
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
-                    {fullChatHistory.messages.map((msg, i) => {
+                    {fullChatHistory.map((msg, i) => {
                       const isOwnMessage =
                         msg.from === user.userID ||
                         msg.from?._id === user.userID;
