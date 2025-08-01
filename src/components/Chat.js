@@ -303,6 +303,16 @@ const Chat = () => {
                           >
                             {msg.message}
                           </div>
+                          <span className="text-xs text-gray-500 mt-1">
+                            {new Date(msg.timestamp).toLocaleTimeString(
+                              undefined,
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )}
+                          </span>
                         </div>
                       );
                     })}
