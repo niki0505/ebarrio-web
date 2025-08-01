@@ -147,12 +147,33 @@ const Chat = () => {
             {/* Left Column - Chat List */}
             <div className="w-1/3 border-r overflow-y-auto">
               <h3 className="text-lg font-semibold mb-2 px-2">Conversations</h3>
-              {chats.map((conv) => {
+              {[
+                ...chats
+                  .reduce((map, chat) => {
+                    const other = chat.participants.find(
+                      (p) => p._id !== user.userID
+                    );
+                    const residentId = other?.resID?._id;
+                    if (!residentId) return map;
+
+                    // Only store the latest chat per resident
+                    if (
+                      !map.has(residentId) ||
+                      new Date(chat.updatedAt) >
+                        new Date(map.get(residentId).updatedAt)
+                    ) {
+                      map.set(residentId, chat);
+                    }
+                    return map;
+                  }, new Map())
+                  .values(),
+              ].map((conv) => {
                 const otherParticipant = conv.participants.find(
                   (p) => p._id !== user.userID
                 );
                 const lastMsg = conv.messages.at(-1);
                 const picture = otherParticipant?.resID?.picture;
+
                 return (
                   <div
                     key={conv._id}
