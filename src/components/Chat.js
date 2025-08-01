@@ -89,7 +89,7 @@ const Chat = () => {
       const hasUser = c.participants.some((p) => p._id === user.userID);
       const other = c.participants.find((p) => p._id !== user.userID);
       return (
-        c.status === "active" && hasUser && other?.resID?._id === residentId
+        c.status === "Active" && hasUser && other?.resID?._id === residentId
       );
     });
 
