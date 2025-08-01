@@ -13,6 +13,7 @@ const Chat = () => {
   const [activeChatId, setActiveChatId] = useState(null);
   const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
+  const [isChatEnded, setIsChatEnded] = useState(false);
 
   useEffect(() => {
     if (!socket) {
@@ -157,9 +158,10 @@ const Chat = () => {
     }
   };
 
-  const isChatEnded =
-    activeChat?.messages?.[activeChat.messages.length - 1]?.message ===
-    "This chat has ended.";
+  useEffect(() => {
+    const last = fullChatHistory.at(-1);
+    setIsChatEnded(last?.message === "This chat has ended.");
+  }, [fullChatHistory]);
 
   return (
     <>
