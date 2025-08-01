@@ -11,6 +11,7 @@ const Chat = () => {
   const { user } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
+  const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -69,9 +70,44 @@ const Chat = () => {
   const toggleChat = () => setIsOpen(!isOpen);
 
   const handleSelectChat = (chat) => {
-    setActiveChatId(chat._id);
+    const isUserParticipant = chat.participants.some(
+      (p) => p._id === user.userID
+    );
+    if (!isUserParticipant) return; // 🔒 User is not part of this chat
+
+    const otherParticipant = chat.participants.find(
+      (p) => p._id !== user.userID
+    );
+    const residentId = otherParticipant?.resID?._id;
+    if (!residentId) return;
+
+    // ✅ Save resident ID so we can show their full chat history
+    setSelectedResidentId(residentId);
+
+    // ✅ Set the active chat ID to the chat with status "active"
+    const active = chats.find((c) => {
+      const hasUser = c.participants.some((p) => p._id === user.userID);
+      const other = c.participants.find((p) => p._id !== user.userID);
+      return (
+        c.status === "active" && hasUser && other?.resID?._id === residentId
+      );
+    });
+
+    if (active) {
+      setActiveChatId(active._id);
+    } else {
+      setActiveChatId(null); // or show warning
+    }
   };
 
+  const fullChatHistory = chats
+    .filter(
+      (c) =>
+        c.participants.some((p) => p._id === user.userID) &&
+        c.participants.some((p) => p.resID?._id === selectedResidentId)
+    )
+    .flatMap((c) => c.messages)
+    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
   const handleSend = async () => {
@@ -225,7 +261,7 @@ const Chat = () => {
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
-                    {activeChat.messages.map((msg, i) => {
+                    {fullChatHistory.messages.map((msg, i) => {
                       const isOwnMessage =
                         msg.from === user.userID ||
                         msg.from?._id === user.userID;
