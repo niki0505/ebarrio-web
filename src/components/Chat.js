@@ -240,24 +240,35 @@ const Chat = () => {
               {selectedResidentId ? (
                 <>
                   <div className="border-b py-2">
-                    <img
-                      src={activeChat.participants
-                        .filter((p) => p._id !== user.userID)
-                        .map((p) => `${p.resID?.picture} ${p.resID?.lastname}`)}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover border"
-                    />
-                    <h2 className="text-lg font-semibold">
-                      {activeChat.participants
-                        .filter((p) => p._id !== user.userID)
-                        .map(
-                          (p) => `${p.resID?.firstname} ${p.resID?.lastname}`
-                        )
-                        .join(", ")}
-                    </h2>
-                    <label onClick={() => endChat(activeChat._id)}>
-                      End the chat
-                    </label>
+                    {activeChat ? (
+                      <>
+                        <img
+                          src={activeChat.participants
+                            .filter((p) => p._id !== user.userID)
+                            .map(
+                              (p) => `${p.resID?.picture} ${p.resID?.lastname}`
+                            )}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full object-cover border"
+                        />
+                        <h2 className="text-lg font-semibold">
+                          {activeChat.participants
+                            .filter((p) => p._id !== user.userID)
+                            .map(
+                              (p) =>
+                                `${p.resID?.firstname} ${p.resID?.lastname}`
+                            )
+                            .join(", ")}
+                        </h2>
+                        <label onClick={() => endChat(activeChat._id)}>
+                          End the chat
+                        </label>
+                      </>
+                    ) : (
+                      <h2 className="text-lg font-semibold text-gray-500">
+                        No active chat with this resident
+                      </h2>
+                    )}
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
