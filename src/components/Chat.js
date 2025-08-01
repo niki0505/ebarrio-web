@@ -237,7 +237,7 @@ const Chat = () => {
 
             {/* Right Column - Chat Messages */}
             <div className="w-2/3 flex flex-col justify-between px-4">
-              {activeChat ? (
+              {selectedResidentId ? (
                 <>
                   <div className="border-b py-2">
                     <img
