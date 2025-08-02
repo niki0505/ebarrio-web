@@ -163,6 +163,8 @@ const Chat = () => {
     setIsChatEnded(last?.message === "This chat has ended.");
   }, [fullChatHistory]);
 
+  console.log(fullChatHistory);
+
   return (
     <>
       <button
