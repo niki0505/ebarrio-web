@@ -285,7 +285,7 @@ const Chat = () => {
                         (p) => p._id === msg.from || p._id === msg.from?._id
                       );
 
-                      const senderRole = sender?.empID?.role;
+                      const senderRole = sender?.empID?.position;
                       const isStaff =
                         senderRole === "Secretary" || senderRole === "Clerk";
 
