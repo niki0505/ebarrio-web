@@ -280,13 +280,17 @@ const Chat = () => {
                     {fullChatHistory.map((msg, i) => {
                       const isSystemMessage =
                         msg.message === "This chat has ended.";
+
                       const sender = activeChat?.participants?.find(
                         (p) => p._id === msg.from || p._id === msg.from?._id
                       );
+
                       const senderRole = sender?.empID?.role;
                       const isStaff =
                         senderRole === "Secretary" || senderRole === "Clerk";
-                      const isOwnMessage = isStaff;
+
+                      // Align right if Secretary/Clerk, else align left
+                      const alignRight = isStaff;
 
                       if (isSystemMessage) {
                         return (
@@ -303,11 +307,11 @@ const Chat = () => {
                         <div
                           key={i}
                           className={`mb-2 ${
-                            isOwnMessage ? "text-right" : "text-left"
+                            alignRight ? "text-right" : "text-left"
                           }`}
                         >
                           {/* Label only for Secretary/Clerk */}
-                          {isOwnMessage && (
+                          {isStaff && (
                             <div className="text-sm font-semibold text-gray-500 mb-1">
                               {senderRole}
                             </div>
@@ -315,7 +319,7 @@ const Chat = () => {
 
                           <div
                             className={`inline-block px-3 py-2 rounded max-w-sm ${
-                              isOwnMessage
+                              alignRight
                                 ? "bg-blue-600 text-white"
                                 : "bg-gray-100"
                             }`}
