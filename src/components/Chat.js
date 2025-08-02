@@ -301,7 +301,7 @@ const Chat = () => {
 
                       const isDefaultMessage =
                         msg.message ===
-                        "Your chat has been transferred to an available admin. How can we help you today?";
+                        "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
                       if (isDefaultMessage) return null;
 
                       if (isSystemMessage) {
