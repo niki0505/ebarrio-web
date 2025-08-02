@@ -275,27 +275,41 @@ const Chat = () => {
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
                     {fullChatHistory.map((msg, i) => {
-                      const isOwnMessage =
-                        msg.from === user.userID ||
-                        msg.from?._id === user.userID;
                       const isSystemMessage =
                         msg.message === "This chat has ended.";
+                      const sender = activeChat?.participants?.find(
+                        (p) => p._id === msg.from || p._id === msg.from?._id
+                      );
+                      const senderRole = sender?.empID?.role;
+                      const isStaff =
+                        senderRole === "Secretary" || senderRole === "Clerk";
+                      const isOwnMessage = isStaff;
 
                       if (isSystemMessage) {
                         return (
                           <div
                             key={i}
-                            className="text-center text-gray-500 text-sm italic"
+                            className="text-center text-gray-500 text-sm italic my-2"
                           >
                             {msg.message}
                           </div>
                         );
                       }
+
                       return (
                         <div
                           key={i}
-                          className={isOwnMessage ? "text-right" : "text-left"}
+                          className={`mb-2 ${
+                            isOwnMessage ? "text-right" : "text-left"
+                          }`}
                         >
+                          {/* Label only for Secretary/Clerk */}
+                          {isOwnMessage && (
+                            <div className="text-sm font-semibold text-gray-500 mb-1">
+                              {senderRole}
+                            </div>
+                          )}
+
                           <div
                             className={`inline-block px-3 py-2 rounded max-w-sm ${
                               isOwnMessage
@@ -305,7 +319,8 @@ const Chat = () => {
                           >
                             {msg.message}
                           </div>
-                          <span className="text-xs text-gray-500 mt-1">
+
+                          <div className="text-xs text-gray-500 mt-1">
                             {new Date(msg.timestamp).toLocaleTimeString(
                               undefined,
                               {
@@ -314,7 +329,7 @@ const Chat = () => {
                                 hour12: true,
                               }
                             )}
-                          </span>
+                          </div>
                         </div>
                       );
                     })}
