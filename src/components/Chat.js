@@ -299,6 +299,11 @@ const Chat = () => {
 
                       const senderLabel = isOwnMessage ? "You" : senderPosition;
 
+                      const isDefaultMessage =
+                        msg.message ===
+                        "Your chat has been transferred to an available admin. How can we help you today?";
+                      if (isDefaultMessage) return null;
+
                       if (isSystemMessage) {
                         return (
                           <div
