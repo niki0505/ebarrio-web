@@ -164,6 +164,7 @@ const Chat = () => {
   }, [fullChatHistory]);
 
   console.log(fullChatHistory);
+  console.log(activeChat);
 
   return (
     <>
