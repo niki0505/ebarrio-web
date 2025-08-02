@@ -247,25 +247,28 @@ const Chat = () => {
                   <div className="border-b py-2">
                     {activeChat ? (
                       <>
-                        <img
-                          src={activeChat.participants
-                            .filter((p) => p._id !== user.userID)
-                            .map(
-                              (p) => `${p.resID?.picture} ${p.resID?.lastname}`
-                            )}
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full object-cover border"
-                        />
-                        <h2 className="text-lg font-semibold">
-                          {activeChat.participants
-                            .filter((p) => p._id !== user.userID)
-                            .map(
-                              (p) =>
-                                `${p.resID?.firstname} ${p.resID?.lastname}`
-                            )
-                            .join(", ")}
-                        </h2>
-                        <label onClick={() => endChat(activeChat._id)}>
+                        {activeChat.participants
+                          .filter((p) => p.resID) // show only resident
+                          .map((resident, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center space-x-2"
+                            >
+                              <img
+                                src={resident.resID.picture}
+                                alt={`${resident.resID.lastname}'s profile`}
+                                className="w-10 h-10 rounded-full object-cover border"
+                              />
+                              <h2 className="text-lg font-semibold">
+                                {resident.resID.firstname}{" "}
+                                {resident.resID.lastname}
+                              </h2>
+                            </div>
+                          ))}
+                        <label
+                          className="text-sm text-red-600 cursor-pointer ml-2"
+                          onClick={() => endChat(activeChat._id)}
+                        >
                           End the chat
                         </label>
                       </>
@@ -285,12 +288,16 @@ const Chat = () => {
                         (p) => p._id === msg.from || p._id === msg.from?._id
                       );
 
-                      const senderRole = sender?.empID?.position;
+                      const isOwnMessage =
+                        user.userID === msg.from ||
+                        user.userID === msg.from?._id;
+                      const senderPosition = sender?.empID?.position;
                       const isStaff =
-                        senderRole === "Secretary" || senderRole === "Clerk";
-
-                      // Align right if Secretary/Clerk, else align left
+                        senderPosition === "Secretary" ||
+                        senderPosition === "Clerk";
                       const alignRight = isStaff;
+
+                      const senderLabel = isOwnMessage ? "You" : senderPosition;
 
                       if (isSystemMessage) {
                         return (
@@ -310,10 +317,9 @@ const Chat = () => {
                             alignRight ? "text-right" : "text-left"
                           }`}
                         >
-                          {/* Label only for Secretary/Clerk */}
                           {isStaff && (
                             <div className="text-sm font-semibold text-gray-500 mb-1">
-                              {senderRole}
+                              {senderLabel}
                             </div>
                           )}
 
