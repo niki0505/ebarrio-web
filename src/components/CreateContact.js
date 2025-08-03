@@ -1,32 +1,55 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateContact({ onClose }) {
   const confirm = useConfirm();
   const [name, setName] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
+  const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
+  const [mobileNumError, setMobileNumError] = useState("");
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Are you sure you want to create a new contact?",
-      "confirm"
-    );
-    if (!isConfirmed) {
+    let hasErrors = false;
+    if (contactNumber === "+63") {
+      setMobileNumError("Invalid mobile number");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
-    onClose();
     try {
-      const response = await api.post("/createemergencyhotlines", {
+      const isConfirmed = await confirm(
+        "Are you sure you want to create a new contact?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      let formattedNumber = contactNumber;
+      formattedNumber = "0" + contactNumber.slice(3);
+      await api.post("/createemergencyhotlines", {
         name,
-        contactNumber,
+        contactNumber: formattedNumber,
       });
       alert("Emergency contact successfully created!");
+      onClose();
     } catch (error) {
-      console.log("Error creating emergency contact", error);
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {
@@ -34,19 +57,64 @@ function CreateContact({ onClose }) {
     onClose();
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  const lettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setName(capitalized);
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setContactNumber(value);
+
+    if (name === "contactnumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number");
+      }
+    }
+  };
+
   return (
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[15rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Add New Contact</div>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content h-[16rem] w-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Contact</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -66,8 +134,9 @@ function CreateContact({ onClose }) {
                     id="name"
                     name="name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={lettersAndSpaceOnly}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="employee-form-group">
@@ -79,9 +148,13 @@ function CreateContact({ onClose }) {
                     id="contactnumber"
                     name="contactnumber"
                     value={contactNumber}
-                    onChange={(e) => setContactNumber(e.target.value)}
+                    onChange={(e) => mobileInputChange(e)}
                     className="form-input h-[30px]"
+                    required
                   />
+                  {mobileNumError ? (
+                    <label className="error-msg">{mobileNumError}</label>
+                  ) : null}
                 </div>
                 <div className="flex justify-center">
                   <button

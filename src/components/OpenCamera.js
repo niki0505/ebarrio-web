@@ -1,6 +1,8 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
 import { removeBackground } from "@imgly/background-removal";
+
+//STYLES
 import "../Stylesheets/OpenCamera.css";
 
 import { IoClose } from "react-icons/io5";
@@ -62,99 +64,105 @@ function OpenCamera({ onDone, onClose }) {
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
           <div className="modal-content h-[30rem] w-[45rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Picture</div>
-              <button className="modal-btn-close">
-                <IoClose className="modal-btn-close-icon" onClick={onClose} />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Picture</h1>
+                  <IoClose
+                    onClick={onClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <div className="modal-form-container flex flex-col items-center justify-center">
-              {hasCamera ? (
-                imageSrc ? (
-                  <img className="modal-image" src={imageSrc} />
-                ) : (
-                  !loading && (
-                    <Webcam
-                      className="modal-image"
-                      ref={webRef}
-                      screenshotFormat="image/png"
-                    />
-                  )
-                )
-              ) : (
-                <p>
-                  No camera detected. Please ensure it's connected or installed
-                  properly.
-                </p>
-              )}
+              <div classname="modal-form">
+                <div>
+                  {hasCamera ? (
+                    imageSrc ? (
+                      <img className="modal-image" src={imageSrc} />
+                    ) : (
+                      !loading && (
+                        <Webcam
+                          className="modal-image"
+                          ref={webRef}
+                          screenshotFormat="image/png/jpg"
+                        />
+                      )
+                    )
+                  ) : (
+                    <p className="mb-5">
+                      No camera detected. Please ensure it's connected or
+                      installed properly.
+                    </p>
+                  )}
+                </div>
 
-              {imageSrc && !loading && (
-                <p className="success-message">
-                  The picture has been captured successfully!
-                </p>
-              )}
-
-              <div className="flex flex-row gap-5">
-                {imageSrc && !loading ? (
-                  <button
-                    className="actions-btn bg-btn-color-blue"
-                    onClick={openCamera}
-                  >
-                    Open Camera
-                  </button>
-                ) : loading ? (
-                  <button
-                    type="button"
-                    className="btn-disabled actions-btn bg-btn-color-blue"
-                    disabled
-                  >
-                    <svg
-                      className="mr-3 w-5 h-5 animate-spin text-white"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      ></path>
-                    </svg>
-                    Processing...
-                  </button>
-                ) : (
-                  <button
-                    className={
-                      hasCamera
-                        ? "actions-btn bg-btn-color-blue"
-                        : "actions-btn bg-btn-color-blue cursor-not-allowed mt-5"
-                    }
-                    onClick={capture}
-                    disabled={!hasCamera}
-                  >
-                    Capture
-                  </button>
+                {imageSrc && !loading && (
+                  <p className="success-message">
+                    The picture has been captured successfully!
+                  </p>
                 )}
 
-                <button
-                  className={
-                    imageSrc
-                      ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
-                      : "actions-btn bg-btn-color-gray cursor-not-allowed mt-5"
-                  }
-                  onClick={handleDoneClick}
-                  disabled={!imageSrc}
-                >
-                  Done
-                </button>
+                <div className="camera-container">
+                  {imageSrc && !loading ? (
+                    <button
+                      className="actions-btn bg-btn-color-blue"
+                      onClick={openCamera}
+                    >
+                      Open Camera
+                    </button>
+                  ) : loading ? (
+                    <button
+                      type="button"
+                      className="btn-disabled actions-btn bg-btn-color-blue"
+                      disabled
+                    >
+                      <svg className="spinner" viewBox="0 0 24 24" fill="none">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      Processing...
+                    </button>
+                  ) : (
+                    <button
+                      className={
+                        hasCamera
+                          ? "actions-btn bg-btn-color-blue"
+                          : "actions-btn bg-btn-color-blue cursor-not-allowed"
+                      }
+                      onClick={capture}
+                      disabled={!hasCamera}
+                    >
+                      Capture
+                    </button>
+                  )}
+
+                  <button
+                    className={
+                      imageSrc
+                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
+                        : "actions-btn bg-btn-color-gray cursor-not-allowed"
+                    }
+                    onClick={handleDoneClick}
+                    disabled={!imageSrc}
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             </div>
           </div>

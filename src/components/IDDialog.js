@@ -1,10 +1,11 @@
+//ICONS
 import { MdOutlineQuestionMark } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 
 const IDDialog = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="modal-container">
-      <div className="modal-content h-[15rem] w-[30rem]">
+      <div className="modal-content h-[18rem] w-[30rem]">
         <div className="dialog-title-bar">
           <div className="flex flex-col w-full">
             <div className="dialog-title-bar-items">

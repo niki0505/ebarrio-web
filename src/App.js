@@ -1,5 +1,5 @@
-import logo from "./logo.svg";
-import React, { useState } from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import CreateResident from "./components/CreateResident";
 import {
   BrowserRouter as Router,
@@ -39,10 +39,27 @@ import PublicRoute from "./components/PublicRoute";
 import AppLayout from "./AppLayout";
 import { SocketProvider } from "./context/SocketContext";
 import { ToastContainer } from "react-toastify";
+import SOSUpdateReports from "./components/SOSUpdateReports";
+import RiverSnapshots from "./components/RiverSnapshots";
+import ActivityLogs from "./components/ActivityLogs";
+import Household from "./components/Household";
+import ViewResident from "./components/ViewResident";
+
+// Scrolls to the top of the page when switching pages
+const ResetScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  return null;
+};
 
 function App() {
   return (
     <Router>
+      <ResetScrollToTop />
       <AuthProvider>
         <SocketProvider>
           <OtpProvider>
@@ -50,7 +67,7 @@ function App() {
               <InfoProvider>
                 <ToastContainer
                   position="top-right"
-                  autoClose={5000}
+                  autoClose={3000}
                   hideProgressBar={false}
                   newestOnTop={false}
                   closeOnClick
@@ -92,6 +109,15 @@ function App() {
                       }
                     />
                     <Route
+                      path="households"
+                      element={
+                        <PrivateRoute
+                          element={<Household />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
                       path="create-resident"
                       element={
                         <PrivateRoute
@@ -110,6 +136,15 @@ function App() {
                       }
                     />
                     <Route
+                      path="view-resident"
+                      element={
+                        <PrivateRoute
+                          element={<ViewResident />}
+                          allowedRoles={["Secretary", "Clerk"]}
+                        />
+                      }
+                    />
+                    <Route
                       path="employees"
                       element={
                         <PrivateRoute
@@ -119,16 +154,25 @@ function App() {
                       }
                     />
                     <Route
-                      path="accounts"
+                      path="user-accounts"
                       element={
                         <PrivateRoute
                           element={<Accounts />}
-                          allowedRoles={["Secretary"]}
+                          allowedRoles={["Secretary", "Technical Admin"]}
                         />
                       }
                     />
                     <Route
-                      path="certificate-requests"
+                      path="activity-logs"
+                      element={
+                        <PrivateRoute
+                          element={<ActivityLogs />}
+                          allowedRoles={["Secretary", "Technical Admin"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="document-requests"
                       element={
                         <PrivateRoute
                           element={<CertificateRequests />}
@@ -150,7 +194,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Announcements />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }
                     />
@@ -177,7 +221,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<BlotterReports />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -186,7 +230,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateBlotter />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -195,7 +239,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<SettleBlotter />}
-                          allowedRoles={["Justice"]}
+                          allowedRoles={["Justice", "Secretary"]}
                         />
                       }
                     />
@@ -204,6 +248,24 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<AccountSettings />}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="sos-update-reports"
+                      element={
+                        <PrivateRoute
+                          element={<SOSUpdateReports />}
+                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="river-snapshots"
+                      element={
+                        <PrivateRoute
+                          element={<RiverSnapshots />}
                           allowedRoles={["Secretary", "Clerk", "Justice"]}
                         />
                       }

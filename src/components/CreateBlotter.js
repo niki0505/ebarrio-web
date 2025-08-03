@@ -1,43 +1,48 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
-import { AuthContext } from "../context/AuthContext";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import { FiCamera, FiUpload } from "react-icons/fi";
+import { FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+
+//STYLES
+import "../Stylesheets/Residents.css";
 import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
+import { GrNext } from "react-icons/gr";
 
 function CreateBlotter({ isCollapsed }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const { fetchResidents, residents } = useContext(InfoContext);
-  const { user } = useContext(AuthContext);
-  const [isCreateClicked, setCreateClicked] = useState(false);
-  const [search, setSearch] = useState("");
+  const { blotterreports, fetchBlotterReports } = useContext(InfoContext);
   const hiddenInputRef1 = useRef(null);
   const [complainantSuggestions, setComplainantSuggestions] = useState([]);
   const [subjectSuggestions, setSubjectSuggestions] = useState([]);
+  const [mobileNumError, setMobileNumError] = useState("");
   const [isSignProcessing, setIsSignProcessing] = useState(false);
-  const [blotterForm, setBlotterForm] = useState({
+  const initialForm = {
     complainantID: "",
     complainantname: "",
     complainantaddress: "",
-    complainantcontactno: "",
+    complainantcontactno: "+63",
     complainantsignature: "",
     subjectID: "",
     subjectname: "",
     subjectaddress: "",
-    type: "",
+    typeofthecomplaint: "",
     details: "",
-  });
+    date: "",
+    starttime: "",
+    endtime: "",
+  };
+
+  const { blotterForm, setBlotterForm } = useContext(InfoContext);
 
   useEffect(() => {
     fetchResidents();
@@ -53,8 +58,19 @@ function CreateBlotter({ isCollapsed }) {
     }));
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const handleComplainantChange = (e) => {
     const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const formatted = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "complainantname") {
       const matches = residents.filter((res) => {
@@ -68,14 +84,9 @@ function CreateBlotter({ isCollapsed }) {
       setBlotterForm((prevForm) => ({
         ...prevForm,
         complainantID: "",
-        complainantname: value,
+        complainantname: formatted,
         complainantaddress: "",
         complainantcontactno: "",
-      }));
-    } else {
-      setBlotterForm((prevForm) => ({
-        ...prevForm,
-        [name]: value,
       }));
     }
   };
@@ -96,8 +107,27 @@ function CreateBlotter({ isCollapsed }) {
     setComplainantSuggestions([]);
   };
 
+  const lettersNumbersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const lettersAndNumbersOnly = value.replace(/[^a-zA-Z0-9\s.,]/g, "");
+    const capitalizeFirstLetter = lettersAndNumbersOnly
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+    setBlotterForm((prev) => ({
+      ...prev,
+      [name]: capitalizeFirstLetter,
+    }));
+  };
+
   const handleSubjectChange = (e) => {
     const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const formatted = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "subjectname") {
       const matches = residents.filter((res) => {
@@ -110,14 +140,9 @@ function CreateBlotter({ isCollapsed }) {
       setSubjectSuggestions(matches);
       setBlotterForm((prevForm) => ({
         ...prevForm,
-        subjectname: value,
+        subjectname: formatted,
         subjectID: "",
         subjectaddress: "",
-      }));
-    } else {
-      setBlotterForm((prevForm) => ({
-        ...prevForm,
-        [name]: value,
       }));
     }
   };
@@ -174,52 +199,250 @@ function CreateBlotter({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+    if (
+      blotterForm.complainantcontactno &&
+      blotterForm.complainantcontactno.length !== 13
+    ) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
+    try {
+      const isConfirmed = await confirm(
+        "Are you sure you want to file a blotter report?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      let updatedForm = { ...blotterForm };
+
+      if (updatedForm.complainantID) {
+        delete updatedForm.complainantname;
+        delete updatedForm.complainantaddress;
+        delete updatedForm.complainantcontactno;
+        delete updatedForm.complainantsignature;
+      } else {
+        let formattedMobileNumber = blotterForm.complainantcontactno;
+        formattedMobileNumber = "0" + blotterForm.complainantcontactno.slice(3);
+        delete updatedForm.complainantID;
+        const signaturePicture = await uploadToFirebase(
+          updatedForm.complainantsignature
+        );
+        updatedForm = {
+          ...updatedForm,
+          complainantsignature: signaturePicture,
+          complainantcontactno: formattedMobileNumber,
+        };
+      }
+
+      if (updatedForm.subjectID) {
+        delete updatedForm.subjectname;
+        delete updatedForm.subjectaddress;
+      } else {
+        delete updatedForm.subjectID;
+      }
+      try {
+        await api.post("/createblotter", { updatedForm });
+        alert("Blotter report successfully submitted!");
+        setBlotterForm(initialForm);
+        navigation("/blotter-reports");
+      } catch (error) {
+        console.log("Error creating blotter report", error);
+      }
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const newDateStr = e.target.value;
+
+    setBlotterForm((prev) => {
+      return {
+        ...prev,
+        date: newDateStr,
+        starttime: "",
+        endtime: "",
+      };
+    });
+  };
+
+  const checkIfTimeSlotIsAvailable = (startTime, endTime) => {
+    const selectedStartTime = new Date(startTime);
+    const selectedEndTime = new Date(endTime);
+
+    const parseCustomDate = (dateStr) => {
+      const [datePart, timePart] = dateStr.split(" at ");
+      return new Date(`${datePart} ${timePart}`);
+    };
+
+    if (
+      isNaN(selectedStartTime.getTime()) ||
+      isNaN(selectedEndTime.getTime())
+    ) {
+      console.warn("Invalid selected time range");
+      return { isAvailable: false, conflict: null };
+    }
+
+    const conflict = blotterreports
+      .filter((blot) => blot.status === "Scheduled")
+      .find((blot) => {
+        const reservedStart = parseCustomDate(blot.starttime);
+        const reservedEnd = parseCustomDate(blot.endtime);
+
+        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
+          return false; // skip invalid records
+        }
+
+        return (
+          selectedStartTime < reservedEnd && selectedEndTime > reservedStart
+        );
+      });
+
+    if (conflict) {
+      return {
+        isAvailable: false,
+        conflict: {
+          start: parseCustomDate(conflict.starttime),
+          end: parseCustomDate(conflict.endtime),
+        },
+      };
+    }
+
+    return { isAvailable: true, conflict: null };
+  };
+
+  const handleReset = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to file a blotter report?",
+      "Are you sure you want to clear all the fields?",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
-    let updatedForm = { ...blotterForm };
+    setBlotterForm(initialForm);
+  };
 
-    if (updatedForm.complainantID) {
-      delete updatedForm.complainantname;
-      delete updatedForm.complainantaddress;
-      delete updatedForm.complainantcontactno;
-      delete updatedForm.complainantsignature;
-    } else {
-      delete updatedForm.complainantID;
-      const signaturePicture = await uploadToFirebase(
-        updatedForm.complainantsignature
-      );
-      updatedForm = {
-        ...updatedForm,
-        complainantsignature: signaturePicture,
-      };
+  const handleStartTimeChange = (e) => {
+    const time = e.target.value;
+    const newStartTime = new Date(`${blotterForm.date}T${time}:00`);
+
+    if (!blotterForm.date) {
+      alert("Please select a date first.");
+      return;
     }
 
-    if (updatedForm.subjectID) {
-      delete updatedForm.subjectname;
-      delete updatedForm.subjectaddress;
-    } else {
-      delete updatedForm.subjectID;
+    setBlotterForm((prev) => ({
+      ...prev,
+      starttime: newStartTime.toISOString(),
+      endtime: "",
+    }));
+  };
+
+  const handleEndTimeChange = (e) => {
+    const time = e.target.value;
+    const newEndTime = new Date(`${blotterForm.date}T${time}:00`);
+    const startTime = new Date(blotterForm.starttime);
+    if (!blotterForm.date) {
+      alert("Please select a date first.");
+      return;
     }
-    try {
-      await api.post("/createblotter", { updatedForm });
-      alert("Blotter report successfully submitted!");
-      navigation("/blotter-reports");
-    } catch (error) {
-      console.log("Error creating blotter report", error);
+    if (!blotterForm.starttime) {
+      alert("Please select a start time first.");
+      return;
+    }
+
+    if (newEndTime <= startTime) {
+      alert("End time must be after the start time.");
+      return;
+    }
+
+    const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
+      startTime,
+      newEndTime
+    );
+
+    if (!isAvailable) {
+      const conflictInfo = conflict
+        ? `This time slot overlaps with an existing schedule of ${conflict.start.toLocaleTimeString(
+            [],
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )} - ${conflict.end.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}.`
+        : "This time slot overlaps with another schedule.";
+      alert(conflictInfo);
+      setBlotterForm((prev) => ({ ...prev, endtime: "" }));
+      return;
+    }
+
+    setBlotterForm((prev) => ({
+      ...prev,
+      endtime: newEndTime.toISOString(),
+    }));
+  };
+
+  const formatTimeToHHMM = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  };
+
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setBlotterForm((prev) => ({ ...prev, [name]: value }));
+
+    if (value.length >= 13) {
+      setMobileNumError(null);
+    } else {
+      setMobileNumError("Invalid mobile number.");
     }
   };
 
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Blotter Form</div>
+        <div className="breadcrumbs-container">
+          <h1
+            onClick={() => navigation("/blotter-reports")}
+            className="breadcrumbs-inactive-text"
+          >
+            Blotter Reports
+          </h1>
+          <GrNext className="breadcrumbs-arrow" />
+          <h1 className="header-text">Blotter Form</h1>
+        </div>
 
-        <div className="white-bg-container">
+        <form
+          className="white-bg-container"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
           {/*Complainant Information*/}
           <h3 className="section-title">Complainant Information</h3>
           <hr className="section-divider" />
@@ -227,18 +450,23 @@ function CreateBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group relative">
               <div>
-                <label className="form-label">Name</label>
+                <label className="form-label">
+                  Name<label className="text-red-600">*</label>
+                </label>
                 <input
                   name="complainantname"
                   value={blotterForm.complainantname}
                   onChange={handleComplainantChange}
                   placeholder="Enter name"
+                  minLength={2}
+                  maxLength={150}
                   className="form-input h-[30px] w-full"
                   autoComplete="off"
+                  required
                 />
                 {blotterForm.complainantname?.length > 0 &&
                   complainantSuggestions?.length > 0 && (
-                    <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                    <ul className="blotter-suggestions-list">
                       {complainantSuggestions.map((res) => {
                         const fullName = `${res.firstname} ${
                           res.middlename ? res.middlename + " " : ""
@@ -246,7 +474,7 @@ function CreateBlotter({ isCollapsed }) {
                         return (
                           <li
                             key={res.id}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            className="blotter-suggestions-item"
                             onClick={() =>
                               handleComplainantSuggestionClick(res)
                             }
@@ -261,25 +489,37 @@ function CreateBlotter({ isCollapsed }) {
             </div>
 
             <div>
-              <label className="form-label">Address</label>
+              <label className="form-label">
+                Address<label className="text-red-600">*</label>
+              </label>
               <input
                 name="complainantaddress"
-                onChange={handleComplainantChange}
+                onChange={lettersNumbersAndSpaceOnly}
                 value={blotterForm.complainantaddress}
                 placeholder="Enter address"
+                minLength={5}
+                maxLength={100}
                 className="form-input h-[30px]"
+                required
               />
             </div>
 
             <div>
-              <label className="form-label">Contact No.</label>
+              <label className="form-label">
+                Contact No.<label className="text-red-600">*</label>
+              </label>
               <input
                 name="complainantcontactno"
-                onChange={handleComplainantChange}
+                onChange={mobileInputChange}
                 value={blotterForm.complainantcontactno}
-                placeholder="Enter contact no"
+                placeholder="Enter contact no."
+                maxLength={13}
                 className="form-input h-[30px]"
+                required
               />
+              {mobileNumError ? (
+                <label className="error-msg">{mobileNumError}</label>
+              ) : null}
             </div>
           </div>
 
@@ -294,6 +534,7 @@ function CreateBlotter({ isCollapsed }) {
                     <input
                       onChange={handleChangeSig}
                       type="file"
+                      accept="image/jpeg, image/png"
                       style={{ display: "none" }}
                       ref={hiddenInputRef1}
                     />
@@ -333,18 +574,23 @@ function CreateBlotter({ isCollapsed }) {
           <hr className="section-divider" />
           <div className="form-grid">
             <div className="form-group relative">
-              <label className="form-label">Name</label>
+              <label className="form-label">
+                Name<label className="text-red-600">*</label>
+              </label>
               <input
                 name="subjectname"
                 value={blotterForm.subjectname}
                 onChange={handleSubjectChange}
                 placeholder="Enter name"
+                minLength={2}
+                maxLength={150}
                 className="form-input h-[30px] w-full"
                 autoComplete="off"
+                required
               />
               {blotterForm.subjectname?.length > 0 &&
                 subjectSuggestions?.length > 0 && (
-                  <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                  <ul className="blotter-suggestions-list">
                     {subjectSuggestions.map((res) => {
                       const fullName = `${res.firstname} ${
                         res.middlename ? res.middlename + " " : ""
@@ -352,7 +598,7 @@ function CreateBlotter({ isCollapsed }) {
                       return (
                         <li
                           key={res.id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                          className="blotter-suggestions-item"
                           onClick={() => handleSubjectSuggestionClick(res)}
                         >
                           {fullName}
@@ -366,9 +612,11 @@ function CreateBlotter({ isCollapsed }) {
               <label className="form-label">Address</label>
               <input
                 name="subjectaddress"
-                onChange={handleSubjectChange}
+                onChange={lettersNumbersAndSpaceOnly}
                 value={blotterForm.subjectaddress}
                 placeholder="Enter address"
+                minLength={2}
+                maxLength={100}
                 className="form-input h-[30px]"
               />
             </div>
@@ -380,14 +628,15 @@ function CreateBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="type" className="form-label">
-                Type of the Incident
+                Type of the Incident<label className="text-red-600">*</label>
               </label>
               <select
-                id="type"
-                name="type"
+                id="typeofthecomplaint"
+                name="typeofthecomplaint"
                 onChange={handleInputChange}
-                value={blotterForm.type}
+                value={blotterForm.typeofthecomplaint}
                 className="form-input h-[30px]"
+                required
               >
                 <option value="" disabled selected hidden>
                   Select
@@ -400,7 +649,7 @@ function CreateBlotter({ isCollapsed }) {
 
             <div className="col-span-4">
               <label for="details" className="form-label">
-                Details of the Incident
+                Details of the Incident<label className="text-red-600">*</label>
               </label>
               <textarea
                 placeholder="Enter details"
@@ -409,22 +658,69 @@ function CreateBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 onChange={handleInputChange}
-                className="form-input h-[10rem]"
+                className="h-[15rem] textarea-container"
+                required
               />
-              <h3 className="text-end">{blotterForm.details.length}/1000</h3>
+              <h3 className="textarea-length-text">{blotterForm.details.length}/1000</h3>
             </div>
           </div>
 
-          <div className="flex justify-end rounded-md mt-4">
+          {/*Settlement Proceedings*/}
+          <label className="section-title text-start">
+            Schedule Information
+          </label>
+          <hr class="section-divider" />
+          <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
+            <div>
+              <label className="form-label">Date</label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                value={blotterForm.date ? blotterForm.date : ""}
+                onChange={handleDateChange}
+                className="form-input h-[30px] pr-2"
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+
+            <div>
+              <label className="form-label">Start Time</label>
+              <input
+                type="time"
+                id="starttime"
+                name="starttime"
+                className="form-input h-[30px] pr-2"
+                onChange={handleStartTimeChange}
+                value={formatTimeToHHMM(blotterForm.starttime)}
+              />
+            </div>
+            <div>
+              <label className="form-label">End Time </label>
+              <input
+                type="time"
+                id="endtime"
+                name="endtime"
+                className="form-input h-[30px] pr-2"
+                onChange={handleEndTimeChange}
+                value={formatTimeToHHMM(blotterForm.endtime)}
+              />
+            </div>
+          </div>
+
+          <div className="function-btn-container">
             <button
-              onClick={handleSubmit}
-              className="actions-btn bg-btn-color-blue"
-              type="submit"
+              type="button"
+              onClick={handleReset}
+              className="actions-btn bg-btn-color-gray hover:bg-gray-400"
             >
+              Clear
+            </button>
+            <button className="actions-btn bg-btn-color-blue" type="submit">
               Submit
             </button>
           </div>
-        </div>
+        </form>
       </main>
     </>
   );

@@ -1,14 +1,14 @@
-import { IoIosWarning } from "react-icons/io";
-import { IoPrint } from "react-icons/io5";
+//STYLES
+import "../Stylesheets/Dialog.css";
 
+//ICONS
 import { IoClose } from "react-icons/io5";
 import { MdOutlineQuestionMark } from "react-icons/md";
-import "../Stylesheets/Dialog.css";
 
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
   return (
     <div className="modal-container">
-      <div className="modal-content h-[15rem] w-[30rem]">
+      <div className="modal-content h-[20rem] w-[30rem]">
         <div className="dialog-title-bar">
           <div className="flex flex-col w-full">
             <div className="dialog-title-bar-items">
@@ -27,12 +27,12 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
             <MdOutlineQuestionMark className="text-white text-4xl" />
           </div>
 
-          <p className="dialog-question">{message}</p>
-          <p class="dialog-message">
+          <h1 className="dialog-question">{message}</h1>
+          <h1 class="dialog-message">
             Press Confirm to continue, or Cancel to stay on the current page
-          </p>
+          </h1>
 
-          <div className="flex justify-end gap-4">
+          <div className="flex gap-x-4">
             <button
               onClick={onCancel}
               className="actions-btn bg-btn-color-gray hover:bg-gray-400"

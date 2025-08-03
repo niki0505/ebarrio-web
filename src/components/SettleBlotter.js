@@ -1,18 +1,21 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
 import React from "react";
 import { InfoContext } from "../context/InfoContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import SearchBar from "./SearchBar";
-import { MdPersonAddAlt1 } from "react-icons/md";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
-import { FiCamera, FiUpload } from "react-icons/fi";
 import { removeBackground } from "@imgly/background-removal";
 import api from "../api";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+
+//ICONS
+import { FiUpload } from "react-icons/fi";
+import { GrNext } from "react-icons/gr";
 
 function SettleBlotter({ isCollapsed }) {
   const location = useLocation();
@@ -35,7 +38,7 @@ function SettleBlotter({ isCollapsed }) {
     subjectID: "",
     subjectname: "",
     subjectaddress: "",
-    type: "",
+    typeofthecomplaint: "",
     details: "",
   });
 
@@ -82,7 +85,7 @@ function SettleBlotter({ isCollapsed }) {
           subjectaddress: response.data.subjectID
             ? response.data.subjectID.address
             : response.data.subjectaddress,
-          type: response.data.type,
+          typeofthecomplaint: response.data.typeofthecomplaint,
           details: response.data.details,
         }));
       } catch (error) {
@@ -100,8 +103,18 @@ function SettleBlotter({ isCollapsed }) {
     }));
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
   const handleWitnessChange = (e) => {
     const { name, value } = e.target;
+
+    const formattedValue = value
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
 
     if (name === "witnessname") {
       const matches = residents.filter((res) => {
@@ -115,7 +128,7 @@ function SettleBlotter({ isCollapsed }) {
       setSettleForm((prevForm) => ({
         ...prevForm,
         witnessID: "",
-        witnessname: value,
+        witnessname: formattedValue,
       }));
     } else {
       setSettleForm((prevForm) => ({
@@ -246,7 +259,16 @@ function SettleBlotter({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-        <div className="header-text">Settle Agreement Form</div>
+        <div className="breadcrumbs-container">
+          <h1
+            onClick={() => navigation("/blotter-reports")}
+            className="breadcrumbs-inactive-text"
+          >
+            Blotter Reports
+          </h1>
+          <GrNext className="breadcrumbs-arrow" />
+          <h1 className="header-text">Settle Agreement</h1>
+        </div>
 
         <div className="white-bg-container">
           {/*Complainant Information*/}
@@ -371,9 +393,9 @@ function SettleBlotter({ isCollapsed }) {
                 Type of the Incident
               </label>
               <select
-                id="type"
-                name="type"
-                value={blotterForm.type}
+                id="typeofthecomplaint"
+                name="typeofthecomplaint"
+                value={blotterForm.typeofthecomplaint}
                 className="form-input h-[30px]"
                 readOnly
               >
@@ -397,7 +419,7 @@ function SettleBlotter({ isCollapsed }) {
                 name="details"
                 value={blotterForm.details}
                 readOnly
-                className="form-input h-[10rem]"
+                className="w-full h-[15rem] resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">{blotterForm.details.length}/1000</h3>
             </div>
@@ -409,7 +431,7 @@ function SettleBlotter({ isCollapsed }) {
           <div className="form-grid">
             <div className="col-span-4">
               <label for="details" className="form-label">
-                Details
+                Details<label className="text-red-600">*</label>
               </label>
               <textarea
                 placeholder="Enter details"
@@ -418,7 +440,7 @@ function SettleBlotter({ isCollapsed }) {
                 id="agreementdetails"
                 name="agreementdetails"
                 value={settleForm.agreementdetails}
-                className="form-input h-[10rem]"
+                className="w-full h-[10rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2"
               />
               <h3 className="text-end">
                 {settleForm.agreementdetails.length}/1000
@@ -434,7 +456,7 @@ function SettleBlotter({ isCollapsed }) {
             <div className="form-group relative">
               <div className="cols-span-1">
                 <label for="type" className="form-label">
-                  Name
+                  Name<label className="text-red-600">*</label>
                 </label>
                 <input
                   name="witnessname"
@@ -472,13 +494,14 @@ function SettleBlotter({ isCollapsed }) {
               {!settleForm.witnessID && (
                 <div className="form-group">
                   <label for="type" className="form-label">
-                    Signature
+                    Signature<label className="text-red-600">*</label>
                   </label>
                   <div className="upload-box">
                     <input
                       onChange={handleChangeSig2}
                       type="file"
                       name="witnesssignature"
+                      accept="image/jpeg, image/png"
                       style={{ display: "none" }}
                       ref={hiddenInputRef2}
                     />

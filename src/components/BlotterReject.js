@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function BlotterReject({ onClose, blotterID, onViewClose }) {
   const navigation = useNavigate();
@@ -41,15 +44,19 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[20rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Reject Blotter Report</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Reject Blotter Report</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
+
             <div className="modal-form-container">
               <div className="modal-form">
                 <textarea
@@ -59,13 +66,9 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
                   rows={5}
                   minLength={20}
                   maxLength={255}
-                  className="w-full h-[12rem] border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold"
+                  className="h-[9rem] textarea-container"
                 ></textarea>
-                <div
-                  style={{ fontSize: "12px", color: "gray", textAlign: "end" }}
-                >
-                  {remarks.length}/255
-                </div>
+                <div className="textarea-length-text">{remarks.length}/255</div>
                 <div className="flex justify-center">
                   <button
                     type="submit"

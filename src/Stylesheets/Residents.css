@@ -1,10 +1,11 @@
-/*CREATE-RESIDENT*/
+/*--------------------------------------------CREATE RESIDENT--------------------------------------------*/
 .section-title {
   @apply font-bold text-lg;
 }
 .section-divider {
   @apply border-t-[1.5px] border-[#C1C0C0] my-1;
 }
+/*--------------------------------------------UPLOAD--------------------------------------------*/
 .picture-upload-wrapper {
   @apply col-span-1;
 }
@@ -32,6 +33,7 @@
 .upload-img {
   @apply w-full h-full object-contain;
 }
+/*--------------------------------------------FORM--------------------------------------------*/
 .form-label {
   @apply text-[14px] block text-navy-blue font-title font-medium;
 }
@@ -42,22 +44,32 @@
   @apply col-span-1;
 }
 .form-input {
-  @apply block w-full rounded-[15px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm;
+  @apply block w-full h-[35px] rounded-[8px] pl-2 border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm appearance-none;
 }
-
 .function-btn-container {
   @apply flex justify-end space-x-5 rounded rounded-md;
 }
 .function-btn {
   @apply px-6 py-1.5 rounded-[10px] items-center text-white font-bold;
 }
-
-/*RESPONSIVE*/
-@media (max-width: 640px) {
+.radio-container {
+  @apply flex flex-row space-x-10;
 }
-
-@media (max-width: 768px) {
+.radio-item {
+  @apply flex flex-row justify-center gap-1;
 }
-
-@media (max-width: 1024) {
+.checkbox-container {
+  @apply flex flex-col space-y-2;
+}
+.checkbox-btn-container {
+  @apply flex items-center space-x-2;
+}
+.household-tbl-container {
+  @apply min-w-full border border-gray-300;
+}
+.household-tbl-th {
+  @apply border border-gray-300 px-4 py-2;
+}
+.household-tbl-add-btn {
+  @apply flex flex-row items-center justify-center space-x-1 ml-auto mt-4 text-[#0E94D3] border border-[#0E94D3] rounded-full px-1;
 }

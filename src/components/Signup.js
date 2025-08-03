@@ -1,10 +1,9 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../context/OtpContext";
-import blueBg from "../assets/blue-bg.png";
-import applogo from "../assets/applogo.png";
 import api from "../api";
 
+//ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
 
 function Signup() {
@@ -207,7 +206,7 @@ function Signup() {
   return (
     <>
       <div
-        className="w-screen h-screen flex items-center justify-center overflow-hidden relative"
+        className="login-container"
         style={{
           backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
         }}
@@ -215,92 +214,89 @@ function Signup() {
         <img
           src={AppLogo}
           alt="App Logo"
-          className="w-[312px] h-[312px] translate-x-[-20vw]"
+          className="login-logo translate-x-[-25vw]"
         />
-        <div className="absolute right-0 h-full bg-[#FFFBFC] shadow-lg p-12 w-full sm:w-[320px] md:w-[500px] flex flex-col justify-center gap-4">
-          <span className="header-text">Create your account</span>
-          <input
-            type="text"
-            placeholder="First Name"
-            onChange={(e) => firstnameValidation(e.target.value)}
-            value={firstname}
-            className="form-input h-[35px]"
-          />
-          {fnameError ? (
-            <p className="error-input-message">{fnameError}</p>
-          ) : null}
+        <div className="right-login-container">
+          <h1 className="header-text">Create your account</h1>
 
-          <input
-            type="text"
-            placeholder="Last Name"
-            onChange={(e) => lastnameValidation(e.target.value)}
-            value={lastname}
-            className="form-input h-[35px]"
-          />
-          {lnameError ? (
-            <p className="error-input-message">{lnameError}</p>
-          ) : null}
+          <div className="flex flex-col gap-4">
+            <input
+              type="text"
+              placeholder="First Name"
+              onChange={(e) => firstnameValidation(e.target.value)}
+              value={firstname}
+              className="form-input"
+            />
+            {fnameError ? <p className="error-msg">{fnameError}</p> : null}
 
-          <input
-            type="text"
-            placeholder="Mobile Number"
-            onChange={(e) => mobilenumValidation(e.target.value)}
-            value={mobilenumber}
-            maxLength={11}
-            className="form-input h-[35px]"
-          />
-          {mobilenumError ? (
-            <p className="error-input-message">{mobilenumError}</p>
-          ) : null}
+            <input
+              type="text"
+              placeholder="Last Name"
+              onChange={(e) => lastnameValidation(e.target.value)}
+              value={lastname}
+              className="form-input"
+            />
+            {lnameError ? <p className="error-msg">{lnameError}</p> : null}
 
-          <input
-            type="text"
-            placeholder="Username"
-            onChange={(e) => usernameValidation(e.target.value)}
-            value={username}
-            className="form-input h-[35px]"
-          />
+            <input
+              type="text"
+              placeholder="Mobile Number"
+              onChange={(e) => mobilenumValidation(e.target.value)}
+              value={mobilenumber}
+              maxLength={11}
+              className="form-input"
+            />
+            {mobilenumError ? (
+              <p className="error-msg">{mobilenumError}</p>
+            ) : null}
 
-          {usernameErrors.length > 0 &&
-            usernameErrors.map((error, index) => (
-              <p key={index} className="error-input-message">
-                {error}
-              </p>
-            ))}
+            <input
+              type="text"
+              placeholder="Username"
+              onChange={(e) => usernameValidation(e.target.value)}
+              value={username}
+              className="form-input"
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => passwordValidation(e.target.value)}
-            value={password}
-            className="form-input h-[35px]"
-          />
+            {usernameErrors.length > 0 &&
+              usernameErrors.map((error, index) => (
+                <p key={index} className="error-msg">
+                  {error}
+                </p>
+              ))}
 
-          {passwordErrors.length > 0 &&
-            passwordErrors.map((error, index) => (
-              <p key={index} className="error-input-message">
-                {error}
-              </p>
-            ))}
+            <input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => passwordValidation(e.target.value)}
+              value={password}
+              className="form-input"
+            />
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            onChange={(e) => password2Validation(e.target.value)}
-            value={password2}
-            className="form-input h-[35px]"
-          />
-          {password2Errors ? (
-            <p className="error-input-message">{password2Errors}</p>
-          ) : null}
+            {passwordErrors.length > 0 &&
+              passwordErrors.map((error, index) => (
+                <p key={index} className="error-msg">
+                  {error}
+                </p>
+              ))}
 
-          <button
-            onClick={handleSignUp}
-            type="submit"
-            className="actions-btn bg-btn-color-blue font-title font-bold text-[20px]"
-          >
-            Sign up
-          </button>
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              onChange={(e) => password2Validation(e.target.value)}
+              value={password2}
+              className="form-input"
+            />
+            {password2Errors ? (
+              <p className="error-msg">{password2Errors}</p>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col">
+            <button onClick={handleSignUp} type="submit" className="login-btn">
+              Sign up
+            </button>
+          </div>
         </div>
       </div>
     </>

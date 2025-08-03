@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { MdAutorenew } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
@@ -58,6 +62,8 @@ function CreateAccount({ onClose }) {
       [name]: formattedVal,
     }));
   };
+
+  console.log(userForm.username);
 
   const passwordValidation = (e) => {
     const { name, value } = e.target;
@@ -137,11 +143,18 @@ function CreateAccount({ onClose }) {
       return;
     }
     try {
-      const response = await api.post("/createuser", userForm);
-      alert("User successfully created!");
+      await api.post("/createuser", userForm);
+      alert("Account has been created successfully.");
       onClose();
     } catch (error) {
-      console.log("Error creating user");
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
     }
   };
   const handleClose = () => {
@@ -153,15 +166,18 @@ function CreateAccount({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[20rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Add New User</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content h-[25rem] w-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New User</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -213,12 +229,13 @@ function CreateAccount({ onClose }) {
                     onChange={handleInputChange}
                     readOnly
                     className="form-input h-[30px]"
+                    placeholder="Enter role"
                   />
                 </div>
 
                 <div className="employee-form-group">
                   <label className="form-label">
-                    Username <label className="text-red-600">*</label>
+                    Username<label className="text-red-600">*</label>
                   </label>
                   <input
                     type="text"
@@ -226,11 +243,14 @@ function CreateAccount({ onClose }) {
                     name="username"
                     onChange={usernameValidation}
                     required
+                    minLength={3}
+                    maxLength={16}
                     className="form-input h-[30px]"
+                    placeholder="Enter username"
                   />
                   <div className="text-start">
                     {usernameErrors.length > 0 && (
-                      <ul className="text-[12px] text-red-600 m-0">
+                      <ul className="error-msg">
                         {usernameErrors.map((err, idx) => (
                           <li key={idx}>{err}</li>
                         ))}
@@ -253,10 +273,11 @@ function CreateAccount({ onClose }) {
                       value={userForm.password}
                       required
                       className="form-input h-[30px]"
+                      placeholder="Enter password"
                     />
                     <div className="text-start">
                       {passwordErrors.length > 0 && (
-                        <ul className="text-[12px] text-red-600 m-0">
+                        <ul className="error-msg">
                           {passwordErrors.map((err, idx) => (
                             <li key={idx}>{err}</li>
                           ))}
@@ -265,10 +286,10 @@ function CreateAccount({ onClose }) {
                     </div>
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      className="eye-toggle mr-1"
                       onClick={generatePassword}
                     >
-                      <FaEyeSlash className="text-gray-500" />
+                      <MdAutorenew />
                     </button>
                   </div>
                 </div>

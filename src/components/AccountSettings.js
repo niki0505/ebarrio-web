@@ -1,24 +1,34 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import "../Stylesheets/Residents.css";
-import "../Stylesheets/CommonStyle.css";
-import React from "react";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
-
 import { InfoContext } from "../context/InfoContext";
-import OpenCamera from "./OpenCamera";
 import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { FiCamera, FiUpload } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+
+//SCREENS
+import OpenCamera from "./OpenCamera";
+
+//STYLES
+import "../Stylesheets/Residents.css";
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/AccountSettings.css";
+
+//ICONS
 import { useConfirm } from "../context/ConfirmContext";
+import { BiSolidImageAlt } from "react-icons/bi";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FiCamera, FiUpload } from "react-icons/fi";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
   const [userDetails, setUserDetails] = useState(null);
-  const [isProfileClicked, setProfileClicked] = useState(true);
-  const [isUsernameClicked, setUsernameClicked] = useState(false);
+  const [isProfileClicked, setProfileClicked] = useState(
+    user.role !== "Technical Admin"
+  );
+  const [isUsernameClicked, setUsernameClicked] = useState(
+    user.role === "Technical Admin"
+  );
   const [isPasswordClicked, setPasswordClicked] = useState(false);
   const [isQuestionsClicked, setQuestionsClicked] = useState(false);
   const [username, setUsername] = useState("");
@@ -29,12 +39,17 @@ function AccountSettings({ isCollapsed }) {
     { question: "", answer: "" },
     { question: "", answer: "" },
   ]);
-  const navigation = useNavigate();
   const confirm = useConfirm();
   const [residentInfo, setResidentInfo] = useState([]);
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
+  const [mobileNumError, setMobileNumError] = useState("");
+  const [curPasswordError, setCurPasswordError] = useState("");
+  const [emMobileNumError, setEmMobileNumError] = useState("");
+  const [telephoneNumError, setTelephoneNumError] = useState("");
   const { fetchResidents, residents } = useContext(InfoContext);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [id, setId] = useState();
   const [signature, setSignature] = useState(null);
@@ -59,11 +74,11 @@ function AccountSettings({ isCollapsed }) {
     precinct: "",
     deceased: "",
     email: "",
-    mobilenumber: "",
-    telephone: "",
+    mobilenumber: "+63",
+    telephone: "+63",
     facebook: "",
     emergencyname: "",
-    emergencymobilenumber: "",
+    emergencymobilenumber: "+63",
     emergencyaddress: "",
     housenumber: "",
     street: "",
@@ -84,6 +99,17 @@ function AccountSettings({ isCollapsed }) {
     typeofschool: "",
     course: "",
   });
+
+  const [showUserPassword, setShowUserPassword] = useState(false);
+  const [showCurrPassword, setShowCurrPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [usernameErrors, setUsernameErrors] = useState([]);
+  const [showAnswer1, setShowAnswer1] = useState(false);
+  const [showConfirmAnswer1, setShowConfirmAnswer1] = useState(false);
+  const [showAnswer2, setShowAnswer2] = useState(false);
+  const [showConfirmAnswer2, setShowConfirmAnswer2] = useState(false);
+  const [showSecurityPass, setShowSecurityPass] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -128,10 +154,15 @@ function AccountSettings({ isCollapsed }) {
     };
     fetchUserDetails();
   }, [user.userID]);
-  console.log(residentInfo);
 
   const handleMenu1 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setProfileClicked(true);
     setUsernameClicked(false);
     setPasswordClicked(false);
@@ -139,6 +170,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu2 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setUsernameClicked(true);
     setProfileClicked(false);
     setPasswordClicked(false);
@@ -146,6 +183,12 @@ function AccountSettings({ isCollapsed }) {
   };
   const handleMenu3 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setPasswordClicked(true);
     setUsernameClicked(false);
     setProfileClicked(false);
@@ -154,6 +197,12 @@ function AccountSettings({ isCollapsed }) {
 
   const handleMenu4 = () => {
     setPassword("");
+    setCurPasswordError("");
+    setUsernameErrors([]);
+    setPasswordErrors([]);
+    setRePasswordErrors([]);
+    setNewPassword("");
+    setRenewPassword("");
     setQuestionsClicked(true);
     setPasswordClicked(false);
     setUsernameClicked(false);
@@ -170,19 +219,72 @@ function AccountSettings({ isCollapsed }) {
     "What was the name of your first pet?",
     "What is your mother's maiden name?",
     "What was the name of your first school?",
+    "What was your childhood name?",
+    "What is your favorite book?",
+    "What is your favorite movie of all time?",
+    "What is the name of your first crush?",
+    "What is the name of your favorite teacher?",
+    "What is the name of of your first childhood friend?",
+    "What city you were born in?",
   ];
 
   const handleUsernameChange = async () => {
+    let hasErrors = false;
+
+    let uerrors = [];
+
+    if (!username) {
+      uerrors.push("Username must not be empty.");
+      setUsernameErrors(uerrors);
+      hasErrors = true;
+    }
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    }
+
     if (username === user.username) {
       alert("The new username must be different from the current username.");
+      hasErrors = true;
+    }
+
+    if (usernameErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
 
     try {
-      await api.get(`/checkusername/${username}`);
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your username?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
       try {
-        await api.put(`/changeusername/${user.userID}`, { username, password });
-        alert("Username changed successfully!");
+        await api.get(`/checkusername/${username}`);
+        try {
+          await api.put(`/changeusername/${user.userID}`, {
+            username,
+            password,
+          });
+          alert("Username has been changed successfully.");
+          setUsername("");
+          setPassword("");
+        } catch (error) {
+          const response = error.response;
+          if (response && response.data) {
+            console.log("❌ Error status:", response.status);
+            alert(response.data.message || "Something went wrong.");
+          } else {
+            console.log("❌ Network or unknown error:", error.message);
+            alert("An unexpected error occurred.");
+          }
+        }
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -194,42 +296,79 @@ function AccountSettings({ isCollapsed }) {
         }
       }
     } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
-      }
+      console.log("Error in changing username", error);
     }
   };
 
   const handlePasswordChange = async () => {
-    if (newpassword !== renewpassword) {
-      alert("Passwords do not match.");
+    let hasErrors = false;
+    let nerrors = [];
+    let rerrors = [];
+
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    }
+
+    if (!newpassword) {
+      nerrors.push("Password must not be empty.");
+      setPasswordErrors(nerrors);
+      hasErrors = true;
+    }
+
+    if (!renewpassword) {
+      rerrors.push("Password must not be empty.");
+      setRePasswordErrors(rerrors);
+      hasErrors = true;
+    }
+
+    if (passwordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (repasswordErrors.length !== 0) {
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
       return;
     }
     try {
-      await api.put(`/changepassword/${user.userID}`, {
-        newpassword,
-        password,
-      });
-      alert("Password successfully changed! Please log in again.");
-      logout();
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your password?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      if (newpassword !== renewpassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+      try {
+        await api.put(`/changepassword/${user.userID}`, {
+          newpassword,
+          password,
+        });
+        alert("Password has been changed successfully. Please log in again.");
+        logout();
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing password", error);
     }
   };
 
   const handleQuestionsChange = async () => {
+    let hasErrors = false;
     const modifiedQuestions = securityquestions.map((q, index) => {
       const current = userDetails.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
@@ -245,27 +384,52 @@ function AccountSettings({ isCollapsed }) {
     });
 
     const hasChanges = modifiedQuestions.some((q) => q !== null);
+    if (!password) {
+      setCurPasswordError("Password must not be empty.");
+      hasErrors = true;
+    } else {
+      if (!hasChanges) {
+        alert("No changes detected in your security questions.");
+        hasErrors = true;
+      }
+    }
 
-    if (!hasChanges) {
-      alert("No changes detected in your security questions.");
+    if (hasErrors) {
       return;
     }
-    console.log(modifiedQuestions);
     try {
-      await api.put(`/changesecurityquestions/${user.userID}`, {
-        securityquestions: modifiedQuestions,
-        password,
-      });
-      alert("Security questions successfully changed!");
-    } catch (error) {
-      const response = error.response;
-      if (response && response.data) {
-        console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
-      } else {
-        console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+      const isConfirmed = await confirm(
+        "Are you sure you want to update your security questions?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
       }
+      try {
+        await api.put(`/changesecurityquestions/${user.userID}`, {
+          securityquestions: modifiedQuestions,
+          password,
+        });
+        alert("Security questions have been changed successfully.");
+        setPassword("");
+        setSecurityQuestions((prevQuestions) =>
+          prevQuestions.map((q) => ({
+            ...q,
+            answer: "",
+          }))
+        );
+      } catch (error) {
+        const response = error.response;
+        if (response && response.data) {
+          console.log("❌ Error status:", response.status);
+          alert(response.data.message || "Something went wrong.");
+        } else {
+          console.log("❌ Network or unknown error:", error.message);
+          alert("An unexpected error occurred.");
+        }
+      }
+    } catch (error) {
+      console.log("Error in changing security questions", error);
     }
   };
 
@@ -275,22 +439,44 @@ function AccountSettings({ isCollapsed }) {
     if (residentInfo) {
       let houseNumber = "";
       let streetName = "";
-      const siblingsLength = residentForm.siblings.length;
-      const childrenLength = residentForm.children.length;
+      const siblingsLength = residentInfo.siblings
+        ? residentInfo.siblings.length
+        : 0;
+      const childrenLength = residentInfo.children
+        ? residentInfo.children.length
+        : 0;
 
-      const firstWord = residentForm.address.trim().split(" ")[0];
+      const address = residentInfo.address || "";
+
+      const firstWord = address.trim().split(" ")[0];
       const isNumber = !isNaN(firstWord);
 
       if (isNumber) {
         houseNumber = firstWord;
-        const preStreetName = residentForm.address.split("Aniban")[0].trim();
+        const preStreetName = address.split("Aniban")[0].trim();
         const streetWords = preStreetName.split(" ");
         streetWords.shift();
         streetName = streetWords.join(" ");
       } else {
-        streetName = residentForm.address.split("Aniban")[0].trim();
+        streetName = address.split("Aniban")[0].trim();
         houseNumber = "";
       }
+
+      let formattedNumber =
+        residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
+          ? "+63" + residentInfo.mobilenumber.slice(1)
+          : "";
+
+      let formattedEmergencyNumber =
+        residentInfo.emergencymobilenumber &&
+        residentInfo.emergencymobilenumber.length > 0
+          ? "+63" + residentInfo.emergencymobilenumber.slice(1)
+          : "";
+
+      let formattedTelephone =
+        residentInfo.telephone && residentInfo.telephone.length > 0
+          ? "+63" + residentInfo.telephone.slice(1)
+          : "+63";
 
       setResidentForm((prevForm) => ({
         ...prevForm,
@@ -299,6 +485,9 @@ function AccountSettings({ isCollapsed }) {
         numberofchildren: childrenLength,
         street: streetName,
         housenumber: houseNumber,
+        mobilenumber: formattedNumber,
+        emergencymobilenumber: formattedEmergencyNumber,
+        telephone: formattedTelephone,
       }));
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
@@ -320,7 +509,7 @@ function AccountSettings({ isCollapsed }) {
             name={`sibling-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
             value={residentForm.siblings[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -354,7 +543,7 @@ function AccountSettings({ isCollapsed }) {
             name={`child-${i}`}
             onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
             value={residentForm.children[i]}
-            className="form-input h-[30px]"
+            className="form-input"
           >
             <option value="" disabled selected hidden>
               Select
@@ -679,17 +868,38 @@ function AccountSettings({ isCollapsed }) {
   }
 
   const handleSubmit = async () => {
+    let hasErrors = false;
+
+    if (!id) {
+      alert("Picture is required");
+      hasErrors = true;
+    } else if (!signature) {
+      alert("Signature is required");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
+      setEmMobileNumError("Invalid mobile number.");
+      hasErrors = true;
+    }
+
+    if (
+      residentForm.telephone.length > 3 &&
+      residentForm.telephone.length < 12
+    ) {
+      setTelephoneNumError("Invalid telephone.");
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      return;
+    }
     try {
       let idPicture;
       let signaturePicture;
-      if (!id) {
-        alert("Picture is required");
-        return;
-      }
-      if (!signature) {
-        alert("Signature is required");
-        return;
-      }
       const isConfirmed = await confirm(
         "Are you sure you want to edit this resident profile?",
         "confirm"
@@ -697,7 +907,7 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      if (residentForm.numberofsiblings === 0) {
+      if (residentForm.numberofsiblings == 0) {
         residentForm.siblings = [];
       } else {
         residentForm.siblings = residentForm.siblings.slice(
@@ -706,7 +916,7 @@ function AccountSettings({ isCollapsed }) {
         );
       }
 
-      if (residentForm.numberofchildren === 0) {
+      if (residentForm.numberofchildren == 0) {
         residentForm.children = [];
       } else {
         residentForm.children = residentForm.children.slice(
@@ -727,11 +937,31 @@ function AccountSettings({ isCollapsed }) {
       } else {
         signaturePicture = residentInfo.signature;
       }
+
+      let formattedMobileNumber = residentForm.mobilenumber;
+      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
+
+      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
+      formattedEmergencyMobileNumber =
+        "0" + residentForm.emergencymobilenumber.slice(3);
+
+      let formattedTelephone = residentForm.telephone;
+      if (residentForm.telephone) {
+        formattedTelephone = "0" + residentForm.telephone.slice(3);
+        delete residentForm.telephone;
+      }
+
+      delete residentForm.mobilenumber;
+      delete residentForm.emergencymobilenumber;
+
       const updatedResidentForm = {
         ...residentForm,
         picture: idPicture,
         signature: signaturePicture,
         address: fulladdress,
+        mobilenumber: formattedMobileNumber,
+        emergencymobilenumber: formattedEmergencyMobileNumber,
+        telephone: formattedTelephone,
       };
 
       await api.put(`/updateresident/${residentInfo._id}`, updatedResidentForm);
@@ -757,49 +987,192 @@ function AccountSettings({ isCollapsed }) {
     }
   };
 
+  const mobileInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 13) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "mobilenumber") {
+      if (value.length >= 13) {
+        setMobileNumError(null);
+      } else {
+        setMobileNumError("Invalid mobile number.");
+      }
+    }
+
+    if (name === "emergencymobilenumber") {
+      if (value.length >= 13) {
+        setEmMobileNumError(null);
+      } else {
+        setEmMobileNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const telephoneInputChange = (e) => {
+    let { name, value } = e.target;
+    value = value.replace(/\D/g, "");
+
+    if (!value.startsWith("+63")) {
+      value = "+63" + value.replace(/^0+/, "").slice(2);
+    }
+    if (value.length > 11) {
+      value = value.slice(0, 13);
+    }
+    if (value.length >= 4 && value[3] === "0") {
+      return;
+    }
+
+    setResidentForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "telephone") {
+      if (value === "+63") {
+        setTelephoneNumError(null);
+      } else if (value.length > 11) {
+        setTelephoneNumError(null);
+      } else {
+        setTelephoneNumError("Invalid mobile number.");
+      }
+    }
+  };
+
+  const usernameValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setUsername(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Username must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 3) ||
+      (formattedVal && formattedVal.length > 16)
+    ) {
+      errors.push("Username must be between 3 and 16 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
+      errors.push(
+        "Username can only contain letters, numbers, and underscores."
+      );
+    }
+    if (
+      (formattedVal && formattedVal.startsWith("_")) ||
+      (formattedVal && formattedVal.endsWith("_"))
+    ) {
+      errors.push("Username must not start or end with an underscore");
+    }
+
+    setUsernameErrors(errors);
+  };
+
+  const repasswordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setRenewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (formattedVal !== newpassword && formattedVal.length > 0) {
+      errors.push("Passwords do not match");
+    }
+    setRePasswordErrors(errors);
+  };
+
+  const curpasswordValidation = (e) => {
+    let val = e.target.value;
+    let formattedVal = val.replace(/\s+/g, "");
+    setPassword(formattedVal);
+
+    if (!formattedVal) {
+      setCurPasswordError("Password must not be empty.");
+    } else {
+      setCurPasswordError(null);
+    }
+  };
+
+  const passwordValidation = (e) => {
+    let val = e.target.value;
+    let errors = [];
+    let formattedVal = val.replace(/\s+/g, "");
+    setNewPassword(formattedVal);
+
+    if (!formattedVal) {
+      errors.push("Password must not be empty");
+    }
+    if (
+      (formattedVal && formattedVal.length < 8) ||
+      (formattedVal && formattedVal.length > 64)
+    ) {
+      errors.push("Password must be between 8 and 64 characters only");
+    }
+    if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
+      errors.push(
+        "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
+      );
+    }
+    setPasswordErrors(errors);
+  };
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="header-text">Account Settings</div>
-        <div className="flex flex-col lg:flex-row mt-4 gap-10">
+        <div className="settings-container">
           {/* Left Panel */}
-          <div className="flex flex-col mt-4">
-            <p
-              onClick={handleMenu1}
-              className={`cursor-pointer text-base font-bold ${
-                isProfileClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
-              }`}
-            >
-              Profile
-            </p>
+          <div className="settings-left-container">
+            {user.role !== "Technical Admin" && (
+              <p
+                onClick={handleMenu1}
+                className={`settings-left-tab ${
+                  isProfileClicked
+                    ? "settings-left-tab-active"
+                    : "p-2 font-medium"
+                }`}
+              >
+                Profile
+              </p>
+            )}
+
             <p
               onClick={handleMenu2}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isUsernameClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "settings-left-tab-active"
+                  : "p-2 font-medium"
               }`}
             >
               Change Username
             </p>
             <p
               onClick={handleMenu3}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isPasswordClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "settings-left-tab-active"
+                  : "p-2 font-medium"
               }`}
             >
               Change Password
             </p>
             <p
               onClick={handleMenu4}
-              className={`cursor-pointer text-base font-bold ${
+              className={`settings-left-tab ${
                 isQuestionsClicked
-                  ? "bg-btn-color-blue rounded-md text-[#fff] w-[14rem] px-2"
-                  : "px-2 font-medium"
+                  ? "settings-left-tab-active"
+                  : "p-2 font-medium"
               }`}
             >
               Edit Security Questions
@@ -832,12 +1205,12 @@ function AccountSettings({ isCollapsed }) {
                               {isIDProcessing ? (
                                 <p>Processing...</p>
                               ) : id ? (
-                                <img
-                                  src={id}
-                                  className="w-full h-full object-contain bg-white"
-                                />
+                                <img src={id} className="upload-img" />
                               ) : (
-                                <p>No Picture Attached</p>
+                                <div className="upload-placeholder-container">
+                                  <BiSolidImageAlt className="w-16 h-16" />
+                                  <p>Attach Image</p>
+                                </div>
                               )}
                             </div>
 
@@ -875,12 +1248,12 @@ function AccountSettings({ isCollapsed }) {
                               {isSignProcessing ? (
                                 <p>Processing...</p>
                               ) : signature ? (
-                                <img
-                                  src={signature}
-                                  className="w-full h-full object-contain bg-white"
-                                />
+                                <img src={signature} className="upload-img" />
                               ) : (
-                                <p>No Picture Attached</p>
+                                <div className="upload-placeholder-container">
+                                  <BiSolidImageAlt className="w-16 h-16" />
+                                  <p>Attach Image</p>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -915,7 +1288,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter first name"
                             required
-                            className="form-input h-[30px] input-box"
+                            className="form-input input-box"
                           />
                         </div>
                         <div className="form-group">
@@ -925,7 +1298,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.middlename}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter middle name"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -938,7 +1311,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter last name"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -950,7 +1323,7 @@ function AccountSettings({ isCollapsed }) {
                             name="suffix"
                             onChange={handleDropdownChange}
                             value={residentForm.suffix}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -967,7 +1340,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.alias}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter alias"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -979,7 +1352,7 @@ function AccountSettings({ isCollapsed }) {
                             name="salutation"
                             onChange={handleDropdownChange}
                             value={residentForm.salutation}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -992,7 +1365,7 @@ function AccountSettings({ isCollapsed }) {
                         </div>
                         <div className="form-group">
                           <label for="sex" className="form-label">
-                            Sex:<label className="text-red-600">*</label>
+                            Sex<label className="text-red-600">*</label>
                           </label>
                           <select
                             id="sex"
@@ -1000,7 +1373,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.sex}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1019,7 +1392,7 @@ function AccountSettings({ isCollapsed }) {
                             name="gender"
                             onChange={handleDropdownChange}
                             value={residentForm.gender}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1047,7 +1420,7 @@ function AccountSettings({ isCollapsed }) {
                             placeholder="Enter birthdate"
                             min="1900-01-01"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input p-2"
                           />
                         </div>
 
@@ -1058,7 +1431,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.birthplace}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter birthplace"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1072,7 +1445,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.civilstatus}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1091,7 +1464,7 @@ function AccountSettings({ isCollapsed }) {
                             name="bloodtype"
                             onChange={handleDropdownChange}
                             value={residentForm.bloodtype}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1111,7 +1484,7 @@ function AccountSettings({ isCollapsed }) {
                             name="religion"
                             onChange={handleDropdownChange}
                             value={residentForm.religion}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1131,7 +1504,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.nationality}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1146,26 +1519,28 @@ function AccountSettings({ isCollapsed }) {
                           <label className="form-label ">
                             Registered Voter
                           </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="voter"
-                              onChange={handleRadioChange}
-                              value="Yes"
-                              checked={residentForm.voter === "Yes"}
-                            />
-                            Yes
-                          </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="voter"
-                              onChange={handleRadioChange}
-                              value="No"
-                              checked={residentForm.voter === "No"}
-                            />
-                            No
-                          </label>
+                          <div className="radio-container">
+                            <div className="radio-item">
+                              <input
+                                type="radio"
+                                name="voter"
+                                onChange={handleRadioChange}
+                                value="Yes"
+                                checked={residentForm.voter === "Yes"}
+                              />
+                              <h1>Yes</h1>
+                            </div>
+                            <div className="radio-item">
+                              <input
+                                type="radio"
+                                name="voter"
+                                onChange={handleRadioChange}
+                                value="No"
+                                checked={residentForm.voter === "No"}
+                              />
+                              <h1>No</h1>
+                            </div>
+                          </div>
                         </div>
 
                         <div className="form-group">
@@ -1175,32 +1550,34 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.precinct}
                             onChange={lettersNumbersAndSpaceOnly}
                             placeholder="Enter precinct"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
 
-                        <div className="form-group space-x-5">
-                          <label className="form-label">Deceased:</label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="deceased"
-                              onChange={handleRadioChange}
-                              value="Yes"
-                              checked={residentForm.deceased === "Yes"}
-                            />
-                            Yes
-                          </label>
-                          <label>
-                            <input
-                              type="radio"
-                              name="deceased"
-                              onChange={handleRadioChange}
-                              value="No"
-                              checked={residentForm.deceased === "No"}
-                            />
-                            No
-                          </label>
+                        <div className="form-group">
+                          <label className="form-label">Deceased</label>
+                          <div className="radio-container">
+                            <div className="radio-item">
+                              <input
+                                type="radio"
+                                name="deceased"
+                                onChange={handleRadioChange}
+                                value="Yes"
+                                checked={residentForm.deceased === "Yes"}
+                              />
+                              <h1>Yes</h1>
+                            </div>
+                            <div className="radio-item">
+                              <input
+                                type="radio"
+                                name="deceased"
+                                onChange={handleRadioChange}
+                                value="No"
+                                checked={residentForm.deceased === "No"}
+                              />
+                              <h1>No</h1>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -1218,7 +1595,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.email}
                             onChange={stringsAndNoSpaceOnly}
                             placeholder="Enter email"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1229,22 +1606,33 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="mobilenumber"
                             value={residentForm.mobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
-                            className="form-input h-[30px]"
+                            className="form-input"
+                            maxLength={13}
                           />
+                          {mobileNumError ? (
+                            <label className="error-msg">
+                              {mobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Telephone</label>
                           <input
                             name="telephone"
                             value={residentForm.telephone}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={telephoneInputChange}
                             placeholder="Enter telephone"
-                            className="form-input h-[30px]"
+                            className="form-input"
+                            maxLength={13}
                           />
+                          {telephoneNumError ? (
+                            <label className="error-msg">
+                              {telephoneNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">Facebook</label>
@@ -1253,7 +1641,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.facebook}
                             onChange={stringsAndNoSpaceOnly}
                             placeholder="Enter facebook"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1274,7 +1662,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter name"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1285,12 +1673,17 @@ function AccountSettings({ isCollapsed }) {
                           <input
                             name="emergencymobilenumber"
                             value={residentForm.emergencymobilenumber}
-                            onChange={numbersAndNoSpaceOnly}
+                            onChange={mobileInputChange}
                             placeholder="Enter mobile number"
                             required
-                            maxLength={11}
-                            className="form-input h-[30px]"
+                            maxLength={13}
+                            className="form-input"
                           />
+                          {emMobileNumError ? (
+                            <label className="error-msg">
+                              {emMobileNumError}
+                            </label>
+                          ) : null}
                         </div>
                         <div className="form-group">
                           <label className="form-label">
@@ -1302,7 +1695,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={lettersNumbersAndSpaceOnly}
                             placeholder="Enter address"
                             required
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1321,7 +1714,7 @@ function AccountSettings({ isCollapsed }) {
                             name="mother"
                             onChange={handleDropdownChange}
                             value={residentForm.mother}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1345,7 +1738,7 @@ function AccountSettings({ isCollapsed }) {
                             name="father"
                             onChange={handleDropdownChange}
                             value={residentInfo.father}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1368,7 +1761,7 @@ function AccountSettings({ isCollapsed }) {
                             name="spouse"
                             onChange={handleDropdownChange}
                             value={residentInfo.spouse}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1383,7 +1776,7 @@ function AccountSettings({ isCollapsed }) {
                           </select>
                         </div>
                       </div>
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4">Siblings</label>
                           <input
@@ -1391,7 +1784,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.numberofsiblings}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter number of siblings"
-                            className="form-input h-[30px] "
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1401,7 +1794,7 @@ function AccountSettings({ isCollapsed }) {
                         </div>
                       )}
 
-                      <div className="form-grid">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="form-group">
                           <label className="form-label mt-4 ">Children</label>
                           <input
@@ -1409,7 +1802,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.numberofchildren}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter number of siblings"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1434,7 +1827,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.housenumber}
                             onChange={numbersAndNoSpaceOnly}
                             placeholder="Enter house number"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                         <div className="form-group">
@@ -1447,7 +1840,7 @@ function AccountSettings({ isCollapsed }) {
                             onChange={handleDropdownChange}
                             required
                             value={residentForm.street}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1466,7 +1859,7 @@ function AccountSettings({ isCollapsed }) {
                             name="HOAname"
                             onChange={handleDropdownChange}
                             value={residentForm.HOAname}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1495,7 +1888,7 @@ function AccountSettings({ isCollapsed }) {
                             name="employmentstatus"
                             onChange={handleDropdownChange}
                             value={residentForm.employmentstatus}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1513,7 +1906,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.occupation}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter occupation"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
 
@@ -1526,7 +1919,7 @@ function AccountSettings({ isCollapsed }) {
                             name="monthlyincome"
                             onChange={handleDropdownChange}
                             value={residentForm.monthlyincome}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1557,7 +1950,7 @@ function AccountSettings({ isCollapsed }) {
                             name="educationalattainment"
                             onChange={handleDropdownChange}
                             value={residentForm.educationalattainment}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1576,7 +1969,7 @@ function AccountSettings({ isCollapsed }) {
                             name="typeofschool"
                             onChange={handleDropdownChange}
                             value={residentForm.typeofschool}
-                            className="form-input h-[30px]"
+                            className="form-input"
                           >
                             <option value="" disabled selected hidden>
                               Select
@@ -1592,7 +1985,7 @@ function AccountSettings({ isCollapsed }) {
                             value={residentForm.course}
                             onChange={lettersAndSpaceOnly}
                             placeholder="Enter course"
-                            className="form-input h-[30px]"
+                            className="form-input"
                           />
                         </div>
                       </div>
@@ -1600,7 +1993,7 @@ function AccountSettings({ isCollapsed }) {
                       <div className="function-btn-container">
                         <button
                           type="submit"
-                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                          className="settings-btn actions-btn"
                         >
                           Save Changes
                         </button>
@@ -1613,13 +2006,13 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Change Username */}
             {isUsernameClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Change Username</div>
                 <div className="p-4">
                   <div>
-                    <label>Current Username</label>
+                    <label className="form-label">Current Username</label>
                     <div>
-                      <label>{user.username}</label>
+                      <label className="text-[#808080]">{user.username}</label>
                     </div>
                   </div>
 
@@ -1633,30 +2026,53 @@ function AccountSettings({ isCollapsed }) {
                       id="name"
                       name="name"
                       value={username}
-                      onChange={(e) =>
-                        setUsername(e.target.value.toLowerCase())
-                      }
-                      className="form-input h-[30px]"
+                      minLength={3}
+                      maxLength={16}
+                      onChange={(e) => usernameValidation(e)}
+                      className="form-input"
                     />
+                    {usernameErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {usernameErrors.map((error, index) => (
+                          <p key={index} className="error-msg">
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        type={showUserPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowUserPassword((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showUserPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="error-msg">{curPasswordError}</label>
+                    ) : null}
                   </div>
 
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handleUsernameChange}
                     >
@@ -1669,54 +2085,111 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Change Password */}
             {isPasswordClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Change Password</div>
                 <div className="p-4">
                   <div className="employee-form-group">
                     <label for="password" className="form-label">
                       Current Password
                     </label>
-                    <input
-                      placeholder="Enter Current Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Current Password"
+                        type={showCurrPassword ? "text" : "password"}
+                        id="password"
+                        name="password"
+                        value={password}
+                        minLength={8}
+                        maxLength={64}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrPassword((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="error-msg">{curPasswordError}</label>
+                    ) : null}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="newpassword" className="form-label">
                       New Password
                     </label>
-                    <input
-                      placeholder="Enter New Password"
-                      type="password"
-                      id="newpassword"
-                      name="newpassword"
-                      value={newpassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="form-input h-[30px]"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter New Password"
+                        type={showNewPassword ? "text" : "password"}
+                        id="newpassword"
+                        name="newpassword"
+                        value={newpassword}
+                        minLength={8}
+                        maxLength={64}
+                        onChange={(e) => passwordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showNewPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {passwordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {passwordErrors.map((error, index) => (
+                          <p key={index} className="error-msg">
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="employee-form-group mt-4">
                     <label for="renewpassword" className="form-label">
                       Reenter Password
                     </label>
-                    <input
-                      placeholder="Enter Reenter Password"
-                      type="password"
-                      id="renewpassword"
-                      name="renewpassword"
-                      value={renewpassword}
-                      onChange={(e) => setRenewPassword(e.target.value)}
-                      className="form-input h-[30px]"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Reenter Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        id="renewpassword"
+                        name="renewpassword"
+                        minLength={8}
+                        maxLength={64}
+                        value={renewpassword}
+                        onChange={(e) => repasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {repasswordErrors.length > 0 && (
+                      <div style={{ marginTop: 5, width: 300 }}>
+                        {repasswordErrors.map((error, index) => (
+                          <p key={index} className="error-msg">
+                            {error}
+                          </p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handlePasswordChange}
                     >
@@ -1729,7 +2202,7 @@ function AccountSettings({ isCollapsed }) {
 
             {/* Edit Security Questions */}
             {isQuestionsClicked && (
-              <div className="white-bg-container w-[30rem] h-auto">
+              <div className="settings-form-card white-bg-container">
                 <div className="header-text">Edit Security Questions</div>
                 <div className="p-4">
                   <div>
@@ -1738,7 +2211,7 @@ function AccountSettings({ isCollapsed }) {
                       onChange={(e) =>
                         handleSecurityChange(0, "question", e.target.value)
                       }
-                      className="form-input h-[30px] mb-2"
+                      className="form-input mb-2"
                       value={securityquestions[0].question}
                     >
                       <option value="" disabled selected hidden>
@@ -1752,18 +2225,30 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          0,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        value={securityquestions[0].answer}
+                        type={showAnswer1 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            0,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer1((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-4">
@@ -1772,7 +2257,7 @@ function AccountSettings({ isCollapsed }) {
                       onChange={(e) =>
                         handleSecurityChange(1, "question", e.target.value)
                       }
-                      className="form-input h-[30px] mb-2"
+                      className="form-input mb-2"
                       value={securityquestions[1].question}
                     >
                       <option value="" disabled selected hidden>
@@ -1786,37 +2271,62 @@ function AccountSettings({ isCollapsed }) {
                           <option value={element}>{element}</option>
                         ))}
                     </select>
-                    <input
-                      type="password"
-                      placeholder="Enter answer"
-                      onChange={(e) =>
-                        handleSecurityChange(
-                          1,
-                          "answer",
-                          e.target.value.toLowerCase()
-                        )
-                      }
-                      className="form-input h-[35px]"
-                    />
+
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter answer"
+                        value={securityquestions[1].answer}
+                        type={showAnswer2 ? "text" : "password"}
+                        onChange={(e) =>
+                          handleSecurityChange(
+                            1,
+                            "answer",
+                            e.target.value.toLowerCase()
+                          )
+                        }
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAnswer2((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="employee-form-group mt-4">
                     <label for="password" className="form-label">
                       Password
                     </label>
-                    <input
-                      placeholder="Enter Password"
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="form-input h-[30px]"
-                    />
+                    <div className="relative w-full">
+                      <input
+                        placeholder="Enter Password"
+                        id="password"
+                        name="password"
+                        value={password}
+                        type={showSecurityPass ? "text" : "password"}
+                        onChange={(e) => curpasswordValidation(e)}
+                        className="form-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSecurityPass((prev) => !prev)}
+                        className="eye-toggle"
+                        tabIndex={-1}
+                      >
+                        {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
+                      </button>
+                    </div>
+                    {curPasswordError ? (
+                      <label className="error-msg">{curPasswordError}</label>
+                    ) : null}
                   </div>
                   <div className="function-btn-container">
                     <button
-                      className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] mt-4"
+                      className="settings-btn actions-btn"
                       type="button"
                       onClick={handleQuestionsChange}
                     >

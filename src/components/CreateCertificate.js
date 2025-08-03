@@ -1,16 +1,24 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { AuthContext } from "../context/AuthContext";
-import { IoClose } from "react-icons/io5";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase";
+import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
+
+//SCREENS
 import IndigencyPrint from "./certificates/IndigencyPrint";
 import BusinessClearancePrint from "./certificates/BusinessClearancePrint";
 import ClearancePrint from "./certificates/ClearancePrint";
-import api from "../api";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateCertificate({ resID, onClose }) {
+  const confirm = useConfirm();
   const { user } = useContext(AuthContext);
   const [certificateForm, setCertificateForm] = useState({
     typeofcertificate: "",
@@ -107,6 +115,13 @@ function CreateCertificate({ resID, onClose }) {
   }
 
   const handleSubmit = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to issue this resident a document?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     const requiredFields =
       certificateFields[certificateForm.typeofcertificate] || [];
 
@@ -162,28 +177,49 @@ function CreateCertificate({ resID, onClose }) {
         const response5 = await api.get(`/getprepared/${user.userID}`);
 
         if (response3.data.typeofcertificate === "Barangay Indigency") {
-          IndigencyPrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            IndigencyPrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         } else if (response3.data.typeofcertificate === "Barangay Clearance") {
-          ClearancePrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            ClearancePrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         } else if (
           response3.data.typeofcertificate === "Barangay Business Clearance"
         ) {
-          BusinessClearancePrint({
-            certData: response3.data,
-            captainData: response4.data,
-            preparedByData: response5.data,
-            updatedAt: response3.data.updatedAt,
-          });
+          try {
+            await api.post(`/issuedocument/${resID}`, {
+              typeofcertificate: response3.data.typeofcertificate,
+            });
+            BusinessClearancePrint({
+              certData: response3.data,
+              captainData: response4.data,
+              preparedByData: response5.data,
+              updatedAt: response3.data.updatedAt,
+            });
+          } catch (error) {
+            console.log("Error in issuing a document", error);
+          }
         }
         setTimeout(() => {
           handleClose();
@@ -204,15 +240,18 @@ function CreateCertificate({ resID, onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[15rem] ">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Create Certificate</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content w-[30rem] h-[16rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Create Certificate</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -232,7 +271,7 @@ function CreateCertificate({ resID, onClose }) {
                     name="typeofcertificate"
                     onChange={handleDropdownChange}
                     required
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] appearance-none"
                   >
                     <option value="" disabled selected hidden>
                       Select
@@ -255,7 +294,7 @@ function CreateCertificate({ resID, onClose }) {
                       name="purpose"
                       onChange={handleDropdownChange}
                       required
-                      className="form-input h-[30px]"
+                      className="form-input h-[30px] appearance-none"
                     >
                       <option value="" disabled selected hidden>
                         Select
@@ -295,7 +334,7 @@ function CreateCertificate({ resID, onClose }) {
                         name="street"
                         onChange={handleDropdownChange}
                         required
-                        className="form-input h-[30px]"
+                        className="form-input h-[30px] appearance-none"
                       >
                         <option value="" disabled selected hidden>
                           Select

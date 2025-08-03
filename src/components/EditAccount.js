@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
-import { IoClose } from "react-icons/io5";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
-import { FaEyeSlash } from "react-icons/fa";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { MdAutorenew } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function EditAccount({ onClose, userID, userUsername }) {
   const confirm = useConfirm();
@@ -35,7 +39,7 @@ function EditAccount({ onClose, userID, userUsername }) {
       }
       console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
-      alert("User updated successfully");
+      alert("User has been successfully updated.");
       onClose();
     } catch (error) {
       const response = error.response;
@@ -81,15 +85,18 @@ function EditAccount({ onClose, userID, userUsername }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content w-[30rem] h-[15rem] ">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Edit Contact</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content w-[30rem] h-[16rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Edit Account</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -129,10 +136,10 @@ function EditAccount({ onClose, userID, userUsername }) {
                     />
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      className="eye-toggle"
                       onClick={generatePassword}
                     >
-                      <FaEyeSlash className="text-gray-500" />
+                      <MdAutorenew />
                     </button>
                   </div>
                 </div>

@@ -1,21 +1,24 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
+
+//STYLES
+import "../App.css";
+
+//ICONS
+import { IoClose } from "react-icons/io5";
 
 function CreateEmployee({ onClose }) {
+  const confirm = useConfirm();
   const { fetchResidents, residents, employees } = useContext(InfoContext);
   const [availablePositions, setAvailablePositions] = useState([]);
-  const [availableWeeks, setAvailableWeeks] = useState([]);
   const [employeeForm, setEmployeeForm] = useState({
     resID: "",
     position: "",
     chairmanship: "",
-    assignedweeks: "",
-    assignedday: "",
   });
   const [showModal, setShowModal] = useState(true);
 
@@ -45,6 +48,13 @@ function CreateEmployee({ onClose }) {
   }
 
   const handleSubmit = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to create a new employee?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
     try {
       let formattedEmployeeForm = { ...employeeForm };
       if (employeeForm.position !== "Justice") {
@@ -64,16 +74,14 @@ function CreateEmployee({ onClose }) {
         const qrCode = await uploadToFirebase(response2.data.qrCode);
 
         try {
-          const response3 = await api.put(
-            `/saveemployeeID/${response.data.empID}`,
-            {
-              idNumber: response2.data.idNumber,
-              expirationDate: response2.data.expirationDate,
-              qrCode,
-              qrToken: response2.data.qrToken,
-            }
-          );
-          alert("Employee ID is successfully generated");
+          await api.put(`/saveemployeeID/${response.data.empID}`, {
+            idNumber: response2.data.idNumber,
+            expirationDate: response2.data.expirationDate,
+            qrCode,
+            qrToken: response2.data.qrToken,
+          });
+          onClose();
+          alert("Employee has been successfully created.");
         } catch (error) {
           console.log("Error saving employee ID", error);
         }
@@ -93,13 +101,6 @@ function CreateEmployee({ onClose }) {
     Tanod: 20,
     Justice: 10,
   };
-
-  const assignedWeeks = {
-    "1st & 3rd Week": 5,
-    "2nd & 4th Week": 5,
-  };
-
-  const assignedDay = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   const chairmanshipList = [
     "Budget and Appropriation",
@@ -131,32 +132,6 @@ function CreateEmployee({ onClose }) {
     fetchAvailablePositions();
   }, []);
 
-  useEffect(() => {
-    const fetchAvailableWeeks = async () => {
-      try {
-        const response = await api.get("/weekscount");
-        const counts = response.data;
-
-        const remainingWeeks = Object.entries(assignedWeeks)
-          .filter(([pos, limit]) => {
-            const lowerPos = pos.toLowerCase();
-            return (counts[lowerPos] || 0) < limit;
-          })
-          .map(([pos]) => pos);
-        setAvailableWeeks(remainingWeeks);
-      } catch (err) {
-        console.error("Failed to fetch available weeks", err);
-      }
-    };
-    fetchAvailableWeeks();
-  }, []);
-
-  const getUsedDaysForSelectedWeek = (week) => {
-    return employees
-      .filter((emp) => emp.position === "Justice" && emp.assignedweeks === week)
-      .map((emp) => emp.assignedday);
-  };
-
   const getUsedChairmanships = () => {
     return employees
       .filter((emp) => emp.position === "Kagawad")
@@ -172,15 +147,18 @@ function CreateEmployee({ onClose }) {
     <>
       {setShowModal && (
         <div className="modal-container">
-          <div className="modal-content h-[15rem] w-[30rem]">
-            <div className="modal-title-bar">
-              <div className="modal-title">Add New Employee</div>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+          <div className="modal-content h-[16rem] w-[30rem]">
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Add New Employee</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
@@ -199,7 +177,8 @@ function CreateEmployee({ onClose }) {
                     id="resID"
                     name="resID"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] appearance-none"
+                    required
                   >
                     <option value="" disabled selected hidden>
                       Select
@@ -224,7 +203,8 @@ function CreateEmployee({ onClose }) {
                     id="position"
                     name="position"
                     onChange={handleDropdownChange}
-                    className="form-input h-[30px]"
+                    className="form-input h-[30px] appearance-none"
+                    required
                   >
                     <option value="" disabled selected hidden>
                       Select
@@ -261,7 +241,7 @@ function CreateEmployee({ onClose }) {
                   </div>
                 )}
 
-                {employeeForm.position === "Justice" && (
+                {/* {employeeForm.position === "Justice" && (
                   <div className="employee-form-group">
                     <label for="assignedweeks" className="form-label">
                       Assigned Weeks<label className="text-red-600">*</label>
@@ -308,7 +288,7 @@ function CreateEmployee({ onClose }) {
                           ))}
                       </select>
                     </div>
-                  )}
+                  )} */}
 
                 <div className="flex justify-center">
                   <button

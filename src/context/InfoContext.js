@@ -2,14 +2,12 @@ import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
-import { useRouteError } from "react-router-dom";
-
 // Create a context for socket connection
 export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const socket = io("https://ebarrio-web-backend.onrender.com", {
+const socket = io("https://api.ebarrio.online/website", {
   withCredentials: true,
 });
 
@@ -23,6 +21,112 @@ export const InfoProvider = ({ children }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [courtreservations, setCourtReservations] = useState([]);
   const [blotterreports, setBlotterReports] = useState([]);
+  const [activitylogs, setActivityLogs] = useState([]);
+  const [household, setHousehold] = useState([]);
+  const [FAQslist, setFAQslist] = useState([]);
+  const [chats, setChats] = useState([]);
+  const [roomId, setRoomId] = useState(null);
+  const [assignedAdmin, setAssignedAdmin] = useState(null);
+  const [pendingReservationCount, setPendingReservationCount] = useState(null);
+
+  const announcementInitialForm = {
+    category: "",
+    title: "",
+    content: "",
+    picture: "",
+    date: [],
+    times: {},
+    eventdetails: "",
+  };
+
+  const residentInitialForm = {
+    id: "",
+    signature: "",
+    firstname: "",
+    middlename: "",
+    lastname: "",
+    suffix: "",
+    alias: "",
+    salutation: "",
+    sex: "",
+    gender: "",
+    birthdate: "",
+    birthplace: "",
+    civilstatus: "",
+    bloodtype: "",
+    religion: "",
+    nationality: "",
+    voter: "",
+    precinct: "",
+    deceased: "",
+    email: "",
+    mobilenumber: "+63",
+    telephone: "+63",
+    facebook: "",
+    emergencyname: "",
+    emergencymobilenumber: "+63",
+    emergencyaddress: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
+    mother: "",
+    father: "",
+    spouse: "",
+    siblings: [],
+    children: [],
+    numberofsiblings: "",
+    numberofchildren: "",
+    employmentstatus: "",
+    employmentfield: "",
+    occupation: "",
+    monthlyincome: "",
+    educationalattainment: "",
+    typeofschool: "",
+    course: "",
+  };
+  const blotterInitialForm = {
+    complainantID: "",
+    complainantname: "",
+    complainantaddress: "",
+    complainantcontactno: "+63",
+    complainantsignature: "",
+    subjectID: "",
+    subjectname: "",
+    subjectaddress: "",
+    typeofthecomplaint: "",
+    details: "",
+    date: "",
+    starttime: "",
+    endtime: "",
+  };
+
+  const [residentForm, setResidentForm] = useState(() => {
+    const savedForm = localStorage.getItem("residentForm");
+    return savedForm ? JSON.parse(savedForm) : residentInitialForm;
+  });
+
+  const [blotterForm, setBlotterForm] = useState(() => {
+    const savedForm = localStorage.getItem("blotterForm");
+    return savedForm ? JSON.parse(savedForm) : blotterInitialForm;
+  });
+
+  const [announcementForm, setAnnouncementForm] = useState(() => {
+    const savedForm = localStorage.getItem("announcementForm");
+    return savedForm ? JSON.parse(savedForm) : announcementInitialForm;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("residentForm", JSON.stringify(residentForm));
+  }, [residentForm]);
+
+  useEffect(() => {
+    localStorage.setItem("blotterForm", JSON.stringify(blotterForm));
+  }, [blotterForm]);
+
+  useEffect(() => {
+    localStorage.setItem("announcementForm", JSON.stringify(announcementForm));
+  }, [announcementForm]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -113,6 +217,55 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchActivityLogs = async () => {
+    try {
+      const response = await api.get("/getactivitylogs");
+      setActivityLogs(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch activity logs:", error);
+    }
+  };
+
+  const fetchHouseholds = async () => {
+    try {
+      const response = await api.get("/gethouseholds");
+      setHousehold(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchFAQslist = async () => {
+    try {
+      const response = await api.get("/getfaqs");
+      setFAQslist(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+  const fetchChats = async () => {
+    try {
+      const response = await api.get("/getchats");
+      setChats(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const fetchPendingReservations = async () => {
+        try {
+          const response = await api.get("/getpendingreservations");
+          setPendingReservationCount(response.data);
+        } catch (error) {
+          console.error("❌ Failed to fetch users:", error);
+        }
+      };
+      fetchPendingReservations();
+    }
+  }, [isAuthenticated]);
+
   useEffect(() => {
     socket.on("dbChange", (updatedData) => {
       if (updatedData.type === "residents") {
@@ -132,6 +285,8 @@ export const InfoProvider = ({ children }) => {
         setCourtReservations(updatedData.data);
       } else if (updatedData.type === "blotterreports") {
         setBlotterReports(updatedData.data);
+      } else if (updatedData.type === "activitylogs") {
+        setActivityLogs(updatedData.data);
       }
     });
 
@@ -152,6 +307,24 @@ export const InfoProvider = ({ children }) => {
           announcements,
           courtreservations,
           blotterreports,
+          residentForm,
+          blotterForm,
+          announcementForm,
+          household,
+          FAQslist,
+          pendingReservationCount,
+          chats,
+          roomId,
+          setRoomId,
+          assignedAdmin,
+          setAssignedAdmin,
+          setChats,
+          setAnnouncementForm,
+          fetchActivityLogs,
+          activitylogs,
+          setBlotterForm,
+          setResidentForm,
+          fetchHouseholds,
           fetchResidents,
           fetchEmployees,
           fetchUsers,
@@ -160,6 +333,8 @@ export const InfoProvider = ({ children }) => {
           fetchAnnouncements,
           fetchReservations,
           fetchBlotterReports,
+          fetchFAQslist,
+          fetchChats,
         }}
       >
         {children}

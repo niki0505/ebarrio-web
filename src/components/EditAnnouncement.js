@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
-import "../App.css";
 import { InfoContext } from "../context/InfoContext";
-import { IoClose } from "react-icons/io5";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
-import { FaCalendarAlt } from "react-icons/fa";
-import { FiCalendar, FiUpload } from "react-icons/fi";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import DatePicker from "react-multi-date-picker";
+
+//STYLES
+import "../App.css";
 
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
 
 function EditAnnouncement({ onClose, announcementID }) {
   const confirm = useConfirm();
@@ -28,66 +28,31 @@ function EditAnnouncement({ onClose, announcementID }) {
     title: "",
     content: "",
     picture: "",
-    eventStart: "",
-    eventEnd: "",
-    eventStartTime: "",
-    eventEndTime: "",
-    eventDate: "",
-    uploadedby: user.empID,
+    date: [],
+    times: {},
+    eventdetails: "",
   });
   const [showModal, setShowModal] = useState(true);
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
-        let formattedDate;
-        let formattedStartTime;
-        let formattedEndTime;
         const response = await api.get(`/getannouncement/${announcementID}`);
         if (response.data.picture !== "") {
           setHavePicture(true);
         }
-        if (response.data.eventStart !== null) {
-          formattedDate = new Date(response.data.eventStart)
-            .toISOString()
-            .split("T")[0];
-          formattedStartTime = formatToTimeForInput(
-            new Date(response.data.eventStart)
-          );
-          formattedEndTime = formatToTimeForInput(
-            new Date(response.data.eventEnd)
-          );
-          setEventDetails(
-            `📅 ${new Date(response.data.eventStart).toLocaleDateString(
-              "en-US",
-              {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            )}\n🕒 ${new Date(response.data.eventStart).toLocaleTimeString(
-              "en-US",
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-              }
-            )} - ${new Date(response.data.eventEnd).toLocaleTimeString(
-              "en-US",
-              {
-                hour: "2-digit",
-                minute: "2-digit",
-              }
-            )}`
-          );
-        }
+
+        const { category, title, content, picture, eventdetails, times } =
+          response.data;
+        const dates = times ? Object.keys(times) : [];
         setAnnouncementForm(() => ({
           category: response.data.category,
           title: response.data.title,
           content: response.data.content,
-          picture: response.data.picture || "",
-          eventDate: formattedDate || "",
-          eventStartTime: formattedStartTime || "",
-          eventEndTime: formattedEndTime || "",
+          picture: response.data.picture,
+          eventdetails: response.data.eventdetails || "",
+          times: times || {},
+          date: dates,
         }));
       } catch (error) {
         console.log("Error fetching announcement", error);
@@ -192,13 +157,15 @@ function EditAnnouncement({ onClose, announcementID }) {
   const handleCancel = () => {
     setAnnouncementForm((prev) => ({
       ...prev,
-      eventDate: "",
-      eventStart: "",
-      eventEnd: "",
-      eventStartTime: "",
-      eventEndTime: "",
+      date: [],
+      times: {},
     }));
-    setEventDetails(null);
+    setAnnouncementForm((prev) => {
+      return {
+        ...prev,
+        eventdetails: "",
+      };
+    });
     setShowDateTimeInputs(false);
   };
 
@@ -207,66 +174,134 @@ function EditAnnouncement({ onClose, announcementID }) {
   };
 
   const handleOK = () => {
-    if (
-      announcementForm.eventDate &&
-      announcementForm.eventStartTime &&
-      announcementForm.eventEndTime
-    ) {
-      const dateParts = announcementForm.eventDate.split("-");
-      const timeParts = announcementForm.eventStartTime.split(":");
-      const timeParts2 = announcementForm.eventEndTime.split(":");
-      const combinedDateTime = new Date(
-        `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}T${timeParts[0]}:${timeParts[1]}:00`
-      );
-      const combinedDateTime2 = new Date(
-        `${dateParts[0]}-${dateParts[1]}-${dateParts[2]}T${timeParts2[0]}:${timeParts2[1]}:00`
-      );
-      const formattedDate = combinedDateTime.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+    if (!announcementForm.date.length) {
+      setAnnouncementForm((prev) => {
+        return {
+          ...prev,
+          eventdetails: "",
+        };
       });
-
-      const formattedTime = combinedDateTime.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      const formattedTime2 = combinedDateTime2.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-
-      setAnnouncementForm((prev) => ({
-        ...prev,
-        event: combinedDateTime.toISOString(),
-        eventStart: combinedDateTime.toISOString(),
-        eventEnd: combinedDateTime2.toISOString(),
-        eventDate: formatToDateForInput(combinedDateTime),
-        eventStartTime: formatToTimeForInput(combinedDateTime),
-        eventEndTime: formatToTimeForInput(combinedDateTime2),
-      }));
-      setEventDetails(
-        `📅 ${formattedDate}\n🕒 ${formattedTime} - ${formattedTime2}`
-      );
+      return;
     }
 
+    const hasMissingTimes = announcementForm.date.some((date) => {
+      const times = announcementForm.times[date];
+      return !times || !times.starttime || !times.endtime;
+    });
+
+    if (hasMissingTimes) {
+      alert("Please fill in both start and end times for all selected dates.");
+      return;
+    }
+
+    const detailsArray = announcementForm.date.map((date) => {
+      const times = announcementForm.times[date];
+      if (!times || !times.starttime || !times.endtime) return "";
+
+      const formattedDate = new Date(times.starttime).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      );
+      const formattedStart = new Date(times.starttime).toLocaleTimeString(
+        "en-US",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
+      const formattedEnd = new Date(times.endtime).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      return `📅 ${formattedDate} 🕒 ${formattedStart} - ${formattedEnd}`;
+    });
+
+    setAnnouncementForm((prev) => {
+      return {
+        ...prev,
+        eventdetails: detailsArray.filter(Boolean).join("\n"),
+      };
+    });
     setShowDateTimeInputs(false);
   };
 
-  const formatToDateForInput = (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
+  const handleDateChange = (dates) => {
+    // Format dates to ISO YYYY-MM-DD strings
+    const formattedDates = dates.map((d) => d.format("YYYY-MM-DD"));
 
-    return `${year}-${month}-${day}`;
+    // Remove times for deselected dates
+    const newTimes = {};
+    formattedDates.forEach((date) => {
+      if (announcementForm.times[date]) {
+        newTimes[date] = announcementForm.times[date];
+      }
+    });
+
+    setAnnouncementForm((prev) => ({
+      ...prev,
+      date: formattedDates,
+      times: newTimes,
+    }));
   };
 
-  const formatToTimeForInput = (time) => {
-    const hours = time.getHours().toString().padStart(2, "0");
-    const minutes = time.getMinutes().toString().padStart(2, "0");
+  const handleStartTimeChange = (date, time) => {
+    if (!time) return;
 
-    return `${hours}:${minutes}`;
+    const newStartTime = new Date(`${date}T${time}:00`);
+
+    setAnnouncementForm((prev) => {
+      const currentTimes = prev.times[date] || {};
+      return {
+        ...prev,
+        times: {
+          ...prev.times,
+          [date]: {
+            ...currentTimes,
+            starttime: newStartTime.toISOString(),
+            endtime: null, // reset endtime if starttime changes
+          },
+        },
+      };
+    });
+  };
+
+  const handleEndTimeChange = (date, time) => {
+    if (!time) return;
+
+    const currentTimes = announcementForm.times[date] || {};
+    if (!currentTimes.starttime) {
+      alert("Please select a start time first for " + date);
+      return;
+    }
+
+    const [year, month, day] = date.split("-");
+    const [hours, minutes] = time.split(":");
+    const newEndTime = new Date(year, month - 1, day, hours, minutes, 0);
+    const startTime = new Date(currentTimes.starttime);
+
+    if (newEndTime <= startTime) {
+      alert(`End time must be after start time for ${date}`);
+      return;
+    }
+
+    setAnnouncementForm((prev) => {
+      const updatedTimes = prev.times[date] || {};
+      return {
+        ...prev,
+        times: {
+          ...prev.times,
+          [date]: {
+            ...updatedTimes,
+            endtime: newEndTime.toISOString(),
+          },
+        },
+      };
+    });
   };
 
   return (
@@ -274,33 +309,36 @@ function EditAnnouncement({ onClose, announcementID }) {
       {setShowModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
-            <div className="modal-title-bar">
-              <h1 className="modal-title">Edit Announcement</h1>
-              <button className="modal-btn-close">
-                <IoClose
-                  className="modal-btn-close-icon"
-                  onClick={handleClose}
-                />
-              </button>
+            <div className="dialog-title-bar">
+              <div className="flex flex-col w-full">
+                <div className="dialog-title-bar-items">
+                  <h1 className="modal-title">Edit Announcement</h1>
+                  <IoClose
+                    onClick={handleClose}
+                    class="dialog-title-bar-icon"
+                  ></IoClose>
+                </div>
+                <hr className="dialog-line" />
+              </div>
             </div>
 
             <form
-              className="bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-4"
+              className="modal-form-container"
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
             >
-              <div className="h-full flex flex-col gap-2">
-                <div className="flex-[1.5] w-full overflow-y-auto flex-col space-y-2">
+              <div className="create-announcement-form-container">
+                <div className="create-announcement-scrollable-area">
                   {/*UPLOADER - DETAILS*/}
-                  <div className="flex items-center w-full">
+                  <div className="create-announcement-uploader">
                     <img
                       src={user.picture}
                       alt="Profile"
                       className="navbar-profile-img"
                     />
-                    <div className="flex flex-col items-start ml-2">
+                    <div className="create-announcement-info-container">
                       <label className="text-base font-semibold">
                         {user.name}
                       </label>
@@ -311,7 +349,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                   </div>
 
                   {/*CATEGORY, TITLE, CONTENT*/}
-                  <div className="flex flex-row w-full">
+                  <div className="create-announcement-body">
                     <div className="employee-form-group">
                       <label for="resID" className="form-label">
                         Category<label className="text-red-600">*</label>
@@ -351,16 +389,21 @@ function EditAnnouncement({ onClose, announcementID }) {
                       name="content"
                       value={announcementForm.content}
                       onChange={handleInputChange}
-                      className="form-input h-[140px]"
+                      className="block w-full h-[140px] resize-none rounded-[8px] border border-btn-color-gray shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-subTitle font-medium text-sm p-2"
                     />
+                    <div className="textarea-length-text">
+                      {announcementForm.content.length}/1000
+                    </div>
                   </div>
                   {/* Event Details */}
-                  {eventDetails && (
+                  {announcementForm.eventdetails && (
                     <div className="employee-form-group">
                       <label className="font-semibold text-navy-blue">
                         Event Details
                       </label>
-                      <p>{eventDetails}</p>
+                      <p className="whitespace-pre-wrap">
+                        {announcementForm.eventdetails}
+                      </p>
                     </div>
                   )}
                   {havePicture && (
@@ -368,23 +411,21 @@ function EditAnnouncement({ onClose, announcementID }) {
                       <label className="font-semibold text-navy-blue">
                         Attachment
                       </label>
-                      <div className="create-announcement-attachment">
-                        <label
-                          style={{ cursor: "pointer" }}
+                      <div className="create-announcement-attach-box">
+                        <IoClose
                           onClick={handleRemovePic}
-                        >
-                          X
-                        </label>
+                          class="create-announcement-close-btn"
+                        ></IoClose>
                         <img
                           src={announcementForm.picture}
-                          className="w-full h-[30rem] mt-2 rounded-[15px]"
+                          className="create-announcement-attach-img"
                         />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex-[0.5] w-full">
+                <div className="create-announcement-bottom-container">
                   {/*ADD TO YOUR POST AND SUBMIT BUTTON*/}
                   <div className="create-announcement-fixed-btns">
                     <label className="font-semibold text-navy-blue">
@@ -396,7 +437,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                         onClick={handleUploadPicture}
                         className=" text-[#50C700] "
                       >
-                        <MdInsertPhoto className="w-[2rem] h-[2rem]" />
+                        <MdInsertPhoto className="create-announcement-icons" />
                       </button>
                       <input
                         name="picture"
@@ -411,66 +452,125 @@ function EditAnnouncement({ onClose, announcementID }) {
                         onClick={handleEvent}
                         className=" text-[#FFB200] "
                       >
-                        <MdCalendarMonth className="w-[2rem] h-[2rem]" />
+                        <MdCalendarMonth className="create-announcement-icons" />
                       </button>
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="create-announcement-event-details">
-                          <div className="modal-title-bar">
-                            <h1 className="modal-title">Event Details</h1>
-                            <button className="modal-btn-close">
-                              <IoClose
-                                className="modal-btn-close-icon"
-                                onClick={handleCancel}
-                              />
-                            </button>
-                          </div>
-
-                          <div className="modal-form-container">
-                            <div className="modal-form">
-                              <div className="employee-form-group">
-                                <label className="form-label">Date</label>
-                                <input
-                                  type="date"
-                                  min={new Date().toISOString().split("T")[0]}
-                                  value={announcementForm.eventDate}
-                                  name="eventDate"
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
-                                />
+                        <div className="modal-container">
+                          <div className="create-announcement-event-details">
+                            <div className="dialog-title-bar">
+                              <div className="flex flex-col w-full">
+                                <div className="dialog-title-bar-items">
+                                  <h1 className="modal-title">Event Details</h1>
+                                  <IoClose
+                                    onClick={handleCancel}
+                                    class="dialog-title-bar-icon"
+                                  ></IoClose>
+                                </div>
+                                <hr className="dialog-line" />
                               </div>
+                            </div>
 
-                              <div className="employee-form-group">
-                                <label className="form-label">Start Time</label>
-                                <input
-                                  type="time"
-                                  name="eventStartTime"
-                                  value={announcementForm.eventStartTime}
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
-                                />
-                              </div>
+                            <div className="modal-form-container">
+                              <div className="modal-form">
+                                <div className="employee-form-group">
+                                  <label className="form-label">
+                                    Date
+                                    <label className="text-red-600">*</label>
+                                  </label>
+                                  <DatePicker
+                                    multiple
+                                    value={announcementForm.date}
+                                    onChange={handleDateChange}
+                                    format="YYYY-MM-DD"
+                                    placeholder="Select multiple dates"
+                                    editable={false}
+                                    minDate={new Date()}
+                                    style={{
+                                      display: "block",
+                                      width: "100%",
+                                      height: "35px",
+                                      borderRadius: "8px",
+                                      paddingLeft: "0.5rem",
+                                      border: "1px solid #C1C0C0",
+                                      boxShadow:
+                                        "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                                      fontFamily: "Quicksand",
+                                      fontWeight: 500,
+                                      fontSize: "0.875rem",
+                                      appearance: "none",
+                                      outline: "none",
+                                    }}
+                                  />
+                                </div>
 
-                              <div className="employee-form-group">
-                                <label className="form-label">End Time</label>
-                                <input
-                                  type="time"
-                                  name="eventEndTime"
-                                  value={announcementForm.eventEndTime}
-                                  onChange={handleInputChange}
-                                  className="form-input h-[30px] text-base"
-                                />
-                              </div>
-
-                              <div className="flex justify-center">
-                                <button
-                                  onClick={handleOK}
-                                  type="button"
-                                  className="actions-btn bg-btn-color-blue"
-                                >
-                                  OK
-                                </button>
+                                {announcementForm.date?.length > 0 && (
+                                  <div className="employee-form-group">
+                                    <label className="form-label">
+                                      Select Start and End Times
+                                    </label>
+                                    {announcementForm.date.map((date) => {
+                                      const times =
+                                        announcementForm.times[date] || {};
+                                      return (
+                                        <div
+                                          key={date}
+                                          className="timedate-container"
+                                        >
+                                          <span className="timedate-label">
+                                            {date}
+                                          </span>
+                                          <input
+                                            type="time"
+                                            value={
+                                              times.starttime
+                                                ? new Date(times.starttime)
+                                                    .toTimeString()
+                                                    .slice(0, 5)
+                                                : ""
+                                            }
+                                            onChange={(e) =>
+                                              handleStartTimeChange(
+                                                date,
+                                                e.target.value
+                                              )
+                                            }
+                                            className="form-input h-[30px] w-24"
+                                            required
+                                          />
+                                          <input
+                                            type="time"
+                                            value={
+                                              times.endtime
+                                                ? new Date(times.endtime)
+                                                    .toTimeString()
+                                                    .slice(0, 5)
+                                                : ""
+                                            }
+                                            onChange={(e) =>
+                                              handleEndTimeChange(
+                                                date,
+                                                e.target.value
+                                              )
+                                            }
+                                            className="form-input h-[30px] w-24"
+                                            required
+                                          />
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                                <div className="flex justify-center">
+                                  <button
+                                    onClick={handleOK}
+                                    type="button"
+                                    className="actions-btn bg-btn-color-blue"
+                                  >
+                                    OK
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -482,9 +582,9 @@ function EditAnnouncement({ onClose, announcementID }) {
                   <button
                     onClick={handleSubmit}
                     type="submit"
-                    className="actions-btn bg-btn-color-blue w-full"
+                    className="hover:bg-[#0A7A9D] px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
-                    Submit
+                    Update
                   </button>
                 </div>
               </div>
