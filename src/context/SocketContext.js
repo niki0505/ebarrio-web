@@ -42,7 +42,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!isAuthenticated || !user?.userID || socketRef.current) return;
 
-    const newSocket = io("https://api.ebarrio.online", {
+    const newSocket = io("http://localhost:5000", {
       transports: ["websocket"],
       withCredentials: true,
     });
