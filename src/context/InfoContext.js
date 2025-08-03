@@ -7,7 +7,7 @@ export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const socket = io("http://localhost:5000/website", {
+const socket = io("https://api.ebarrio.online/website", {
   withCredentials: true,
 });
 
@@ -23,6 +23,10 @@ export const InfoProvider = ({ children }) => {
   const [blotterreports, setBlotterReports] = useState([]);
   const [activitylogs, setActivityLogs] = useState([]);
   const [household, setHousehold] = useState([]);
+  const [FAQslist, setFAQslist] = useState([]);
+  const [chats, setChats] = useState([]);
+  const [roomId, setRoomId] = useState(null);
+  const [assignedAdmin, setAssignedAdmin] = useState(null);
   const [pendingReservationCount, setPendingReservationCount] = useState(null);
 
   const announcementInitialForm = {
@@ -231,6 +235,23 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchFAQslist = async () => {
+    try {
+      const response = await api.get("/getfaqs");
+      setFAQslist(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+  const fetchChats = async () => {
+    try {
+      const response = await api.get("/getchats");
+      setChats(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       const fetchPendingReservations = async () => {
@@ -290,7 +311,14 @@ export const InfoProvider = ({ children }) => {
           blotterForm,
           announcementForm,
           household,
+          FAQslist,
           pendingReservationCount,
+          chats,
+          roomId,
+          setRoomId,
+          assignedAdmin,
+          setAssignedAdmin,
+          setChats,
           setAnnouncementForm,
           fetchActivityLogs,
           activitylogs,
@@ -305,6 +333,8 @@ export const InfoProvider = ({ children }) => {
           fetchAnnouncements,
           fetchReservations,
           fetchBlotterReports,
+          fetchFAQslist,
+          fetchChats,
         }}
       >
         {children}

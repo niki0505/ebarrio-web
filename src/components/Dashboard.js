@@ -116,21 +116,97 @@ function Dashboard({ isCollapsed }) {
       ).length;
 
       setClassificationsData({
-        Newborn: residents.filter((r) => r.isNewborn).length,
-        Infant: residents.filter((r) => r.isInfant).length,
-        "Under 5 y.o": residents.filter((r) => r.isUnder5).length,
-        "School of Age": residents.filter((r) => r.isSchoolAge).length,
-        Adolescent: residents.filter((r) => r.isAdolescent).length,
-        "Adolescent Pregnant": residents.filter((r) => r.isAdolescentPregnant)
-          .length,
-        Adult: residents.filter((r) => r.isAdult).length,
-        Postpartum: residents.filter((r) => r.isPostpartum).length,
+        Newborn: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isNewborn).length,
+        Infant: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isInfant).length,
+        "Under 5 y.o": residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isUnder5).length,
+        "School of Age": residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isSchoolAge).length,
+        Adolescent: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isAdolescent).length,
+        "Adolescent Pregnant": residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isAdolescentPregnant).length,
+        Adult: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isAdult).length,
+        Postpartum: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isPostpartum).length,
         "Women of Reproductive Age": residents.filter(
           (r) => r.isWomenOfReproductive
         ).length,
-        "Senior Citizens": residents.filter((r) => r.isSenior).length,
-        Pregnant: residents.filter((r) => r.isPregnant).length,
-        PWD: residents.filter((r) => r.isPWD).length,
+        "Senior Citizens": residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isSenior).length,
+        Pregnant: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isPregnant).length,
+        PWD: residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isPWD).length,
       });
 
       setResidentsData({
