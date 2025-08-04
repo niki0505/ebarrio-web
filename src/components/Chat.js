@@ -107,8 +107,15 @@ const Chat = () => {
         c.participants.some((p) => p._id === user.userID) &&
         c.participants.some((p) => p.resID?._id === selectedResidentId)
     )
-    .flatMap((c) => c.messages)
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    .flatMap((c) =>
+      c.messages.map((msg) => ({
+        ...msg,
+        chatId: c._id,
+        timestamp: new Date(msg.timestamp),
+      }))
+    )
+    .sort((a, b) => a.timestamp - b.timestamp);
+
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
   const handleSend = async () => {
@@ -245,110 +252,152 @@ const Chat = () => {
               {selectedResidentId ? (
                 <>
                   <div className="border-b py-2">
-                    {activeChat ? (
-                      <>
-                        {activeChat.participants
-                          .filter((p) => p.resID) // show only resident
-                          .map((resident, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center space-x-2"
+                    {(() => {
+                      const anyChat = chats.find((chat) =>
+                        chat.participants.some(
+                          (p) =>
+                            p.resID?._id === selectedResidentId &&
+                            chat.participants.some(
+                              (pp) => pp._id === user.userID
+                            )
+                        )
+                      );
+
+                      const resident = anyChat?.participants.find(
+                        (p) => p.resID?._id === selectedResidentId
+                      );
+
+                      return resident ? (
+                        <>
+                          <div className="flex items-center space-x-2">
+                            <img
+                              src={resident.resID.picture}
+                              alt={`${resident.resID.lastname}'s profile`}
+                              className="w-10 h-10 rounded-full object-cover border"
+                            />
+                            <h2 className="text-lg font-semibold">
+                              {resident.resID.firstname}{" "}
+                              {resident.resID.lastname}
+                            </h2>
+                          </div>
+                          {activeChat ? (
+                            <label
+                              className="text-sm text-red-600 cursor-pointer ml-2"
+                              onClick={() => endChat(activeChat._id)}
                             >
-                              <img
-                                src={resident.resID.picture}
-                                alt={`${resident.resID.lastname}'s profile`}
-                                className="w-10 h-10 rounded-full object-cover border"
-                              />
-                              <h2 className="text-lg font-semibold">
-                                {resident.resID.firstname}{" "}
-                                {resident.resID.lastname}
-                              </h2>
-                            </div>
-                          ))}
-                        <label
-                          className="text-sm text-red-600 cursor-pointer ml-2"
-                          onClick={() => endChat(activeChat._id)}
-                        >
-                          End the chat
-                        </label>
-                      </>
-                    ) : (
-                      <h2 className="text-lg font-semibold text-gray-500">
-                        No active chat with this resident
-                      </h2>
-                    )}
+                              End the chat
+                            </label>
+                          ) : null}
+                        </>
+                      ) : null;
+                    })()}
                   </div>
 
                   <div className="flex-1 overflow-y-auto py-3 space-y-2">
                     {fullChatHistory.map((msg, i) => {
+                      const isDefaultMessage =
+                        msg.message ===
+                        "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
+
+                      if (isDefaultMessage) return null;
+
+                      const timestamp = new Date(msg.timestamp);
+                      const currentDateStr = timestamp.toDateString();
+                      let prevValidIndex = i - 1;
+                      while (
+                        prevValidIndex >= 0 &&
+                        fullChatHistory[prevValidIndex].message ===
+                          "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
+                      ) {
+                        prevValidIndex--;
+                      }
+
+                      const prevDateStr =
+                        prevValidIndex >= 0
+                          ? new Date(
+                              fullChatHistory[prevValidIndex].timestamp
+                            ).toDateString()
+                          : null;
+                      const showDateHeader = currentDateStr !== prevDateStr;
+
                       const isSystemMessage =
                         msg.message === "This chat has ended.";
 
-                      const sender = activeChat?.participants?.find(
+                      // Find sender info
+                      const chatOfMessage = chats.find((c) =>
+                        c.messages.some(
+                          (m) =>
+                            m.message === msg.message &&
+                            new Date(m.timestamp).getTime() ===
+                              timestamp.getTime()
+                        )
+                      );
+
+                      const sender = chatOfMessage?.participants?.find(
                         (p) => p._id === msg.from || p._id === msg.from?._id
                       );
 
                       const isOwnMessage =
                         user.userID === msg.from ||
                         user.userID === msg.from?._id;
+
                       const senderPosition = sender?.empID?.position;
                       const isStaff =
                         senderPosition === "Secretary" ||
                         senderPosition === "Clerk";
-                      const alignRight = isStaff;
-
-                      const senderLabel = isOwnMessage ? "You" : senderPosition;
-
-                      const isDefaultMessage =
-                        msg.message ===
-                        "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
-                      if (isDefaultMessage) return null;
-
-                      if (isSystemMessage) {
-                        return (
-                          <div
-                            key={i}
-                            className="text-center text-gray-500 text-sm italic my-2"
-                          >
-                            {msg.message}
-                          </div>
-                        );
-                      }
+                      const alignRight = isStaff || false;
+                      const senderLabel = isOwnMessage
+                        ? "You"
+                        : senderPosition || "Unknown";
 
                       return (
-                        <div
-                          key={i}
-                          className={`mb-2 ${
-                            alignRight ? "text-right" : "text-left"
-                          }`}
-                        >
-                          {isStaff && (
-                            <div className="text-sm font-semibold text-gray-500 mb-1">
-                              {senderLabel}
+                        <React.Fragment key={i}>
+                          {showDateHeader && (
+                            <div className="text-center text-xs text-gray-400 my-4">
+                              {timestamp.toLocaleDateString(undefined, {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
                             </div>
                           )}
 
-                          <div
-                            className={`inline-block px-3 py-2 rounded max-w-sm ${
-                              alignRight
-                                ? "bg-blue-600 text-white"
-                                : "bg-gray-100"
-                            }`}
-                          >
-                            {msg.message}
-                          </div>
+                          {isSystemMessage ? (
+                            <div className="text-center text-gray-500 text-sm italic my-2">
+                              {msg.message}
+                            </div>
+                          ) : (
+                            <div
+                              className={`mb-2 ${
+                                alignRight ? "text-right" : "text-left"
+                              }`}
+                            >
+                              {isStaff && (
+                                <div className="text-sm font-semibold text-gray-500 mb-1">
+                                  {senderLabel}
+                                </div>
+                              )}
 
-                          <div className="text-xs text-gray-500 mt-1">
-                            {new Date(msg.timestamp).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )}
-                          </div>
-                        </div>
+                              <div
+                                className={`inline-block px-3 py-2 rounded max-w-sm ${
+                                  alignRight
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-100"
+                                }`}
+                              >
+                                {msg.message}
+                              </div>
+
+                              <div className="text-xs text-gray-500 mt-1">
+                                {timestamp.toLocaleTimeString(undefined, {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </div>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://api.ebarrio.online/api",
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
@@ -18,7 +18,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await axios.get("https://api.ebarrio.online/api/refreshtoken", {
+        await axios.get("http://localhost:5000/api/refreshtoken", {
           withCredentials: true,
         });
 
