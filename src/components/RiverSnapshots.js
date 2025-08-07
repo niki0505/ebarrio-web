@@ -1,7 +1,12 @@
-import "../Stylesheets/CommonStyle.css";
-import "../Stylesheets/Announcements.css";
 import api from "../api";
 import { useState, useEffect } from "react";
+
+//STYLES
+import "../Stylesheets/CommonStyle.css";
+import "../Stylesheets/Announcements.css";
+
+//ICONS
+import { X } from "lucide-react";
 
 function RiverSnapshots({ isCollapsed }) {
   const [latest, setLatest] = useState([]);
@@ -43,7 +48,7 @@ function RiverSnapshots({ isCollapsed }) {
         <div className="text-[30px] font-bold font-title text-[#BC0F0F]">
           River Snapshots
         </div>
-        <div className="status-container">
+        <div className="status-container px-4">
           <p
             onClick={handleMenu1}
             className={`status-text ${
@@ -65,19 +70,22 @@ function RiverSnapshots({ isCollapsed }) {
             History
           </p>
         </div>
+        <div className="line-container">
+          <hr className="line" />
+        </div>
         {isRecentClicked && (
-          <div className="mt-4">
+          <div className="items-center justify-center">
             {latest.url ? (
               <div>
-                <img
-                  src={latest.url}
-                  alt="Latest River Snapshot"
-                  className="rounded shadow-md max-w-full h-auto"
-                />
-                <p>
+                <p className="text-center text-lg mt-4 text-[#BC0F0F] font-semibold">
                   CCTV Snapshot as of{" "}
                   {latest.datetime?.split(" at ")[1] || "Unknown Time"}
                 </p>
+                <img
+                  src={latest.url}
+                  alt="Latest River Snapshot"
+                  className="rounded rounded-lg w-full h-[500px] p-4"
+                />
               </div>
             ) : (
               <p className="text-gray-500">Loading latest snapshot...</p>
@@ -121,12 +129,12 @@ function RiverSnapshots({ isCollapsed }) {
             </table>
             {isModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-                <div className="bg-white p-4 rounded-lg shadow-lg max-w-3xl w-full relative">
+                <div className="bg-white py-8 px-4 rounded-lg shadow-lg max-w-3xl w-full relative">
                   <button
                     className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
                     onClick={() => setModal(false)}
                   >
-                    &times;
+                    <X className="text-sm hover:text-red-600" />
                   </button>
                   <img
                     src={selectedImage}
