@@ -249,6 +249,17 @@ td {
 .household-tbl-th {
   @apply border border-gray-300 px-4 py-2;
 }
+/*--------------------------------------------FAQS--------------------------------------------*/
+.faq-answer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.faq-answer.expanded {
+  max-height: 1000px; /* or some high value to accommodate content */
+  opacity: 1;
+}
 
 /*--------------------------------------------HIDE DEFAULT ICON--------------------------------------------*/
 /* Hide default eye icon in some browsers */

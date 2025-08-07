@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { X, MessageCircle } from "lucide-react";
+import { X, MessageCircle, Settings, Ban, Send } from "lucide-react";
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
@@ -177,24 +177,27 @@ const Chat = () => {
     <>
       <button
         onClick={toggleChat}
-        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
+        className="fixed bottom-6 right-6 bg-[#0E94D3] hover:bg-[#0A7A9D] text-white p-4 rounded-full shadow-lg z-50"
       >
         <MessageCircle className="w-6 h-6" />
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 z-40 flex items-end md:items-center justify-center bg-black/40">
-          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg m-4 p-4 relative h-[500px] flex">
+          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg relative h-[500px] flex">
             <button
               onClick={toggleChat}
-              className="absolute top-2 right-2 text-gray-600 hover:text-black"
+              className="absolute top-4 right-4 text-gray-600 hover:text-black"
             >
               <X className="w-5 h-5" />
             </button>
 
             {/* Left Column - Chat List */}
-            <div className="w-1/3 border-r overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-2 px-2">Conversations</h3>
+            <div className="w-1/3 border-r overflow-y-auto bg-[#0E94D3] rounded-tl-2xl rounded-bl-2xl">
+              <h3 className="text-lg font-semibold text-white px-3 py-2">
+                Chats
+              </h3>
+
               {[
                 ...chats
                   .reduce((map, chat) => {
@@ -223,32 +226,39 @@ const Chat = () => {
                 const picture = otherParticipant?.resID?.picture;
 
                 return (
-                  <div
-                    key={conv._id}
-                    onClick={() => handleSelectChat(conv)}
-                    className={`p-3 cursor-pointer hover:bg-gray-100 ${
-                      activeChat?._id === conv._id ? "bg-blue-100" : ""
-                    }`}
-                  >
-                    <img
-                      src={picture}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover border"
-                    />
-                    <p className="font-medium">
-                      {otherParticipant?.resID?.firstname}{" "}
-                      {otherParticipant?.resID?.lastname}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {lastMsg?.message || "No messages yet"}
-                    </p>
+                  <div className="px-2 py-1">
+                    <div
+                      key={conv._id}
+                      onClick={() => handleSelectChat(conv)}
+                      className={`cursor-pointer hover:bg-gray-100 flex flex-row space-x-2 border-b p-2 bg-white rounded-lg ${
+                        activeChat?._id === conv._id ? "bg-blue-100" : ""
+                      }`}
+                    >
+                      <div>
+                        <img
+                          src={picture}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full object-cover border"
+                        />
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-bold font-subTitle text-navy-blue">
+                          {otherParticipant?.resID?.firstname}{" "}
+                          {otherParticipant?.resID?.lastname}
+                        </p>
+                        <p className="text-xs text-red-600 truncate max-w-[200px] break-words">
+                          {lastMsg?.message || "No messages yet"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
             </div>
 
             {/* Right Column - Chat Messages */}
-            <div className="w-2/3 flex flex-col justify-between px-4">
+            <div className="w-2/3 flex flex-col justify-between rounded-tr-2xl">
               {selectedResidentId ? (
                 <>
                   <div className="border-b py-2">
@@ -269,13 +279,13 @@ const Chat = () => {
 
                       return resident ? (
                         <>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 ml-2">
                             <img
                               src={resident.resID.picture}
                               alt={`${resident.resID.lastname}'s profile`}
                               className="w-10 h-10 rounded-full object-cover border"
                             />
-                            <h2 className="text-lg font-semibold">
+                            <h2 className="text-md font-semibold text-navy-blue">
                               {resident.resID.firstname}{" "}
                               {resident.resID.lastname}
                             </h2>
@@ -293,117 +303,119 @@ const Chat = () => {
                     })()}
                   </div>
 
-                  <div className="flex-1 overflow-y-auto py-3 space-y-2">
-                    {fullChatHistory.map((msg, i) => {
-                      const isDefaultMessage =
-                        msg.message ===
-                        "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
+                  <div className="flex-1 overflow-hidden py-3 space-y-2 bg-[#F1FBFF] rounded-br-2xl">
+                    <div className="px-4 overflow-y-auto h-full">
+                      {fullChatHistory.map((msg, i) => {
+                        const isDefaultMessage =
+                          msg.message ===
+                          "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
 
-                      if (isDefaultMessage) return null;
+                        if (isDefaultMessage) return null;
 
-                      const timestamp = new Date(msg.timestamp);
-                      const currentDateStr = timestamp.toDateString();
-                      let prevValidIndex = i - 1;
-                      while (
-                        prevValidIndex >= 0 &&
-                        fullChatHistory[prevValidIndex].message ===
-                          "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
-                      ) {
-                        prevValidIndex--;
-                      }
+                        const timestamp = new Date(msg.timestamp);
+                        const currentDateStr = timestamp.toDateString();
+                        let prevValidIndex = i - 1;
+                        while (
+                          prevValidIndex >= 0 &&
+                          fullChatHistory[prevValidIndex].message ===
+                            "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
+                        ) {
+                          prevValidIndex--;
+                        }
 
-                      const prevDateStr =
-                        prevValidIndex >= 0
-                          ? new Date(
-                              fullChatHistory[prevValidIndex].timestamp
-                            ).toDateString()
-                          : null;
-                      const showDateHeader = currentDateStr !== prevDateStr;
+                        const prevDateStr =
+                          prevValidIndex >= 0
+                            ? new Date(
+                                fullChatHistory[prevValidIndex].timestamp
+                              ).toDateString()
+                            : null;
+                        const showDateHeader = currentDateStr !== prevDateStr;
 
-                      const isSystemMessage =
-                        msg.message === "This chat has ended.";
+                        const isSystemMessage =
+                          msg.message === "This chat has ended.";
 
-                      // Find sender info
-                      const chatOfMessage = chats.find((c) =>
-                        c.messages.some(
-                          (m) =>
-                            m.message === msg.message &&
-                            new Date(m.timestamp).getTime() ===
-                              timestamp.getTime()
-                        )
-                      );
+                        // Find sender info
+                        const chatOfMessage = chats.find((c) =>
+                          c.messages.some(
+                            (m) =>
+                              m.message === msg.message &&
+                              new Date(m.timestamp).getTime() ===
+                                timestamp.getTime()
+                          )
+                        );
 
-                      const sender = chatOfMessage?.participants?.find(
-                        (p) => p._id === msg.from || p._id === msg.from?._id
-                      );
+                        const sender = chatOfMessage?.participants?.find(
+                          (p) => p._id === msg.from || p._id === msg.from?._id
+                        );
 
-                      const isOwnMessage =
-                        user.userID === msg.from ||
-                        user.userID === msg.from?._id;
+                        const isOwnMessage =
+                          user.userID === msg.from ||
+                          user.userID === msg.from?._id;
 
-                      const senderPosition = sender?.empID?.position;
-                      const isStaff =
-                        senderPosition === "Secretary" ||
-                        senderPosition === "Clerk";
-                      const alignRight = isStaff || false;
-                      const senderLabel = isOwnMessage
-                        ? "You"
-                        : senderPosition || "Unknown";
+                        const senderPosition = sender?.empID?.position;
+                        const isStaff =
+                          senderPosition === "Secretary" ||
+                          senderPosition === "Clerk";
+                        const alignRight = isStaff || false;
+                        const senderLabel = isOwnMessage
+                          ? "You"
+                          : senderPosition || "Unknown";
 
-                      return (
-                        <React.Fragment key={i}>
-                          {showDateHeader && (
-                            <div className="text-center text-xs text-gray-400 my-4">
-                              {timestamp.toLocaleDateString(undefined, {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })}
-                            </div>
-                          )}
-
-                          {isSystemMessage ? (
-                            <div className="text-center text-gray-500 text-sm italic my-2">
-                              {msg.message}
-                            </div>
-                          ) : (
-                            <div
-                              className={`mb-2 ${
-                                alignRight ? "text-right" : "text-left"
-                              }`}
-                            >
-                              {isStaff && (
-                                <div className="text-sm font-semibold text-gray-500 mb-1">
-                                  {senderLabel}
-                                </div>
-                              )}
-
-                              <div
-                                className={`inline-block px-3 py-2 rounded max-w-sm ${
-                                  alignRight
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-gray-100"
-                                }`}
-                              >
-                                {msg.message}
-                              </div>
-
-                              <div className="text-xs text-gray-500 mt-1">
-                                {timestamp.toLocaleTimeString(undefined, {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true,
+                        return (
+                          <React.Fragment key={i}>
+                            {showDateHeader && (
+                              <div className="text-center text-xs text-gray-400 my-4">
+                                {timestamp.toLocaleDateString(undefined, {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
                                 })}
                               </div>
-                            </div>
-                          )}
-                        </React.Fragment>
-                      );
-                    })}
+                            )}
+
+                            {isSystemMessage ? (
+                              <div className="text-center text-gray-500 text-sm italic my-2">
+                                {msg.message}
+                              </div>
+                            ) : (
+                              <div
+                                className={`mb-2 ${
+                                  alignRight ? "text-right" : "text-left"
+                                }`}
+                              >
+                                {isStaff && (
+                                  <div className="text-sm font-semibold text-gray-500 mb-1">
+                                    {senderLabel}
+                                  </div>
+                                )}
+
+                                <div
+                                  className={`inline-block px-3 py-2 rounded max-w-sm ${
+                                    alignRight
+                                      ? "bg-blue-600 text-white"
+                                      : "bg-gray-300"
+                                  }`}
+                                >
+                                  {msg.message}
+                                </div>
+
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {timestamp.toLocaleTimeString(undefined, {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {!isChatEnded && (
-                    <div className="border-t pt-2 flex items-center gap-2">
+                    <div className="border-t pt-2 flex items-center gap-2 p-2">
                       <input
                         type="text"
                         value={message}
@@ -414,9 +426,14 @@ const Chat = () => {
                       />
                       <button
                         onClick={handleSend}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        className="text-white bg-blue-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
                       >
-                        Send
+                        <Send size={20} />
+                        <span>Send</span>
+                      </button>
+                      <button className="text-white bg-red-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700">
+                        <Ban size={20} />
+                        <span>End</span>
                       </button>
                     </div>
                   )}
