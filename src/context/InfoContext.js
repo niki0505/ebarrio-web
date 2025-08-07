@@ -246,7 +246,14 @@ export const InfoProvider = ({ children }) => {
   const fetchChats = async () => {
     try {
       const response = await api.get("/getchats");
-      setChats(response.data);
+      const filteredChats = response.data.filter((chat) =>
+        chat.messages.some(
+          (m) =>
+            m.message !==
+            "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
+        )
+      );
+      setChats(filteredChats);
     } catch (error) {
       console.error("❌ Failed to fetch FAQs:", error);
     }

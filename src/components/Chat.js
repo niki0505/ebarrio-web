@@ -290,14 +290,6 @@ const Chat = () => {
                               {resident.resID.lastname}
                             </h2>
                           </div>
-                          {activeChat ? (
-                            <label
-                              className="text-sm text-red-600 cursor-pointer ml-2"
-                              onClick={() => endChat(activeChat._id)}
-                            >
-                              End the chat
-                            </label>
-                          ) : null}
                         </>
                       ) : null;
                     })()}
@@ -431,7 +423,10 @@ const Chat = () => {
                         <Send size={20} />
                         <span>Send</span>
                       </button>
-                      <button className="text-white bg-red-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700">
+                      <button
+                        onClick={() => endChat(activeChat._id)}
+                        className="text-white bg-red-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700"
+                      >
                         <Ban size={20} />
                         <span>End</span>
                       </button>
