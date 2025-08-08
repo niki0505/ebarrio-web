@@ -159,6 +159,7 @@ const Chat = () => {
       };
       socket.emit("send_message", systemMessage);
       await api.put(`/endchat/${chatID}`);
+      setActiveChatId(null);
       alert("Chat has been successfully ended.");
     } catch (error) {
       console.log("Error ending the chat");
