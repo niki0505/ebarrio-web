@@ -61,7 +61,7 @@ const Chat = () => {
     return () => {
       socket.off("receive_message", handleReceive);
     };
-  }, [socket, chats]);
+  }, [socket]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -107,8 +107,14 @@ const Chat = () => {
         c.participants.some((p) => p._id === user.userID) &&
         c.participants.some((p) => p.resID?._id === selectedResidentId)
     )
-    .flatMap((c) => c.messages)
-    .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    .flatMap((c) =>
+      c.messages.map((msg) => ({
+        ...msg,
+        chatId: c._id,
+        timestamp: new Date(msg.timestamp),
+      }))
+    )
+    .sort((a, b) => a.timestamp - b.timestamp);
 
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
@@ -165,7 +171,7 @@ const Chat = () => {
   }, [fullChatHistory]);
 
   console.log(fullChatHistory);
-  console.log(activeChat);
+  console.log(activeChatId);
 
   return (
     <>
