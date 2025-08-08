@@ -47,6 +47,7 @@ const Chat = () => {
       } else {
         // Fetch new chat from backend
         console.log("🆕 New chat room. Fetching chat:", roomId);
+        setActiveChatId(roomId);
         try {
           const { data } = await api.get(`/getchat/${roomId}`);
           setChats((prevChats) => [...prevChats, data]);
