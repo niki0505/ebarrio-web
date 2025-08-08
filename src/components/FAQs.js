@@ -16,18 +16,6 @@ import { IoClose } from "react-icons/io5";
 function FAQs() {
   const { fetchFAQslist, FAQslist } = useContext(InfoContext);
   const confirm = useConfirm();
-  const [faqs, setFaqs] = useState([
-    {
-      id: 1,
-      question: "What is the barangay hotline?",
-      answer: "You may call 1234567.",
-    },
-    {
-      id: 2,
-      question: "How to request barangay clearance?",
-      answer: "Go to the barangay hall with valid ID.",
-    },
-  ]);
 
   const [newFAQ, setNewFAQ] = useState({ question: "", answer: "" });
   const [editingId, setEditingId] = useState(null);
@@ -71,19 +59,57 @@ function FAQs() {
 
   const handleEdit = (faq) => {
     setNewFAQ({ question: faq.question, answer: faq.answer });
-    setEditingId(faq.id);
+    setEditingId(faq._id);
   };
 
-  const handleUpdate = () => {
-    setFaqs(
-      faqs.map((faq) => (faq.id === editingId ? { ...faq, ...newFAQ } : faq))
-    );
-    setEditingId(null);
-    setNewFAQ({ question: "", answer: "" });
+  const handleUpdate = async () => {
+    try {
+      const isConfirmed = await confirm(
+        "Are you sure you want to update this FAQ?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      await api.post(`/editfaq/${editingId}`, {
+        ...newFAQ,
+      });
+      alert("FAQ is successfully updated!");
+      setEditingId(null);
+      setNewFAQ({ question: "", answer: "" });
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
-  const handleDelete = (id) => {
-    setFaqs(faqs.filter((faq) => faq.id !== id));
+  const handleArchive = async (faqID) => {
+    try {
+      const isConfirmed = await confirm(
+        "Are you sure you want to archive this FAQ?",
+        "confirm"
+      );
+      if (!isConfirmed) {
+        return;
+      }
+      await api.put(`/archivefaq/${faqID}`);
+      alert("FAQ is successfully archived!");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        alert(response.data.message || "Something went wrong.");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        alert("An unexpected error occurred.");
+      }
+    }
   };
 
   const toggleFAQ = (id) => {
@@ -153,7 +179,7 @@ function FAQs() {
                         <button
                           className="table-actions-container"
                           type="button"
-                          onClick={() => handleDelete(faq.id)}
+                          onClick={() => handleArchive(faq._id)}
                         >
                           <IoArchiveSharp className="text-[16px] text-btn-color-blue" />
                           <label className="text-btn-color-blue text-xs">

@@ -294,6 +294,8 @@ export const InfoProvider = ({ children }) => {
         setBlotterReports(updatedData.data);
       } else if (updatedData.type === "activitylogs") {
         setActivityLogs(updatedData.data);
+      } else if (updatedData.type === "faqs") {
+        setFAQslist(updatedData.data);
       }
     });
 
