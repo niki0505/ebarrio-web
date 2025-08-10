@@ -416,6 +416,11 @@ function CourtReservations({ isCollapsed }) {
               }`}
             >
               Pending
+              {courtreservations.some(
+                (court) => court.status === "Pending"
+              ) && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}

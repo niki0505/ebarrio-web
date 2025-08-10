@@ -215,9 +215,7 @@ function ViewHousehold({ onClose, householdID }) {
 
                   <div className="col-span-1">
                     <strong>Address: </strong>
-                    {selectedHousehold.members?.find(
-                      (member) => member.position === "Head"
-                    )?.resID?.address || "No address found"}
+                    {selectedHousehold.address}
                   </div>
 
                   <div className="col-span-1">

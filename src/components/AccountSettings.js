@@ -110,6 +110,7 @@ function AccountSettings({ isCollapsed }) {
   const [showAnswer2, setShowAnswer2] = useState(false);
   const [showConfirmAnswer2, setShowConfirmAnswer2] = useState(false);
   const [showSecurityPass, setShowSecurityPass] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -233,17 +234,6 @@ function AccountSettings({ isCollapsed }) {
 
     let uerrors = [];
 
-    if (!username) {
-      uerrors.push("Username must not be empty.");
-      setUsernameErrors(uerrors);
-      hasErrors = true;
-    }
-
-    if (!password) {
-      setCurPasswordError("Password must not be empty.");
-      hasErrors = true;
-    }
-
     if (username === user.username) {
       alert("The new username must be different from the current username.");
       hasErrors = true;
@@ -265,6 +255,10 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
+
+      if (loading) return;
+
+      setLoading(true);
       try {
         await api.get(`/checkusername/${username}`);
         try {
@@ -294,6 +288,8 @@ function AccountSettings({ isCollapsed }) {
           console.log("❌ Network or unknown error:", error.message);
           alert("An unexpected error occurred.");
         }
+      } finally {
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in changing username", error);
@@ -302,25 +298,6 @@ function AccountSettings({ isCollapsed }) {
 
   const handlePasswordChange = async () => {
     let hasErrors = false;
-    let nerrors = [];
-    let rerrors = [];
-
-    if (!password) {
-      setCurPasswordError("Password must not be empty.");
-      hasErrors = true;
-    }
-
-    if (!newpassword) {
-      nerrors.push("Password must not be empty.");
-      setPasswordErrors(nerrors);
-      hasErrors = true;
-    }
-
-    if (!renewpassword) {
-      rerrors.push("Password must not be empty.");
-      setRePasswordErrors(rerrors);
-      hasErrors = true;
-    }
 
     if (passwordErrors.length !== 0) {
       hasErrors = true;
@@ -341,10 +318,10 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      if (newpassword !== renewpassword) {
-        alert("Passwords do not match.");
-        return;
-      }
+
+      if (loading) return;
+
+      setLoading(true);
       try {
         await api.put(`/changepassword/${user.userID}`, {
           newpassword,
@@ -361,6 +338,8 @@ function AccountSettings({ isCollapsed }) {
           console.log("❌ Network or unknown error:", error.message);
           alert("An unexpected error occurred.");
         }
+      } finally {
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in changing password", error);
@@ -384,14 +363,10 @@ function AccountSettings({ isCollapsed }) {
     });
 
     const hasChanges = modifiedQuestions.some((q) => q !== null);
-    if (!password) {
-      setCurPasswordError("Password must not be empty.");
+
+    if (!hasChanges) {
+      alert("No changes detected in your security questions.");
       hasErrors = true;
-    } else {
-      if (!hasChanges) {
-        alert("No changes detected in your security questions.");
-        hasErrors = true;
-      }
     }
 
     if (hasErrors) {
@@ -405,6 +380,10 @@ function AccountSettings({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
+
+      if (loading) return;
+
+      setLoading(true);
       try {
         await api.put(`/changesecurityquestions/${user.userID}`, {
           securityquestions: modifiedQuestions,
@@ -427,6 +406,8 @@ function AccountSettings({ isCollapsed }) {
           console.log("❌ Network or unknown error:", error.message);
           alert("An unexpected error occurred.");
         }
+      } finally {
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error in changing security questions", error);
@@ -1053,9 +1034,6 @@ function AccountSettings({ isCollapsed }) {
     let formattedVal = val.replace(/\s+/g, "");
     setUsername(formattedVal);
 
-    if (!formattedVal) {
-      errors.push("Username must not be empty");
-    }
     if (
       (formattedVal && formattedVal.length < 3) ||
       (formattedVal && formattedVal.length > 16)
@@ -1083,9 +1061,6 @@ function AccountSettings({ isCollapsed }) {
     let formattedVal = val.replace(/\s+/g, "");
     setRenewPassword(formattedVal);
 
-    if (!formattedVal) {
-      errors.push("Password must not be empty");
-    }
     if (formattedVal !== newpassword && formattedVal.length > 0) {
       errors.push("Passwords do not match");
     }
@@ -1096,12 +1071,6 @@ function AccountSettings({ isCollapsed }) {
     let val = e.target.value;
     let formattedVal = val.replace(/\s+/g, "");
     setPassword(formattedVal);
-
-    if (!formattedVal) {
-      setCurPasswordError("Password must not be empty.");
-    } else {
-      setCurPasswordError(null);
-    }
   };
 
   const passwordValidation = (e) => {
@@ -1110,9 +1079,6 @@ function AccountSettings({ isCollapsed }) {
     let formattedVal = val.replace(/\s+/g, "");
     setNewPassword(formattedVal);
 
-    if (!formattedVal) {
-      errors.push("Password must not be empty");
-    }
     if (
       (formattedVal && formattedVal.length < 8) ||
       (formattedVal && formattedVal.length > 64)
@@ -1125,6 +1091,17 @@ function AccountSettings({ isCollapsed }) {
       );
     }
     setPasswordErrors(errors);
+  };
+
+  const maskUsername = (uname) => {
+    if (!uname) return "";
+    if (uname.length <= 2) return uname[0] + "*";
+
+    const firstChar = uname[0];
+    const lastChar = uname[uname.length - 1];
+    const maskedLength = uname.length - 2;
+    const masked = "*".repeat(maskedLength);
+    return `${firstChar}${masked}${lastChar}`;
   };
 
   return (
@@ -1155,7 +1132,7 @@ function AccountSettings({ isCollapsed }) {
                   : "p-2 font-medium"
               }`}
             >
-              Change Username
+              Username
             </p>
             <p
               onClick={handleMenu3}
@@ -1165,7 +1142,7 @@ function AccountSettings({ isCollapsed }) {
                   : "p-2 font-medium"
               }`}
             >
-              Change Password
+              Password
             </p>
             <p
               onClick={handleMenu4}
@@ -1175,7 +1152,7 @@ function AccountSettings({ isCollapsed }) {
                   : "p-2 font-medium"
               }`}
             >
-              Edit Security Questions
+              Security Questions
             </p>
           </div>
 
@@ -2007,333 +1984,365 @@ function AccountSettings({ isCollapsed }) {
             {/* Change Username */}
             {isUsernameClicked && (
               <div className="settings-form-card white-bg-container">
-                <div className="header-text">Change Username</div>
-                <div className="p-4">
-                  <div>
-                    <label className="form-label">Current Username</label>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleUsernameChange();
+                  }}
+                >
+                  <div className="header-text">Change Username</div>
+                  <div className="p-4">
                     <div>
-                      <label className="text-[#808080]">{user.username}</label>
-                    </div>
-                  </div>
-
-                  <div className="employee-form-group mt-4">
-                    <label for="newusername" className="form-label">
-                      New Username
-                    </label>
-                    <input
-                      placeholder="Enter New Username"
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={username}
-                      minLength={3}
-                      maxLength={16}
-                      onChange={(e) => usernameValidation(e)}
-                      className="form-input"
-                    />
-                    {usernameErrors.length > 0 && (
-                      <div style={{ marginTop: 5, width: 300 }}>
-                        {usernameErrors.map((error, index) => (
-                          <p key={index} className="error-msg">
-                            {error}
-                          </p>
-                        ))}
+                      <label className="form-label">Current Username</label>
+                      <div>
+                        <label className="text-[#808080]">
+                          {maskUsername(user.username)}
+                        </label>
                       </div>
-                    )}
-                  </div>
-                  <div className="employee-form-group mt-4">
-                    <label for="password" className="form-label">
-                      Password
-                    </label>
+                    </div>
 
-                    <div className="relative w-full">
+                    <div className="employee-form-group mt-4">
+                      <label for="newusername" className="form-label">
+                        New Username
+                      </label>
                       <input
-                        placeholder="Enter Password"
-                        type={showUserPassword ? "text" : "password"}
-                        id="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => curpasswordValidation(e)}
+                        placeholder="Enter New Username"
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={username}
+                        minLength={3}
+                        maxLength={16}
+                        onChange={(e) => usernameValidation(e)}
                         className="form-input"
+                        required
                       />
+                      {usernameErrors.length > 0 && (
+                        <div style={{ marginTop: 5, width: 300 }}>
+                          {usernameErrors.map((error, index) => (
+                            <p key={index} className="error-msg">
+                              {error}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="employee-form-group mt-4">
+                      <label for="password" className="form-label">
+                        Password
+                      </label>
+
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter Password"
+                          type={showUserPassword ? "text" : "password"}
+                          id="password"
+                          name="password"
+                          value={password}
+                          onChange={(e) => curpasswordValidation(e)}
+                          className="form-input"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowUserPassword((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showUserPassword ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
+                      {curPasswordError ? (
+                        <label className="error-msg">{curPasswordError}</label>
+                      ) : null}
+                    </div>
+
+                    <div className="function-btn-container">
                       <button
-                        type="button"
-                        onClick={() => setShowUserPassword((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
+                        className="settings-btn actions-btn"
+                        type="submit"
+                        disabled={loading}
                       >
-                        {showUserPassword ? <FaEye /> : <FaEyeSlash />}
+                        {loading ? "Saving..." : "Save"}
                       </button>
                     </div>
-                    {curPasswordError ? (
-                      <label className="error-msg">{curPasswordError}</label>
-                    ) : null}
                   </div>
-
-                  <div className="function-btn-container">
-                    <button
-                      className="settings-btn actions-btn"
-                      type="button"
-                      onClick={handleUsernameChange}
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
+                </form>
               </div>
             )}
 
             {/* Change Password */}
             {isPasswordClicked && (
               <div className="settings-form-card white-bg-container">
-                <div className="header-text">Change Password</div>
-                <div className="p-4">
-                  <div className="employee-form-group">
-                    <label for="password" className="form-label">
-                      Current Password
-                    </label>
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter Current Password"
-                        type={showCurrPassword ? "text" : "password"}
-                        id="password"
-                        name="password"
-                        value={password}
-                        minLength={8}
-                        maxLength={64}
-                        onChange={(e) => curpasswordValidation(e)}
-                        className="form-input"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrPassword((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
-                      >
-                        {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
-                      </button>
-                    </div>
-                    {curPasswordError ? (
-                      <label className="error-msg">{curPasswordError}</label>
-                    ) : null}
-                  </div>
-                  <div className="employee-form-group mt-4">
-                    <label for="newpassword" className="form-label">
-                      New Password
-                    </label>
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter New Password"
-                        type={showNewPassword ? "text" : "password"}
-                        id="newpassword"
-                        name="newpassword"
-                        value={newpassword}
-                        minLength={8}
-                        maxLength={64}
-                        onChange={(e) => passwordValidation(e)}
-                        className="form-input"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
-                      >
-                        {showNewPassword ? <FaEye /> : <FaEyeSlash />}
-                      </button>
-                    </div>
-                    {passwordErrors.length > 0 && (
-                      <div style={{ marginTop: 5, width: 300 }}>
-                        {passwordErrors.map((error, index) => (
-                          <p key={index} className="error-msg">
-                            {error}
-                          </p>
-                        ))}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePasswordChange();
+                  }}
+                >
+                  <div className="header-text">Change Password</div>
+                  <div className="p-4">
+                    <div className="employee-form-group">
+                      <label for="password" className="form-label">
+                        Current Password
+                      </label>
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter Current Password"
+                          type={showCurrPassword ? "text" : "password"}
+                          id="password"
+                          name="password"
+                          value={password}
+                          minLength={8}
+                          maxLength={64}
+                          onChange={(e) => curpasswordValidation(e)}
+                          className="form-input"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrPassword((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showCurrPassword ? <FaEye /> : <FaEyeSlash />}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  <div className="employee-form-group mt-4">
-                    <label for="renewpassword" className="form-label">
-                      Reenter Password
-                    </label>
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter Reenter Password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        id="renewpassword"
-                        name="renewpassword"
-                        minLength={8}
-                        maxLength={64}
-                        value={renewpassword}
-                        onChange={(e) => repasswordValidation(e)}
-                        className="form-input"
-                      />
+                      {curPasswordError ? (
+                        <label className="error-msg">{curPasswordError}</label>
+                      ) : null}
+                    </div>
+                    <div className="employee-form-group mt-4">
+                      <label for="newpassword" className="form-label">
+                        New Password
+                      </label>
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter New Password"
+                          type={showNewPassword ? "text" : "password"}
+                          id="newpassword"
+                          name="newpassword"
+                          value={newpassword}
+                          minLength={8}
+                          maxLength={64}
+                          onChange={(e) => passwordValidation(e)}
+                          className="form-input"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showNewPassword ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
+                      {passwordErrors.length > 0 && (
+                        <div style={{ marginTop: 5, width: 300 }}>
+                          {passwordErrors.map((error, index) => (
+                            <p key={index} className="error-msg">
+                              {error}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="employee-form-group mt-4">
+                      <label for="renewpassword" className="form-label">
+                        Reenter Password
+                      </label>
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter Reenter Password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          id="renewpassword"
+                          name="renewpassword"
+                          minLength={8}
+                          maxLength={64}
+                          value={renewpassword}
+                          onChange={(e) => repasswordValidation(e)}
+                          className="form-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword((prev) => !prev)
+                          }
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
+                      {repasswordErrors.length > 0 && (
+                        <div style={{ marginTop: 5, width: 300 }}>
+                          {repasswordErrors.map((error, index) => (
+                            <p key={index} className="error-msg">
+                              {error}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="function-btn-container">
                       <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
+                        className="settings-btn actions-btn"
+                        type="submit"
+                        disabled={loading}
                       >
-                        {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                        {loading ? "Saving..." : "Save"}
                       </button>
                     </div>
-                    {repasswordErrors.length > 0 && (
-                      <div style={{ marginTop: 5, width: 300 }}>
-                        {repasswordErrors.map((error, index) => (
-                          <p key={index} className="error-msg">
-                            {error}
-                          </p>
-                        ))}
-                      </div>
-                    )}
                   </div>
-                  <div className="function-btn-container">
-                    <button
-                      className="settings-btn actions-btn"
-                      type="button"
-                      onClick={handlePasswordChange}
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
+                </form>
               </div>
             )}
 
             {/* Edit Security Questions */}
             {isQuestionsClicked && (
               <div className="settings-form-card white-bg-container">
-                <div className="header-text">Edit Security Questions</div>
-                <div className="p-4">
-                  <div>
-                    <label className="form-label">Security Question #1</label>
-                    <select
-                      onChange={(e) =>
-                        handleSecurityChange(0, "question", e.target.value)
-                      }
-                      className="form-input mb-2"
-                      value={securityquestions[0].question}
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {securityQuestionsList
-                        .filter(
-                          (element) => element !== securityquestions[1].question
-                        )
-                        .map((element) => (
-                          <option value={element}>{element}</option>
-                        ))}
-                    </select>
-
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter answer"
-                        value={securityquestions[0].answer}
-                        type={showAnswer1 ? "text" : "password"}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleQuestionsChange();
+                  }}
+                >
+                  <div className="header-text">Change Security Questions</div>
+                  <div className="p-4">
+                    <div>
+                      <label className="form-label">Security Question #1</label>
+                      <select
                         onChange={(e) =>
-                          handleSecurityChange(
-                            0,
-                            "answer",
-                            e.target.value.toLowerCase()
-                          )
+                          handleSecurityChange(0, "question", e.target.value)
                         }
-                        className="form-input"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowAnswer1((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
+                        className="form-input mb-2"
+                        value={securityquestions[0].question}
                       >
-                        {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
-                      </button>
+                        <option value="" disabled selected hidden>
+                          Select
+                        </option>
+                        {securityQuestionsList
+                          .filter(
+                            (element) =>
+                              element !== securityquestions[1].question
+                          )
+                          .map((element) => (
+                            <option value={element}>{element}</option>
+                          ))}
+                      </select>
+
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter answer"
+                          value={securityquestions[0].answer}
+                          type={showAnswer1 ? "text" : "password"}
+                          onChange={(e) =>
+                            handleSecurityChange(
+                              0,
+                              "answer",
+                              e.target.value.toLowerCase()
+                            )
+                          }
+                          className="form-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAnswer1((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showAnswer1 ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mt-4">
-                    <label className="form-label">Security Question #2</label>
-                    <select
-                      onChange={(e) =>
-                        handleSecurityChange(1, "question", e.target.value)
-                      }
-                      className="form-input mb-2"
-                      value={securityquestions[1].question}
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {securityQuestionsList
-                        .filter(
-                          (element) => element !== securityquestions[0].question
-                        )
-                        .map((element) => (
-                          <option value={element}>{element}</option>
-                        ))}
-                    </select>
-
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter answer"
-                        value={securityquestions[1].answer}
-                        type={showAnswer2 ? "text" : "password"}
+                    <div className="mt-4">
+                      <label className="form-label">Security Question #2</label>
+                      <select
                         onChange={(e) =>
-                          handleSecurityChange(
-                            1,
-                            "answer",
-                            e.target.value.toLowerCase()
-                          )
+                          handleSecurityChange(1, "question", e.target.value)
                         }
-                        className="form-input"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowAnswer2((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
+                        className="form-input mb-2"
+                        value={securityquestions[1].question}
                       >
-                        {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
-                      </button>
-                    </div>
-                  </div>
+                        <option value="" disabled selected hidden>
+                          Select
+                        </option>
+                        {securityQuestionsList
+                          .filter(
+                            (element) =>
+                              element !== securityquestions[0].question
+                          )
+                          .map((element) => (
+                            <option value={element}>{element}</option>
+                          ))}
+                      </select>
 
-                  <div className="employee-form-group mt-4">
-                    <label for="password" className="form-label">
-                      Password
-                    </label>
-                    <div className="relative w-full">
-                      <input
-                        placeholder="Enter Password"
-                        id="password"
-                        name="password"
-                        value={password}
-                        type={showSecurityPass ? "text" : "password"}
-                        onChange={(e) => curpasswordValidation(e)}
-                        className="form-input"
-                      />
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter answer"
+                          value={securityquestions[1].answer}
+                          type={showAnswer2 ? "text" : "password"}
+                          onChange={(e) =>
+                            handleSecurityChange(
+                              1,
+                              "answer",
+                              e.target.value.toLowerCase()
+                            )
+                          }
+                          className="form-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowAnswer2((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showAnswer2 ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="employee-form-group mt-4">
+                      <label for="password" className="form-label">
+                        Password
+                      </label>
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Enter Password"
+                          id="password"
+                          name="password"
+                          value={password}
+                          type={showSecurityPass ? "text" : "password"}
+                          onChange={(e) => curpasswordValidation(e)}
+                          className="form-input"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSecurityPass((prev) => !prev)}
+                          className="eye-toggle"
+                          tabIndex={-1}
+                        >
+                          {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
+                        </button>
+                      </div>
+                      {curPasswordError ? (
+                        <label className="error-msg">{curPasswordError}</label>
+                      ) : null}
+                    </div>
+                    <div className="function-btn-container">
                       <button
-                        type="button"
-                        onClick={() => setShowSecurityPass((prev) => !prev)}
-                        className="eye-toggle"
-                        tabIndex={-1}
+                        className="settings-btn actions-btn"
+                        type="submit"
+                        disabled={loading}
                       >
-                        {showSecurityPass ? <FaEye /> : <FaEyeSlash />}
+                        {loading ? "Saving..." : "Save"}
                       </button>
                     </div>
-                    {curPasswordError ? (
-                      <label className="error-msg">{curPasswordError}</label>
-                    ) : null}
                   </div>
-                  <div className="function-btn-container">
-                    <button
-                      className="settings-btn actions-btn"
-                      type="button"
-                      onClick={handleQuestionsChange}
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </div>
+                </form>
               </div>
             )}
           </div>

@@ -1270,6 +1270,9 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               }`}
             >
               Pending
+              {household.some((house) => house.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu3}
@@ -1278,6 +1281,11 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               }`}
             >
               Change Requested
+              {household.some(
+                (house) => house.status === "Change Requested"
+              ) && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu4}
@@ -1382,7 +1390,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                       <td>{house.householdno}</td>
                       <td>{householdName}</td>
                       <td>{headName}</td>
-                      <td>{headMember.resID.address}</td>
+                      <td>{house.address}</td>
                       <td>{house.members.length}</td>
                       <td>{house.vehicles.length}</td>
                     </tr>

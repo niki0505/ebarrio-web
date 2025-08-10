@@ -37,13 +37,13 @@ const BusinessClearancePrint = ({
             </p>
             <p style={{ fontSize: "12px", paddingBottom: "7px" }}>
               {certData.locationofbusiness === "Resident's Address"
-                ? `${certData.resID.address}`
+                ? `${certData.resID.householdno?.address}`
                 : `${certData.locationofbusiness}`}
             </p>
             <p style={{ fontSize: "12px" }}>
               {certData.locationofbusiness === "Resident's Address"
                 ? "same as above"
-                : `${certData.resID.address}`}
+                : `${certData.resID.householdno?.address}`}
             </p>
           </div>
 

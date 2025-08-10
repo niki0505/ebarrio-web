@@ -486,6 +486,9 @@ function CertificateRequests({ isCollapsed }) {
               }`}
             >
               Pending
+              {certificates.some((cert) => cert.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}
@@ -778,12 +781,12 @@ function CertificateRequests({ isCollapsed }) {
                                     </p>
                                     {/* Location of Business */}
                                     <h1 className="add-info-title min-w-[200px] max-w-[200px]">
-                                      Line of Business
+                                      Location of Business
                                     </h1>
                                     <p className="add-info-container">
                                       {cert.locationofbusiness ===
                                       "Resident's Address"
-                                        ? `${cert.resID.address}`
+                                        ? `${cert.resID.householdno?.address}`
                                         : `${cert.locationofbusiness}`}
                                     </p>
                                     {/* Date Requested */}

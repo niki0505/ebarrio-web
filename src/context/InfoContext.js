@@ -27,7 +27,11 @@ export const InfoProvider = ({ children }) => {
   const [chats, setChats] = useState([]);
   const [roomId, setRoomId] = useState(null);
   const [assignedAdmin, setAssignedAdmin] = useState(null);
-  const [pendingReservationCount, setPendingReservationCount] = useState(null);
+  const [pendingReservations, setPendingReservations] = useState(null);
+  const [pendingDocuments, setPendingDocuments] = useState(null);
+  const [pendingHouseholds, setPendingHouseholds] = useState(null);
+  const [pendingBlotters, setPendingBlotters] = useState(null);
+  const [pendingResidents, setPendingResidents] = useState(null);
 
   const announcementInitialForm = {
     category: "",
@@ -259,17 +263,58 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchPendingResidents = async () => {
+    try {
+      const response = await api.get("/pendingresidents");
+      setPendingResidents(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
+  const fetchPendingDocuments = async () => {
+    try {
+      const response = await api.get("/pendingdocuments");
+      setPendingDocuments(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
+  const fetchPendingReservations = async () => {
+    try {
+      const response = await api.get("/pendingreservations");
+      setPendingReservations(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchPendingBlotters = async () => {
+    try {
+      const response = await api.get("/pendingblotters");
+      setPendingBlotters(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchPendingHouseholds = async () => {
+    try {
+      const response = await api.get("/pendinghouseholds");
+      setPendingHouseholds(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      const fetchPendingReservations = async () => {
-        try {
-          const response = await api.get("/getpendingreservations");
-          setPendingReservationCount(response.data);
-        } catch (error) {
-          console.error("❌ Failed to fetch users:", error);
-        }
-      };
       fetchPendingReservations();
+      fetchPendingResidents();
+      fetchPendingDocuments();
+      fetchPendingBlotters();
+      fetchPendingHouseholds();
     }
   }, [isAuthenticated]);
 
@@ -296,6 +341,16 @@ export const InfoProvider = ({ children }) => {
         setActivityLogs(updatedData.data);
       } else if (updatedData.type === "faqs") {
         setFAQslist(updatedData.data);
+      } else if (updatedData.type === "pendingresidents") {
+        setPendingResidents(updatedData.data);
+      } else if (updatedData.type === "pendingdocuments") {
+        setPendingDocuments(updatedData.data);
+      } else if (updatedData.type === "pendingreservations") {
+        setPendingReservations(updatedData.data);
+      } else if (updatedData.type === "pendingblotters") {
+        setPendingBlotters(updatedData.data);
+      } else if (updatedData.type === "pendinghouseholds") {
+        setPendingHouseholds(updatedData.data);
       }
     });
 
@@ -321,7 +376,12 @@ export const InfoProvider = ({ children }) => {
           announcementForm,
           household,
           FAQslist,
-          pendingReservationCount,
+          pendingReservations,
+          pendingResidents,
+          pendingDocuments,
+          pendingHouseholds,
+          pendingBlotters,
+          fetchPendingResidents,
           chats,
           roomId,
           setRoomId,

@@ -207,7 +207,7 @@ const BarangayID = ({ resData, captainData }) => {
               fontSize: "8px",
             }}
           >
-            {resData.address}
+            {resData.householdno?.address}
           </p>
         </div>
 
