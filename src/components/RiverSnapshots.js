@@ -1,5 +1,6 @@
 import api from "../api";
 import { useState, useEffect } from "react";
+import AlertResidents from "./AlertResidents";
 
 //STYLES
 import "../Stylesheets/CommonStyle.css";
@@ -15,6 +16,7 @@ function RiverSnapshots({ isCollapsed }) {
   const [history, setHistory] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModal, setModal] = useState(false);
+  const [isAlertClicked, setAlertClicked] = useState(false);
 
   useEffect(() => {
     const fetchLatest = async () => {
@@ -77,10 +79,18 @@ function RiverSnapshots({ isCollapsed }) {
           <div className="items-center justify-center">
             {latest.url ? (
               <div>
-                <p className="text-center text-lg mt-4 text-[#BC0F0F] font-semibold">
-                  CCTV Snapshot as of{" "}
-                  {latest.datetime?.split(" at ")[1] || "Unknown Time"}
-                </p>
+                <div>
+                  <p className="text-center text-lg mt-4 text-[#BC0F0F] font-semibold">
+                    CCTV Snapshot as of{" "}
+                    {latest.datetime?.split(" at ")[1] || "Unknown Time"}
+                  </p>
+                  <button
+                    className="add-new-btn"
+                    onClick={() => setAlertClicked(true)}
+                  >
+                    <h1 className="add-new-btn-text">Alert Residents</h1>
+                  </button>
+                </div>
                 <img
                   src={latest.url}
                   alt="Latest River Snapshot"
@@ -145,6 +155,9 @@ function RiverSnapshots({ isCollapsed }) {
               </div>
             )}
           </>
+        )}
+        {isAlertClicked && (
+          <AlertResidents onClose={() => setAlertClicked(false)} />
         )}
       </main>
     </>

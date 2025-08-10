@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [userStatus, setUserStatus] = useState(null);
+  const [logoutLoading, setLogoutLoading] = useState(false);
 
   useEffect(() => {
     if (userStatus && userStatus === "Deactivated") {
@@ -77,6 +78,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    if (logoutLoading) return;
+
+    setLogoutLoading(true);
     try {
       const res = await axios.post(
         "http://localhost:5000/api/logout",
@@ -90,6 +94,8 @@ export const AuthProvider = ({ children }) => {
       navigation("/login");
     } catch (error) {
       console.log("Error", error);
+    } finally {
+      setLogoutLoading(false);
     }
   };
 
@@ -100,6 +106,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         setUser,
         setUserStatus,
+        logoutLoading,
         isAuthenticated,
         setIsAuthenticated,
       }}

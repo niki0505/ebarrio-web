@@ -44,6 +44,7 @@ import RiverSnapshots from "./components/RiverSnapshots";
 import ActivityLogs from "./components/ActivityLogs";
 import Household from "./components/Household";
 import ViewResident from "./components/ViewResident";
+import NotFound from "./components/NotFound";
 
 // Scrolls to the top of the page when switching pages
 const ResetScrollToTop = () => {
@@ -77,6 +78,7 @@ function App() {
                   pauseOnHover
                 />
                 <Routes>
+                  <Route path="*" element={<NotFound />} />
                   <Route path="/" element={<Navigate to="/login" replace />} />
                   <Route
                     path="/login"

@@ -341,6 +341,8 @@ export const InfoProvider = ({ children }) => {
         setActivityLogs(updatedData.data);
       } else if (updatedData.type === "faqs") {
         setFAQslist(updatedData.data);
+      } else if (updatedData.type === "household") {
+        setHousehold(updatedData.data);
       } else if (updatedData.type === "pendingresidents") {
         setPendingResidents(updatedData.data);
       } else if (updatedData.type === "pendingdocuments") {
