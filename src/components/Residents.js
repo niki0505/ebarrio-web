@@ -684,6 +684,9 @@ function Residents({ isCollapsed }) {
               }`}
             >
               Pending
+              {residents.some((resident) => resident.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}
@@ -886,7 +889,7 @@ function Residents({ isCollapsed }) {
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container min-w-[250px] max-w-[250px]">
-                                    {res.address}
+                                    {res.householdno?.address}
                                   </div>
                                   <div className="add-info-title min-w-[250px] max-w-[250px]">
                                     Address
@@ -1001,7 +1004,7 @@ function Residents({ isCollapsed }) {
                             <td>{res.age}</td>
                             <td>{res.sex}</td>
                             <td>{res.mobilenumber}</td>
-                            <td>{res.address}</td>
+                            <td>{res.householdno?.address}</td>
                             {sortOption === "Voters" && (
                               <td>{res.precinct ? res.precinct : "N/A"}</td>
                             )}

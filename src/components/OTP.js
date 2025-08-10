@@ -92,6 +92,14 @@ function OTP() {
     setOTP(text);
   };
 
+  const maskMobileNumber = (number) => {
+    if (!number || number.length < 4) return number;
+    const start = number.slice(0, 2);
+    const end = number.slice(-2);
+    const masked = "*".repeat(number.length - 4);
+    return `${start}${masked}${end}`;
+  };
+
   return (
     <>
       <div
@@ -119,7 +127,7 @@ function OTP() {
                     Enter the 6 digit code sent to:
                   </span>
                   <span className="text-navy-blue font-semibold">
-                    {mobilenumber}
+                    {maskMobileNumber(mobilenumber)}
                   </span>
                 </div>
               </div>

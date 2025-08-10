@@ -70,7 +70,9 @@ const ClearancePrint = ({
               height: "20px",
             }}
           >
-            <p style={{ fontSize: "12px" }}>{certData.resID.address}</p>
+            <p style={{ fontSize: "12px" }}>
+              {certData.resID.householdno?.address}
+            </p>
           </div>
 
           <div

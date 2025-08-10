@@ -25,7 +25,7 @@ const Navbar = ({ isCollapsed }) => {
   const [profileDropdown, setprofileDropdown] = useState(false);
   const [notificationDropdown, setnotificationDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
-  const { logout, user } = useContext(AuthContext);
+  const { logout, user, logoutLoading } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
   const { fetchNotifications, notifications } = useContext(SocketContext);
   const { isAuthenticated } = useContext(AuthContext);
@@ -333,8 +333,12 @@ const Navbar = ({ isCollapsed }) => {
                   </div>
                   <div className="navbar-dropdown-item ">
                     <PiSignOutBold className="signout-icon" />
-                    <li className="signout-text" onClick={handleLogout}>
-                      Log Out
+                    <li
+                      className="signout-text"
+                      onClick={handleLogout}
+                      disabled={logoutLoading}
+                    >
+                      {logoutLoading ? "Logging out..." : "Logout"}
                     </li>
                   </div>
                 </ul>

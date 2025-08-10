@@ -27,6 +27,7 @@ function CreateResident({ isCollapsed }) {
   const [emMobileNumError, setEmMobileNumError] = useState("");
   const [telephoneNumError, setTelephoneNumError] = useState("");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
   const initialForm = {
@@ -57,17 +58,6 @@ function CreateResident({ isCollapsed }) {
     emergencyname: "",
     emergencymobilenumber: "+63",
     emergencyaddress: "",
-    housenumber: "",
-    street: "",
-    HOAname: "",
-    address: "",
-    mother: "",
-    father: "",
-    spouse: "",
-    siblings: [],
-    children: [],
-    numberofsiblings: "",
-    numberofchildren: "",
     employmentstatus: "",
     employmentfield: "",
     occupation: "",
@@ -78,7 +68,6 @@ function CreateResident({ isCollapsed }) {
     householdposition: "",
     head: "",
     course: "",
-    // is4Ps: false,
     isSenior: false,
     isInfant: false,
     isNewborn: false,
@@ -91,7 +80,6 @@ function CreateResident({ isCollapsed }) {
     isWomenOfReproductive: false,
     isPregnant: false,
     isPWD: false,
-    // isSoloParent: false,
     philhealthid: "",
     philhealthtype: "",
     philhealthcategory: "",
@@ -115,84 +103,17 @@ function CreateResident({ isCollapsed }) {
     nhtsno: "",
     watersource: "",
     toiletfacility: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
   });
-  const [members, setMembers] = useState([
-    { resident: "", residentID: "", residentAddress: "", residentContact: "" },
-  ]);
   const [memberSuggestions, setMemberSuggestions] = useState([]);
 
   useEffect(() => {
     fetchResidents();
     fetchHouseholds();
   }, []);
-
-  const renderSiblingsDropdown = () => {
-    const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
-
-    const siblingsDropdowns = [];
-    for (let i = 0; i < numberOfSiblings; i++) {
-      siblingsDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`sibling-${i}`} className="form-label">
-            Sibling
-          </label>
-          <select
-            id={`sibling-${i}`}
-            name={`sibling-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
-            className="form-input"
-            value={residentForm.siblings}
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return siblingsDropdowns;
-  };
-
-  const renderChildrenDropdown = () => {
-    const numberOfChildren = parseInt(residentForm.numberofchildren, 10) || 0;
-
-    const childrenDropdowns = [];
-    for (let i = 0; i < numberOfChildren; i++) {
-      childrenDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`child-${i}`} className="form-label">
-            Child
-          </label>
-          <select
-            id={`child-${i}`}
-            name={`child-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
-            value={residentForm.children}
-            className="form-input"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return childrenDropdowns;
-  };
 
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV"];
@@ -394,41 +315,6 @@ function CreateResident({ isCollapsed }) {
     "Without Toilet",
   ];
 
-  // const educationalattainmentList = [
-  //   "No Formal Education",
-  //   "Day Care",
-  //   "Kindergarten/Preparatory",
-  //   "Grade 1",
-  //   "Grade 2",
-  //   "Grade 3",
-  //   "Grade 4",
-  //   "Grade 5",
-  //   "Grade 6",
-  //   "Grade 7",
-  //   "Grade 8",
-  //   "Grade 9",
-  //   "Grade 10",
-  //   "Grade 11",
-  //   "Grade 12",
-  //   "1st Year PS/N-T/TV",
-  //   "2nd Year PS/N-T/TV",
-  //   "3rd Year PS/N-T/TV",
-  //   "1st Year College",
-  //   "2nd Year College",
-  //   "3rd Year College",
-  //   "4th Year College or Higher",
-  //   "ALS Elementary",
-  //   "ALS Secondary",
-  //   "SPED Elementary",
-  //   "SPED Secondary",
-  //   "Grade School Graduate",
-  //   "High School Graduate",
-  //   "Post-Secondary Graduate",
-  //   "Post-Grad with Units",
-  //   "College Graduate",
-  //   "Masters/PHD Graduate",
-  // ];
-
   const handleRadioChange = (e) => {
     const { name, value } = e.target;
     setResidentForm((prev) => ({
@@ -443,16 +329,6 @@ function CreateResident({ isCollapsed }) {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleMultipleDropdownChange = (e, index, field) => {
-    const selectedValue = e.target.value;
-    const updatedArray = [...residentForm[field]];
-    updatedArray[index] = selectedValue;
-    setResidentForm({
-      ...residentForm,
-      [field]: updatedArray,
-    });
   };
 
   const smartCapitalize = (word) => {
@@ -648,6 +524,7 @@ function CreateResident({ isCollapsed }) {
     if (hasErrors) {
       return;
     }
+
     try {
       const isConfirmed = await confirm(
         "Are you sure you want to create a resident profile?",
@@ -656,7 +533,11 @@ function CreateResident({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
+
+      if (loading) return;
+
+      setLoading(true);
+      const fulladdress = `${householdForm.housenumber} ${householdForm.street} Aniban 2, Bacoor, Cavite`;
       const idPicture = await uploadToFirebase(residentForm.id);
       const signaturePicture = await uploadToFirebase(residentForm.signature);
 
@@ -688,11 +569,16 @@ function CreateResident({ isCollapsed }) {
         telephone: formattedTelephone,
       };
 
+      const updatedHouseholdForm = {
+        ...householdForm,
+        address: fulladdress,
+      };
+
       const response = await api.post("/createresident", {
         picture: idPicture,
         signature: signaturePicture,
         ...updatedResidentForm,
-        householdForm,
+        householdForm: updatedHouseholdForm,
       });
       try {
         const response2 = await api.post(
@@ -717,6 +603,8 @@ function CreateResident({ isCollapsed }) {
       navigation("/residents");
     } catch (error) {
       console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1906,180 +1794,14 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          {/* Family Information */}
-          <h3 className="section-title mt-8">Family Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label for="mother" className="form-label">
-                Mother
-              </label>
-              <select
-                id="mother"
-                name="mother"
-                value={residentForm.mother}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Female")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label for="father" className="form-label">
-                Father
-              </label>
-              <select
-                id="father"
-                name="father"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Male")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="spouse" className="form-label">
-                Spouse
-              </label>
-              <select
-                id="spouse"
-                name="spouse"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4">Siblings</label>
-              <input
-                name="numberofsiblings"
-                value={residentForm.numberofsiblings}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of siblings"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4 ">Children</label>
-              <input
-                name="numberofchildren"
-                value={residentForm.numberofchildren}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of children"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
-          )}
-
-          {/* Address Information */}
-          <h3 className="section-title mt-8">Address Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label className="form-label">House Number</label>
-              <input
-                name="housenumber"
-                value={residentForm.housenumber}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter house number"
-                maxLength={3}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label for="street" className="form-label">
-                Street<label className="text-red-600">*</label>
-              </label>
-              <select
-                id="street"
-                name="street"
-                onChange={handleDropdownChange}
-                required
-                value={residentForm.street}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {streetList.map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="HOAname" className="form-label">
-                HOA Name
-              </label>
-              <select
-                id="HOAname"
-                name="HOAname"
-                value={residentForm.HOAname}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-              </select>
-            </div>
-          </div>
-
           {/* Household Information */}
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
 
           <div className="form-group">
-            <label className="form-label">Head of the Household</label>
+            <label className="form-label">
+              Head of the Household<label className="text-red-600">*</label>
+            </label>
             <div className="radio-container">
               <div className="radio-item">
                 <input
@@ -2166,6 +1888,59 @@ function CreateResident({ isCollapsed }) {
             {/* Head = Yes: show members table */}
             {residentForm.head === "Yes" && (
               <div className="mt-4">
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label className="form-label">House Number</label>
+                    <input
+                      name="housenumber"
+                      value={householdForm.housenumber}
+                      onChange={householdNumbersAndNoSpaceOnly}
+                      placeholder="Enter house number"
+                      maxLength={3}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label for="street" className="form-label">
+                      Street<label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="street"
+                      name="street"
+                      onChange={handleHouseholdDropdownChange}
+                      required
+                      value={householdForm.street}
+                      className="form-input"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {streetList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label for="HOAname" className="form-label">
+                      HOA Name
+                    </label>
+                    <select
+                      id="HOAname"
+                      name="HOAname"
+                      value={householdForm.HOAname}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <option value="Bermuda Town Homes">
+                        Bermuda Town Homes
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="form-grid">
                   <div className="col-span-2">
                     <label className="form-label">
@@ -2586,7 +2361,7 @@ function CreateResident({ isCollapsed }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div className="form-group">
               <label for="educationalattainment" className="form-label">
-                Highest Educational Attainment
+                Educational Attainment
               </label>
               <select
                 id="educationalattainment"
@@ -2603,36 +2378,26 @@ function CreateResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label for="typeofschool" className="form-label">
-                Type of School
-              </label>
-              <select
-                id="typeofschool"
-                name="typeofschool"
-                value={residentForm.typeofschool}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Course</label>
-              <input
-                name="course"
-                value={residentForm.course}
-                minLength={2}
-                maxLength={100}
-                onChange={lettersAndSpaceOnly}
-                placeholder="Enter course"
-                className="form-input"
-              />
-            </div>
+            {[
+              "Vocational Course",
+              "College Student",
+              "College Undergrad",
+              "College Graduate",
+              "Postgraduate",
+            ].includes(residentForm.educationalattainment) && (
+              <div className="form-group">
+                <label className="form-label">Course</label>
+                <input
+                  name="course"
+                  value={residentForm.course}
+                  minLength={2}
+                  maxLength={100}
+                  onChange={lettersAndSpaceOnly}
+                  placeholder="Enter course"
+                  className="form-input"
+                />
+              </div>
+            )}
           </div>
 
           <div className="function-btn-container">
@@ -2645,9 +2410,10 @@ function CreateResident({ isCollapsed }) {
             </button>
             <button
               type="submit"
+              disabled={loading}
               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
             >
-              Submit
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>

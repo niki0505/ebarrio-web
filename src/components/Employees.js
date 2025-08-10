@@ -740,7 +740,7 @@ function Employees({ isCollapsed }) {
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container">
-                                    {emp.resID.address}
+                                    {emp.resID.householdno?.address}
                                   </div>
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container min-w-[250px] max-w-[250px]">
@@ -808,7 +808,7 @@ function Employees({ isCollapsed }) {
                             <td>{emp.resID.age}</td>
                             <td>{emp.resID.sex}</td>
                             <td>{emp.resID.mobilenumber}</td>
-                            <td>{emp.resID.address}</td>
+                            <td>{emp.resID.householdno?.address}</td>
                             <td>{emp.position}</td>
 
                             {/* Dropdown Arrow */}

@@ -323,7 +323,7 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.complainantID
-                          ? blotter.complainantID.address
+                          ? blotter.complainantID.householdno?.address
                           : blotter.complainantaddress}
                       </label>
                     </div>
@@ -359,7 +359,7 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.subjectID
-                          ? blotter.subjectID.address
+                          ? blotter.subjectID.householdno?.address
                           : blotter.subjectaddress}
                       </label>
                     </div>

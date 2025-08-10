@@ -15,6 +15,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const location = useLocation();
 
@@ -44,6 +45,10 @@ const Login = () => {
   }, [location.pathname]);
 
   const handleLogin = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const res = await api.post(
         "/checkcredentials",
@@ -92,6 +97,8 @@ const Login = () => {
         console.log("❌ Network or unknown error:", error.message);
         alert("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,8 +191,8 @@ const Login = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <button type="submit" className="login-btn">
-                  Login
+                <button type="submit" disabled={loading} className="login-btn">
+                  {loading ? "Logging in..." : "Login"}
                 </button>
                 <a href="/forgot-password" className="login-forgot-btn">
                   Forgot password?
