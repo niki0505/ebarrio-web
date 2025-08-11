@@ -46,7 +46,7 @@ const Chat = () => {
         });
       } else {
         // Fetch new chat from backend
-        if (chats.some((chat) => chat._id === roomId)) {
+        if (chats.some((chat) => String(chat._id) === String(roomId))) {
           console.log("⚠️ Room already exists — skipping new chat creation.");
           return;
         }
