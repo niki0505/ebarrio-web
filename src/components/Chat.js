@@ -23,42 +23,61 @@ const Chat = () => {
 
     const handleReceive = async ({ from, to, message, timestamp, roomId }) => {
       console.log("📥 Message received:", { from, to, message, roomId });
+
+      // Ignore own message unless it's a system message
       if (user.userID === from && message !== "This chat has ended.") {
         return;
       }
 
-      const chatIndex = chats.findIndex(
-        (chat) => chat._id.toString() === roomId.toString()
-      );
+      setChats((prevChats) => {
+        const chatIndex = prevChats.findIndex(
+          (chat) => String(chat._id) === String(roomId)
+        );
 
-      if (chatIndex !== -1) {
-        // Update existing chat
-        setChats((prevChats) => {
+        if (chatIndex !== -1) {
+          const chat = prevChats[chatIndex];
+
+          // Check for duplicate by matching message + timestamp
+          const isDuplicate = chat.messages.some(
+            (m) =>
+              m.message === message &&
+              m.timestamp === timestamp &&
+              m.from === from
+          );
+          if (isDuplicate) {
+            console.log("⚠️ Duplicate message detected — skipping append.");
+            return prevChats;
+          }
+
+          // Append new message
           const updatedChats = [...prevChats];
           updatedChats[chatIndex] = {
-            ...updatedChats[chatIndex],
-            messages: [
-              ...updatedChats[chatIndex].messages,
-              { from, to, message, timestamp },
-            ],
+            ...chat,
+            messages: [...chat.messages, { from, to, message, timestamp }],
           };
           return updatedChats;
-        });
-      } else {
-        // Fetch new chat from backend
-        if (chats.some((chat) => String(chat._id) === String(roomId))) {
-          console.log("⚠️ Room already exists — skipping new chat creation.");
-          return;
         }
+
+        // Chat not found — trigger new chat fetch
         console.log("🆕 New chat room. Fetching chat:", roomId);
         setActiveChatId(roomId);
-        try {
-          const { data } = await api.get(`/getchat/${roomId}`);
-          setChats((prevChats) => [...prevChats, data]);
-        } catch (err) {
-          console.error("❌ Failed to fetch new chat:", err.message);
-        }
-      }
+        api
+          .get(`/getchat/${roomId}`)
+          .then(({ data }) => {
+            setChats((current) => {
+              if (current.some((c) => String(c._id) === String(roomId))) {
+                console.log("⚠️ Chat already added after fetch — skipping.");
+                return current;
+              }
+              return [...current, data];
+            });
+          })
+          .catch((err) => {
+            console.error("❌ Failed to fetch new chat:", err.message);
+          });
+
+        return prevChats; // No immediate state change until fetch completes
+      });
     };
 
     socket.on("receive_message", handleReceive);
