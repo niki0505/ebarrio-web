@@ -12,7 +12,8 @@ const socket = io("http://localhost:5000/website", {
 });
 
 export const InfoProvider = ({ children }) => {
-  const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
+  const { isAuthenticated, setUserStatus, user, setUserPasswordChanged } =
+    useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
@@ -143,6 +144,7 @@ export const InfoProvider = ({ children }) => {
       users.map((usr) => {
         if (usr._id === user.userID) {
           setUserStatus(usr.status);
+          setUserPasswordChanged(usr.passwordchangedat);
         }
       });
     }
@@ -327,7 +329,6 @@ export const InfoProvider = ({ children }) => {
       } else if (updatedData.type === "users") {
         setUsers(updatedData.data);
       } else if (updatedData.type === "certificates") {
-        console.log(updatedData.data);
         setCertificates(updatedData.data);
       } else if (updatedData.type === "emergencyhotlines") {
         setEmergencyHotlines(updatedData.data);

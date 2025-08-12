@@ -2899,7 +2899,7 @@ function EditResident({ isCollapsed }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div className="form-group">
               <label for="educationalattainment" className="form-label">
-                Highest Educational Attainment
+                Educational Attainment
               </label>
               <select
                 id="educationalattainment"
@@ -2916,36 +2916,26 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label for="typeofschool" className="form-label">
-                Type of School
-              </label>
-              <select
-                id="typeofschool"
-                name="typeofschool"
-                value={residentForm.typeofschool}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Course</label>
-              <input
-                name="course"
-                value={residentForm.course}
-                minLength={2}
-                maxLength={100}
-                onChange={lettersAndSpaceOnly}
-                placeholder="Enter course"
-                className="form-input"
-              />
-            </div>
+            {[
+              "Vocational Course",
+              "College Student",
+              "College Undergrad",
+              "College Graduate",
+              "Postgraduate",
+            ].includes(residentForm.educationalattainment) && (
+              <div className="form-group">
+                <label className="form-label">Course</label>
+                <input
+                  name="course"
+                  value={residentForm.course}
+                  minLength={2}
+                  maxLength={100}
+                  onChange={lettersAndSpaceOnly}
+                  placeholder="Enter course"
+                  className="form-input"
+                />
+              </div>
+            )}
           </div>
 
           <div className="function-btn-container">
