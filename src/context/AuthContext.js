@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
@@ -10,8 +10,19 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const [userStatus, setUserStatus] = useState(null);
+  const [userPasswordChanged, setUserPasswordChanged] = useState(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  useEffect(() => {
+    if (user && userPasswordChanged) {
+      const passwordchangedat = new Date(userPasswordChanged).getTime();
+      const tokenIssuedAt = user.iat * 1000;
+
+      if (passwordchangedat > tokenIssuedAt) {
+        autologout4();
+      }
+    }
+  }, [user, userPasswordChanged]);
   useEffect(() => {
     if (userStatus && userStatus === "Deactivated") {
       autologout();
@@ -77,10 +88,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const autologout4 = async () => {
+    try {
+      await api.post(`/changedpassword`);
+      setIsAuthenticated(false);
+      setUser(null);
+      navigation("/login");
+    } catch (error) {
+      console.log("Error", error);
+    }
+  };
+
   const logout = async () => {
     if (logoutLoading) return;
 
     setLogoutLoading(true);
+
     try {
       const res = await axios.post(
         "https://api.ebarrio.online/api/logout",
@@ -106,6 +129,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         setUser,
         setUserStatus,
+        setUserPasswordChanged,
         logoutLoading,
         isAuthenticated,
         setIsAuthenticated,

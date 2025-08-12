@@ -21,6 +21,7 @@ function CreateEmployee({ onClose }) {
     chairmanship: "",
   });
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -55,6 +56,9 @@ function CreateEmployee({ onClose }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       let formattedEmployeeForm = { ...employeeForm };
       if (employeeForm.position !== "Justice") {
@@ -90,6 +94,8 @@ function CreateEmployee({ onClose }) {
       }
     } catch (error) {
       console.log("Error creating employee");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,7 +151,7 @@ function CreateEmployee({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content h-[16rem] w-[30rem]">
             <div className="dialog-title-bar">
@@ -185,6 +191,10 @@ function CreateEmployee({ onClose }) {
                     </option>
                     {residents
                       .filter((res) => !res.empID)
+                      .filter(
+                        (res) =>
+                          res.status !== "Archived" && res.status !== "Rejected"
+                      )
                       .map((element) => (
                         <option value={element._id}>
                           {element.middlename
@@ -241,61 +251,13 @@ function CreateEmployee({ onClose }) {
                   </div>
                 )}
 
-                {/* {employeeForm.position === "Justice" && (
-                  <div className="employee-form-group">
-                    <label for="assignedweeks" className="form-label">
-                      Assigned Weeks<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="assignedweeks"
-                      name="assignedweeks"
-                      onChange={handleDropdownChange}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {availableWeeks.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {employeeForm.position === "Justice" &&
-                  employeeForm.assignedweeks && (
-                    <div className="employee-form-group">
-                      <label for="assignedday" className="form-label">
-                        Assigned Day<label className="text-red-600">*</label>
-                      </label>
-                      <select
-                        id="assignedday"
-                        name="assignedday"
-                        onChange={handleDropdownChange}
-                        className="form-input h-[30px]"
-                      >
-                        <option value="" disabled selected hidden>
-                          Select
-                        </option>
-                        {assignedDay
-                          .filter(
-                            (day) =>
-                              !getUsedDaysForSelectedWeek(
-                                employeeForm.assignedweeks
-                              ).includes(day)
-                          )
-                          .map((element) => (
-                            <option value={element}>{element}</option>
-                          ))}
-                      </select>
-                    </div>
-                  )} */}
-
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

@@ -14,7 +14,6 @@ import { IoClose } from "react-icons/io5";
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
   const { fetchResidents, residents } = useContext(InfoContext);
-  const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [userForm, setUserForm] = useState({
@@ -23,8 +22,8 @@ function CreateAccount({ onClose }) {
     resID: "",
     role: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -62,8 +61,6 @@ function CreateAccount({ onClose }) {
       [name]: formattedVal,
     }));
   };
-
-  console.log(userForm.username);
 
   const passwordValidation = (e) => {
     const { name, value } = e.target;
@@ -142,6 +139,9 @@ function CreateAccount({ onClose }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post("/createuser", userForm);
       alert("Account has been created successfully.");
@@ -155,6 +155,8 @@ function CreateAccount({ onClose }) {
         console.log("❌ Network or unknown error:", error.message);
         alert("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -164,7 +166,7 @@ function CreateAccount({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content h-[25rem] w-[30rem]">
             <div className="dialog-title-bar">
@@ -296,9 +298,10 @@ function CreateAccount({ onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

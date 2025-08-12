@@ -43,6 +43,7 @@ function CreateBlotter({ isCollapsed }) {
   };
 
   const { blotterForm, setBlotterForm } = useContext(InfoContext);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -219,6 +220,9 @@ function CreateBlotter({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
+      if (loading) return;
+
+      setLoading(true);
       let updatedForm = { ...blotterForm };
 
       if (updatedForm.complainantID) {
@@ -253,6 +257,8 @@ function CreateBlotter({ isCollapsed }) {
         navigation("/blotter-reports");
       } catch (error) {
         console.log("Error creating blotter report", error);
+      } finally {
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error", error);
@@ -661,7 +667,9 @@ function CreateBlotter({ isCollapsed }) {
                 className="h-[15rem] textarea-container"
                 required
               />
-              <h3 className="textarea-length-text">{blotterForm.details.length}/1000</h3>
+              <h3 className="textarea-length-text">
+                {blotterForm.details.length}/1000
+              </h3>
             </div>
           </div>
 
@@ -716,8 +724,12 @@ function CreateBlotter({ isCollapsed }) {
             >
               Clear
             </button>
-            <button className="actions-btn bg-btn-color-blue" type="submit">
-              Submit
+            <button
+              className="actions-btn bg-btn-color-blue"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>

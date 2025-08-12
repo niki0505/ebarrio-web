@@ -358,7 +358,6 @@ function AccountSettings({ isCollapsed }) {
           password,
         });
         alert("Password has been changed successfully. Please log in again.");
-        logout();
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -3428,18 +3427,18 @@ function AccountSettings({ isCollapsed }) {
                         <div className="form-group">
                           <label
                             for="educationalattainment"
-                            className="form-label whitespace-nowrap"
+                            className="form-label"
                           >
-                            Highest Educational Attainment
+                            Educational Attainment
                           </label>
                           <select
                             id="educationalattainment"
                             name="educationalattainment"
-                            onChange={handleDropdownChange}
                             value={residentForm.educationalattainment}
+                            onChange={handleDropdownChange}
                             className="form-input"
                           >
-                            <option value="" disabled selected hidden>
+                            <option value="" selected>
                               Select
                             </option>
                             {educationalattainmentList.map((element) => (
@@ -3447,34 +3446,26 @@ function AccountSettings({ isCollapsed }) {
                             ))}
                           </select>
                         </div>
-                        <div className="form-group">
-                          <label for="typeofschool" className="form-label">
-                            Type of School
-                          </label>
-                          <select
-                            id="typeofschool"
-                            name="typeofschool"
-                            onChange={handleDropdownChange}
-                            value={residentForm.typeofschool}
-                            className="form-input"
-                          >
-                            <option value="" disabled selected hidden>
-                              Select
-                            </option>
-                            <option value="Public">Public</option>
-                            <option value="Private">Private</option>
-                          </select>
-                        </div>
-                        <div className="form-group ">
-                          <label className="form-label">Course</label>
-                          <input
-                            name="course"
-                            value={residentForm.course}
-                            onChange={lettersAndSpaceOnly}
-                            placeholder="Enter course"
-                            className="form-input"
-                          />
-                        </div>
+                        {[
+                          "Vocational Course",
+                          "College Student",
+                          "College Undergrad",
+                          "College Graduate",
+                          "Postgraduate",
+                        ].includes(residentForm.educationalattainment) && (
+                          <div className="form-group">
+                            <label className="form-label">Course</label>
+                            <input
+                              name="course"
+                              value={residentForm.course}
+                              minLength={2}
+                              maxLength={100}
+                              onChange={lettersAndSpaceOnly}
+                              placeholder="Enter course"
+                              className="form-input"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className="function-btn-container">

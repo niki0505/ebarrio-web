@@ -14,6 +14,7 @@ function CreateContact({ onClose }) {
   const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
   const [mobileNumError, setMobileNumError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     let hasErrors = false;
@@ -33,6 +34,9 @@ function CreateContact({ onClose }) {
       if (!isConfirmed) {
         return;
       }
+      if (loading) return;
+
+      setLoading(true);
       let formattedNumber = contactNumber;
       formattedNumber = "0" + contactNumber.slice(3);
       await api.post("/createemergencyhotlines", {
@@ -50,6 +54,8 @@ function CreateContact({ onClose }) {
         console.log("❌ Network or unknown error:", error.message);
         alert("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -101,7 +107,7 @@ function CreateContact({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content h-[16rem] w-[30rem]">
             <div className="dialog-title-bar">
@@ -159,9 +165,10 @@ function CreateContact({ onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

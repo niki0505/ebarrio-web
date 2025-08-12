@@ -93,7 +93,7 @@ function AlertResidents({ onClose, resID }) {
                       disabled={loading}
                       className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                     >
-                      {loading ? "Confirming..." : "Confirm"}
+                      {loading ? "Submitting..." : "Submit"}
                     </button>
                   </div>
                 </div>
