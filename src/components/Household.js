@@ -24,7 +24,6 @@ function Household({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isHouseholdClicked, setHouseholdClicked] = useState(false);
   const [selectedHousehold, setSelectedHousehold] = useState(null);
-  const [exportDropdown, setexportDropdown] = useState(false);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
   const [isChangeClicked, setChangedClicked] = useState(false);
@@ -35,10 +34,6 @@ function Household({ isCollapsed }) {
   const exportRef = useRef(null);
   const filterRef = useRef(null);
   const [filterDropdown, setfilterDropdown] = useState(false);
-
-  const toggleExportDropdown = () => {
-    setexportDropdown(!exportDropdown);
-  };
 
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);

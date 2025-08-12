@@ -5,13 +5,9 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Outlet,
   Navigate,
 } from "react-router-dom";
-import OpenCamera from "./components/OpenCamera";
 import "./App.css";
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
 import Residents from "./components/Residents";
 import Employees from "./components/Employees";
 import Accounts from "./components/Accounts";

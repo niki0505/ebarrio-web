@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";

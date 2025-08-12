@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
@@ -283,7 +283,7 @@ function ViewBlotter({ onClose, blotterID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
