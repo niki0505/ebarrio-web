@@ -50,7 +50,7 @@ function AlertResidents({ onClose, resID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">

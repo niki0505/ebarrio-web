@@ -19,7 +19,6 @@ function OTP() {
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
   const [OTP, setOTP] = useState("");
-  const otpRef = useRef(null);
 
   useEffect(() => {
     let interval = null;

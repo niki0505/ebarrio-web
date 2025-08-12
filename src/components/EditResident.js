@@ -676,23 +676,6 @@ function EditResident({ isCollapsed }) {
       if (!isConfirmed) {
         return;
       }
-      if (residentForm.numberofsiblings == 0) {
-        residentForm.siblings = [];
-      } else {
-        residentForm.siblings = residentForm.siblings.slice(
-          0,
-          residentForm.numberofsiblings
-        );
-      }
-
-      if (residentForm.numberofchildren == 0) {
-        residentForm.children = [];
-      } else {
-        residentForm.children = residentForm.children.slice(
-          0,
-          residentForm.numberofchildren
-        );
-      }
       if (loading) return;
 
       setLoading(true);
@@ -1053,12 +1036,6 @@ function EditResident({ isCollapsed }) {
     }
   };
 
-  const handleVehicleChange = (index, field, value) => {
-    const updatedVehicles = [...householdForm.vehicles];
-    updatedVehicles[index][field] = value;
-    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
-  };
-
   const handleAddVehicle = () => {
     setNewVehicles([
       ...newVehicles,
@@ -1215,6 +1192,7 @@ function EditResident({ isCollapsed }) {
                     <p>Processing...</p>
                   ) : id ? (
                     <img
+                      alt="ID"
                       src={id}
                       className="w-full h-full object-contain bg-white"
                     />
@@ -1255,6 +1233,7 @@ function EditResident({ isCollapsed }) {
                     <p>Processing...</p>
                   ) : signature ? (
                     <img
+                      alt="Signature"
                       src={signature}
                       className="w-full h-full object-contain bg-white"
                     />
@@ -2180,19 +2159,21 @@ function EditResident({ isCollapsed }) {
                       <option value="" selected>
                         Select
                       </option>
-                      {household.map((h) => {
-                        const head = h.members.find(
-                          (m) => m.position === "Head"
-                        );
-                        const headName = head.resID
-                          ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
-                          : "Unnamed";
-                        return (
-                          <option key={h._id} value={h._id}>
-                            {headName}
-                          </option>
-                        );
-                      })}
+                      {household
+                        .filter((h) => h.status !== "Rejected")
+                        .map((h) => {
+                          const head = h.members.find(
+                            (m) => m.position === "Head"
+                          );
+                          const headName = head.resID
+                            ? `${head.resID.lastname}'s Residence - ${h.address}`
+                            : "Unnamed";
+                          return (
+                            <option key={h._id} value={h._id}>
+                              {headName}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                   <div className="form-group">
@@ -2208,7 +2189,8 @@ function EditResident({ isCollapsed }) {
                     >
                       <option value="">Select Position</option>
                       <option value="Spouse">Spouse</option>
-                      <option value="Child">Child</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
                       <option value="Parent">Parent</option>
                       <option value="Sibling">Sibling</option>
                       <option value="Grandparent">Grandparent</option>

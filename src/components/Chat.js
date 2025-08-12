@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { X, MessageCircle, Settings, Ban, Send } from "lucide-react";
+import { X, MessageCircle, Ban, Send } from "lucide-react";
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
