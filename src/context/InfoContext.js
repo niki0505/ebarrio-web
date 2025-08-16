@@ -26,6 +26,7 @@ export const InfoProvider = ({ children }) => {
   const [household, setHousehold] = useState([]);
   const [FAQslist, setFAQslist] = useState([]);
   const [chats, setChats] = useState([]);
+  const [AIMessages, setAIMessages] = useState([]);
   const [roomId, setRoomId] = useState(null);
   const [assignedAdmin, setAssignedAdmin] = useState(null);
   const [pendingReservations, setPendingReservations] = useState(null);
@@ -310,6 +311,28 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchPrompts = async () => {
+    try {
+      const res = await api.get("/getprompts");
+      const prompts = res.data;
+      const messages = prompts.flatMap((p) => [
+        {
+          from: "user",
+          message: p.prompt,
+          timestamp: new Date(p.createdAt),
+        },
+        {
+          from: "ai",
+          message: p.response,
+          timestamp: new Date(p.createdAt),
+        },
+      ]);
+      setAIMessages(messages);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchPendingReservations();
@@ -393,6 +416,9 @@ export const InfoProvider = ({ children }) => {
           setChats,
           setAnnouncementForm,
           fetchActivityLogs,
+          fetchPrompts,
+          AIMessages,
+          setAIMessages,
           activitylogs,
           setBlotterForm,
           setResidentForm,

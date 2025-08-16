@@ -666,26 +666,37 @@ function CreateResident({ isCollapsed }) {
 
   const telephoneInputChange = (e) => {
     let { name, value } = e.target;
-    value = value.replace(/\D/g, "");
+    value = value.replace(/\D/g, ""); // numbers only
 
-    if (!value.startsWith("+63")) {
-      value = "+63" + value.replace(/^0+/, "").slice(2);
+    // Ensure it starts with +63
+    if (!value.startsWith("63")) {
+      value = "63" + value.replace(/^0+/, "");
     }
-    if (value.length > 11) {
+
+    value = "+" + value; // Add the '+' at the start
+
+    // Max length for landline: +63 + (1-2 digit area code) + (5-7 digit number)
+    if (value.length > 13) {
       value = value.slice(0, 13);
     }
+
+    // Prevent extra leading zero after +63
     if (value.length >= 4 && value[3] === "0") {
       return;
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+
     if (name === "telephone") {
+      // Optional field: no error if just +63
       if (value === "+63") {
         setTelephoneNumError(null);
-      } else if (value.length > 11) {
+      }
+      // Allow between +63XYYYYYY (min 1-digit area code) and +63XXYYYYYYY (max length)
+      else if (/^\+63\d{6,9}$/.test(value)) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number.");
+        setTelephoneNumError("Invalid landline number.");
       }
     }
   };
