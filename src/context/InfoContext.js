@@ -34,6 +34,7 @@ export const InfoProvider = ({ children }) => {
   const [pendingHouseholds, setPendingHouseholds] = useState(null);
   const [pendingBlotters, setPendingBlotters] = useState(null);
   const [pendingResidents, setPendingResidents] = useState(null);
+  const [reports, setReports] = useState(null);
 
   const announcementInitialForm = {
     category: "",
@@ -333,6 +334,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchReports = async () => {
+    try {
+      const res = await api.get("/getreports");
+      setReports(res.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch SOS reports:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchPendingReservations();
@@ -408,6 +418,8 @@ export const InfoProvider = ({ children }) => {
           pendingHouseholds,
           pendingBlotters,
           fetchPendingResidents,
+          fetchReports,
+          reports,
           chats,
           roomId,
           setRoomId,
