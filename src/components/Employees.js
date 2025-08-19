@@ -250,7 +250,7 @@ function Employees({ isCollapsed }) {
         return searchParts.every(
           (part) =>
             fullName.includes(part) ||
-            emp.resID.address.toLowerCase().includes(part)
+            emp.resID.householdno?.address.toLowerCase().includes(part)
         );
       });
     }
@@ -296,7 +296,7 @@ function Employees({ isCollapsed }) {
           emp.resID.age,
           emp.resID.sex,
           `"${emp.resID.mobilenumber.replace(/"/g, '""')}"`,
-          `"${emp.resID.address.replace(/"/g, '""')}"`,
+          `"${emp.resID.householdno?.address.replace(/"/g, '""')}"`,
           emp.position,
         ];
       });
@@ -369,7 +369,7 @@ function Employees({ isCollapsed }) {
           emp.resID.age,
           emp.resID.sex,
           emp.resID.mobilenumber,
-          emp.resID.address,
+          emp.resID.householdno?.address,
           emp.position,
         ];
       });
