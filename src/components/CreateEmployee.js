@@ -56,18 +56,16 @@ function CreateEmployee({ onClose }) {
     if (!isConfirmed) {
       return;
     }
+
     if (loading) return;
 
     setLoading(true);
+
+    let formattedEmployeeForm = { ...employeeForm };
+    if (employeeForm.position !== "Kagawad") {
+      delete formattedEmployeeForm.chairmanship;
+    }
     try {
-      let formattedEmployeeForm = { ...employeeForm };
-      if (employeeForm.position !== "Justice") {
-        delete employeeForm.assignedday;
-        delete employeeForm.assignedweeks;
-      }
-      if (employeeForm.position !== "Kagawad") {
-        delete employeeForm.chairmanship;
-      }
       const response = await api.post("/createemployee", {
         formattedEmployeeForm,
       });
@@ -84,14 +82,19 @@ function CreateEmployee({ onClose }) {
             qrCode,
             qrToken: response2.data.qrToken,
           });
-          onClose();
-          alert("Employee has been successfully created.");
         } catch (error) {
           console.log("Error saving employee ID", error);
         }
       } catch (error) {
         console.log("Error generating employee ID", error);
       }
+      setEmployeeForm({
+        resID: "",
+        position: "",
+        chairmanship: "",
+      });
+      alert("Employee has been successfully created.");
+      onClose();
     } catch (error) {
       console.log("Error creating employee");
     } finally {
@@ -182,6 +185,7 @@ function CreateEmployee({ onClose }) {
                   <select
                     id="resID"
                     name="resID"
+                    value={employeeForm.resID}
                     onChange={handleDropdownChange}
                     className="form-input h-[30px] appearance-none"
                     required
@@ -212,6 +216,7 @@ function CreateEmployee({ onClose }) {
                   <select
                     id="position"
                     name="position"
+                    value={employeeForm.position}
                     onChange={handleDropdownChange}
                     className="form-input h-[30px] appearance-none"
                     required
@@ -233,6 +238,7 @@ function CreateEmployee({ onClose }) {
                     <select
                       id="chairmanship"
                       name="chairmanship"
+                      value={employeeForm.chairmanship}
                       onChange={handleDropdownChange}
                       className="form-input h-[30px]"
                     >
