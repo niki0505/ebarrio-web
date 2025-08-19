@@ -1220,7 +1220,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         const first = head.resID.firstname || "";
         const middle = head.resID.middlename || "";
         const last = head.resID.lastname || "";
-        const address = head.resID.address || "";
+        const address = h.address || "";
 
         const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
