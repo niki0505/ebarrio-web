@@ -11,7 +11,7 @@
       default-src 'self';
       script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' data: https:;
+      img-src 'self' data: blob: https:;
       font-src 'self' https://fonts.gstatic.com data:;
       connect-src 'self' blob: https://api.ebarrio.online wss://api.ebarrio.online https://maps.googleapis.com https://cdn.img.ly https://models.img.ly https://firebasestorage.googleapis.com https://staticimgly.com;
       frame-ancestors 'none';
