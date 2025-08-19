@@ -13,7 +13,7 @@
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       img-src 'self' data: https:;
       font-src 'self' https://fonts.gstatic.com data:;
-      connect-src 'self' https://api.ebarrio.online wss://api.ebarrio.online https://maps.googleapis.com https://cdn.img.ly https://models.img.ly https://firebasestorage.googleapis.com https://staticimgly.com;
+      connect-src 'self' blob: https://api.ebarrio.online wss://api.ebarrio.online https://maps.googleapis.com https://cdn.img.ly https://models.img.ly https://firebasestorage.googleapis.com https://staticimgly.com;
       frame-ancestors 'none';
       base-uri 'self';
       form-action 'self'
