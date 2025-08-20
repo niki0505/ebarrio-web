@@ -211,11 +211,8 @@ function Residents({ isCollapsed }) {
         pictureURL = await uploadToFirebase(pictureBlob);
       }
 
-      signatureURL = await uploadToFirebase(signatureBlob);
-
       await api.post(`/approveresident/${resID}`, {
         pictureURL,
-        signatureURL,
       });
 
       setActiveClicked(true);
