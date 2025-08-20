@@ -211,18 +211,7 @@ function Residents({ isCollapsed }) {
         pictureURL = await uploadToFirebase(pictureBlob);
       }
 
-      // Try removing background from signature
-      try {
-        const removedBgSignature = await removeBackground(signatureBlob);
-        signatureURL = await uploadToFirebaseImages(
-          new Blob([removedBgSignature], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from signature. Uploading original."
-        );
-        signatureURL = await uploadToFirebase(signatureBlob);
-      }
+      signatureURL = await uploadToFirebase(signatureBlob);
 
       await api.post(`/approveresident/${resID}`, {
         pictureURL,

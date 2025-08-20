@@ -210,6 +210,11 @@ function CreateAccount({ onClose }) {
                           !element.userID &&
                           !(element.empID && element.empID.userID)
                       )
+                      .filter(
+                        (element) =>
+                          element.status !== "Archived" &&
+                          element.status !== "Rejected"
+                      )
                       .map((element) => (
                         <option value={element._id}>
                           {element.middlename
