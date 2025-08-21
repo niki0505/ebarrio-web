@@ -359,7 +359,7 @@ function ForgotPassword() {
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
                   <form
                     onSubmit={(e) => {
@@ -486,7 +486,7 @@ function ForgotPassword() {
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
                   <div className="modal-container">
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
@@ -562,7 +562,7 @@ function ForgotPassword() {
                     <img
                       src={AppLogo}
                       alt="App Logo"
-                      className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                      className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                     />
                     <div className="modal-container">
                       <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
@@ -650,7 +650,7 @@ function ForgotPassword() {
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
                   <div className="modal-container">
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem]">

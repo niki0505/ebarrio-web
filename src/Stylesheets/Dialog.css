@@ -8,7 +8,7 @@
   @apply text-base font-bold text-gray-400 font-title;
 }
 .dialog-title-bar-icon {
-  @apply text-2xl text-gray-400 hover:text-red-600;
+  @apply text-2xl text-gray-400 hover:text-red-600 cursor-pointer;
 }
 .dialog-line {
   @apply w-full border-t-2 border-gray-400;

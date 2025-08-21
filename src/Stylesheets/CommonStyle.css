@@ -35,7 +35,7 @@
   @apply p-5 flex justify-end gap-4 mt-[-10px];
 }
 .actions-btn {
-  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
+  @apply text-lg px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
 }
 
 /*--------------------------------------------TABLE--------------------------------------------*/
@@ -52,7 +52,7 @@ th {
   @apply text-center font-[750px] text-sm p-3 text-[#fff];
 }
 tr {
-  @apply border-t transition-colors duration-300 ease-in-out;
+  @apply border-t transition-colors duration-300 ease-in-out cursor-pointer;
 }
 td {
   @apply text-center text-xs font-bold p-2 font-subTitle;
@@ -83,13 +83,13 @@ td {
   @apply flex items-center space-x-1;
 }
 .table-pagination-select {
-  @apply border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3];
+  @apply cursor-pointer border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3];
 }
 .table-pagination-select-icon {
   @apply pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1;
 }
 .table-pagination-btn {
-  @apply px-2 py-1 rounded;
+  @apply px-2 py-1 rounded cursor-pointer;
 }
 
 /*--------------------------------------------MODAL--------------------------------------------*/
@@ -103,7 +103,7 @@ td {
   @apply w-full h-[3rem] rounded-tl-xl rounded-tr-xl bg-navy-blue flex items-center justify-between p-4;
 }
 .modal-title {
-  @apply text-base text-navy-blue font-bold font-title;
+  @apply text-lg text-navy-blue font-bold font-title;
 }
 .modal-btn-close {
   @apply hover:bg-red-600 rounded-full p-1;
@@ -115,7 +115,7 @@ td {
   @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6;
 }
 .modal-form {
-  @apply h-full overflow-y-auto flex-col space-y-2 pr-4;
+  @apply h-full overflow-y-auto flex flex-col space-y-2;
 }
 
 /*--------------------------------------------LOGIN, SIGNUP, OTP--------------------------------------------*/
@@ -192,7 +192,7 @@ td {
 
 /*--------------------------------------------TEXT AREA--------------------------------------------*/
 .textarea-container {
-  @apply w-full resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2;
+  @apply w-full resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-4;
 }
 .textarea-length-text {
   @apply w-full text-right text-sm text-gray-500;
@@ -270,6 +270,14 @@ input[type="password"]::-ms-clear {
 
 input[type="password"]::-webkit-credentials-auto-fill-button {
   display: none !important;
+}
+
+/* To prevent text selection blue highlight */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /*RESPONSIVE*/

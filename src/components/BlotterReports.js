@@ -512,7 +512,7 @@ function BlotterReports({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 {isSettledClicked && <th>No.</th>}
                 <th>Complainant</th>
                 <th>Subject of the Complaint</th>
@@ -526,7 +526,7 @@ function BlotterReports({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredBlotterReports.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td
                     colSpan={isSettledClicked ? 6 : 4}
                     className="text-center p-2"
@@ -652,6 +652,8 @@ function BlotterReports({ isCollapsed }) {
             blotterID={selectedBlotter}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

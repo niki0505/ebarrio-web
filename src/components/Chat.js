@@ -1,9 +1,16 @@
-import React, { useContext, useEffect, useState } from "react";
-import { X, MessageCircle, Ban, Send } from "lucide-react";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { X, Ban, Send, Plus } from "lucide-react";
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
+
+//SCREENS
+import FAQs from "./FAQs";
+
+//ICONS
+import { FaQuestionCircle } from "react-icons/fa";
+import { IoChatbubbleEllipses } from "react-icons/io5";
 
 const Chat = () => {
   const {
@@ -22,6 +29,36 @@ const Chat = () => {
   const [message, setMessage] = useState("");
   const [isChatEnded, setIsChatEnded] = useState(false);
   const [isAI, setIsAI] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
+  const [showFAQs, setShowFAQs] = useState(false);
+  const [plusClickOutside, setPlusClickOutside] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target) &&
+        plusClickOutside
+      ) {
+        setPlusClickOutside(false);
+        setShowButtons(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [plusClickOutside]);
+
+  useEffect(() => {
+    setPlusClickOutside(showButtons);
+  }, [showButtons]);
+
+  const handleFAQClick = () => {
+    setShowButtons(false);
+    setShowFAQs(true);
+  };
 
   useEffect(() => {
     if (!socket) {
@@ -105,7 +142,14 @@ const Chat = () => {
     fetchPrompts();
   }, [isAI]);
 
-  const toggleChat = () => setIsOpen(!isOpen);
+  const togglePlus = () => {
+    setShowButtons(!showButtons); // Toggle the additional buttons
+  };
+
+  const toggleChat = () => {
+    setShowButtons(false);
+    setIsOpen(!isOpen);
+  };
 
   const handleSelectChat = (chat) => {
     const isUserParticipant = chat.participants.some(
@@ -237,12 +281,44 @@ const Chat = () => {
 
   return (
     <>
-      <button
-        onClick={toggleChat}
-        className="fixed bottom-6 right-6 bg-[#0E94D3] hover:bg-[#0A7A9D] text-white p-4 rounded-full shadow-lg z-50"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
+      <div ref={notifRef}>
+        <button
+          onClick={togglePlus}
+          className={`fixed bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out ${
+            showButtons ? "bg-white border border-[#0E94D3]" : "bg-[#0E94D3]"
+          }`}
+        >
+          {showButtons ? (
+            <X className="w-7 h-7 text-[#0E94D3]" />
+          ) : (
+            <Plus className="w-7 h-7" />
+          )}
+        </button>
+
+        {showButtons && (
+          <div className="fixed bottom-[5.5rem] right-7 flex flex-col space-y-2 z-40 transition-all duration-500 ease-in-out">
+            <button
+              onClick={handleFAQClick}
+              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+            >
+              <FaQuestionCircle className="w-6 h-6 text-white" />
+            </button>
+            <label className="fixed bottom-[9.5rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
+              FAQs
+            </label>
+            <button
+              onClick={toggleChat}
+              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+            >
+              <IoChatbubbleEllipses className="w-6 h-6 text-white" />
+            </button>
+            <label className="fixed bottom-[6rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
+              Chats
+            </label>
+          </div>
+        )}
+        {showFAQs && <FAQs />}
+      </div>
 
       {isOpen && (
         <div className="fixed inset-0 z-40 flex items-end md:items-center justify-center bg-black/40">

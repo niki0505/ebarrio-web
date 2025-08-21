@@ -521,7 +521,7 @@ function Accounts({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Username</th>
                 <th>User Role</th>
@@ -534,7 +534,7 @@ function Accounts({ isCollapsed }) {
               </tr>
             </thead>
 
-            <tbody className="bg-[#fff]">
+            <tbody className="bg-[#fff] cursor-default">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={isArchivedClicked ? 4 : 6}>No results found</td>
@@ -543,7 +543,7 @@ function Accounts({ isCollapsed }) {
                 currentRows.map((user) => (
                   <tr
                     key={user._id}
-                    className="accounts-table-row"
+                    className="accounts-table-row cursor-default"
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = "#f0f0f0";
                     }}
@@ -726,6 +726,8 @@ function Accounts({ isCollapsed }) {
             userUsername={selectedUsername}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

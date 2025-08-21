@@ -495,6 +495,8 @@ function Announcements({ isCollapsed }) {
             ))}
           </div>
         </div>
+
+        <div className="mb-20"></div>
       </main>
 
       {isCreateClicked && (

@@ -4,7 +4,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { AuthContext } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
-import { FiDownload } from "react-icons/fi";
 
 //SCREENS
 import ViewHousehold from "./ViewHousehold";
@@ -15,7 +14,12 @@ import "../Stylesheets/CommonStyle.css";
 import "../Stylesheets/Announcements.css";
 
 //ICONS
-import { MdArrowDropDown } from "react-icons/md";
+import { FiDownload } from "react-icons/fi";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
 
 function Household({ isCollapsed }) {
   const location = useLocation();
@@ -34,6 +38,9 @@ function Household({ isCollapsed }) {
   const exportRef = useRef(null);
   const filterRef = useRef(null);
   const [filterDropdown, setfilterDropdown] = useState(false);
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);
@@ -1242,6 +1249,15 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
   console.log(household);
 
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredHousehold.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredHousehold.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -1349,7 +1365,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>No</th>
                 <th>Household Name</th>
                 <th>Head of the Household</th>
@@ -1361,11 +1377,11 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
             <tbody className="bg-[#fff]">
               {filteredHousehold.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={6}>No results found</td>
                 </tr>
               ) : (
-                filteredHousehold.map((house, index) => {
+                currentRows.map((house, index) => {
                   const headMember = house.members.find(
                     (member) => member.position === "Head"
                   );
@@ -1401,6 +1417,56 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
             />
           )}
         </div>
+
+        <div className="table-pagination">
+          <div className="table-pagination-size">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="table-pagination-select"
+              >
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="table-pagination-select-icon">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          <div>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="table-pagination-btn"
+            >
+              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+            </button>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="table-pagination-btn"
+            >
+              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

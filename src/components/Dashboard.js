@@ -573,6 +573,62 @@ function Dashboard({ isCollapsed }) {
         </text>
       ) : null;
 
+  const [animatedTotal, setAnimatedTotal] = useState(0);
+  const [animatedTotalHouseholds, setAnimatedTotalHouseholds] = useState(0);
+  const [animatedMale, setAnimatedMale] = useState(0);
+  const [animatedFemale, setAnimatedFemale] = useState(0);
+  const [animatedFourps, setAnimatedFourps] = useState(0);
+  const [animatedUnemployed, setAnimatedUnemployed] = useState(0);
+  const [animatedVoters, setAnimatedVoters] = useState(0);
+
+  const animateCount = (targetCount, setAnimatedValue) => {
+    let currentCount = 0;
+    const interval = Math.max(1, 200 / targetCount); // Fast increment in 0.5 seconds
+
+    const intervalId = setInterval(() => {
+      if (currentCount < targetCount) {
+        currentCount += 1;
+        setAnimatedValue(currentCount); // Update the state to re-render
+      } else {
+        clearInterval(intervalId); // Clear the interval when the count reaches the target
+      }
+    }, interval); // Fast update interval
+  };
+
+  useEffect(() => {
+    if (residentsData.total)
+      animateCount(residentsData.total, setAnimatedTotal);
+  }, [residentsData.total]);
+
+  useEffect(() => {
+    if (residentsData.totalHouseholds)
+      animateCount(residentsData.totalHouseholds, setAnimatedTotalHouseholds);
+  }, [residentsData.totalHouseholds]);
+
+  useEffect(() => {
+    if (residentsData.male) animateCount(residentsData.male, setAnimatedMale);
+  }, [residentsData.male]);
+
+  useEffect(() => {
+    if (residentsData.female)
+      animateCount(residentsData.female, setAnimatedFemale);
+  }, [residentsData.female]);
+
+  useEffect(() => {
+    if (residentsData.fourps)
+      animateCount(residentsData.fourps, setAnimatedFourps);
+  }, [residentsData.fourps]);
+
+  useEffect(() => {
+    if (residentsData.unemployed)
+      animateCount(residentsData.unemployed, setAnimatedUnemployed);
+  }, [residentsData.unemployed]);
+
+  useEffect(() => {
+    if (residentsData.voters)
+      animateCount(residentsData.voters, setAnimatedVoters);
+  }, [residentsData.voters]);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -591,7 +647,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#FFB200]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.total}</h2>
+                    <h2 class="demog-total ">{animatedTotal}</h2>
                     <p class="text-[#FFB200] demog-text">Total Residents</p>
                   </div>
 
@@ -609,9 +665,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#EB5B00]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">
-                      {residentsData.totalHouseholds}
-                    </h2>
+                    <h2 class="demog-total ">{animatedTotalHouseholds}</h2>
                     <p class="text-[#EB5B00] demog-text">Total Households</p>
                   </div>
 
@@ -635,7 +689,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#0079FF] "></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.male}</h2>
+                    <h2 class="demog-total ">{animatedMale}</h2>
                     <p class="text-[#0079FF] demog-text">Male</p>
                   </div>
 
@@ -659,7 +713,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#FF90BB]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.female}</h2>
+                    <h2 class="demog-total ">{animatedFemale}</h2>
                     <p class="text-[#FF90BB] demog-text">Female</p>
                   </div>
 
@@ -767,7 +821,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#AF47D2]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.fourps}</h2>
+                    <h2 class="demog-total ">{animatedFourps}</h2>
                     <p class="text-[#AF47D2] demog-text">4Ps</p>
                   </div>
 
@@ -819,7 +873,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#7C838B]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.unemployed}</h2>
+                    <h2 class="demog-total ">{animatedUnemployed}</h2>
                     <p class="text-[#7C838B] demog-text">Unemployed</p>
                   </div>
 
@@ -843,7 +897,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#06D001]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{residentsData.voters}</h2>
+                    <h2 class="demog-total ">{animatedVoters}</h2>
                     <p class="text-[#06D001] demog-text">Voters</p>
                   </div>
 
@@ -1295,6 +1349,8 @@ function Dashboard({ isCollapsed }) {
             />
           </div>
         </div>
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

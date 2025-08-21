@@ -94,7 +94,7 @@
   @apply text-xs bg-[#BC0F0F] text-[#fff] px-1 rounded-full ml-2;
 }
 .notif-filter-icon {
-  @apply text-navy-blue text-lg font-medium;
+  @apply text-navy-blue text-lg font-medium cursor-pointer;
 }
 .notif-filter-dropdown {
   @apply absolute bg-white shadow-md rounded-md border;
