@@ -378,7 +378,7 @@ function ActivityLogs({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>No.</th>
                 <th>User</th>
                 <th>Action</th>
@@ -389,7 +389,7 @@ function ActivityLogs({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {displayedLogs.length === 0 ? (
-                <tr>
+                <tr className="cursor-default">
                   <td colSpan={5}>No results found</td>
                 </tr>
               ) : (
@@ -402,6 +402,7 @@ function ActivityLogs({ isCollapsed }) {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "";
                     }}
+                    className="cursor-default"
                   >
                     <td>{log.logno}</td>
                     <td>
@@ -490,6 +491,8 @@ function ActivityLogs({ isCollapsed }) {
             </button>
           </div>
         </div>
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

@@ -1,9 +1,33 @@
+<<<<<<< HEAD
 import React, { useContext, useEffect, useState } from "react";
 import { X, MessageCircle, Settings, Ban, Send } from "lucide-react";
+=======
+import React, { useContext, useEffect, useState, useRef } from "react";
+import {
+  X,
+  MessageCircle,
+  Ban,
+  Send,
+  Plus,
+  HelpCircle,
+  MessageCircleQuestionMark,
+  MessageCircleMore,
+  CircleQuestionMark,
+  MessagesSquare,
+} from "lucide-react";
+>>>>>>> 50c69bc (Fixed Styles)
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api";
+//SCREENS
+import FAQs from "./FAQs";
+
+//ICONS
+import { IoChatbubbleOutline } from "react-icons/io5";
+import { FaQuestionCircle, FaQuestion } from "react-icons/fa";
+import { IoChatbubbles } from "react-icons/io5";
+import { IoChatbubbleEllipses } from "react-icons/io5";
 
 const Chat = () => {
   const { fetchChats, chats, setChats } = useContext(InfoContext);
@@ -14,6 +38,13 @@ const Chat = () => {
   const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
   const [isChatEnded, setIsChatEnded] = useState(false);
+<<<<<<< HEAD
+=======
+  const [isAI, setIsAI] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
+  const [showFAQs, setShowFAQs] = useState(false);
+  const [plusClickOutside, setPlusClickOutside] = useState(false);
+>>>>>>> 50c69bc (Fixed Styles)
 
   useEffect(() => {
     if (!socket) {
@@ -69,7 +100,23 @@ const Chat = () => {
     fetchChats();
   }, [isOpen]);
 
+<<<<<<< HEAD
   const toggleChat = () => setIsOpen(!isOpen);
+=======
+  useEffect(() => {
+    if (!isAI) return;
+    fetchPrompts();
+  }, [isAI]);
+
+  const togglePlus = () => {
+    setShowButtons(!showButtons); // Toggle the additional buttons
+  };
+
+  const toggleChat = () => {
+    setShowButtons(false);
+    setIsOpen(!isOpen);
+  };
+>>>>>>> 50c69bc (Fixed Styles)
 
   const handleSelectChat = (chat) => {
     const isUserParticipant = chat.participants.some(
@@ -175,18 +222,84 @@ const Chat = () => {
   console.log(fullChatHistory);
   console.log(activeChatId);
 
+  const handleFAQClick = () => {
+    setShowButtons(false);
+    setShowFAQs(true);
+  };
+
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target) &&
+        plusClickOutside
+      ) {
+        setPlusClickOutside(false);
+        setShowButtons(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [plusClickOutside]);
+
+  useEffect(() => {
+    setPlusClickOutside(showButtons);
+  }, [showButtons]);
+
   return (
     <>
-      <button
-        onClick={toggleChat}
-        className="fixed bottom-6 right-6 bg-[#0E94D3] hover:bg-[#0A7A9D] text-white p-4 rounded-full shadow-lg z-50"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
+      <div ref={notifRef}>
+        <button
+          onClick={togglePlus}
+          className={`fixed bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out ${
+            showButtons ? "bg-white border border-[#0E94D3]" : "bg-[#0E94D3]"
+          }`}
+        >
+          {showButtons ? (
+            <X className="w-7 h-7 text-[#0E94D3]" />
+          ) : (
+            <Plus className="w-7 h-7" />
+          )}
+        </button>
+
+        {showButtons && (
+          <div className="fixed bottom-[5.5rem] right-7 flex flex-col space-y-2 z-40 transition-all duration-500 ease-in-out">
+            <button
+              onClick={handleFAQClick}
+              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+            >
+              <FaQuestionCircle className="w-6 h-6 text-white" />
+            </button>
+            <label className="fixed bottom-[9.5rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
+              FAQs
+            </label>
+            <button
+              onClick={toggleChat}
+              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+            >
+              <IoChatbubbleEllipses className="w-6 h-6 text-white" />
+            </button>
+            <label className="fixed bottom-[6rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
+              Chats
+            </label>
+          </div>
+        )}
+        {showFAQs && <FAQs />}
+      </div>
 
       {isOpen && (
+<<<<<<< HEAD
         <div className="fixed inset-0 z-40 flex items-end md:items-center justify-center bg-black/40">
           <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg relative h-[500px] flex">
+=======
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40">
+          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg relative h-[500px] flex flex-col">
+            {/* Close button */}
+>>>>>>> 50c69bc (Fixed Styles)
             <button
               onClick={toggleChat}
               className="absolute top-4 right-4 text-gray-600 hover:text-black"
@@ -275,13 +388,72 @@ const Chat = () => {
                         )
                       );
 
+<<<<<<< HEAD
                       const resident = anyChat?.participants.find(
                         (p) => p.resID?._id === selectedResidentId
+=======
+                  {/* Input */}
+                  <div className="border-t pt-2 flex items-center gap-3 p-3">
+                    <input
+                      type="text"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
+                      onKeyDown={(e) => e.key === "Enter" && handleSendGemini()}
+                    />
+                    <button
+                      onClick={handleSendGemini}
+                      className="text-white bg-blue-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
+                    >
+                      <Send size={20} />
+                      <span>Send</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Resident chat layout
+                <div className="flex h-full">
+                  {/* Left Column - Chat List */}
+                  <div className="w-1/3 border-r overflow-y-auto bg-[#0E94D3] rounded-tl-2xl rounded-bl-2xl">
+                    {[
+                      ...chats
+                        .reduce((map, chat) => {
+                          const other = chat.participants.find(
+                            (p) => p._id !== user.userID
+                          );
+                          const residentId = other?.resID?._id;
+                          if (!residentId) return map;
+                          if (
+                            !map.has(residentId) ||
+                            new Date(chat.updatedAt) >
+                              new Date(map.get(residentId).updatedAt)
+                          ) {
+                            map.set(residentId, chat);
+                          }
+                          return map;
+                        }, new Map())
+                        .values(),
+                    ].map((conv) => {
+                      const otherParticipant = conv.participants.find(
+                        (p) => p._id !== user.userID
+>>>>>>> 50c69bc (Fixed Styles)
                       );
 
+<<<<<<< HEAD
                       return resident ? (
                         <>
                           <div className="flex items-center space-x-2 ml-2">
+=======
+                      return (
+                        <div key={conv._id} className="px-2 py-1">
+                          <div
+                            onClick={() => handleSelectChat(conv)}
+                            className={`cursor-pointer hover:bg-gray-100 flex flex-row space-x-2 border-b p-3 bg-white rounded-lg ${
+                              activeChat?._id === conv._id ? "bg-blue-100" : ""
+                            }`}
+                          >
+>>>>>>> 50c69bc (Fixed Styles)
                             <img
                               src={resident.resID.picture}
                               alt={`${resident.resID.lastname}'s profile`}
@@ -393,6 +565,7 @@ const Chat = () => {
                                   {msg.message}
                                 </div>
 
+<<<<<<< HEAD
                                 <div className="text-xs text-gray-500 mt-1">
                                   {timestamp.toLocaleTimeString(undefined, {
                                     hour: "2-digit",
@@ -406,6 +579,133 @@ const Chat = () => {
                         );
                       })}
                     </div>
+=======
+                              const prevDateStr =
+                                prevValidIndex >= 0
+                                  ? new Date(
+                                      fullChatHistory[prevValidIndex].timestamp
+                                    ).toDateString()
+                                  : null;
+                              const showDateHeader =
+                                currentDateStr !== prevDateStr;
+
+                              const isSystemMessage =
+                                msg.message === "This chat has ended.";
+
+                              const chatOfMessage = chats.find((c) =>
+                                c.messages.some(
+                                  (m) =>
+                                    m.message === msg.message &&
+                                    new Date(m.timestamp).getTime() ===
+                                      timestamp.getTime()
+                                )
+                              );
+
+                              const sender = chatOfMessage?.participants?.find(
+                                (p) =>
+                                  p._id === msg.from || p._id === msg.from?._id
+                              );
+
+                              const isOwnMessage =
+                                user.userID === msg.from ||
+                                user.userID === msg.from?._id;
+
+                              const senderPosition = sender?.empID?.position;
+                              const isStaff =
+                                senderPosition === "Secretary" ||
+                                senderPosition === "Clerk";
+                              const alignRight = isStaff || false;
+                              const senderLabel = isOwnMessage
+                                ? "You"
+                                : senderPosition || "Unknown";
+
+                              return (
+                                <React.Fragment key={i}>
+                                  {showDateHeader && (
+                                    <div className="text-center text-xs text-gray-400 my-4">
+                                      {timestamp.toDateString()}
+                                    </div>
+                                  )}
+
+                                  {isSystemMessage ? (
+                                    <div className="text-center text-gray-500 text-sm italic my-2">
+                                      {msg.message}
+                                    </div>
+                                  ) : (
+                                    <div
+                                      className={`mb-2 ${
+                                        alignRight ? "text-right" : "text-left"
+                                      }`}
+                                    >
+                                      {isStaff && (
+                                        <div className="text-sm font-semibold text-gray-500 mb-1">
+                                          {senderLabel}
+                                        </div>
+                                      )}
+
+                                      <div
+                                        className={`inline-block px-3 py-2 rounded max-w-sm ${
+                                          alignRight
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-300"
+                                        }`}
+                                      >
+                                        {msg.message}
+                                      </div>
+
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        {timestamp.toLocaleTimeString(
+                                          undefined,
+                                          {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                          }
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {!isChatEnded && (
+                          <div className="border-t pt-2 flex items-center gap-3 p-3">
+                            <input
+                              type="text"
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
+                              placeholder="Type a message..."
+                              className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && handleSend()
+                              }
+                            />
+                            <button
+                              onClick={handleSend}
+                              className="text-white bg-blue-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
+                            >
+                              <Send size={20} />
+                              <span>Send</span>
+                            </button>
+                            <button
+                              onClick={() => endChat(activeChat._id)}
+                              className="text-white bg-red-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700"
+                            >
+                              <Ban size={20} />
+                              <span>End</span>
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-center text-gray-400">
+                        Select a conversation
+                      </div>
+                    )}
+>>>>>>> 50c69bc (Fixed Styles)
                   </div>
 
                   {!isChatEnded && (

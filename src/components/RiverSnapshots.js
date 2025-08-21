@@ -50,52 +50,56 @@ function RiverSnapshots({ isCollapsed }) {
         <div className="text-[30px] font-bold font-title text-[#BC0F0F]">
           River Snapshots
         </div>
-        <div className="status-container px-4">
-          <p
-            onClick={handleMenu1}
-            className={`status-text ${
-              isRecentClicked
-                ? "status-line !border-[#BC0F0F]"
-                : "text-[#808080]"
-            }`}
+        <div className="status-add-container">
+          <div className="status-container">
+            <p
+              onClick={handleMenu1}
+              className={`status-text ${
+                isRecentClicked
+                  ? "status-line !border-[#BC0F0F]"
+                  : "text-[#808080]"
+              }`}
+            >
+              Recent
+            </p>
+            <p
+              onClick={handleMenu2}
+              className={`status-text ${
+                isHistoryClicked
+                  ? "status-line !border-[#BC0F0F]"
+                  : "text-[#808080]"
+              }`}
+            >
+              History
+            </p>
+          </div>
+
+          <button
+            className="hover:bg-red-600 bg-btn-color-red mt-4 h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+            onClick={() => setAlertClicked(true)}
           >
-            Recent
-          </p>
-          <p
-            onClick={handleMenu2}
-            className={`status-text ${
-              isHistoryClicked
-                ? "status-line !border-[#BC0F0F]"
-                : "text-[#808080]"
-            }`}
-          >
-            History
-          </p>
+            <h1 className="add-new-btn-text">Alert Residents</h1>
+          </button>
         </div>
         <div className="line-container">
           <hr className="line" />
         </div>
         {isRecentClicked && (
-          <div className="items-center justify-center">
+          <div className="flex items-center justify-center">
             {latest.url ? (
               <div>
-                <div>
-                  <p className="text-center text-lg mt-4 text-[#BC0F0F] font-semibold">
+                <div className="mt-8 flex flex-col justify-center items-center bg-[#0E94D3] rounded-md py-4 w-[900px]">
+                  <p className="subheader-text text-white mb-4">Zapote River</p>
+                  <img
+                    src={latest.url}
+                    alt="Latest River Snapshot"
+                    className="rounded rounded-lg w-full h-[400px]"
+                  />
+                  <p className="text-md mt-4 text-white font-medium">
                     CCTV Snapshot as of{" "}
                     {latest.datetime?.split(" at ")[1] || "Unknown Time"}
                   </p>
-                  <button
-                    className="add-new-btn"
-                    onClick={() => setAlertClicked(true)}
-                  >
-                    <h1 className="add-new-btn-text">Alert Residents</h1>
-                  </button>
                 </div>
-                <img
-                  src={latest.url}
-                  alt="Latest River Snapshot"
-                  className="rounded rounded-lg w-full h-[500px] p-4"
-                />
               </div>
             ) : (
               <p className="text-gray-500">Loading latest snapshot...</p>
@@ -106,7 +110,7 @@ function RiverSnapshots({ isCollapsed }) {
           <>
             <table>
               <thead className="bg-[#BC0F0F]">
-                <tr>
+                <tr className="cursor-default">
                   <th>Date</th>
                   <th>Time</th>
                 </tr>
@@ -139,7 +143,7 @@ function RiverSnapshots({ isCollapsed }) {
             </table>
             {isModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-                <div className="bg-white py-8 px-4 rounded-lg shadow-lg max-w-3xl w-full relative">
+                <div className="bg-white py-10 px-6 rounded-lg shadow-lg max-w-3xl w-full relative">
                   <button
                     className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
                     onClick={() => setModal(false)}
@@ -159,6 +163,8 @@ function RiverSnapshots({ isCollapsed }) {
         {isAlertClicked && (
           <AlertResidents onClose={() => setAlertClicked(false)} />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

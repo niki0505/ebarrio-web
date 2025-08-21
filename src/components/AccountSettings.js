@@ -235,7 +235,7 @@ function AccountSettings({ isCollapsed }) {
     let uerrors = [];
 
     if (username === user.username) {
-      alert("The new username must be different from the current username.");
+      alert("The new username must be different from the current username!");
       hasErrors = true;
     }
 
@@ -988,7 +988,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number.");
+        setMobileNumError("Invalid mobile number!");
       }
     }
 
@@ -996,7 +996,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number.");
+        setEmMobileNumError("Invalid mobile number!");
       }
     }
   };
@@ -1023,7 +1023,7 @@ function AccountSettings({ isCollapsed }) {
       } else if (value.length > 11) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number.");
+        setTelephoneNumError("Invalid mobile number!");
       }
     }
   };
@@ -1049,7 +1049,7 @@ function AccountSettings({ isCollapsed }) {
       (formattedVal && formattedVal.startsWith("_")) ||
       (formattedVal && formattedVal.endsWith("_"))
     ) {
-      errors.push("Username must not start or end with an underscore");
+      errors.push("Username must not start or end with an underscore!");
     }
 
     setUsernameErrors(errors);
@@ -1062,7 +1062,7 @@ function AccountSettings({ isCollapsed }) {
     setRenewPassword(formattedVal);
 
     if (formattedVal !== newpassword && formattedVal.length > 0) {
-      errors.push("Passwords do not match");
+      errors.push("Passwords do not match!");
     }
     setRePasswordErrors(errors);
   };
@@ -1083,7 +1083,7 @@ function AccountSettings({ isCollapsed }) {
       (formattedVal && formattedVal.length < 8) ||
       (formattedVal && formattedVal.length > 64)
     ) {
-      errors.push("Password must be between 8 and 64 characters only");
+      errors.push("Password must be between 8 and 64 characters only!");
     }
     if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
       errors.push(
@@ -2018,7 +2018,7 @@ function AccountSettings({ isCollapsed }) {
                         required
                       />
                       {usernameErrors.length > 0 && (
-                        <div style={{ marginTop: 5, width: 300 }}>
+                        <div>
                           {usernameErrors.map((error, index) => (
                             <p key={index} className="error-msg">
                               {error}
@@ -2139,7 +2139,7 @@ function AccountSettings({ isCollapsed }) {
                         </button>
                       </div>
                       {passwordErrors.length > 0 && (
-                        <div style={{ marginTop: 5, width: 300 }}>
+                        <div>
                           {passwordErrors.map((error, index) => (
                             <p key={index} className="error-msg">
                               {error}
@@ -2176,7 +2176,7 @@ function AccountSettings({ isCollapsed }) {
                         </button>
                       </div>
                       {repasswordErrors.length > 0 && (
-                        <div style={{ marginTop: 5, width: 300 }}>
+                        <div>
                           {repasswordErrors.map((error, index) => (
                             <p key={index} className="error-msg">
                               {error}
@@ -2351,6 +2351,8 @@ function AccountSettings({ isCollapsed }) {
         {isCameraOpen && (
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

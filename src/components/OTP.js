@@ -151,7 +151,7 @@ function OTP() {
                 />
               </div>
               {isResendDisabled ? (
-                <div className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end">
+                <div className="text-[#0E94D3] font-subTitle font-bold text-[14px] mt-5 text-end">
                   Resend OTP in{" "}
                   <span className="text-red-600">{resendTimer}</span> second
                   {resendTimer !== 1 ? "s" : ""}
@@ -159,7 +159,7 @@ function OTP() {
               ) : (
                 <p
                   onClick={handleResend}
-                  className="cursor-pointer mt-5 text-end text-[#808080] font-subTitle font-bold text-[14px]"
+                  className="cursor-pointer mt-5 text-end text-[#0E94D3] font-subTitle font-bold text-[14px]"
                 >
                   Resend OTP
                 </p>

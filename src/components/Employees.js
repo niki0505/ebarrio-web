@@ -623,7 +623,7 @@ function Employees({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Age</th>
                 <th>Sex</th>
@@ -636,7 +636,7 @@ function Employees({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredEmployees.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={6}>No results found</td>
                 </tr>
               ) : (
@@ -889,6 +889,8 @@ function Employees({ isCollapsed }) {
             empID={selectedEmployee}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );
