@@ -762,7 +762,7 @@ function Residents({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Age</th>
                 <th>Sex</th>
@@ -775,7 +775,7 @@ function Residents({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredResidents.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={sortOption === "Voters" ? 7 : 6}>
                     No results found
                   </td>
@@ -1073,6 +1073,8 @@ function Residents({ isCollapsed }) {
             onClose={() => setRejectClicked(false)}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

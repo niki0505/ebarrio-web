@@ -16,7 +16,6 @@ import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings, IoIosArrowDown } from "react-icons/io";
 import { IoNotifications } from "react-icons/io5";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
-import FAQs from "./FAQs";
 
 const Navbar = ({ isCollapsed }) => {
   const confirm = useConfirm();
@@ -32,7 +31,6 @@ const Navbar = ({ isCollapsed }) => {
   const [profilePic, setProfilePic] = useState(null);
   const [sortOption, setSortOption] = useState("All");
   const [name, setName] = useState(null);
-  const [isFAQsClicked, setFAQsClicked] = useState(false);
 
   const notifRef = useRef(null);
   const profileRef = useRef(null);
@@ -148,7 +146,6 @@ const Navbar = ({ isCollapsed }) => {
         className={`navbar ${isCollapsed ? "left-[5rem]" : "left-[18rem]"}`}
       >
         <div className="navbar-right">
-          <label onClick={() => setFAQsClicked(true)}>FAQs</label>
           <div className="relative" ref={notifRef}>
             {notifications.some((n) => n.read === false) && (
               <div className="notif-dot"></div>
@@ -347,7 +344,6 @@ const Navbar = ({ isCollapsed }) => {
           </div>
         </div>
       </header>
-      {isFAQsClicked && <FAQs />}
     </>
   );
 };
