@@ -372,14 +372,14 @@ function EmergencyHotlines({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead className="bg-[#BC0F0F]">
-              <tr>
+              <tr className="cursor-default">
                 <th>Public Service Facilities</th>
                 <th>Contact Number</th>
                 <th>Action</th>
               </tr>
             </thead>
 
-            <tbody className="bg-[#fff]">
+            <tbody className="bg-[#fff] cursor-fault">
               {filteredEmergencyHotlines.length === 0 ? (
                 <tr>
                   <td colSpan={3}>No results found</td>
@@ -394,6 +394,7 @@ function EmergencyHotlines({ isCollapsed }) {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "";
                     }}
+                    className="cursor-default"
                   >
                     <td>{emergency.name}</td>
                     <td>{emergency.contactnumber}</td>
@@ -510,6 +511,8 @@ function EmergencyHotlines({ isCollapsed }) {
             emergencyDetails={selectedEmergency}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

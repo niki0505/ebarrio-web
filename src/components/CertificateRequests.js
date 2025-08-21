@@ -595,7 +595,7 @@ function CertificateRequests({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 {isIssuedClicked && <th>No.</th>}
                 <th>Name</th>
                 <th>Type of Certificate</th>
@@ -609,7 +609,7 @@ function CertificateRequests({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredCertificates.length === 0 ? (
-                <tr className="bg-[#fff]">
+                <tr className="bg-[#fff] cursor-default">
                   <td colSpan={isIssuedClicked ? 6 : 4}>No results found</td>
                 </tr>
               ) : (
@@ -982,6 +982,8 @@ function CertificateRequests({ isCollapsed }) {
             onClose={() => setRejectClicked(false)}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

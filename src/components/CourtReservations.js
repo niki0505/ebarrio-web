@@ -527,7 +527,7 @@ function CourtReservations({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 {isApprovedClicked && <th>No.</th>}
                 <th>Name</th>
                 <th>Purpose</th>
@@ -539,7 +539,7 @@ function CourtReservations({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredReservations.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={4} className="text-center p-2">
                     No results found
                   </td>
@@ -547,7 +547,7 @@ function CourtReservations({ isCollapsed }) {
               ) : (
                 currentRows.map((court) => {
                   return (
-                    <tr key={court._id}>
+                    <tr key={court._id} className="cursor-default">
                       {isApprovedClicked && (
                         <td className="p-2">{court.reservationno}</td>
                       )}
@@ -670,6 +670,8 @@ function CourtReservations({ isCollapsed }) {
             onClose={() => setRejectClicked(false)}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );
