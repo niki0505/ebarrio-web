@@ -28,7 +28,6 @@ function Household({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isHouseholdClicked, setHouseholdClicked] = useState(false);
   const [selectedHousehold, setSelectedHousehold] = useState(null);
-  const [exportDropdown, setexportDropdown] = useState(false);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
   const [isChangeClicked, setChangedClicked] = useState(false);
@@ -42,10 +41,6 @@ function Household({ isCollapsed }) {
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const toggleExportDropdown = () => {
-    setexportDropdown(!exportDropdown);
-  };
 
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);
@@ -1232,7 +1227,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         const first = head.resID.firstname || "";
         const middle = head.resID.middlename || "";
         const last = head.resID.lastname || "";
-        const address = head.resID.address || "";
+        const address = h.address || "";
 
         const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 

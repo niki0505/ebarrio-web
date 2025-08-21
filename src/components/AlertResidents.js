@@ -50,7 +50,7 @@ function AlertResidents({ onClose, resID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">
@@ -93,7 +93,7 @@ function AlertResidents({ onClose, resID }) {
                       disabled={loading}
                       className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                     >
-                      {loading ? "Confirming..." : "Confirm"}
+                      {loading ? "Submitting..." : "Submit"}
                     </button>
                   </div>
                 </div>

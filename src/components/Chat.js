@@ -9,7 +9,7 @@ import api from "../api";
 import FAQs from "./FAQs";
 
 //ICONS
-import { FaQuestionCircle, FaQuestion } from "react-icons/fa";
+import { FaQuestionCircle } from "react-icons/fa";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 
 const Chat = () => {

@@ -31,6 +31,7 @@ function CreateAnnouncement({ onClose }) {
     eventdetails: "",
   };
   const { announcementForm, setAnnouncementForm } = useContext(InfoContext);
+  const [loading, setLoading] = useState(false);
 
   const [showModal, setShowModal] = useState(true);
 
@@ -136,6 +137,9 @@ function CreateAnnouncement({ onClose }) {
       if (!isConfirmed) {
         return;
       }
+      if (loading) return;
+
+      setLoading(true);
       onClose();
       delete announcementForm.date;
       if (announcementForm.picture !== "") {
@@ -153,6 +157,8 @@ function CreateAnnouncement({ onClose }) {
       setAnnouncementForm(initialForm);
     } catch (error) {
       console.log("Error creating announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -287,7 +293,7 @@ function CreateAnnouncement({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
@@ -577,9 +583,10 @@ function CreateAnnouncement({ onClose }) {
                   </div>
                   <button
                     type="submit"
+                    disabled={loading}
                     className="hover:bg-[#0A7A9D] px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

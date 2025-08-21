@@ -666,26 +666,37 @@ function CreateResident({ isCollapsed }) {
 
   const telephoneInputChange = (e) => {
     let { name, value } = e.target;
-    value = value.replace(/\D/g, "");
+    value = value.replace(/\D/g, ""); // numbers only
 
-    if (!value.startsWith("+63")) {
-      value = "+63" + value.replace(/^0+/, "").slice(2);
+    // Ensure it starts with +63
+    if (!value.startsWith("63")) {
+      value = "63" + value.replace(/^0+/, "");
     }
-    if (value.length > 11) {
+
+    value = "+" + value; // Add the '+' at the start
+
+    // Max length for landline: +63 + (1-2 digit area code) + (5-7 digit number)
+    if (value.length > 13) {
       value = value.slice(0, 13);
     }
+
+    // Prevent extra leading zero after +63
     if (value.length >= 4 && value[3] === "0") {
       return;
     }
 
     setResidentForm((prev) => ({ ...prev, [name]: value }));
+
     if (name === "telephone") {
+      // Optional field: no error if just +63
       if (value === "+63") {
         setTelephoneNumError(null);
-      } else if (value.length > 11) {
+      }
+      // Allow between +63XYYYYYY (min 1-digit area code) and +63XXYYYYYYY (max length)
+      else if (/^\+63\d{6,9}$/.test(value)) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number.");
+        setTelephoneNumError("Invalid landline number.");
       }
     }
   };
@@ -931,7 +942,11 @@ function CreateResident({ isCollapsed }) {
                   {isIDProcessing ? (
                     <p>Processing...</p>
                   ) : residentForm.id ? (
-                    <img src={residentForm.id} className="upload-img" />
+                    <img
+                      alt="ID"
+                      src={residentForm.id}
+                      className="upload-img"
+                    />
                   ) : (
                     <div className="flex flex-col items-center">
                       <BiSolidImageAlt className="w-16 h-16" />
@@ -970,6 +985,7 @@ function CreateResident({ isCollapsed }) {
                     <p>Processing...</p>
                   ) : residentForm.signature ? (
                     <img
+                      alt="Signature"
                       src={residentForm.signature}
                       className="w-full h-full object-contain"
                     />
@@ -1841,19 +1857,21 @@ function CreateResident({ isCollapsed }) {
                       <option value="" selected>
                         Select
                       </option>
-                      {household.map((h) => {
-                        const head = h.members.find(
-                          (m) => m.position === "Head"
-                        );
-                        const headName = head.resID
-                          ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
-                          : "Unnamed";
-                        return (
-                          <option key={h._id} value={h._id}>
-                            {headName}
-                          </option>
-                        );
-                      })}
+                      {household
+                        .filter((h) => h.status !== "Rejected")
+                        .map((h) => {
+                          const head = h.members.find(
+                            (m) => m.position === "Head"
+                          );
+                          const headName = head.resID
+                            ? `${head.resID.lastname}'s Residence - ${h.address}`
+                            : "Unnamed";
+                          return (
+                            <option key={h._id} value={h._id}>
+                              {headName}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                   <div className="form-group">
@@ -1869,7 +1887,8 @@ function CreateResident({ isCollapsed }) {
                     >
                       <option value="">Select Position</option>
                       <option value="Spouse">Spouse</option>
-                      <option value="Child">Child</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
                       <option value="Parent">Parent</option>
                       <option value="Sibling">Sibling</option>
                       <option value="Grandparent">Grandparent</option>

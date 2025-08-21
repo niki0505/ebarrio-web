@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { InfoContext } from "../context/InfoContext";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import {
   //Bar Chart
@@ -17,10 +16,6 @@ import {
   Tooltip,
   Legend,
   LabelList,
-  //Pie Chart
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
 } from "recharts";
 
@@ -180,9 +175,14 @@ function Dashboard({ isCollapsed }) {
               element.status !== "Rejected"
           )
           .filter((r) => r.isPostpartum).length,
-        "Women of Reproductive Age": residents.filter(
-          (r) => r.isWomenOfReproductive
-        ).length,
+        "Women of Reproductive Age": residents
+          .filter(
+            (element) =>
+              element.status !== "Archived" &&
+              element.status !== "Pending" &&
+              element.status !== "Rejected"
+          )
+          .filter((r) => r.isWomenOfReproductive).length,
         "Senior Citizens": residents
           .filter(
             (element) =>

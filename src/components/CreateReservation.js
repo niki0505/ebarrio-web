@@ -23,6 +23,7 @@ function CreateReservation({ onClose }) {
     times: {},
     amount: "",
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -56,12 +57,17 @@ function CreateReservation({ onClose }) {
       "confirm"
     );
     if (!isConfirmed) return;
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post("/createreservation", { reservationForm });
       alert("Court reservation successfully created!");
       onClose();
     } catch (error) {
       console.error("Error creating court reservation", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -358,9 +364,10 @@ function CreateReservation({ onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

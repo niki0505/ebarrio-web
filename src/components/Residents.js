@@ -211,22 +211,8 @@ function Residents({ isCollapsed }) {
         pictureURL = await uploadToFirebase(pictureBlob);
       }
 
-      // Try removing background from signature
-      try {
-        const removedBgSignature = await removeBackground(signatureBlob);
-        signatureURL = await uploadToFirebaseImages(
-          new Blob([removedBgSignature], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from signature. Uploading original."
-        );
-        signatureURL = await uploadToFirebase(signatureBlob);
-      }
-
       await api.post(`/approveresident/${resID}`, {
         pictureURL,
-        signatureURL,
       });
 
       setActiveClicked(true);
@@ -392,7 +378,7 @@ function Residents({ isCollapsed }) {
         return searchParts.every(
           (part) =>
             fullName.includes(part) ||
-            resident.address.toLowerCase().includes(part)
+            resident.householdno?.address.toLowerCase().includes(part)
         );
       });
     }
@@ -458,7 +444,7 @@ function Residents({ isCollapsed }) {
           res.age,
           res.sex,
           `"${res.mobilenumber.replace(/"/g, '""')}"`,
-          `"${res.address.replace(/"/g, '""')}"`,
+          `"${res.householdno?.address.replace(/"/g, '""')}"`,
         ];
         if (sortOption === "Voters") {
           return [...baseRow, res.precinct || "N/A"];
@@ -546,7 +532,7 @@ function Residents({ isCollapsed }) {
           res.age,
           res.sex,
           res.mobilenumber,
-          res.address,
+          res.householdno?.address,
         ];
         if (sortOption === "Voters") {
           return [...baseRow, res.precinct || "N/A"];

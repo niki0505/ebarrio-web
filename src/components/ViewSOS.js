@@ -14,7 +14,7 @@ import "../App.css";
 //ICONS
 import { IoClose } from "react-icons/io5";
 
-function ViewBlotter({ onClose, blotterID }) {
+function ViewSOS({ onClose, blotterID }) {
   const confirm = useConfirm();
   const navigation = useNavigate();
   const [blotter, setBlotter] = useState([]);
@@ -586,4 +586,4 @@ function ViewBlotter({ onClose, blotterID }) {
   );
 }
 
-export default ViewBlotter;
+export default ViewSOS;

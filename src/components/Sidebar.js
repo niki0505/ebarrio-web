@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { InfoContext } from "../context/InfoContext";
 
@@ -13,7 +13,7 @@ import { PiCourtBasketballFill, PiUserSwitchFill } from "react-icons/pi";
 import { RiContactsBook3Fill } from "react-icons/ri";
 import { FaUsersCog } from "react-icons/fa";
 import { MdDashboard, MdEditDocument } from "react-icons/md";
-import { IoPeople, IoLocation, IoDocumentTextSharp } from "react-icons/io5";
+import { IoPeople, IoDocumentTextSharp } from "react-icons/io5";
 import {
   BiMenuAltLeft,
   BiMenu,
