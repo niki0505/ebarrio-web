@@ -194,8 +194,7 @@ const Chat = () => {
         chatId: c._id,
         timestamp: new Date(msg.timestamp),
       }))
-    )
-    .sort((a, b) => a.timestamp - b.timestamp);
+    );
 
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
@@ -317,7 +316,7 @@ const Chat = () => {
             </label>
           </div>
         )}
-        {showFAQs && <FAQs />}
+        {showFAQs && <FAQs onClose={setShowFAQs} />}
       </div>
 
       {isOpen && (

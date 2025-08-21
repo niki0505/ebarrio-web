@@ -6,6 +6,12 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { InfoContext } from "../context/InfoContext";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
+import ViewSOS from "./ViewSOS";
 
 const containerStyle = {
   width: "100%",
@@ -22,6 +28,13 @@ function SOSUpdateReports({ isCollapsed }) {
   const [selectedID, setSelectedID] = useState(null);
   const { fetchReports, reports } = useContext(InfoContext);
   const [report, setReport] = useState([]);
+  const [isReportClicked, setReportClicked] = useState(false);
+  const [isActiveClicked, setActiveClicked] = useState(true);
+  const [isHistoryClicked, setHistoryClicked] = useState(false);
+  const [filteredReports, setFilteredReports] = useState([]);
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -100,8 +113,8 @@ function SOSUpdateReports({ isCollapsed }) {
             found.location.lat,
             found.location.lng
           );
-          const { datePart, timePart } = getDateAndTime(found.createdAt);
-          setReport({ ...found, readableAddress, datePart, timePart });
+
+          setReport({ ...found, readableAddress });
         })();
       } else {
         setReport(null);
@@ -111,27 +124,45 @@ function SOSUpdateReports({ isCollapsed }) {
     }
   }, [selectedID, reports]);
 
-  function getDateAndTime(timestamp) {
-    if (!timestamp) return { datePart: "", timePart: "" };
+  const handleMenu1 = () => {
+    setActiveClicked(true);
+    setHistoryClicked(false);
+    setSelectedID(null);
+  };
+  const handleMenu2 = () => {
+    setHistoryClicked(true);
+    setActiveClicked(false);
+    setSelectedID(null);
+  };
 
-    const date = new Date(timestamp);
+  useEffect(() => {
+    if (reports) {
+      let filtered = reports;
+      if (isActiveClicked) {
+        filtered = filtered.filter(
+          (report) => report.status === "Pending" || report.status === "Ongoing"
+        );
+      } else if (isHistoryClicked) {
+        filtered = filtered.filter(
+          (report) =>
+            report.status === "Resolved" ||
+            report.status === "False Alarm" ||
+            report.status === "Cancelled"
+        );
+      }
+      setFilteredReports(filtered);
+    }
+  }, [reports, isActiveClicked, isHistoryClicked]);
 
-    const datePart = date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "Asia/Manila",
-    });
+  //For Pagination
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = filteredReports.slice(indexOfFirstRow, indexOfLastRow);
+  const totalRows = filteredReports.length;
+  const totalPages = Math.ceil(totalRows / rowsPerPage);
 
-    const timePart = date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "Asia/Manila",
-    });
-
-    return { datePart, timePart };
-  }
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
 
   return (
     <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -139,54 +170,190 @@ function SOSUpdateReports({ isCollapsed }) {
         SOS Update Reports
       </div>
 
-      {isLoaded && (
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={position}
-          zoom={20}
+      <div className="status-container">
+        <p
+          onClick={handleMenu1}
+          className={`status-text ${
+            isActiveClicked ? "border-b-4 border-[#BC0F0F]" : "text-[#808080]"
+          }`}
         >
-          {/* Marker */}
-          {reports?.map((report) => {
-            return (
-              <Marker
-                key={report._id}
-                position={report.location}
-                onClick={() => setSelectedID(report._id)}
-              />
-            );
-          })}
-        </GoogleMap>
-      )}
-      {report && (
-        <div key={report._id}>
-          <img
-            src={report.resID?.picture}
-            alt="Resident"
-            style={{ width: "80px", height: "80px", borderRadius: "50%" }}
-          />
-          <p>
-            {report.resID?.firstname} {report.resID?.lastname}
-          </p>
-          <p>{report.resID?.age}</p>
-          <p>{report.resID?.householdno?.address}</p>
-          <p>{report.resID?.mobilenumber}</p>
-          <p>{report.responder?.length}</p>
-        </div>
-      )}
+          Active
+        </p>
+        <p
+          onClick={handleMenu2}
+          className={`status-text ${
+            isHistoryClicked ? "border-b-4 border-[#BC0F0F]" : "text-[#808080]"
+          }`}
+        >
+          History
+        </p>
+      </div>
 
-      {report && (
-        <div>
-          <p>
-            {report.reporttype
-              ? report.reporttype
-              : "Resident didn't provide details but needs urgent assistance."}
-          </p>
-          <p>{report.resID?.age}</p>
-          <p>{report.readableAddress}</p>
-          <p>{report.datePart}</p>
-          <p>{report.timePart}</p>
-          <p>{report.reportdetails ? report.reportdetails : "N/A"}</p>
-        </div>
+      {isActiveClicked ? (
+        <>
+          {isLoaded && (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={position}
+              zoom={20}
+            >
+              {/* Marker */}
+              {filteredReports?.map((report) => {
+                return (
+                  <Marker
+                    key={report._id}
+                    position={report.location}
+                    onClick={() => setSelectedID(report._id)}
+                  />
+                );
+              })}
+            </GoogleMap>
+          )}
+          {report && (
+            <div key={report._id}>
+              <img
+                src={report.resID?.picture}
+                alt="Resident"
+                style={{ width: "80px", height: "80px", borderRadius: "50%" }}
+              />
+              <p>
+                {report.resID?.firstname} {report.resID?.lastname}
+              </p>
+              <p>{report.resID?.age}</p>
+              <p>{report.resID?.householdno?.address}</p>
+              <p>{report.resID?.mobilenumber}</p>
+              <p>Heading: {report.responder?.length}</p>
+              <p>
+                Arrived:{" "}
+                {report.responder?.filter((r) => r.status === "Arrived").length}
+              </p>
+            </div>
+          )}
+
+          {report && (
+            <div>
+              <p>{report.reporttype ? report.reporttype : "N/A"}</p>
+              <p>{report.resID?.age}</p>
+              <p>{report.readableAddress}</p>
+              <p>{report.createdAt}</p>
+              <p>{report.reportdetails ? report.reportdetails : "N/A"}</p>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className="table-container">
+            <table>
+              <thead className="bg-[#BC0F0F]">
+                <tr className="cursor-default">
+                  <th>No.</th>
+                  <th>Reporter</th>
+                  <th>Responder/s</th>
+                  <th>Type of the Incident</th>
+                  <th>Status</th>
+                  <th>Date Completed</th>
+                </tr>
+              </thead>
+
+              <tbody className="bg-[#fff] cursor-fault">
+                {filteredReports.length === 0 ? (
+                  <tr>
+                    <td colSpan={3}>No results found</td>
+                  </tr>
+                ) : (
+                  currentRows.map((report) => (
+                    <tr
+                      key={report._id}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "";
+                      }}
+                      className="cursor-default"
+                      onClick={() => {
+                        setReportClicked(true);
+                        setSelectedID(report._id);
+                      }}
+                    >
+                      <td>{report.SOSno}</td>
+                      <td>
+                        {report.resID.firstname} {report.resID.lastname}
+                      </td>
+
+                      <td>
+                        {report.responder
+                          .map(
+                            (r) =>
+                              `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`
+                          )
+                          .join(", ")}
+                      </td>
+                      <td>{report.reporttype ? report.reporttype : "N/A"}</td>
+                      <td>{report.status}</td>
+                      <td>{report.updatedAt}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            <div className="table-pagination">
+              <div className="table-pagination-size">
+                <span>Rows per page:</span>
+                <div className="relative w-12">
+                  <select
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="!border-[#BC0F0F] !text-btn-color-red table-pagination-select"
+                  >
+                    {[5, 10, 15, 20].map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="table-pagination-select-icon">
+                    <MdArrowDropDown size={18} color={"#F63131"} />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                {startRow}-{endRow} of {totalRows}
+              </div>
+
+              <div>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="table-pagination-btn"
+                >
+                  <MdKeyboardArrowLeft color={"#F63131"} className="text-xl" />
+                </button>
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="table-pagination-btn"
+                >
+                  <MdKeyboardArrowRight color={"#F63131"} className="text-xl" />
+                </button>
+              </div>
+            </div>
+          </div>
+          {isReportClicked && (
+            <ViewSOS
+              onClose={() => setReportClicked(false)}
+              reportID={selectedID}
+            />
+          )}
+        </>
       )}
     </main>
   );
