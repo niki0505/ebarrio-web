@@ -59,6 +59,7 @@ function SetPassword() {
   const passwordValidation = (e) => {
     let val = e.target.value;
     let errors = [];
+    let errors2 = [];
     let formattedVal = val.replace(/\s+/g, "");
     setPassword(formattedVal);
 
@@ -73,7 +74,11 @@ function SetPassword() {
         "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
       );
     }
+    if (repassword && formattedVal !== repassword) {
+      errors2.push("Passwords do not match!");
+    }
     setPasswordErrors(errors);
+    setRePasswordErrors(errors2);
   };
 
   const repasswordValidation = (e) => {
@@ -120,6 +125,7 @@ function SetPassword() {
                 <input
                   type="password"
                   placeholder="Enter password"
+                  value={password}
                   onChange={(e) => passwordValidation(e)}
                   className="form-input"
                   required
@@ -143,6 +149,7 @@ function SetPassword() {
                 <input
                   type="password"
                   placeholder="Enter confirm password"
+                  value={repassword}
                   onChange={(e) => repasswordValidation(e)}
                   className="form-input"
                   required

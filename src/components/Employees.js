@@ -752,16 +752,18 @@ function Employees({ isCollapsed }) {
 
                             {emp.status === "Active" ? (
                               <div className="btn-container">
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, emp._id)}
-                                >
-                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    ARCHIVE
-                                  </label>
-                                </button>
+                                {user.empID !== emp._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => archiveBtn(e, emp._id)}
+                                  >
+                                    <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      ARCHIVE
+                                    </label>
+                                  </button>
+                                )}
                                 <button
                                   className="table-actions-container"
                                   type="submit"
@@ -772,16 +774,18 @@ function Employees({ isCollapsed }) {
                                     EMPLOYEE ID
                                   </label>
                                 </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => editBtn(e, emp._id)}
-                                >
-                                  <FaEdit className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    EDIT
-                                  </label>
-                                </button>
+                                {user.empID !== emp._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => editBtn(e, emp._id)}
+                                  >
+                                    <FaEdit className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      EDIT
+                                    </label>
+                                  </button>
+                                )}
                               </div>
                             ) : (
                               <div className="btn-container">
