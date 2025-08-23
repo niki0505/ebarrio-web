@@ -145,48 +145,52 @@ function AccountSettings({ isCollapsed }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchResidents();
-    fetchHouseholds();
-  }, []);
+    if (user.role !== "Technical Admin") {
+      fetchResidents();
+      fetchHouseholds();
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await api.get(`/getcurrentuser/${user.userID}`);
-
-        setUserDetails(response.data);
-
+    if (user.role !== "Technical Admin") {
+      const fetchUserDetails = async () => {
         try {
-          const response2 = await api.get(
-            `/getresident/${response.data.empID.resID._id}`
-          );
-          setResidentInfo(response2.data);
+          const response = await api.get(`/getcurrentuser/${user.userID}`);
+
+          setUserDetails(response.data);
+
+          try {
+            const response2 = await api.get(
+              `/getresident/${response.data.empID.resID._id}`
+            );
+            setResidentInfo(response2.data);
+          } catch (error) {
+            console.log("Error fetching resident", error);
+          }
+
+          if (
+            !Array.isArray(response.data.securityquestions) ||
+            response.data.securityquestions.length === 0
+          ) {
+            return;
+          }
+
+          setSecurityQuestions([
+            {
+              question: response.data.securityquestions[0]?.question || "",
+              answer: "",
+            },
+            {
+              question: response.data.securityquestions[1]?.question || "",
+              answer: "",
+            },
+          ]);
         } catch (error) {
-          console.log("Error fetching resident", error);
+          console.log("Error fetching user details", error);
         }
-
-        if (
-          !Array.isArray(response.data.securityquestions) ||
-          response.data.securityquestions.length === 0
-        ) {
-          return;
-        }
-
-        setSecurityQuestions([
-          {
-            question: response.data.securityquestions[0]?.question || "",
-            answer: "",
-          },
-          {
-            question: response.data.securityquestions[1]?.question || "",
-            answer: "",
-          },
-        ]);
-      } catch (error) {
-        console.log("Error fetching user details", error);
-      }
-    };
-    fetchUserDetails();
+      };
+      fetchUserDetails();
+    }
   }, [user.userID]);
 
   const handleMenu1 = () => {
@@ -264,10 +268,6 @@ function AccountSettings({ isCollapsed }) {
 
   const handleUsernameChange = async () => {
     let hasErrors = false;
-    if (username === user.username) {
-      alert("The new username must be different from the current username!");
-      hasErrors = true;
-    }
 
     if (usernameErrors.length !== 0) {
       hasErrors = true;
@@ -506,16 +506,18 @@ function AccountSettings({ isCollapsed }) {
   }, [residentInfo]);
 
   useEffect(() => {
-    const fetchResident = async () => {
-      try {
-        const response = await api.get(`/getresident/${user.resID}`);
-        setResidentInfo(response.data);
-      } catch (error) {
-        console.log("Error fetching resident", error);
-      }
-    };
-    fetchResident();
-  }, []);
+    if (user.role !== "Technical Admin") {
+      const fetchResident = async () => {
+        try {
+          const response = await api.get(`/getresident/${user.resID}`);
+          setResidentInfo(response.data);
+        } catch (error) {
+          console.log("Error fetching resident", error);
+        }
+      };
+      fetchResident();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (residentInfo.householdno) {
@@ -1530,6 +1532,7 @@ function AccountSettings({ isCollapsed }) {
   const passwordValidation = (e) => {
     let val = e.target.value;
     let errors = [];
+    let errors2 = [];
     let formattedVal = val.replace(/\s+/g, "");
     setNewPassword(formattedVal);
 
@@ -1544,7 +1547,12 @@ function AccountSettings({ isCollapsed }) {
         "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
       );
     }
+
+    if (renewpassword && formattedVal !== renewpassword) {
+      errors2.push("Passwords do not match!");
+    }
     setPasswordErrors(errors);
+    setRePasswordErrors(errors2);
   };
 
   const maskUsername = (uname) => {
