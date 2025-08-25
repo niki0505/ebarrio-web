@@ -33,6 +33,8 @@ const Chat = () => {
   const [showFAQs, setShowFAQs] = useState(false);
   const [plusClickOutside, setPlusClickOutside] = useState(false);
   const notifRef = useRef(null);
+  const aiEndRef = useRef(null);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -59,6 +61,12 @@ const Chat = () => {
     setShowButtons(false);
     setShowFAQs(true);
   };
+
+  useEffect(() => {
+    if (aiEndRef.current) {
+      aiEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [AIMessages]);
 
   useEffect(() => {
     if (!socket) {
@@ -194,8 +202,13 @@ const Chat = () => {
         chatId: c._id,
         timestamp: new Date(msg.timestamp),
       }))
-    )
-    .sort((a, b) => a.timestamp - b.timestamp);
+    );
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [fullChatHistory]);
 
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
@@ -317,7 +330,7 @@ const Chat = () => {
             </label>
           </div>
         )}
-        {showFAQs && <FAQs />}
+        {showFAQs && <FAQs onClose={setShowFAQs} />}
       </div>
 
       {isOpen && (
@@ -387,6 +400,7 @@ const Chat = () => {
                         </div>
                       );
                     })}
+                    <div ref={aiEndRef} />
                   </div>
 
                   {/* Input */}
@@ -609,6 +623,7 @@ const Chat = () => {
                                 </React.Fragment>
                               );
                             })}
+                            <div ref={chatEndRef} />
                           </div>
                         </div>
 

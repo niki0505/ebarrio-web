@@ -13,7 +13,7 @@ import { IoArchiveSharp } from "react-icons/io5";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 
-function FAQs() {
+function FAQs({ onClose }) {
   const { fetchFAQslist, FAQslist } = useContext(InfoContext);
   const confirm = useConfirm();
 
@@ -24,8 +24,6 @@ function FAQs() {
   useEffect(() => {
     fetchFAQslist();
   }, []);
-
-  console.log(FAQslist);
 
   const handleChange = (e) => {
     setNewFAQ({ ...newFAQ, [e.target.name]: e.target.value });
@@ -124,7 +122,10 @@ function FAQs() {
             <div className="flex flex-col w-full">
               <div className="dialog-title-bar-items">
                 <h2 className="modal-title">Frequently Asked Questions</h2>
-                <IoClose class="dialog-title-bar-icon"></IoClose>
+                <IoClose
+                  onClick={() => onClose(false)}
+                  class="dialog-title-bar-icon"
+                ></IoClose>
               </div>
               <hr className="dialog-line" />
             </div>

@@ -102,7 +102,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Residents />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -120,7 +124,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateResident />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -129,7 +137,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<EditResident />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -147,7 +159,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Employees />}
-                          allowedRoles={["Secretary"]}
+                          allowedRoles={["Secretary", "Technical Admin"]}
                         />
                       }
                     />
@@ -246,7 +258,12 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<AccountSettings />}
-                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Justice",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />

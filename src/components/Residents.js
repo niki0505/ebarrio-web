@@ -888,16 +888,18 @@ function Residents({ isCollapsed }) {
                             </div>
                             {res.status === "Active" ? (
                               <div className="btn-container">
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, res._id)}
-                                >
-                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    ARCHIVE
-                                  </label>
-                                </button>
+                                {user.resID !== res._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => archiveBtn(e, res._id)}
+                                  >
+                                    <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      ARCHIVE
+                                    </label>
+                                  </button>
+                                )}
 
                                 <button
                                   className="table-actions-container"
@@ -919,16 +921,18 @@ function Residents({ isCollapsed }) {
                                     DOCUMENT
                                   </label>
                                 </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={() => editBtn(res._id)}
-                                >
-                                  <FaEdit className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    EDIT
-                                  </label>
-                                </button>
+                                {user.resID !== res._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={() => editBtn(res._id)}
+                                  >
+                                    <FaEdit className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      EDIT
+                                    </label>
+                                  </button>
+                                )}
                               </div>
                             ) : res.status === "Archived" ? (
                               <div className="btn-container">

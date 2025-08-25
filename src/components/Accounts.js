@@ -573,7 +573,9 @@ function Accounts({ isCollapsed }) {
                       </div>
                     </td>
                     <td>{user.username}</td>
-                    <td>{user.role}</td>
+                    <td>
+                      {user.role === "Official" ? "Personnel" : user.role}
+                    </td>
                     {isCurrentClicked && (
                       <td>
                         <span

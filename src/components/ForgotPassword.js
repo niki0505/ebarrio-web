@@ -179,6 +179,7 @@ function ForgotPassword() {
   const passwordValidation = (e) => {
     let val = e.target.value;
     let errors = [];
+    let errors2 = [];
     let formattedVal = val.replace(/\s+/g, "");
     setNewPassword(formattedVal);
 
@@ -193,7 +194,11 @@ function ForgotPassword() {
         "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
       );
     }
+    if (renewPassword && formattedVal !== renewPassword) {
+      errors2.push("Passwords do not match!");
+    }
     setPasswordErrors(errors);
+    setRePasswordErrors(errors2);
   };
 
   const repasswordValidation = (e) => {

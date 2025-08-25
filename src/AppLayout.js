@@ -24,7 +24,7 @@ const AppLayout = () => {
         <Outlet />
       </div>
 
-      {isAuthenticated && user && <Chat />}
+      {isAuthenticated && user && user.role !== "Technical Admin" && <Chat />}
       <SessionTimeout timeout={15 * 60 * 1000} />
     </div>
   );
