@@ -28,7 +28,6 @@ function Announcements({ isCollapsed }) {
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
-
   const [selectedCategory, setSelectedCategory] = useState("All Announcement");
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState([]);
   const [menuVisible, setMenuVisible] = useState(null);
@@ -151,6 +150,7 @@ function Announcements({ isCollapsed }) {
       alert("The announcement has been successfully archived.");
     } catch (error) {
       console.log("Error in archiving announcement", error);
+      alert("Error in archiving announcement");
     }
   };
 

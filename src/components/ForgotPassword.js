@@ -58,7 +58,7 @@ function ForgotPassword() {
       Array.isArray(user.securityquestions) &&
       user.securityquestions.length === 0
     ) {
-      alert("It looks like you haven't set up your security questions yet.");
+      alert("It appears that you have not yet set up your security questions.");
       return;
     }
     setQuestionsClicked(true);
@@ -123,7 +123,9 @@ function ForgotPassword() {
       sendOTP(username, user.empID.resID.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        alert("OTP use is currently disabled. Try again in after 30 minutes.");
+        alert(
+          "OTP usage is currently disabled. Please try again after 30 minutes."
+        );
       } else {
         console.error("Error checking OTP:", error);
       }
@@ -158,7 +160,7 @@ function ForgotPassword() {
 
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
-      alert("You have successfully reset your password!");
+      alert("Your password has been successfully reset.");
       navigation("/login");
     } catch (error) {
       const response = error.response;
@@ -235,7 +237,7 @@ function ForgotPassword() {
         console.log("New OTP is generated");
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("Something went wrong while sending OTP");
+        alert("An error occurred while sending the OTP. Please try again.");
       }
     } else {
       await api.get(`/limitotp/${username}`);
@@ -528,14 +530,16 @@ function ForgotPassword() {
                           />
                         </div>
                         {isResendDisabled ? (
-                          <p className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end text-[14px]">
-                            Resend OTP in {resendTimer} second
+                          <p className="text-[#808080] font-subTitle font-bold mt-5 text-end text-[14px]">
+                            Resend OTP in{" "}
+                            <span className="text-red-600">{resendTimer}</span>{" "}
+                            second
                             {resendTimer !== 1 ? "s" : ""}
                           </p>
                         ) : (
                           <p
                             onClick={handleResend}
-                            className="cursor-pointer mt-5 text-end text-[#808080] font-subTitle font-bold text-[14px]"
+                            className="cursor-pointer mt-5 text-end text-[#0E94D3] font-subTitle font-bold text-[14px]"
                           >
                             Resend OTP
                           </p>

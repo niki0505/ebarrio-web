@@ -252,7 +252,7 @@ function CreateBlotter({ isCollapsed }) {
       }
       try {
         await api.post("/createblotter", { updatedForm });
-        alert("Blotter report successfully submitted!");
+        alert("A new blotter report has been created.");
         setBlotterForm(initialForm);
         navigation("/blotter-reports");
       } catch (error) {
@@ -364,7 +364,7 @@ function CreateBlotter({ isCollapsed }) {
     }
 
     if (newEndTime <= startTime) {
-      alert("End time must be after the start time.");
+      alert("The end time must be after the start time.");
       return;
     }
 

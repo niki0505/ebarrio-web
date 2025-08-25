@@ -247,7 +247,7 @@ function SettleBlotter({ isCollapsed }) {
 
     try {
       await api.put(`/settleblotter/${blotterID}`, { updatedForm });
-      alert("Blotter successfully settled!");
+      alert("⦁	The blotter report has been successfully settled.");
       navigation("/blotter-reports");
     } catch (error) {
       console.log("Error settling blotter", error);

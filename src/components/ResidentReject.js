@@ -23,7 +23,7 @@ function ResidentReject({ onClose, resID }) {
     }
     try {
       await api.post(`/rejectresident/${resID}`, { remarks });
-      alert("Resident profile has been rejected successfully.");
+      alert("The residency application has been successfully rejected.");
       onClose();
     } catch (error) {
       console.log("Error rejecting resident profile");

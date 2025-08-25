@@ -47,7 +47,7 @@ function SetPassword() {
       await api.put(`/resetpassword/${username}`, {
         password,
       });
-      alert("Your password has been successfully set.");
+      alert("Your password has been successfully created.");
       navigation("/login");
     } catch (error) {
       console.log("Failed to reset password", error);

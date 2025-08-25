@@ -48,7 +48,7 @@ function OTP() {
         console.log("New OTP is generated");
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("Something went wrong while sending OTP");
+        alert("An error occurred while sending the OTP. Please try again.");
       }
     } else {
       alert("You can only resend OTP 3 times.");
@@ -150,7 +150,7 @@ function OTP() {
                 />
               </div>
               {isResendDisabled ? (
-                <div className="text-[#0E94D3] font-subTitle font-bold text-[14px] mt-5 text-end">
+                <div className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end">
                   Resend OTP in{" "}
                   <span className="text-red-600">{resendTimer}</span> second
                   {resendTimer !== 1 ? "s" : ""}

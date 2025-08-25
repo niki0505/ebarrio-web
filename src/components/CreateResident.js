@@ -502,14 +502,14 @@ function CreateResident({ isCollapsed }) {
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
     if (
       residentForm.emergencymobilenumber &&
       residentForm.emergencymobilenumber.length !== 13
     ) {
-      setEmMobileNumError("Invalid mobile number.");
+      setEmMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
 
@@ -517,7 +517,7 @@ function CreateResident({ isCollapsed }) {
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
-      setTelephoneNumError("Invalid telephone.");
+      setTelephoneNumError("Invalid telephone number format!");
       hasErrors = true;
     }
 
@@ -598,7 +598,7 @@ function CreateResident({ isCollapsed }) {
       } catch (error) {
         console.log("Error generating barangay ID", error);
       }
-      alert("Resident successfully created!");
+      alert("A new resident record has been successfully created.");
       setResidentForm(initialForm);
       navigation("/residents");
     } catch (error) {
@@ -651,7 +651,7 @@ function CreateResident({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number.");
+        setMobileNumError("Invalid mobile number format!");
       }
     }
 
@@ -659,7 +659,7 @@ function CreateResident({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number.");
+        setEmMobileNumError("Invalid mobile number format!");
       }
     }
   };
@@ -696,7 +696,7 @@ function CreateResident({ isCollapsed }) {
       else if (/^\+63\d{6,9}$/.test(value)) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid landline number.");
+        setTelephoneNumError("Invalid telephone number format!");
       }
     }
   };

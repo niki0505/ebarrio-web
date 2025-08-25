@@ -151,7 +151,7 @@ function Residents({ isCollapsed }) {
           !Array.isArray(response.data.brgyID) ||
           response.data.brgyID.length === 0
         ) {
-          alert("This resident has not been issued an ID yet.");
+          alert("This resident has not yet been issued an ID.");
           return;
         }
         try {
@@ -217,10 +217,10 @@ function Residents({ isCollapsed }) {
 
       setActiveClicked(true);
       setPendingClicked(false);
-      alert("Resident has been approved successfully.");
+      alert("The resident has been successfully approved.");
     } catch (error) {
       console.log("Error in approving resident details", error);
-      alert("Something went wrong while approving the resident.");
+      alert("An unexpected error occurred while approving the resident.");
     }
   };
 
@@ -263,7 +263,7 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveresident/${resID}`);
-        alert("Resident has been successfully archived.");
+        alert("The resident has been successfully archived.");
       } catch (error) {
         console.log("Error", error);
       }
@@ -279,7 +279,7 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoverresident/${resID}`);
-        alert("Resident has been successfully recovered.");
+        alert("The resident has been successfully recovered.");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {

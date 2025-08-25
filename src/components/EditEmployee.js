@@ -31,7 +31,7 @@ function EditEmployee({ onClose, empID }) {
         position,
         chairmanship,
       });
-      alert("Employee position successfully updated!");
+      alert("The employee's position has been successfully updated.");
     } catch (error) {
       console.log("Error updating employee position", error);
     }

@@ -138,7 +138,7 @@ function Signup() {
       console.log(res.data);
       if (!res.data.isResident || !res.data.isEmployee) {
         console.log(`❌ User is not an employee`);
-        alert("Only employee can register");
+        alert("You must be an employee to register.");
         return;
       } else if (
         !res.data.isSecretary &&
@@ -146,7 +146,7 @@ function Signup() {
         res.data.isEmployee
       ) {
         console.log(`❌ User is not a secretary`);
-        alert("Only secretary can register");
+        alert("Only a secretary can complete the registration.");
         return;
       } else if (
         res.data.hasAccount &&
@@ -155,7 +155,7 @@ function Signup() {
         res.data.isEmployee
       ) {
         console.log(`❌ Employee already has an account`);
-        alert("Employee already has an account");
+        alert("This employee already has an account.");
         return;
       } else if (
         !res.data.hasAccount &&
@@ -168,7 +168,7 @@ function Signup() {
           username,
         });
         if (res2.data.usernameExists) {
-          alert("Username is already taken");
+          alert("This username is already taken.");
           return;
         }
 
@@ -196,7 +196,9 @@ function Signup() {
           });
         } catch (error) {
           console.error("Error sending OTP:", error);
-          alert("Something went wrong while sending OTP");
+          alert(
+            "An unexpected error occured while sending OTP. Please try again."
+          );
         }
       }
     } catch (error) {

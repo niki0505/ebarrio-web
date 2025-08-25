@@ -153,7 +153,7 @@ function CreateAnnouncement({ onClose }) {
         });
       }
 
-      alert("Announcement successfully created!");
+      alert("Your announcement has been successfully posted.");
       setAnnouncementForm(initialForm);
     } catch (error) {
       console.log("Error creating announcement", error);
@@ -236,7 +236,9 @@ function CreateAnnouncement({ onClose }) {
     });
 
     if (hasMissingTimes) {
-      alert("Please fill in both start and end times for all selected dates.");
+      alert(
+        "Please provide both the start and end times for all selected dates."
+      );
       return;
     }
 

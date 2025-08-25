@@ -62,7 +62,7 @@ function CreateReservation({ onClose }) {
     setLoading(true);
     try {
       await api.post("/createreservation", { reservationForm });
-      alert("Court reservation successfully created!");
+      alert("The court reservation has been successfully added.");
       onClose();
     } catch (error) {
       console.error("Error creating court reservation", error);

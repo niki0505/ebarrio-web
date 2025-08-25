@@ -43,7 +43,7 @@ function FAQs() {
       await api.post("/createfaq", {
         ...newFAQ,
       });
-      alert("FAQ is successfully created!");
+      alert("FAQ has been successfully created.");
       setNewFAQ({ question: "", answer: "" });
     } catch (error) {
       const response = error.response;
@@ -74,7 +74,7 @@ function FAQs() {
       await api.post(`/editfaq/${editingId}`, {
         ...newFAQ,
       });
-      alert("FAQ is successfully updated!");
+      alert("FAQ has been successfully updated.");
       setEditingId(null);
       setNewFAQ({ question: "", answer: "" });
     } catch (error) {
@@ -99,7 +99,7 @@ function FAQs() {
         return;
       }
       await api.put(`/archivefaq/${faqID}`);
-      alert("FAQ is successfully archived!");
+      alert("FAQ has been successfully archived.");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
@@ -141,7 +141,7 @@ function FAQs() {
                   >
                     {/* Question header */}
                     <div className="flex items-center justify-between p-2">
-                      <p className="form-label">{faq.question}</p>
+                      <p className="form-label !font-semibold ">{faq.question}</p>
                       <p className="text-btn-color-blue text-lg">
                         {expandedFAQ === faq._id ? (
                           <FaMinus className="text-[14px] text-navy-blue" />
@@ -161,10 +161,10 @@ function FAQs() {
                         expandedFAQ === faq._id ? "expanded" : ""
                       }`}
                     >
-                      <p className="form-label !text-[#808080] ml-2">
+                      <p className="form-label !font-subTitle !font-semibold ml-2 mt-2">
                         - {faq.answer}
                       </p>
-                      <div className="mt-2 space-x-2 flex flex-row items-center justify-end">
+                      <div className="mt-2 mr-4 mb-4 space-x-2 flex flex-row items-center justify-end">
                         <button
                           className="table-actions-container"
                           type="button"

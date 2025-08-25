@@ -28,9 +28,9 @@ function AlertResidents({ onClose, resID }) {
     setLoading(true);
     try {
       await api.post(`/alertresidents`, { message });
-      alert("Residents have been successfully alerted.");
+      alert("Your alert has been successfully sent to the residents.");
       onClose();
-    } catch (error) {
+    } catch (error) { 
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);

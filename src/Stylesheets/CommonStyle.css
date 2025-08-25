@@ -111,6 +111,11 @@ td {
 .modal-btn-close-icon {
   @apply text-2xl text-[#fff];
 }
+
+.modal-form-confirm-container {
+  @apply h-auto w-[28rem] flex flex-col justify-center items-center bg-[#fff] rounded-xl p-6;
+}
+
 .modal-form-container {
   @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6;
 }

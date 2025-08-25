@@ -595,7 +595,7 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      alert("The file is too large. The maximum allowed size is 1 MB.");
       event.target.value = "";
       return;
     }
@@ -647,11 +647,11 @@ function EditResident({ isCollapsed }) {
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setEmMobileNumError("Invalid mobile number.");
+      setEmMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
 
@@ -659,7 +659,7 @@ function EditResident({ isCollapsed }) {
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
-      setTelephoneNumError("Invalid telephone.");
+      setTelephoneNumError("Invalid telephone number format!");
       hasErrors = true;
     }
 
@@ -724,7 +724,7 @@ function EditResident({ isCollapsed }) {
       };
 
       await api.put(`/updateresident/${resID}`, updatedResidentForm);
-      alert("Resident successfully updated!");
+      alert("The resident's date has been successfully updated");
       navigation("/residents");
     } catch (error) {
       console.log("Error", error);
@@ -739,7 +739,7 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      alert("The file is too large. The maximum allowed size is 1 MB.");
       event.target.value = "";
       return;
     }
@@ -775,7 +775,7 @@ function EditResident({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number.");
+        setMobileNumError("Invalid mobile number format!");
       }
     }
 
@@ -783,7 +783,7 @@ function EditResident({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number.");
+        setEmMobileNumError("Invalid mobile number format!");
       }
     }
   };
@@ -810,7 +810,7 @@ function EditResident({ isCollapsed }) {
       } else if (value.length > 11) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number.");
+        setTelephoneNumError("Invalid mobile number format!");
       }
     }
   };
@@ -927,7 +927,7 @@ function EditResident({ isCollapsed }) {
 
       setEditingMemberId(null);
       setEditedPosition("");
-      alert("The member's position successfully updated.");
+      alert("he member's position has been successfully updated.");
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -953,7 +953,7 @@ function EditResident({ isCollapsed }) {
         ...prev,
         members: prev.members.filter((m) => m._id !== member._id),
       }));
-      alert("Member has been removed successfully.");
+      alert("The member has been successfully removed.");
     } catch (error) {
       console.error("Error removing member:", error);
     }
@@ -979,7 +979,7 @@ function EditResident({ isCollapsed }) {
     );
     if (!isConfirmed) return;
     if (!member.resID || !member.position) {
-      alert("Please select resident and position.");
+      alert("Please select both the resident and position.");
       return;
     }
     try {
@@ -1072,7 +1072,7 @@ function EditResident({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
-      alert("Vehicle has been added successfully.");
+      alert("The vehicle has been successfully added.");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
     }
@@ -1105,7 +1105,7 @@ function EditResident({ isCollapsed }) {
 
       setEditingVehicleIndex(null);
       setEditedVehicle("");
-      alert("The vehicle was successfully updated.");
+      alert("The vehicle has been successfully updated.");
     } catch (error) {
       console.error("Error updating position:", error);
     }

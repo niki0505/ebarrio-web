@@ -155,7 +155,7 @@ function CertificateRequests({ isCollapsed }) {
     }
     try {
       await api.put(`/notifycert/${certID}`);
-      alert("The resident has been successfully notified.");
+      alert("The resident has been duly notified.");
     } catch (error) {
       console.log("Error in notifying user", error);
     }

@@ -93,7 +93,7 @@ function CreateEmployee({ onClose }) {
         position: "",
         chairmanship: "",
       });
-      alert("Employee has been successfully created.");
+      alert("The employee has been successfully added.");
       onClose();
     } catch (error) {
       console.log("Error creating employee");

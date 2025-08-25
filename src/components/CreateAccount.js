@@ -144,7 +144,7 @@ function CreateAccount({ onClose }) {
     setLoading(true);
     try {
       await api.post("/createuser", userForm);
-      alert("Account has been created successfully.");
+      alert("The account has been successfully created");
       onClose();
     } catch (error) {
       const response = error.response;

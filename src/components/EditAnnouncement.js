@@ -97,7 +97,7 @@ function EditAnnouncement({ onClose, announcementID }) {
           announcementForm,
         });
       }
-      alert("Announcement successfully updated!");
+      alert("The announcement details have been successfully updated.");
     } catch (error) {
       console.log("Error updating announcement", error);
     }
@@ -190,7 +190,7 @@ function EditAnnouncement({ onClose, announcementID }) {
     });
 
     if (hasMissingTimes) {
-      alert("Please fill in both start and end times for all selected dates.");
+      alert("Kindly provide both the start and end times for all selected dates.");
       return;
     }
 

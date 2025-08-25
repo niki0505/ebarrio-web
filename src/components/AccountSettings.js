@@ -8,6 +8,7 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
+import SuccessDialog from "./SuccessDialog";
 
 //STYLES
 import "../Stylesheets/Residents.css";
@@ -143,6 +144,7 @@ function AccountSettings({ isCollapsed }) {
   const [showAnswer2, setShowAnswer2] = useState(false);
   const [showSecurityPass, setShowSecurityPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -296,7 +298,7 @@ function AccountSettings({ isCollapsed }) {
             username,
             password,
           });
-          alert("Username has been changed successfully.");
+          alert("Your username has been successfully updated.");
           setUsername("");
           setPassword("");
         } catch (error) {
@@ -357,7 +359,7 @@ function AccountSettings({ isCollapsed }) {
           newpassword,
           password,
         });
-        alert("Password has been changed successfully. Please log in again.");
+        alert("Your password has been updated. Please log in again.");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
@@ -418,7 +420,7 @@ function AccountSettings({ isCollapsed }) {
           securityquestions: modifiedQuestions,
           password,
         });
-        alert("Security questions have been changed successfully.");
+        alert("Your security questions has been successfully updated.");
         setPassword("");
         setSecurityQuestions((prevQuestions) =>
           prevQuestions.map((q) => ({
@@ -921,7 +923,7 @@ function AccountSettings({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      alert("The file is too large. The maximum allowed size is 1 MB.");
       event.target.value = "";
       return;
     }
@@ -966,18 +968,18 @@ function AccountSettings({ isCollapsed }) {
     let hasErrors = false;
 
     if (!id) {
-      alert("Picture is required");
+      alert("Picture is required!");
       hasErrors = true;
     } else if (!signature) {
-      alert("Signature is required");
+      alert("Signature is required!");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setEmMobileNumError("Invalid mobile number.");
+      setEmMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
 
@@ -985,7 +987,7 @@ function AccountSettings({ isCollapsed }) {
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
-      setTelephoneNumError("Invalid telephone.");
+      setTelephoneNumError("Invalid telephone number format!");
       hasErrors = true;
     }
 
@@ -996,7 +998,7 @@ function AccountSettings({ isCollapsed }) {
       let idPicture;
       let signaturePicture;
       const isConfirmed = await confirm(
-        "Are you sure you want to edit this resident profile?",
+        "Are you sure you want to update your resident profile?",
         "confirm"
       );
       if (!isConfirmed) {
@@ -1050,7 +1052,7 @@ function AccountSettings({ isCollapsed }) {
       };
 
       await api.put(`/updateresident/${user.resID}`, updatedResidentForm);
-      alert("You have successfully updated your profile.");
+      alert("Your profile has been successfully updated.");
     } catch (error) {
       console.log("Error", error);
     } finally {
@@ -1064,7 +1066,7 @@ function AccountSettings({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      alert("The file is too large. The maximum allowed size is 1 MB.");
       event.target.value = "";
       return;
     }
@@ -1100,7 +1102,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number!");
+        setMobileNumError("Invalid mobile number format!");
       }
     }
 
@@ -1108,7 +1110,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number!");
+        setEmMobileNumError("Invalid mobile number format!");
       }
     }
   };
@@ -1135,7 +1137,7 @@ function AccountSettings({ isCollapsed }) {
       } else if (value.length > 11) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number!");
+        setTelephoneNumError("Invalid telephone number format!");
       }
     }
   };
@@ -1252,7 +1254,7 @@ function AccountSettings({ isCollapsed }) {
 
       setEditingMemberId(null);
       setEditedPosition("");
-      alert("The member's position successfully updated.");
+      alert("The member's position has been successfully updated.");
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -1278,7 +1280,7 @@ function AccountSettings({ isCollapsed }) {
         ...prev,
         members: prev.members.filter((m) => m._id !== member._id),
       }));
-      alert("Member has been removed successfully.");
+      alert("The member has been successfully removed.");
     } catch (error) {
       console.error("Error removing member:", error);
     }
@@ -1397,7 +1399,7 @@ function AccountSettings({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
-      alert("Vehicle has been added successfully.");
+      alert("The vehicle has been successfully added.");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
     }
@@ -1492,11 +1494,11 @@ function AccountSettings({ isCollapsed }) {
       (formattedVal && formattedVal.length < 3) ||
       (formattedVal && formattedVal.length > 16)
     ) {
-      errors.push("Username must be between 3 and 16 characters only");
+      errors.push("Username must be between 3 and 16 characters only!");
     }
     if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
       errors.push(
-        "Username can only contain letters, numbers, and underscores."
+        "Username can only contain letters, numbers, and underscores!"
       );
     }
     if (

@@ -26,7 +26,7 @@ function EditAccount({ onClose, userID, userUsername }) {
       return;
     }
     if (userForm.username === userUsername && userForm.password === "") {
-      alert("No changes detected");
+      alert("No changes have been detected.");
       return;
     }
 
@@ -39,7 +39,7 @@ function EditAccount({ onClose, userID, userUsername }) {
       }
       console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
-      alert("User has been successfully updated.");
+      alert("⦁	The user account has been successfully updated.");
       onClose();
     } catch (error) {
       const response = error.response;

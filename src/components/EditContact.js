@@ -32,7 +32,7 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
       emergencyDetails.contactnumber === contactNumber
     ) {
       alert(
-        "No changes detected. Please modify the information before updating."
+        "No changes have been detected."
       );
       return;
     }
@@ -43,7 +43,7 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
         name,
         contactNumber: formattednumber,
       });
-      alert("Emergency contact successfully updated!");
+      alert("The emergency hotline has been successfully updated.");
       onClose();
     } catch (error) {
       const response = error.response;

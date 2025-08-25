@@ -125,7 +125,7 @@ function Employees({ isCollapsed }) {
           !Array.isArray(response.data.employeeID) ||
           response.data.employeeID.length === 0
         ) {
-          alert("This employee has not been issued an ID yet.");
+          alert("This employee has not yet been issued an ID.");
           return;
         }
         EmployeeID({
@@ -155,7 +155,7 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveemployee/${empID}`);
-        alert("Employee has been successfully archived.");
+        alert("The employee has been successfully archived.");
       } catch (error) {
         console.log("Error", error);
       }
@@ -171,7 +171,7 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoveremployee/${empID}`);
-        alert("Employee has been successfully recovered.");
+        alert("The employee has been successfully recovered.");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {

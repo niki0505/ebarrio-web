@@ -161,7 +161,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
 
     if (newEndTime <= startTime) {
-      alert("End time must be after the start time.");
+      alert("The end time must be after the start time.");
       return;
     }
 
@@ -204,7 +204,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/scheduleblotter/${blotterID}`, { scheduleForm });
-      alert("Blotter successfully scheduled!");
+      alert("The hearing has been successfully scheduled.");
       onClose();
     } catch (error) {
       console.log("Error scheduling blotter", error);
@@ -221,7 +221,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/editscheduleblotter/${blotterID}`, { scheduleForm });
-      alert("Blotter successfully updated!");
+      alert("The blotter has been successfully updated.");
       onClose();
     } catch (error) {
       console.log("Error updating blotter", error);
@@ -544,7 +544,7 @@ function ViewBlotter({ onClose, blotterID }) {
                           onClick={handleEdit}
                           className="actions-btn bg-btn-color-blue"
                         >
-                          Edit
+                          Update
                         </button>
                         <button
                           type="button"

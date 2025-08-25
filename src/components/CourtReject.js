@@ -16,7 +16,7 @@ function CourtReject({ onClose, reservationID }) {
   const handleSubmit = async () => {
     try {
       await api.put(`/rejectcourtreservation/${reservationID}`, { remarks });
-      alert("Court reservation request successfully rejected!");
+      alert("Court reservation request successfully rejected");
       onClose();
     } catch (error) {
       console.log("Error rejecting court reservation request");

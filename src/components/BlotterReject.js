@@ -27,7 +27,7 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
     }
     try {
       await api.put(`/rejectblotter/${blotterID}`, { remarks });
-      alert("Blotter is successfully rejected!");
+      alert("The blotter report has been successfully rejected.");
       onClose();
       onViewClose();
     } catch (error) {

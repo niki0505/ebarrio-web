@@ -14,7 +14,7 @@ function Reject({ onClose, certID }) {
   const handleSubmit = async () => {
     try {
       await api.put(`/rejectcertificatereq/${certID}`, { remarks });
-      alert("Certificate request successfully rejected!");
+      alert("The document request has been successfully rejected.");
       onClose();
     } catch (error) {
       console.log("Error rejecting certificate request");

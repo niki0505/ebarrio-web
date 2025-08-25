@@ -69,7 +69,7 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     try {
       await api.put(`/archiveemergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully archived.");
+      alert("The emergency hotline has been successfully archived.");
     } catch (error) {
       console.log("Error archiving emergency contact", error);
     }
@@ -85,7 +85,7 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     try {
       await api.put(`/recoveremergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully recovered.");
+      alert("The emergency hotline has been successfully recovered.");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
