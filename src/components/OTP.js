@@ -4,6 +4,7 @@ import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
@@ -19,6 +20,7 @@ function OTP() {
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [resendCount, setResendCount] = useState(0);
   const [OTP, setOTP] = useState("");
+  const confirm = useConfirm();
 
   useEffect(() => {
     let interval = null;
@@ -48,17 +50,17 @@ function OTP() {
         console.log("New OTP is generated");
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("An error occurred while sending the OTP. Please try again.");
+        confirm("An error occurred while sending the OTP. Please try again.");
       }
     } else {
-      alert("You can only resend OTP 3 times.");
+      confirm("You can only resend OTP 3 times.", "failed");
     }
   };
 
   const handleVerify = async () => {
     try {
       const result = await verifyOTP(username, OTP);
-      alert(result.message);
+      confirm(result.message, "success");
       try {
         await api.put(`/login/${username}`);
         setIsAuthenticated(true);
@@ -69,10 +71,10 @@ function OTP() {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "errordialog");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };

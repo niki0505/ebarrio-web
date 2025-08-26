@@ -139,7 +139,7 @@ function Accounts({ isCollapsed }) {
     }
     try {
       await api.put(`/deactivateuser/${userID}`);
-      alert("User deactivated successfully!");
+      confirm("User has been successfully deactivated.", "success");
     } catch (error) {
       console.log("Error in deactivating user", error);
     }
@@ -155,9 +155,10 @@ function Accounts({ isCollapsed }) {
     }
     try {
       await api.put(`/activateuser/${userID}`);
-      alert("User activated successfully!");
+      confirm("User has been successfully activated.", "success");
     } catch (error) {
-      console.log("Error in activating user", error);
+      console.log("Error while activating user", error);
+   
     }
   };
 
@@ -267,6 +268,7 @@ function Accounts({ isCollapsed }) {
       await api.post("/logexport", { action, description });
     } catch (error) {
       console.log("Error in logging export", error);
+      
     }
   };
 

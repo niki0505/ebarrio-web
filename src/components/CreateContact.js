@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useState } from "react";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 
@@ -14,18 +14,47 @@ function CreateContact({ onClose }) {
   const [contactNumber, setContactNumber] = useState("+63");
   const [showModal, setShowModal] = useState(true);
   const [mobileNumError, setMobileNumError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const validateName = (name) => {
+    if (name.length < 10 || name.length > 50) {
+      return "Name must be between 10 and 50 characters.";
+    }
+    return "";
+  };
+
+  const validateMobileNumber = (contactNumber) => {
+    const numberWithoutPrefix = contactNumber.slice(3);
+    const isValidLength =
+      numberWithoutPrefix.length >= 9 && numberWithoutPrefix.length <= 10;
+
+    if (!isValidLength) {
+      return "Number must be between 9 and 10 digits long.";
+    }
+
+    return "";
+  };
 
   const handleSubmit = async () => {
     let hasErrors = false;
-    if (contactNumber === "+63") {
-      setMobileNumError("Invalid mobile number");
+
+    const nameValidationError = validateName(name);
+    setNameError(nameValidationError);
+    if (nameValidationError) {
+      hasErrors = true;
+    }
+
+    const mobileValidationError = validateMobileNumber(contactNumber);
+    setMobileNumError(mobileValidationError);
+    if (mobileValidationError) {
       hasErrors = true;
     }
 
     if (hasErrors) {
       return;
     }
+
     try {
       const isConfirmed = await confirm(
         "Are you sure you want to create a new contact?",
@@ -34,30 +63,36 @@ function CreateContact({ onClose }) {
       if (!isConfirmed) {
         return;
       }
+
       if (loading) return;
 
       setLoading(true);
+
       let formattedNumber = contactNumber;
       formattedNumber = "0" + contactNumber.slice(3);
+
       await api.post("/createemergencyhotlines", {
         name,
         contactNumber: formattedNumber,
       });
-      alert("The emergency hotline has been successfully added.");
+      confirm("The emergency hotline has been successfully added.", "success");
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
     }
   };
+
   const handleClose = () => {
     setShowModal(false);
     onClose();
@@ -78,6 +113,8 @@ function CreateContact({ onClose }) {
       .join(" ");
 
     setName(capitalized);
+
+    setNameError(validateName(capitalized));
   };
 
   const mobileInputChange = (e) => {
@@ -96,13 +133,7 @@ function CreateContact({ onClose }) {
 
     setContactNumber(value);
 
-    if (name === "contactnumber") {
-      if (value.length >= 13) {
-        setMobileNumError(null);
-      } else {
-        setMobileNumError("Invalid mobile number");
-      }
-    }
+    setMobileNumError(validateMobileNumber(value));
   };
 
   return (
@@ -116,7 +147,7 @@ function CreateContact({ onClose }) {
                   <h1 className="modal-title">Add New Contact</h1>
                   <IoClose
                     onClick={handleClose}
-                    class="dialog-title-bar-icon"
+                    className="dialog-title-bar-icon"
                   ></IoClose>
                 </div>
                 <hr className="dialog-line" />
@@ -132,7 +163,7 @@ function CreateContact({ onClose }) {
             >
               <div className="modal-form">
                 <div className="employee-form-group">
-                  <label for="resID" className="form-label">
+                  <label htmlFor="resID" className="form-label">
                     Name<label className="text-red-600">*</label>
                   </label>
                   <input
@@ -144,6 +175,9 @@ function CreateContact({ onClose }) {
                     className="form-input h-[30px]"
                     required
                   />
+                  {nameError && (
+                    <label className="error-msg">{nameError}</label>
+                  )}
                 </div>
                 <div className="employee-form-group">
                   <label className="form-label">

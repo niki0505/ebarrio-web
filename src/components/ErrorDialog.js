@@ -1,7 +1,7 @@
-import { MdCheckCircle } from "react-icons/md";
+import { MdCancel, MdCheckCircle } from "react-icons/md";
 import Lottie from "react-lottie";
 
-const SuccessDialog = ({ message, onConfirm }) => {
+const ErrorDialog = ({ message, onConfirm }) => {
   return (
     <div className="modal-container">
       <div className="modal-form-confirm-container">
@@ -11,18 +11,18 @@ const SuccessDialog = ({ message, onConfirm }) => {
           options={{
             loop: true,
             autoplay: true,
-            animationData: require("../assets/success.json"),
+            animationData: require("../assets/failed.json"),
           }}
         />
 
-        <p className="dialog-question">Success!</p>
+        <p className="dialog-question">Error!</p>
 
         <h1 className="dialog-message">{message}</h1>
 
         <div className="flex gap-x-4">
           <button
             onClick={onConfirm}
-            className="actions-btn bg-[#2cda94] hover:bg-[#28b984]"
+            className="actions-btn bg-btn-color-red hover:bg-red-700"
           >
             OK
           </button>
@@ -32,4 +32,4 @@ const SuccessDialog = ({ message, onConfirm }) => {
   );
 };
 
-export default SuccessDialog;
+export default ErrorDialog;

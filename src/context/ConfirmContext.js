@@ -3,6 +3,9 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import IDDialog from "../components/IDDialog";
 import ConfirmRedDialog from "../components/ConfirmRedDialog";
 import SuccessDialog from "../components/SuccessDialog";
+import FailedDialog from "../components/FailedDialog";
+import ErrorDialog from "../components/ErrorDialog";
+import SuccessChangePassDialog from "../components/SuccessChangePassDialog";
 
 const ConfirmContext = createContext();
 
@@ -49,6 +52,30 @@ export const ConfirmProvider = ({ children }) => {
     setConfirmState({ ...confirmState, isOpen: false });
   };
 
+  const handleSuccessConfirm = () => {
+    confirmState.resolve("OK");
+    setConfirmState((prevState) => ({
+      ...prevState,
+      isOpen: false,
+    }));
+  };
+
+  const handleFailedConfirm = () => {
+    confirmState.resolve("TRY AGAIN");
+    setConfirmState((prevState) => ({
+      ...prevState,
+      isOpen: false,
+    }));
+  };
+
+  const handleErrorConfirm = () => {
+    confirmState.resolve("OK");
+    setConfirmState((prevState) => ({
+      ...prevState,
+      isOpen: false,
+    }));
+  };
+
   return (
     <ConfirmContext.Provider value={confirm}>
       {children}
@@ -73,6 +100,31 @@ export const ConfirmProvider = ({ children }) => {
           onCancel={handleCancel2}
         />
       )}
+      {confirmState.isOpen && confirmState.dialogType === "success" && (
+        <SuccessDialog
+          message={confirmState.message}
+          onConfirm={handleSuccessConfirm}
+        />
+      )}
+
+      {confirmState.isOpen && confirmState.dialogType === "failed" && (
+        <FailedDialog
+          message={confirmState.message}
+          onConfirm={handleFailedConfirm}
+        />
+      )}
+
+      {confirmState.isOpen && confirmState.dialogType === "errordialog" && (
+        <ErrorDialog
+          message={confirmState.message}
+          onConfirm={handleErrorConfirm}
+        />
+      )}
+
+      {confirmState.isOpen &&
+        confirmState.dialogType === "successchangepass" && (
+          <SuccessChangePassDialog message={confirmState.message} />
+        )}
     </ConfirmContext.Provider>
   );
 };

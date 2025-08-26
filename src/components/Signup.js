@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
@@ -21,11 +22,12 @@ function Signup() {
   const [usernameErrors, setUsernameErrors] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [password2Errors, setPassword2Errors] = useState([]);
+  const confirm = useConfirm();
 
   const firstnameValidation = (val) => {
     setFirstname(val);
     if (!val) {
-      setFnameError("First name must not be empty");
+      setFnameError("This field is required!");
     } else {
       setFnameError(null);
     }
@@ -34,7 +36,7 @@ function Signup() {
   const lastnameValidation = (val) => {
     setLastname(val);
     if (!val) {
-      setLnameError("Last name must not be empty");
+      setLnameError("This field is required!");
     } else {
       setLnameError(null);
     }
@@ -43,7 +45,7 @@ function Signup() {
   const mobilenumValidation = (val) => {
     setMobileNumber(val.replace(/[^0-9]/g, ""));
     if (!val) {
-      setMobileNumError("Mobile number must not be empty");
+      setMobileNumError("This field is required!");
     } else {
       setMobileNumError(null);
     }
@@ -55,24 +57,24 @@ function Signup() {
     setUsername(formattedVal);
 
     if (!formattedVal) {
-      errors.push("Username must not be empty");
+      errors.push("This field is required!");
     }
     if (
       (formattedVal && formattedVal.length < 3) ||
       (formattedVal && formattedVal.length > 16)
     ) {
-      errors.push("Username must be between 3 and 16 characters only");
+      errors.push("Username must be between 3 and 16 characters only!");
     }
     if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
       errors.push(
-        "Username can only contain letters, numbers, and underscores."
+        "Username can only contain letters, numbers, and underscores!"
       );
     }
     if (
       (formattedVal && formattedVal.startsWith("_")) ||
       (formattedVal && formattedVal.endsWith("_"))
     ) {
-      errors.push("Username must not start or end with an underscore");
+      errors.push("Username must not start or end with an underscore!");
     }
 
     setUsernameErrors(errors);
@@ -84,13 +86,13 @@ function Signup() {
     setPassword(formattedVal);
 
     if (!formattedVal) {
-      errors.push("Password must not be empty");
+      errors.push("This field is required!");
     }
     if (
       (formattedVal && formattedVal.length < 8) ||
       (formattedVal && formattedVal.length > 64)
     ) {
-      errors.push("Password must be between 8 and 64 characters only");
+      errors.push("Password must be between 8 and 64 characters only!");
     }
     if (formattedVal && !/^[a-zA-Z0-9!@\$%\^&*\+#]+$/.test(formattedVal)) {
       errors.push(
@@ -104,7 +106,7 @@ function Signup() {
     setPassword2(val);
     console.log(password);
     if (val !== password) {
-      setPassword2Errors("Password does not match");
+      setPassword2Errors("Password do not match!");
     } else {
       setPassword2Errors(null);
     }
@@ -138,7 +140,7 @@ function Signup() {
       console.log(res.data);
       if (!res.data.isResident || !res.data.isEmployee) {
         console.log(`❌ User is not an employee`);
-        alert("You must be an employee to register.");
+        confirm("You must be an employee to register.", "failed");
         return;
       } else if (
         !res.data.isSecretary &&
@@ -146,7 +148,7 @@ function Signup() {
         res.data.isEmployee
       ) {
         console.log(`❌ User is not a secretary`);
-        alert("Only a secretary can complete the registration.");
+        confirm("Only a secretary can complete the registration.", "failed");
         return;
       } else if (
         res.data.hasAccount &&
@@ -155,7 +157,7 @@ function Signup() {
         res.data.isEmployee
       ) {
         console.log(`❌ Employee already has an account`);
-        alert("This employee already has an account.");
+        confirm("This employee already has an account.", "failed");
         return;
       } else if (
         !res.data.hasAccount &&
@@ -168,7 +170,7 @@ function Signup() {
           username,
         });
         if (res2.data.usernameExists) {
-          alert("This username is already taken.");
+          confirm("The username is already taken.", "failed");
           return;
         }
 
@@ -196,8 +198,9 @@ function Signup() {
           });
         } catch (error) {
           console.error("Error sending OTP:", error);
-          alert(
-            "An unexpected error occured while sending OTP. Please try again."
+          confirm(
+            "An unexpected error occured while sending OTP. Please try again.",
+            "failed"
           );
         }
       }
@@ -245,7 +248,7 @@ function Signup() {
               placeholder="Mobile Number"
               onChange={(e) => mobilenumValidation(e.target.value)}
               value={mobilenumber}
-              maxLength={11}
+              maxLength={12}
               className="form-input"
             />
             {mobilenumError ? (

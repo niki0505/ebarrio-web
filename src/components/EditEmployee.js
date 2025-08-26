@@ -31,7 +31,10 @@ function EditEmployee({ onClose, empID }) {
         position,
         chairmanship,
       });
-      alert("The employee's position has been successfully updated.");
+      confirm(
+        "The employee's position has been successfully updated.",
+        "success"
+      );
     } catch (error) {
       console.log("Error updating employee position", error);
     }
@@ -122,6 +125,7 @@ function EditEmployee({ onClose, empID }) {
                     value={position}
                     onChange={(e) => setPosition(e.target.value)}
                     className="form-input h-[30px] appearance-none"
+                    required
                   >
                     <option value="" disabled selected hidden>
                       Select

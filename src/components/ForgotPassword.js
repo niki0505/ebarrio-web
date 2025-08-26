@@ -58,7 +58,10 @@ function ForgotPassword() {
       Array.isArray(user.securityquestions) &&
       user.securityquestions.length === 0
     ) {
-      alert("It appears that you have not yet set up your security questions.");
+      confirm(
+        "It appears that you have not yet set up your security questions.",
+        "failed"
+      );
       return;
     }
     setQuestionsClicked(true);
@@ -76,10 +79,10 @@ function ForgotPassword() {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     } finally {
       setLoading(false);
@@ -97,10 +100,10 @@ function ForgotPassword() {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     } finally {
       setLoading(false);
@@ -112,7 +115,7 @@ function ForgotPassword() {
       await api.get(`/checkotp/${username}`);
       if (resendCount === 3) {
         setIsResendDisabled(true);
-        alert("You can only resend OTP 3 times.");
+        confirm("You can only resend OTP 3 times.", "failed");
         setOTPClicked(false);
         await api.get(`/limitotp/${username}`);
         return;
@@ -123,8 +126,9 @@ function ForgotPassword() {
       sendOTP(username, user.empID.resID.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        alert(
-          "OTP usage is currently disabled. Please try again after 30 minutes."
+        confirm(
+          "OTP usage is currently disabled. Please try again after 30 minutes.",
+          "failed"
         );
       } else {
         console.error("Error checking OTP:", error);
@@ -160,16 +164,16 @@ function ForgotPassword() {
 
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
-      alert("Your password has been successfully reset.");
+      confirm("Your password has been successfully reset.", "success");
       navigation("/login");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     } finally {
       setLoading(false);
@@ -242,27 +246,30 @@ function ForgotPassword() {
         console.log("New OTP is generated");
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("An error occurred while sending the OTP. Please try again.");
+        confirm(
+          "An error occurred while sending the OTP. Please try again.",
+          "failed"
+        );
       }
     } else {
       await api.get(`/limitotp/${username}`);
-      alert("You can only resend OTP 3 times.");
+      confirm("You can only resend OTP 3 times.", "failed");
     }
   };
 
   const handleVerify = async () => {
     try {
       const result = await verifyOTP(username, OTP);
-      alert(result.message);
+      confirm(result.message, "succcess");
       setIsVerified(true);
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
@@ -639,7 +646,7 @@ function ForgotPassword() {
                             disabled={loading}
                             className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
                           >
-                            {loading ? "Verifying..." : "Continue"}
+                            {loading ? "Verifying..." : "Verify"}
                           </button>
                         </div>
                       </div>

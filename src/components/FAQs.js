@@ -20,6 +20,7 @@ function FAQs({ onClose }) {
   const [newFAQ, setNewFAQ] = useState({ question: "", answer: "" });
   const [editingId, setEditingId] = useState(null);
   const [expandedFAQ, setExpandedFAQ] = useState(null);
+  const [errors, setErrors] = useState({ question: "", answer: "" });
 
   useEffect(() => {
     fetchFAQslist();
@@ -29,7 +30,27 @@ function FAQs({ onClose }) {
     setNewFAQ({ ...newFAQ, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    let isValid = true;
+    let errors = { question: "", answer: "" };
+
+    if (!newFAQ.question.trim()) {
+      errors.question = "Please fill out this field!";
+      isValid = false;
+    }
+
+    if (!newFAQ.answer.trim()) {
+      errors.answer = "Please fill out this field!";
+      isValid = false;
+    }
+
+    setErrors(errors);
+    return isValid;
+  };
+
   const handleAdd = async () => {
+    if (!validateForm()) return;
+
     try {
       const isConfirmed = await confirm(
         "Are you sure you want to create a new FAQ?",
@@ -41,16 +62,19 @@ function FAQs({ onClose }) {
       await api.post("/createfaq", {
         ...newFAQ,
       });
-      alert("FAQ has been successfully created.");
+      confirm("FAQ has been successfully created.", "success");
       setNewFAQ({ question: "", answer: "" });
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
@@ -61,6 +85,8 @@ function FAQs({ onClose }) {
   };
 
   const handleUpdate = async () => {
+    if (!validateForm()) return;
+
     try {
       const isConfirmed = await confirm(
         "Are you sure you want to update this FAQ?",
@@ -72,17 +98,20 @@ function FAQs({ onClose }) {
       await api.post(`/editfaq/${editingId}`, {
         ...newFAQ,
       });
-      alert("FAQ has been successfully updated.");
+      confirm("FAQ has been successfully updated.", "success");
       setEditingId(null);
       setNewFAQ({ question: "", answer: "" });
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
@@ -97,15 +126,18 @@ function FAQs({ onClose }) {
         return;
       }
       await api.put(`/archivefaq/${faqID}`);
-      alert("FAQ has been successfully archived.");
+      confirm("FAQ has been successfully archived.", "success");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
@@ -142,7 +174,9 @@ function FAQs({ onClose }) {
                   >
                     {/* Question header */}
                     <div className="flex items-center justify-between p-2">
-                      <p className="form-label !font-semibold ">{faq.question}</p>
+                      <p className="form-label !font-semibold ">
+                        {faq.question}
+                      </p>
                       <p className="text-btn-color-blue text-lg">
                         {expandedFAQ === faq._id ? (
                           <FaMinus className="text-[14px] text-navy-blue" />
@@ -205,7 +239,14 @@ function FAQs({ onClose }) {
                   onChange={handleChange}
                   placeholder="Enter question"
                   className="form-input"
+                  required
                 />
+                {errors.question && (
+                  <span className="text-red-500 text-xs">
+                    {errors.question}
+                  </span>
+                )}
+
                 <input
                   type="text"
                   name="answer"
@@ -214,6 +255,9 @@ function FAQs({ onClose }) {
                   placeholder="Enter answer"
                   className="form-input"
                 />
+                {errors.answer && (
+                  <span className="text-red-500 text-xs">{errors.answer}</span>
+                )}
               </div>
 
               {editingId ? (

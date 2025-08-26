@@ -170,7 +170,10 @@ function CourtReservations({ isCollapsed }) {
     }
     try {
       await api.put(`/approvereservation/${reservationID}`);
-      alert("Court reservation successfully approved!");
+      confirm(
+        "The court reservation has been successfully approved.",
+        "success"
+      );
     } catch (error) {
       console.log("Error", error);
     }

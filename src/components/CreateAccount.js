@@ -144,16 +144,18 @@ function CreateAccount({ onClose }) {
     setLoading(true);
     try {
       await api.post("/createuser", userForm);
-      alert("The account has been successfully created");
+      confirm("The account has been successfully created.", "success");
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);

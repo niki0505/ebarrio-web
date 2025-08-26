@@ -1,7 +1,7 @@
 import { MdCheckCircle } from "react-icons/md";
 import Lottie from "react-lottie";
 
-const SuccessDialog = ({ message, onConfirm }) => {
+const SuccessChangePassDialog = ({ message }) => {
   return (
     <div className="modal-container">
       <div className="modal-form-confirm-container">
@@ -18,18 +18,9 @@ const SuccessDialog = ({ message, onConfirm }) => {
         <p className="dialog-question">Success!</p>
 
         <h1 className="dialog-message">{message}</h1>
-
-        <div className="flex gap-x-4">
-          <button
-            onClick={onConfirm}
-            className="actions-btn bg-[#2cda94] hover:bg-[#28b984]"
-          >
-            OK
-          </button>
-        </div>
       </div>
     </div>
   );
 };
 
-export default SuccessDialog;
+export default SuccessChangePassDialog;

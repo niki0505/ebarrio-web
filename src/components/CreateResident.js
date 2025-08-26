@@ -439,7 +439,7 @@ function CreateResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm("File is too large. Maximum allowed size is 1 MB.", "failed");
       event.target.value = "";
       return;
     }
@@ -495,10 +495,10 @@ function CreateResident({ isCollapsed }) {
     let hasErrors = false;
 
     if (!residentForm.id) {
-      alert("Picture is required");
+      confirm("Please attach a picture.", "failed");
       hasErrors = true;
     } else if (!residentForm.signature) {
-      alert("Signature is required");
+      confirm("Please attach a signature.", "failed");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
@@ -598,7 +598,10 @@ function CreateResident({ isCollapsed }) {
       } catch (error) {
         console.log("Error generating barangay ID", error);
       }
-      alert("A new resident record has been successfully created.");
+      confirm(
+        "A new resident record has been successfully created.",
+        "success"
+      );
       setResidentForm(initialForm);
       navigation("/residents");
     } catch (error) {
@@ -614,7 +617,10 @@ function CreateResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }

@@ -136,7 +136,7 @@ function ViewBlotter({ onClose, blotterID }) {
     const newStartTime = new Date(`${scheduleForm.date}T${time}:00`);
 
     if (!scheduleForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
 
@@ -152,18 +152,18 @@ function ViewBlotter({ onClose, blotterID }) {
     const newEndTime = new Date(`${scheduleForm.date}T${time}:00`);
     const startTime = new Date(scheduleForm.starttime);
     if (!scheduleForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
     if (!scheduleForm.starttime) {
-      alert("Please select a start time first.");
+      confirm("Please select a start time first.", "failed");
       return;
     }
 
-    if (newEndTime <= startTime) {
-      alert("The end time must be after the start time.");
-      return;
-    }
+    // if (newEndTime <= startTime) {
+    //   confirm("The end time must be after the start time.", "failed");
+    //   return;
+    // }
 
     const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
       startTime,
@@ -183,7 +183,7 @@ function ViewBlotter({ onClose, blotterID }) {
             minute: "2-digit",
           })}.`
         : "This time slot overlaps with another schedule.";
-      alert(conflictInfo);
+      confirm(conflictInfo, "failed");
       setScheduleForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
@@ -194,7 +194,16 @@ function ViewBlotter({ onClose, blotterID }) {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { date, starttime, endtime } = scheduleForm;
+
+    if (!date || !starttime || !endtime) {
+      confirm("Please input all required fields.", "failed");
+      return;
+    }
+
     const isConfirmed = await confirm(
       "Are you sure you want to schedule this blotter?",
       "confirm"
@@ -204,7 +213,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/scheduleblotter/${blotterID}`, { scheduleForm });
-      alert("The hearing has been successfully scheduled.");
+      confirm("The hearing has been successfully scheduled.", "success");
       onClose();
     } catch (error) {
       console.log("Error scheduling blotter", error);
@@ -221,7 +230,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/editscheduleblotter/${blotterID}`, { scheduleForm });
-      alert("The blotter has been successfully updated.");
+      confirm("The hearing has been successfully rescheduled.", "success");
       onClose();
     } catch (error) {
       console.log("Error updating blotter", error);
