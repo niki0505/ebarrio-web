@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useState } from "react";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 
@@ -13,10 +13,30 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
   const [name, setName] = useState(emergencyDetails.name);
   const [showModal, setShowModal] = useState(true);
 
-  let formattedNumber;
-  formattedNumber = "+63" + emergencyDetails.contactnumber.slice(1);
-
+  let formattedNumber = "+63" + emergencyDetails.contactnumber.slice(1);
   const [contactNumber, setContactNumber] = useState(formattedNumber);
+
+  const [nameError, setNameError] = useState("");
+  const [mobileNumError, setMobileNumError] = useState("");
+
+  const validateName = (name) => {
+    if (name.length < 10 || name.length > 50) {
+      return "Name must be between 10 and 50 characters.";
+    }
+    return "";
+  };
+
+  const validateMobileNumber = (contactNumber) => {
+    const numberWithoutPrefix = contactNumber.slice(3);
+    const isValidLength =
+      numberWithoutPrefix.length >= 9 && numberWithoutPrefix.length <= 10;
+
+    if (!isValidLength) {
+      return "Number must be between 9 and 10 digits.";
+    }
+
+    return "";
+  };
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
@@ -31,11 +51,20 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
       emergencyDetails.name === name &&
       emergencyDetails.contactnumber === contactNumber
     ) {
-      alert(
-        "No changes detected. Please modify the information before updating."
-      );
+      confirm("No changes have been detected.", "success");
       return;
     }
+
+    const nameValidationError = validateName(name);
+    const mobileValidationError = validateMobileNumber(contactNumber);
+
+    setNameError(nameValidationError);
+    setMobileNumError(mobileValidationError);
+
+    if (nameValidationError || mobileValidationError) {
+      return;
+    }
+
     try {
       let formattednumber = contactNumber;
       formattednumber = "0" + contactNumber.slice(3);
@@ -43,19 +72,26 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
         name,
         contactNumber: formattednumber,
       });
-      alert("Emergency contact successfully updated!");
+      confirm(
+        "The emergency hotline has been successfully updated.",
+        "success"
+      );
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
+
   const handleClose = () => {
     setShowModal(false);
     onClose();
@@ -64,7 +100,6 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
   const mobileInputChange = (e) => {
     let input = e.target.value;
     input = input.replace(/\D/g, "");
-
     if (!input.startsWith("+63")) {
       input = "+63" + input.replace(/^0+/, "").slice(2);
     }
@@ -76,11 +111,13 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
     }
 
     setContactNumber(input);
+
+    setMobileNumError(validateMobileNumber(input));
   };
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[16rem]">
             <div className="dialog-title-bar">
@@ -89,8 +126,8 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
                   <h1 className="modal-title">Edit Contact</h1>
                   <IoClose
                     onClick={handleClose}
-                    class="dialog-title-bar-icon"
-                  ></IoClose>
+                    className="dialog-title-bar-icon"
+                  />
                 </div>
                 <hr className="dialog-line" />
               </div>
@@ -104,23 +141,33 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
               }}
             >
               <div className="modal-form">
+                {/* Name Input Field */}
                 <div className="employee-form-group">
-                  <label for="resID" className="form-label">
-                    Name<label className="text-red-600">*</label>
+                  <label htmlFor="name" className="form-label">
+                    Name <label className="text-red-600">*</label>
                   </label>
                   <input
                     type="text"
                     id="name"
                     name="name"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setName(value);
+                      setNameError(validateName(value));
+                    }}
                     className="form-input h-[30px]"
                     required
                   />
+                  {nameError && (
+                    <label className="error-msg">{nameError}</label>
+                  )}
                 </div>
+
+                {/* Mobile Number Input Field */}
                 <div className="employee-form-group">
                   <label className="form-label">
-                    Contact Number<label className="text-red-600">*</label>
+                    Contact Number <label className="text-red-600">*</label>
                   </label>
                   <input
                     type="text"
@@ -131,7 +178,12 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
                     className="form-input h-[30px]"
                     required
                   />
+                  {mobileNumError && (
+                    <label className="error-msg">{mobileNumError}</label>
+                  )}
                 </div>
+
+                {/* Submit Button */}
                 <div className="flex justify-center">
                   <button
                     type="submit"

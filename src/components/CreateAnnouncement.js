@@ -86,7 +86,7 @@ function CreateAnnouncement({ onClose }) {
 
     const currentTimes = announcementForm.times[date] || {};
     if (!currentTimes.starttime) {
-      alert("Please select a start time first for " + date);
+      confirm("Please select a start time first for " + date, "failed");
       return;
     }
 
@@ -96,7 +96,7 @@ function CreateAnnouncement({ onClose }) {
     const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert(`End time must be after start time for ${date}`);
+      confirm(`End time must be after start time for ${date}`, "failed");
       return;
     }
 
@@ -153,7 +153,7 @@ function CreateAnnouncement({ onClose }) {
         });
       }
 
-      alert("Announcement successfully created!");
+      confirm("Your announcement has been successfully posted.", "success");
       setAnnouncementForm(initialForm);
     } catch (error) {
       console.log("Error creating announcement", error);
@@ -236,7 +236,10 @@ function CreateAnnouncement({ onClose }) {
     });
 
     if (hasMissingTimes) {
-      alert("Please fill in both start and end times for all selected dates.");
+      confirm(
+        "Please provide both the start and end times for all selected dates.",
+        "failed"
+      );
       return;
     }
 

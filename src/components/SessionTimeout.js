@@ -47,7 +47,7 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
 
   const handleConfirm = async () => {
     if (!password) {
-      setPasswordError("Password is required");
+      setPasswordError("This field is required!");
       return;
     }
     try {

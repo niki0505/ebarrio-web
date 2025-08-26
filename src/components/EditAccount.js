@@ -26,7 +26,7 @@ function EditAccount({ onClose, userID, userUsername }) {
       return;
     }
     if (userForm.username === userUsername && userForm.password === "") {
-      alert("No changes detected");
+      confirm("No changes have been detected.", "success");
       return;
     }
 
@@ -39,16 +39,18 @@ function EditAccount({ onClose, userID, userUsername }) {
       }
       console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
-      alert("User has been successfully updated.");
+      confirm("The user account has been successfully updated.", "success");
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
       }
     }
   };
@@ -118,6 +120,7 @@ function EditAccount({ onClose, userID, userUsername }) {
                     value={userForm.username}
                     onChange={handleInputChange}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="employee-form-group">

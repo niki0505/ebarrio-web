@@ -125,7 +125,7 @@ function Employees({ isCollapsed }) {
           !Array.isArray(response.data.employeeID) ||
           response.data.employeeID.length === 0
         ) {
-          alert("This employee has not been issued an ID yet.");
+          confirm("This employee has not yet been issued an ID.", "failed");
           return;
         }
         EmployeeID({
@@ -155,7 +155,7 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveemployee/${empID}`);
-        alert("Employee has been successfully archived.");
+        confirm("The employee has been successfully archived.", "success");
       } catch (error) {
         console.log("Error", error);
       }
@@ -171,15 +171,15 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoveremployee/${empID}`);
-        alert("Employee has been successfully recovered.");
+        confirm("The employee has been successfully recovered.", "success");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "errordialog");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errorialog");
         }
       }
     }

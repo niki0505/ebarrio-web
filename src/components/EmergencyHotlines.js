@@ -69,7 +69,7 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     try {
       await api.put(`/archiveemergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully archived.");
+      confirm("The emergency hotline has been successfully archived.", "succcess");
     } catch (error) {
       console.log("Error archiving emergency contact", error);
     }
@@ -85,15 +85,15 @@ function EmergencyHotlines({ isCollapsed }) {
     }
     try {
       await api.put(`/recoveremergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully recovered.");
+      confirm("The emergency hotline has been successfully recovered.", "success");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "errordialog");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };

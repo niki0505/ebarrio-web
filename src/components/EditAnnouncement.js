@@ -97,7 +97,10 @@ function EditAnnouncement({ onClose, announcementID }) {
           announcementForm,
         });
       }
-      alert("Announcement successfully updated!");
+      confirm(
+        "The announcement details have been successfully updated.",
+        "success"
+      );
     } catch (error) {
       console.log("Error updating announcement", error);
     }
@@ -190,7 +193,10 @@ function EditAnnouncement({ onClose, announcementID }) {
     });
 
     if (hasMissingTimes) {
-      alert("Please fill in both start and end times for all selected dates.");
+      confirm(
+        "Please provide both the start and end times for all selected dates.",
+        "failed"
+      );
       return;
     }
 
@@ -275,7 +281,7 @@ function EditAnnouncement({ onClose, announcementID }) {
 
     const currentTimes = announcementForm.times[date] || {};
     if (!currentTimes.starttime) {
-      alert("Please select a start time first for " + date);
+      confirm("Please select a start time first for " + date, "failed");
       return;
     }
 
@@ -285,7 +291,7 @@ function EditAnnouncement({ onClose, announcementID }) {
     const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert(`End time must be after start time for ${date}`);
+      confirm(`End time must be after start time for ${date}`, "failed");
       return;
     }
 
@@ -370,7 +376,7 @@ function EditAnnouncement({ onClose, announcementID }) {
                       </select>
                     </div>
                     <div className="employee-form-group">
-                      <label className="form-label">Title</label>
+                      <label className="form-label">Title<label className="text-red-600">*</label></label>
                       <input
                         type="text"
                         id="title"
@@ -378,11 +384,14 @@ function EditAnnouncement({ onClose, announcementID }) {
                         value={announcementForm.title}
                         onChange={handleInputChange}
                         className="form-input h-[30px]"
+                        required
                       />
                     </div>
                   </div>
                   <div className="employee-form-group">
-                    <label className="form-label">Content</label>
+                    <label className="form-label">
+                      Content<label className="text-red-600">*</label>
+                    </label>
                     <textarea
                       type="text"
                       id="content"

@@ -151,7 +151,7 @@ function Residents({ isCollapsed }) {
           !Array.isArray(response.data.brgyID) ||
           response.data.brgyID.length === 0
         ) {
-          alert("This resident has not been issued an ID yet.");
+          confirm("This resident has not yet been issued an ID.", "failed");
           return;
         }
         try {
@@ -217,10 +217,10 @@ function Residents({ isCollapsed }) {
 
       setActiveClicked(true);
       setPendingClicked(false);
-      alert("Resident has been approved successfully.");
+      confirm("The resident has been successfully approved.", "success");
     } catch (error) {
       console.log("Error in approving resident details", error);
-      alert("Something went wrong while approving the resident.");
+      confirm("An unexpected error occurred while approving the resident.", "errordialog");
     }
   };
 
@@ -263,7 +263,7 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveresident/${resID}`);
-        alert("Resident has been successfully archived.");
+        confirm("The resident has been successfully archived.", "success");
       } catch (error) {
         console.log("Error", error);
       }
@@ -279,15 +279,15 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoverresident/${resID}`);
-        alert("Resident has been successfully recovered.");
+        confirm("The resident has been successfully recovered.", "success");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "errordialog");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errordialog");
         }
       }
     }

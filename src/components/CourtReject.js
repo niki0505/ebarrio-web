@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import { InfoContext } from "../context/InfoContext";
+import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
 
 //STYLES
@@ -12,11 +13,12 @@ import { IoClose } from "react-icons/io5";
 function CourtReject({ onClose, reservationID }) {
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
+    const confirm = useConfirm();
 
   const handleSubmit = async () => {
     try {
       await api.put(`/rejectcourtreservation/${reservationID}`, { remarks });
-      alert("Court reservation request successfully rejected!");
+      confirm("Court reservation request successfully rejected", "success");
       onClose();
     } catch (error) {
       console.log("Error rejecting court reservation request");
