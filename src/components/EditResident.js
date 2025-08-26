@@ -595,7 +595,10 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      confirm("The file is too large. The maximum allowed size is 1 MB.", "failed");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -739,7 +742,10 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      confirm("The file is too large. The maximum allowed size is 1 MB.", "failed");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -912,7 +918,7 @@ function EditResident({ isCollapsed }) {
     if (!isConfirmed) return;
     try {
       await api.put(
-        `/household/${residentInfo.householdno}/member/${member._id}`,
+        `/household/${residentInfo.householdno._id}/member/${member._id}`,
         {
           position: editedPosition,
         }
@@ -927,7 +933,10 @@ function EditResident({ isCollapsed }) {
 
       setEditingMemberId(null);
       setEditedPosition("");
-      confirm("The member's position has been successfully updated.", "success");
+      confirm(
+        "The member's position has been successfully updated.",
+        "success"
+      );
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -947,7 +956,7 @@ function EditResident({ isCollapsed }) {
 
     try {
       await api.delete(
-        `/household/${residentInfo.householdno}/member/${member._id}`
+        `/household/${residentInfo.householdno._id}/member/${member._id}`
       );
       setHouseholdForm((prev) => ({
         ...prev,
@@ -989,7 +998,7 @@ function EditResident({ isCollapsed }) {
       };
 
       const response = await api.post(
-        `/household/${residentInfo.householdno}/member`,
+        `/household/${residentInfo.householdno._id}/member`,
         payload
       );
 
@@ -1018,6 +1027,7 @@ function EditResident({ isCollapsed }) {
     if (value.length > 0) {
       const filtered = residents
         .filter((r) => !r.householdno)
+        .filter((r) => r.status === "Active" || r.status === "Change Requested")
         .filter((r) => {
           const fullName = `${r.firstname} ${
             r.middlename ? r.middlename + " " : ""
@@ -1092,7 +1102,7 @@ function EditResident({ isCollapsed }) {
       };
 
       await api.put(
-        `/household/${residentInfo.householdno}/vehicle/${editedVehicle._id}`,
+        `/household/${residentInfo.householdno._id}/vehicle/${editedVehicle._id}`,
         { payload }
       );
 

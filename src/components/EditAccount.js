@@ -17,6 +17,7 @@ function EditAccount({ onClose, userID, userUsername }) {
   });
   const [showModal, setShowModal] = useState(true);
 
+  console.log(userForm);
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
       "Are you sure you want to edit this user?",
@@ -37,7 +38,6 @@ function EditAccount({ onClose, userID, userUsername }) {
       if (userForm.password === "") {
         delete userForm.password;
       }
-      console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
       confirm("The user account has been successfully updated.", "success");
       onClose();

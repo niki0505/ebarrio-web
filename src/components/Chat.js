@@ -13,7 +13,7 @@ import FAQs from "./FAQs";
 import { FaQuestionCircle } from "react-icons/fa";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 
-const Chat = () => {
+const Chat = ({ isOpen, setIsOpen }) => {
   const {
     fetchChats,
     chats,
@@ -24,7 +24,7 @@ const Chat = () => {
   } = useContext(InfoContext);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
   const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
@@ -37,6 +37,10 @@ const Chat = () => {
   const aiEndRef = useRef(null);
   const chatEndRef = useRef(null);
   const confirm = useConfirm();
+
+  // useEffect(() => {
+  //   setIsOpen(Opened);
+  // }, [Opened]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

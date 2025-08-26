@@ -107,7 +107,10 @@ function Dashboard({ isCollapsed }) {
       ).length;
 
       const totalHouseholds = household.filter(
-        (element) => element.status === "Active"
+        (element) =>
+          element.status !== "Archived" &&
+          element.status !== "Pending" &&
+          element.status !== "Rejected"
       ).length;
 
       setClassificationsData({
@@ -425,6 +428,10 @@ function Dashboard({ isCollapsed }) {
   }, [user.role, blotterreports, announcements, courtreservations]);
 
   function parseCustomDateString(dateStr) {
+    if (!dateStr || typeof dateStr !== "string") {
+      console.warn("Invalid or empty date string:", dateStr);
+      return null;
+    }
     const [datePart, timePart] = dateStr.split(" at ");
     const fullStr = `${datePart} ${timePart}`;
     const parsedDate = new Date(fullStr);

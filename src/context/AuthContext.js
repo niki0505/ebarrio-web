@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     } else if (userStatus && userStatus === "Password Not Set") {
       autologout3();
     }
-  }, [userStatus]);
+  }, [user, userStatus]);
 
   useEffect(() => {
     axios

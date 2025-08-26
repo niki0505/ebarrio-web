@@ -222,7 +222,10 @@ function SOSUpdateReports({ isCollapsed }) {
               <p>{report.resID?.age}</p>
               <p>{report.resID?.householdno?.address}</p>
               <p>{report.resID?.mobilenumber}</p>
-              <p>Heading: {report.responder?.length}</p>
+              <p>
+                Heading:{" "}
+                {report.responder?.filter((r) => r.status === "Heading").length}
+              </p>
               <p>
                 Arrived:{" "}
                 {report.responder?.filter((r) => r.status === "Arrived").length}
@@ -233,7 +236,6 @@ function SOSUpdateReports({ isCollapsed }) {
           {report && (
             <div>
               <p>{report.reporttype ? report.reporttype : "N/A"}</p>
-              <p>{report.resID?.age}</p>
               <p>{report.readableAddress}</p>
               <p>{report.createdAt}</p>
               <p>{report.reportdetails ? report.reportdetails : "N/A"}</p>

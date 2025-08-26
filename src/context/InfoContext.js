@@ -378,6 +378,8 @@ export const InfoProvider = ({ children }) => {
         setPendingBlotters(updatedData.data);
       } else if (updatedData.type === "pendinghouseholds") {
         setPendingHouseholds(updatedData.data);
+      } else if (updatedData.type === "reports") {
+        setReports(updatedData.data);
       }
     });
 

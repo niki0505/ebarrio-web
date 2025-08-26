@@ -685,38 +685,45 @@ function Residents({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              <div className="relative" ref={exportRef}>
-                {/* Export Button */}
-                <div className="export-sort-btn" onClick={toggleExportDropdown}>
-                  <h1 className="export-sort-btn-text">Export</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
-                </div>
+              {user.role !== "Technical Admin" && (
+                <>
+                  <div className="relative" ref={exportRef}>
+                    {/* Export Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleExportDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Export</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
 
-                {exportDropdown && (
-                  <div className="export-sort-dropdown-menu">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportCSV}
-                        >
-                          Export as CSV
-                        </li>
+                    {exportDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportCSV}
+                            >
+                              Export as CSV
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportPDF}
+                            >
+                              Export as PDF
+                            </li>
+                          </div>
+                        </ul>
                       </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
@@ -900,27 +907,30 @@ function Residents({ isCollapsed }) {
                                     </label>
                                   </button>
                                 )}
-
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => handleBRGYID(e, res._id)}
-                                >
-                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    BRGY ID
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    DOCUMENT
-                                  </label>
-                                </button>
+                                {user.role !== "Technical Admin" && (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => handleBRGYID(e, res._id)}
+                                    >
+                                      <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        BRGY ID
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, res._id)}
+                                    >
+                                      <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        DOCUMENT
+                                      </label>
+                                    </button>
+                                  </>
+                                )}
                                 {user.resID !== res._id && (
                                   <button
                                     className="table-actions-container"

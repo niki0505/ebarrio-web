@@ -91,8 +91,18 @@ function ViewBlotter({ onClose, blotterID }) {
     const selectedEndTime = new Date(endTime);
 
     const parseCustomDate = (dateStr) => {
-      const [datePart, timePart] = dateStr.split(" at ");
-      return new Date(`${datePart} ${timePart}`);
+      if (!dateStr) return null;
+
+      // Check if it contains ' at ' (old format), else assume ISO
+      if (dateStr.includes(" at ")) {
+        const [datePart, timePart] = dateStr.split(" at ");
+        const d = new Date(`${datePart} ${timePart}`);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      // ISO string
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
     };
 
     if (
@@ -109,9 +119,7 @@ function ViewBlotter({ onClose, blotterID }) {
         const reservedStart = parseCustomDate(blot.starttime);
         const reservedEnd = parseCustomDate(blot.endtime);
 
-        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
-          return false; // skip invalid records
-        }
+        if (!reservedStart || !reservedEnd) return false;
 
         return (
           selectedStartTime < reservedEnd && selectedEndTime > reservedStart
@@ -151,6 +159,11 @@ function ViewBlotter({ onClose, blotterID }) {
     const time = e.target.value;
     const newEndTime = new Date(`${scheduleForm.date}T${time}:00`);
     const startTime = new Date(scheduleForm.starttime);
+
+    if (!time) {
+      setScheduleForm((prev) => ({ ...prev, endtime: "" }));
+      return;
+    }
     if (!scheduleForm.date) {
       confirm("Please select a date first.", "failed");
       return;
@@ -160,10 +173,10 @@ function ViewBlotter({ onClose, blotterID }) {
       return;
     }
 
-    // if (newEndTime <= startTime) {
-    //   confirm("The end time must be after the start time.", "failed");
-    //   return;
-    // }
+    if (newEndTime <= startTime) {
+      confirm("The end time must be after the start time.", "failed");
+      return;
+    }
 
     const { isAvailable, conflict } = checkIfTimeSlotIsAvailable(
       startTime,
@@ -182,7 +195,7 @@ function ViewBlotter({ onClose, blotterID }) {
             hour: "2-digit",
             minute: "2-digit",
           })}.`
-        : "This time slot overlaps with another schedule.";
+        : null;
       confirm(conflictInfo, "failed");
       setScheduleForm((prev) => ({ ...prev, endtime: "" }));
       return;
@@ -260,7 +273,7 @@ function ViewBlotter({ onClose, blotterID }) {
   };
   const renderDetails = (blotter) => {
     const details = blotter.details || "";
-    const words = details.split(" ");
+    const words = details.split(" ") || "";
     const isLong = words.length > 50;
     const isExpanded = expandedDetails.includes(blotter._id);
     const displayText = isExpanded
