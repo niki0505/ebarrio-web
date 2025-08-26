@@ -14,7 +14,6 @@ import Accounts from "./components/Accounts";
 import EditResident from "./components/EditResident";
 import { InfoProvider } from "./context/InfoContext";
 import Login from "./components/Login";
-import Signup from "./components/Signup";
 import OTP from "./components/OTP";
 import EmergencyHotlines from "./components/EmergencyHotlines";
 import CertificateRequests from "./components/CertificateRequests";
@@ -79,10 +78,6 @@ function App() {
                   <Route
                     path="/login"
                     element={<PublicRoute element={<Login />} />}
-                  />
-                  <Route
-                    path="/signup"
-                    element={<PublicRoute element={<Signup />} />}
                   />
                   <Route
                     path="/otp"
