@@ -8,6 +8,7 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
+import SuccessDialog from "./SuccessDialog";
 
 //STYLES
 import "../Stylesheets/Residents.css";
@@ -143,6 +144,7 @@ function AccountSettings({ isCollapsed }) {
   const [showAnswer2, setShowAnswer2] = useState(false);
   const [showSecurityPass, setShowSecurityPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (user.role !== "Technical Admin") {
@@ -279,7 +281,7 @@ function AccountSettings({ isCollapsed }) {
 
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your username?",
+        "Are you sure you want to update your username? This action cannot be undone, and you can only change it once every 30 days.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -296,27 +298,25 @@ function AccountSettings({ isCollapsed }) {
             username,
             password,
           });
-          alert("Username has been changed successfully.");
+          confirm("Your username has been successfully updated.", "success");
           setUsername("");
           setPassword("");
         } catch (error) {
           const response = error.response;
           if (response && response.data) {
             console.log("❌ Error status:", response.status);
-            alert(response.data.message || "Something went wrong.");
+            confirm(response.data.message || "Something went wrong.", "failed");
           } else {
             console.log("❌ Network or unknown error:", error.message);
-            alert("An unexpected error occurred.");
           }
         }
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "failed");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
         }
       } finally {
         setLoading(false);
@@ -342,7 +342,7 @@ function AccountSettings({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your password?",
+        "Are you sure you want to update your password? This action cannot be undone.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -357,15 +357,22 @@ function AccountSettings({ isCollapsed }) {
           newpassword,
           password,
         });
-        alert("Password has been changed successfully. Please log in again.");
+        confirm(
+          "Your password has been successully updated. Please log in again.",
+          "successchangepass"
+        );
+
+        setTimeout(() => {
+          confirm("", "successchangepass", true);
+        }, 5000);
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "failed");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errordialog");
         }
       } finally {
         setLoading(false);
@@ -394,7 +401,10 @@ function AccountSettings({ isCollapsed }) {
     const hasChanges = modifiedQuestions.some((q) => q !== null);
 
     if (!hasChanges) {
-      alert("No changes detected in your security questions.");
+      confirm(
+        "No changes detected in your security questions. Please enter answer to change your security questions",
+        "failed"
+      );
       hasErrors = true;
     }
 
@@ -403,7 +413,7 @@ function AccountSettings({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your security questions?",
+        "Are you sure you want to update your security questions? This action cannot be undone.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -418,7 +428,10 @@ function AccountSettings({ isCollapsed }) {
           securityquestions: modifiedQuestions,
           password,
         });
-        alert("Security questions have been changed successfully.");
+        confirm(
+          "Your security questions has been successfully updated.",
+          "success"
+        );
         setPassword("");
         setSecurityQuestions((prevQuestions) =>
           prevQuestions.map((q) => ({
@@ -430,10 +443,10 @@ function AccountSettings({ isCollapsed }) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "failed");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errordialog");
         }
       } finally {
         setLoading(false);
@@ -923,7 +936,10 @@ function AccountSettings({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -968,18 +984,18 @@ function AccountSettings({ isCollapsed }) {
     let hasErrors = false;
 
     if (!id) {
-      alert("Picture is required");
+      confirm("Please attach a picture!", "failed");
       hasErrors = true;
     } else if (!signature) {
-      alert("Signature is required");
+      confirm("Please attach a signature", "failed");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setEmMobileNumError("Invalid mobile number.");
+      setEmMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
 
@@ -987,7 +1003,7 @@ function AccountSettings({ isCollapsed }) {
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
-      setTelephoneNumError("Invalid telephone.");
+      setTelephoneNumError("Invalid telephone number format!");
       hasErrors = true;
     }
 
@@ -998,7 +1014,7 @@ function AccountSettings({ isCollapsed }) {
       let idPicture;
       let signaturePicture;
       const isConfirmed = await confirm(
-        "Are you sure you want to edit this resident profile?",
+        "Are you sure you want to update your resident profile? This action cannot be undone",
         "confirm"
       );
       if (!isConfirmed) {
@@ -1052,7 +1068,7 @@ function AccountSettings({ isCollapsed }) {
       };
 
       await api.put(`/updateresident/${user.resID}`, updatedResidentForm);
-      alert("You have successfully updated your profile.");
+      confirm("Your profile has been successfully updated.", "success");
     } catch (error) {
       console.log("Error", error);
     } finally {
@@ -1066,7 +1082,10 @@ function AccountSettings({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -1102,7 +1121,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number!");
+        setMobileNumError("Invalid mobile number format!");
       }
     }
 
@@ -1110,7 +1129,7 @@ function AccountSettings({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number!");
+        setEmMobileNumError("Invalid mobile number format!");
       }
     }
   };
@@ -1137,7 +1156,7 @@ function AccountSettings({ isCollapsed }) {
       } else if (value.length > 11) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number!");
+        setTelephoneNumError("Invalid telephone number format!");
       }
     }
   };
@@ -1254,7 +1273,10 @@ function AccountSettings({ isCollapsed }) {
 
       setEditingMemberId(null);
       setEditedPosition("");
-      alert("The member's position successfully updated.");
+      confirm(
+        "The member's position has been successfully updated.",
+        "success"
+      );
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -1280,7 +1302,7 @@ function AccountSettings({ isCollapsed }) {
         ...prev,
         members: prev.members.filter((m) => m._id !== member._id),
       }));
-      alert("Member has been removed successfully.");
+      confirm("The member has been successfully removed.", "success");
     } catch (error) {
       console.error("Error removing member:", error);
     }
@@ -1306,7 +1328,7 @@ function AccountSettings({ isCollapsed }) {
     );
     if (!isConfirmed) return;
     if (!member.resID || !member.position) {
-      alert("Please select resident and position.");
+      confirm("Please fill out both the resident and position.", "failed");
       return;
     }
     try {
@@ -1399,7 +1421,7 @@ function AccountSettings({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
-      alert("Vehicle has been added successfully.");
+      confirm("The vehicle has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
     }
@@ -1432,7 +1454,7 @@ function AccountSettings({ isCollapsed }) {
 
       setEditingVehicleIndex(null);
       setEditedVehicle("");
-      alert("The vehicle was successfully updated.");
+      confirm("The vehicle has been successfully updated.", "success");
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -1494,11 +1516,11 @@ function AccountSettings({ isCollapsed }) {
       (formattedVal && formattedVal.length < 3) ||
       (formattedVal && formattedVal.length > 16)
     ) {
-      errors.push("Username must be between 3 and 16 characters only");
+      errors.push("Username must be between 3 and 16 characters only!");
     }
     if (formattedVal && !/^[a-zA-Z0-9_]+$/.test(formattedVal)) {
       errors.push(
-        "Username can only contain letters, numbers, and underscores."
+        "Username can only contain letters, numbers, and underscores!"
       );
     }
     if (

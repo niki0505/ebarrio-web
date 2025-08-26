@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
@@ -16,8 +17,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const location = useLocation();
+  const confirm = useConfirm();
 
   //Animation
   const [animateScale, setAnimateScale] = useState(false);
@@ -92,10 +93,10 @@ const Login = () => {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     } finally {
       setLoading(false);
@@ -188,15 +189,23 @@ const Login = () => {
                     {showPassword ? <FaEye /> : <FaEyeSlash />}
                   </button>
                 </div>
+                <a href="/forgot-password" className="login-forgot-btn">
+                  Forgot password?
+                </a>
               </div>
 
               <div className="flex flex-col gap-2">
                 <button type="submit" disabled={loading} className="login-btn">
                   {loading ? "Logging in..." : "Login"}
                 </button>
-                <a href="/forgot-password" className="login-forgot-btn">
-                  Forgot password?
-                </a>
+                <div className="flex flex-row justify-center items-center space-x-2">
+                  <a className="!text-[#808080] font-subTitle font-semibold">
+                    Don't have an account?
+                  </a>
+                  <a href="/signup" className="login-forgot-btn">
+                    Sign Up
+                  </a>
+                </div>
               </div>
             </form>
           </div>

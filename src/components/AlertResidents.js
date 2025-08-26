@@ -28,16 +28,22 @@ function AlertResidents({ onClose, resID }) {
     setLoading(true);
     try {
       await api.post(`/alertresidents`, { message });
-      alert("Residents have been successfully alerted.");
+      confirm(
+        "Your alert has been successfully sent to the residents.",
+        "success"
+      );
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+       
       }
     } finally {
       setLoading(false);

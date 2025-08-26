@@ -125,7 +125,7 @@ function Employees({ isCollapsed }) {
           !Array.isArray(response.data.employeeID) ||
           response.data.employeeID.length === 0
         ) {
-          alert("This employee has not been issued an ID yet.");
+          confirm("This employee has not yet been issued an ID.", "failed");
           return;
         }
         EmployeeID({
@@ -155,7 +155,7 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveemployee/${empID}`);
-        alert("Employee has been successfully archived.");
+        confirm("The employee has been successfully archived.", "success");
       } catch (error) {
         console.log("Error", error);
       }
@@ -171,15 +171,15 @@ function Employees({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoveremployee/${empID}`);
-        alert("Employee has been successfully recovered.");
+        confirm("The employee has been successfully recovered.", "success");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "errordialog");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errorialog");
         }
       }
     }
@@ -477,42 +477,46 @@ function Employees({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              {sortOption === "All" && (
-                <div className="relative" ref={exportRef}>
-                  {/* Export Button */}
-                  <div
-                    className="export-sort-btn"
-                    onClick={toggleExportDropdown}
-                  >
-                    <h1 className="export-sort-btn-text">Export</h1>
-                    <div className="export-sort-btn-dropdown-icon ">
-                      <MdArrowDropDown size={18} color={"#0E94D3"} />
-                    </div>
-                  </div>
+              {user.role !== "Technical Admin" && (
+                <>
+                  {sortOption === "All" && (
+                    <div className="relative" ref={exportRef}>
+                      {/* Export Button */}
+                      <div
+                        className="export-sort-btn"
+                        onClick={toggleExportDropdown}
+                      >
+                        <h1 className="export-sort-btn-text">Export</h1>
+                        <div className="export-sort-btn-dropdown-icon ">
+                          <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        </div>
+                      </div>
 
-                  {exportDropdown && (
-                    <div className="export-sort-dropdown-menu w-36">
-                      <ul className="w-full">
-                        <div className="navbar-dropdown-item">
-                          <li
-                            className="export-sort-dropdown-option"
-                            onClick={exportCSV}
-                          >
-                            Export as CSV
-                          </li>
+                      {exportDropdown && (
+                        <div className="export-sort-dropdown-menu w-36">
+                          <ul className="w-full">
+                            <div className="navbar-dropdown-item">
+                              <li
+                                className="export-sort-dropdown-option"
+                                onClick={exportCSV}
+                              >
+                                Export as CSV
+                              </li>
+                            </div>
+                            <div className="navbar-dropdown-item">
+                              <li
+                                className="export-sort-dropdown-option"
+                                onClick={exportPDF}
+                              >
+                                Export as PDF
+                              </li>
+                            </div>
+                          </ul>
                         </div>
-                        <div className="navbar-dropdown-item">
-                          <li
-                            className="export-sort-dropdown-option"
-                            onClick={exportPDF}
-                          >
-                            Export as PDF
-                          </li>
-                        </div>
-                      </ul>
+                      )}
                     </div>
                   )}
-                </div>
+                </>
               )}
 
               <div className="relative" ref={filterRef}>
@@ -764,16 +768,20 @@ function Employees({ isCollapsed }) {
                                     </label>
                                   </button>
                                 )}
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => handleEmployeeID(e, emp._id)}
-                                >
-                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    EMPLOYEE ID
-                                  </label>
-                                </button>
+                                {user.role !== "Technical Admin" && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) =>
+                                      handleEmployeeID(e, emp._id)
+                                    }
+                                  >
+                                    <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      EMPLOYEE ID
+                                    </label>
+                                  </button>
+                                )}
                                 {user.empID !== emp._id && (
                                   <button
                                     className="table-actions-container"

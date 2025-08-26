@@ -38,6 +38,10 @@ export const SocketProvider = ({ children }) => {
     const newSocket = io("https://api.ebarrio.online", {
       transports: ["websocket"],
       withCredentials: true,
+      timeout: 60000,
+      reconnectionAttempts: Infinity, // retry forever
+      reconnectionDelay: 1000, // start with 1s delay
+      reconnectionDelayMax: 10000, // max delay 10s
     });
 
     socketRef.current = newSocket;
@@ -52,12 +56,15 @@ export const SocketProvider = ({ children }) => {
         newSocket.emit("join_certificates");
         newSocket.emit("join_courtreservations");
         newSocket.emit("join_blotterreports");
+        newSocket.emit("join_chats");
       } else if (user.role === "Clerk") {
         newSocket.emit("join_announcements");
         newSocket.emit("join_certificates");
         newSocket.emit("join_courtreservations");
+        newSocket.emit("join_chats");
       } else if (user.role === "Justice") {
         newSocket.emit("join_blotterreports");
+        newSocket.emit("join_chats");
       }
     });
 
@@ -132,6 +139,18 @@ export const SocketProvider = ({ children }) => {
         </div>
       );
     });
+
+    // newSocket.on("chats", (chat) => {
+    //   toast.info(
+    //     <div
+    //       onClick={() => navigation("/blotter-reports")}
+    //       style={{ cursor: "pointer" }}
+    //     >
+    //       <strong>{chat.title}</strong>
+    //       <div>{chat.message}</div>
+    //     </div>
+    //   );
+    // });
 
     return () => {
       newSocket.disconnect();

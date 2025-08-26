@@ -151,7 +151,7 @@ function Residents({ isCollapsed }) {
           !Array.isArray(response.data.brgyID) ||
           response.data.brgyID.length === 0
         ) {
-          alert("This resident has not been issued an ID yet.");
+          confirm("This resident has not yet been issued an ID.", "failed");
           return;
         }
         try {
@@ -217,10 +217,10 @@ function Residents({ isCollapsed }) {
 
       setActiveClicked(true);
       setPendingClicked(false);
-      alert("Resident has been approved successfully.");
+      confirm("The resident has been successfully approved.", "success");
     } catch (error) {
       console.log("Error in approving resident details", error);
-      alert("Something went wrong while approving the resident.");
+      confirm("An unexpected error occurred while approving the resident.", "errordialog");
     }
   };
 
@@ -263,7 +263,7 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/archiveresident/${resID}`);
-        alert("Resident has been successfully archived.");
+        confirm("The resident has been successfully archived.", "success");
       } catch (error) {
         console.log("Error", error);
       }
@@ -279,15 +279,15 @@ function Residents({ isCollapsed }) {
     if (isConfirmed) {
       try {
         await api.put(`/recoverresident/${resID}`);
-        alert("Resident has been successfully recovered.");
+        confirm("The resident has been successfully recovered.", "success");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(response.data.message || "Something went wrong.", "errordialog");
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errordialog");
         }
       }
     }
@@ -685,38 +685,45 @@ function Residents({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              <div className="relative" ref={exportRef}>
-                {/* Export Button */}
-                <div className="export-sort-btn" onClick={toggleExportDropdown}>
-                  <h1 className="export-sort-btn-text">Export</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
-                </div>
+              {user.role !== "Technical Admin" && (
+                <>
+                  <div className="relative" ref={exportRef}>
+                    {/* Export Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleExportDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Export</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
 
-                {exportDropdown && (
-                  <div className="export-sort-dropdown-menu">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportCSV}
-                        >
-                          Export as CSV
-                        </li>
+                    {exportDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportCSV}
+                            >
+                              Export as CSV
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportPDF}
+                            >
+                              Export as PDF
+                            </li>
+                          </div>
+                        </ul>
                       </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
@@ -900,27 +907,30 @@ function Residents({ isCollapsed }) {
                                     </label>
                                   </button>
                                 )}
-
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => handleBRGYID(e, res._id)}
-                                >
-                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    BRGY ID
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    DOCUMENT
-                                  </label>
-                                </button>
+                                {user.role !== "Technical Admin" && (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => handleBRGYID(e, res._id)}
+                                    >
+                                      <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        BRGY ID
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, res._id)}
+                                    >
+                                      <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        DOCUMENT
+                                      </label>
+                                    </button>
+                                  </>
+                                )}
                                 {user.resID !== res._id && (
                                   <button
                                     className="table-actions-container"

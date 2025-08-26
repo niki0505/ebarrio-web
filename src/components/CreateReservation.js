@@ -62,7 +62,7 @@ function CreateReservation({ onClose }) {
     setLoading(true);
     try {
       await api.post("/createreservation", { reservationForm });
-      alert("Court reservation successfully created!");
+      confirm("The court reservation has been successfully added.", "success");
       onClose();
     } catch (error) {
       console.error("Error creating court reservation", error);
@@ -130,7 +130,7 @@ function CreateReservation({ onClose }) {
 
     const currentTimes = reservationForm.times[date] || {};
     if (!currentTimes.starttime) {
-      alert("Please select a start time first for " + date);
+      confirm("Please select a start time first for " + date, "failed");
       return;
     }
 
@@ -140,7 +140,7 @@ function CreateReservation({ onClose }) {
     const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert(`End time must be after start time for ${date}`);
+      confirm(`End time must be after start time for ${date}`, "failed");
       return;
     }
 
@@ -165,7 +165,7 @@ function CreateReservation({ onClose }) {
       });
 
     if (conflict) {
-      alert(
+      confirm(
         `Time slot overlaps with existing reservation on ${date} (${new Date(
           conflict.times[date].starttime
         ).toLocaleTimeString([], {
@@ -174,7 +174,8 @@ function CreateReservation({ onClose }) {
         })} - ${new Date(conflict.times[date].endtime).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-        })}).`
+        })}).`,
+        "failed"
       );
       return;
     }
@@ -231,6 +232,7 @@ function CreateReservation({ onClose }) {
                     onChange={handleDropdownChange}
                     className="form-input"
                     value={reservationForm.resID}
+                    required
                   >
                     <option value="" disabled>
                       Select
@@ -256,6 +258,7 @@ function CreateReservation({ onClose }) {
                     onChange={handleDropdownChange}
                     className="form-input"
                     value={reservationForm.purpose}
+                    required
                   >
                     <option value="" disabled>
                       Select
@@ -274,6 +277,7 @@ function CreateReservation({ onClose }) {
                     Date<label className="text-red-600">*</label>
                   </label>
                   <DatePicker
+                    required
                     multiple
                     value={reservationForm.date}
                     onChange={handleDateChange}

@@ -4,6 +4,7 @@ import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../Stylesheets/CommonStyle.css";
@@ -24,6 +25,7 @@ function ActivityLogs({ isCollapsed }) {
   const [toDate, setToDate] = useState("");
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
+  const confirm = useConfirm();
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,8 +65,9 @@ function ActivityLogs({ isCollapsed }) {
 
   const handleSubmit = () => {
     if (fromDate && toDate && toDate < fromDate) {
-      alert(
-        "Invalid date range. Please ensure the 'To' date is not earlier than the 'From' date."
+      confirm(
+        "Invalid date range. Please ensure the 'To' date is not earlier than the 'From' date.",
+        "failed"
       );
       return;
     }

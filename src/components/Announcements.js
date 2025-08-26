@@ -28,7 +28,6 @@ function Announcements({ isCollapsed }) {
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
-
   const [selectedCategory, setSelectedCategory] = useState("All Announcement");
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState([]);
   const [menuVisible, setMenuVisible] = useState(null);
@@ -148,9 +147,10 @@ function Announcements({ isCollapsed }) {
     }
     try {
       await api.put(`/archiveannouncement/${announcementID}`);
-      alert("The announcement has been successfully archived.");
+      confirm("The announcement has been successfully archived.", "success");
     } catch (error) {
       console.log("Error in archiving announcement", error);
+  
     }
   };
 
@@ -164,7 +164,7 @@ function Announcements({ isCollapsed }) {
     }
     try {
       await api.put(`/recoverannouncement/${announcementID}`);
-      alert("The announcement has been successfully recovered.");
+      confirm("The announcement has been successfully recovered.", "success");
     } catch (error) {
       console.log("Error in recovering announcement", error);
     }

@@ -3,6 +3,7 @@ import { X, Ban, Send, Plus } from "lucide-react";
 import { InfoContext } from "../context/InfoContext";
 import { SocketContext } from "../context/SocketContext";
 import { AuthContext } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
 import api from "../api";
 
 //SCREENS
@@ -12,7 +13,7 @@ import FAQs from "./FAQs";
 import { FaQuestionCircle } from "react-icons/fa";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 
-const Chat = () => {
+const Chat = ({ isOpen, setIsOpen }) => {
   const {
     fetchChats,
     chats,
@@ -23,7 +24,7 @@ const Chat = () => {
   } = useContext(InfoContext);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
   const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
@@ -35,6 +36,11 @@ const Chat = () => {
   const notifRef = useRef(null);
   const aiEndRef = useRef(null);
   const chatEndRef = useRef(null);
+  const confirm = useConfirm();
+
+  // useEffect(() => {
+  //   setIsOpen(Opened);
+  // }, [Opened]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -254,7 +260,7 @@ const Chat = () => {
       socket.emit("send_message", systemMessage);
       await api.put(`/endchat/${chatID}`);
       setActiveChatId(null);
-      alert("Chat has been successfully ended.");
+      confirm("Chat has been successfully ended.", "success");
     } catch (error) {
       console.log("Error ending the chat");
     }

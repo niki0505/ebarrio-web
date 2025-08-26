@@ -5,6 +5,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function SetPassword() {
   const confirm = useConfirm();
@@ -17,6 +18,8 @@ function SetPassword() {
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   const handleSubmit = async () => {
     let hasErrors = false;
@@ -47,7 +50,10 @@ function SetPassword() {
       await api.put(`/resetpassword/${username}`, {
         password,
       });
-      alert("Your password has been successfully set.");
+      confirm(
+        "Your password has been successfully created. You may now sign in with your new password.",
+        "success"
+      );
       navigation("/login");
     } catch (error) {
       console.log("Failed to reset password", error);
@@ -122,14 +128,24 @@ function SetPassword() {
               </div>
 
               <div className="flex flex-col gap-4 w-full">
-                <input
-                  type="password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => passwordValidation(e)}
-                  className="form-input"
-                  required
-                />
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => passwordValidation(e)}
+                    className="form-input"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="eye-toggle"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <FaEye /> : <FaEyeSlash />}
+                  </button>
+                </div>
                 {passwordErrors.length > 0 && (
                   <div style={{ marginTop: 5, width: 300 }}>
                     {passwordErrors.map((error, index) => (
@@ -146,14 +162,25 @@ function SetPassword() {
                     ))}
                   </div>
                 )}
-                <input
-                  type="password"
-                  placeholder="Enter confirm password"
-                  value={repassword}
-                  onChange={(e) => repasswordValidation(e)}
-                  className="form-input"
-                  required
-                />
+                <div className="relative w-full">
+                  <input
+                    type={showConfirmPass ? "text" : "password"}
+                    placeholder="Enter confirm password"
+                    value={repassword}
+                    onChange={(e) => repasswordValidation(e)}
+                    className="form-input"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass((prev) => !prev)}
+                    className="eye-toggle"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPass ? <FaEye /> : <FaEyeSlash />}
+                  </button>
+                </div>
+
                 {repasswordErrors.length > 0 && (
                   <div style={{ marginTop: 5, width: 300 }}>
                     {repasswordErrors.map((error, index) => (
@@ -175,9 +202,9 @@ function SetPassword() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
+                className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
               >
-                {loading ? "Confirming..." : "Confirm"}
+                {loading ? "Setting..." : "Set"}
               </button>
             </div>
           </form>

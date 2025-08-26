@@ -29,6 +29,7 @@ function SettleBlotter({ isCollapsed }) {
   const [witnessSuggestions, setWitnessSuggestions] = useState([]);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isSignProcessing2, setIsSignProcessing2] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
   const [blotterForm, setBlotterForm] = useState({
     complainantID: "",
     complainantname: "",
@@ -41,6 +42,21 @@ function SettleBlotter({ isCollapsed }) {
     typeofthecomplaint: "",
     details: "",
   });
+
+  const validateDetails = (value) => {
+    const errors = [];
+
+    if (value.length < 10 || value.length > 200) {
+      errors.push("Details must be minimum of 10 characters.");
+    }
+
+    const invalidChars = /[^a-zA-Z0-9,.\s]/;
+    if (invalidChars.test(value)) {
+      errors.push("Use only letters, numbers, commas, and periods.");
+    }
+
+    setDetailsError(errors.join(" "));
+  };
 
   const [settleForm, setSettleForm] = useState({
     subjectsignature: "",
@@ -101,6 +117,10 @@ function SettleBlotter({ isCollapsed }) {
       ...prevForm,
       [name]: value,
     }));
+
+    if (name === "agreementdetails") {
+      validateDetails(value);
+    }
   };
 
   const smartCapitalize = (word) => {
@@ -247,7 +267,7 @@ function SettleBlotter({ isCollapsed }) {
 
     try {
       await api.put(`/settleblotter/${blotterID}`, { updatedForm });
-      alert("Blotter successfully settled!");
+      confirm("The blotter report has been successfully settled.", "success");
       navigation("/blotter-reports");
     } catch (error) {
       console.log("Error settling blotter", error);
@@ -445,6 +465,11 @@ function SettleBlotter({ isCollapsed }) {
               <h3 className="text-end">
                 {settleForm.agreementdetails.length}/1000
               </h3>
+              {detailsError && (
+                <div className="text-red-500 mt-1 text-sm mb-8">
+                  {detailsError}
+                </div>
+              )}
             </div>
           </div>
 
@@ -465,6 +490,7 @@ function SettleBlotter({ isCollapsed }) {
                   placeholder="Enter name"
                   className="form-input h-[30px] w-full"
                   autoComplete="off"
+                  required
                 />
                 {settleForm.witnessname?.length > 0 &&
                   witnessSuggestions?.length > 0 && (
@@ -535,11 +561,7 @@ function SettleBlotter({ isCollapsed }) {
           </div>
 
           <div className="flex justify-end rounded-md mt-4">
-            <button
-              onClick={handleSubmit}
-              className="actions-btn bg-btn-color-blue"
-              type="submit"
-            >
+            <button className="actions-btn bg-btn-color-blue" type="submit">
               Submit
             </button>
           </div>
