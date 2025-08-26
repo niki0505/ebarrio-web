@@ -32,8 +32,7 @@ function CreateCertificate({ resID, onClose }) {
     ornumber: "",
   });
   const [showModal, setShowModal] = useState(true);
-
-  console.log(certificateForm);
+  const [loading, setLoading] = useState(false);
 
   const certificates = [
     { name: "Barangay Indigency", price: "₱10.00" },
@@ -122,6 +121,9 @@ function CreateCertificate({ resID, onClose }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     const requiredFields =
       certificateFields[certificateForm.typeofcertificate] || [];
 
@@ -229,6 +231,8 @@ function CreateCertificate({ resID, onClose }) {
       }
     } catch (error) {
       console.log("Error generating barangay certificate", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -392,9 +396,10 @@ function CreateCertificate({ resID, onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

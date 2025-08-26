@@ -48,7 +48,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <IoPeople />,
       path: "/employees",
     },
-    {
+    (user.role === "Secretary" || user.role === "Technical Admin") && {
       title: (
         <div className="flex items-center gap-2">
           Residents
