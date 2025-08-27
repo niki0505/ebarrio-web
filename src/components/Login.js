@@ -70,17 +70,23 @@ const Login = () => {
         // }
         if (res.data.message === "Credentials verified") {
           try {
-            const response = await api.get(`/getmobilenumber/${username}`);
-            sendOTP(username, response.data);
-            navigation("/otp", {
-              state: {
-                username: username,
-                mobilenumber: response.data,
-              },
-            });
+            await api.put(`/login/${username}`);
+            setIsAuthenticated(true);
           } catch (error) {
-            console.log("Error getting mobile number", error);
+            console.log("Error logging in", error);
           }
+          // try {
+          //   const response = await api.get(`/getmobilenumber/${username}`);
+          //   sendOTP(username, response.data);
+          //   navigation("/otp", {
+          //     state: {
+          //       username: username,
+          //       mobilenumber: response.data,
+          //     },
+          //   });
+          // } catch (error) {
+          //   console.log("Error getting mobile number", error);
+          // }
         } else if (res.data.message === "Token verified successfully.") {
           navigation("/set-password", {
             state: {
