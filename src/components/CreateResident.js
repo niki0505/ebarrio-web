@@ -515,6 +515,7 @@ function CreateResident({ isCollapsed }) {
     }
 
     if (
+      residentForm.telephone &&
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
