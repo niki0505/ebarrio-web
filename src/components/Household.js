@@ -1205,7 +1205,9 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
     } else if (isChangeClicked) {
       filtered = household.filter((res) => res.status === "Change Requested");
     } else if (isRejectedClicked) {
-      filtered = household.filter((res) => res.status === "Rejected");
+      filtered = household.filter(
+        (res) => res.status === "Rejected" || res.status === "Archived"
+      );
     }
 
     switch (sortOption) {
@@ -1304,7 +1306,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                 isRejectedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
-              Rejected
+              Archived/Rejected
             </p>
           </div>
           {isActiveClicked && (
