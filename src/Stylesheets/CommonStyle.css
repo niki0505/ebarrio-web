@@ -135,7 +135,7 @@ td {
 }
 .login-forgot-btn {
   @apply text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px];
-} 
+}
 .login-logo {
   @apply w-[400px] h-[400px] absolute transition-all duration-[2000ms] ease-in-out;
 }
@@ -275,6 +275,38 @@ input[type="password"]::-ms-clear {
 
 input[type="password"]::-webkit-credentials-auto-fill-button {
   display: none !important;
+}
+
+/*--------------------------------------------LOADING SCREEN--------------------------------------------*/
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0e94d3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* To prevent text selection blue highlight */
