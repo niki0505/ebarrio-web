@@ -6,6 +6,7 @@ import api from "../api";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -14,19 +15,14 @@ function CourtReject({ onClose, reservationID }) {
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
   const confirm = useConfirm();
-
   const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const validateRemarks = (text) => {
     const errors = [];
 
-    if (!text.trim()) {
-      errors.push("Remarks cannot be empty.");
-      return errors;
-    }
-
     if (text.length < 10 || text.length > 200) {
-      errors.push("Remarks must be minimum of 10 characters.");
+      errors.push("Remarks must be between 10 and 200 characters.");
     }
 
     const invalidChars = /[^a-zA-Z0-9,.\s]/;
@@ -40,17 +36,24 @@ function CourtReject({ onClose, reservationID }) {
   const handleSubmit = async () => {
     const validationErrors = validateRemarks(remarks);
     setError(validationErrors);
-
-    if (validationErrors.length > 0) {
+    const isConfirmed = await confirm(
+      "Are you sure you want to reject this reservation?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
       return;
     }
+    if (loading) return;
 
+    setLoading(true);
     try {
       await api.put(`/rejectcourtreservation/${reservationID}`, { remarks });
       confirm("Court reservation request successfully rejected", "success");
       onClose();
     } catch (error) {
       console.log("Error rejecting court reservation request");
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -60,7 +63,7 @@ function CourtReject({ onClose, reservationID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[22rem] ">
             <div className="dialog-title-bar">
@@ -104,10 +107,11 @@ function CourtReject({ onClose, reservationID }) {
                 <div className="flex justify-center">
                   <button
                     onClick={handleSubmit}
+                    disabled={loading}
                     type="submit"
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

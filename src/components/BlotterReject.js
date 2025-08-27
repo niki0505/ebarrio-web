@@ -7,6 +7,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -17,6 +18,7 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
   const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const validateRemarks = (text) => {
     const errors = [];
@@ -48,11 +50,14 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
 
     const isConfirmed = await confirm(
       "Are you sure you want to reject this blotter report?",
-      "confirm"
+      "confirmred"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/rejectblotter/${blotterID}`, { remarks });
       confirm("The blotter report has been successfully rejected.", "success");
@@ -60,6 +65,8 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
       onViewClose();
     } catch (error) {
       console.log("Error rejecting blotter");
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -69,7 +76,7 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[20rem]">
             <div className="dialog-title-bar">
@@ -112,9 +119,10 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
                   <button
                     type="submit"
                     onClick={handleSubmit}
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

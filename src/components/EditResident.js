@@ -113,39 +113,22 @@ function EditResident({ isCollapsed }) {
     HOAname: "",
     address: "",
   });
+  console.log(householdForm);
 
   useEffect(() => {
     fetchResidents();
     fetchHouseholds();
   }, []);
 
+  console.log(
+    "Household no",
+    residentForm.householdno,
+    "Is Head",
+    residentForm.head
+  );
+
   useEffect(() => {
     if (residentInfo) {
-      let houseNumber = "";
-      let streetName = "";
-      const siblingsLength = residentInfo.siblings
-        ? residentInfo.siblings.length
-        : 0;
-      const childrenLength = residentInfo.children
-        ? residentInfo.children.length
-        : 0;
-
-      const address = residentInfo.address || "";
-
-      const firstWord = address.trim().split(" ")[0];
-      const isNumber = !isNaN(firstWord);
-
-      if (isNumber) {
-        houseNumber = firstWord;
-        const preStreetName = address.split("Aniban")[0].trim();
-        const streetWords = preStreetName.split(" ");
-        streetWords.shift();
-        streetName = streetWords.join(" ");
-      } else {
-        streetName = address.split("Aniban")[0].trim();
-        houseNumber = "";
-      }
-
       let formattedNumber =
         residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
           ? "+63" + residentInfo.mobilenumber.slice(1)
@@ -165,10 +148,6 @@ function EditResident({ isCollapsed }) {
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
-        numberofsiblings: siblingsLength,
-        numberofchildren: childrenLength,
-        street: streetName,
-        housenumber: houseNumber,
         mobilenumber: formattedNumber,
         emergencymobilenumber: formattedEmergencyNumber,
         telephone: formattedTelephone,

@@ -34,6 +34,7 @@ function Accounts({ isCollapsed }) {
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState(null);
   const [sortOption, setSortOption] = useState("Newest");
+  const [loading, setLoading] = useState(false);
 
   const [isCurrentClicked, setCurrentClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
@@ -137,11 +138,16 @@ function Accounts({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/deactivateuser/${userID}`);
       confirm("User has been successfully deactivated.", "success");
     } catch (error) {
       console.log("Error in deactivating user", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,12 +159,17 @@ function Accounts({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/activateuser/${userID}`);
       confirm("User has been successfully activated.", "success");
     } catch (error) {
       console.log("Error while activating user", error);
-   
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -268,7 +279,6 @@ function Accounts({ isCollapsed }) {
       await api.post("/logexport", { action, description });
     } catch (error) {
       console.log("Error in logging export", error);
-      
     }
   };
 
@@ -404,6 +414,12 @@ function Accounts({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
+
         <div className="header-text">User Accounts</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />

@@ -38,6 +38,7 @@ function EmergencyHotlines({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const exportRef = useRef(null);
 
@@ -67,11 +68,19 @@ function EmergencyHotlines({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/archiveemergencyhotlines/${emergencyID}`);
-      confirm("The emergency hotline has been successfully archived.", "succcess");
+      confirm(
+        "The emergency hotline has been successfully archived.",
+        "success"
+      );
     } catch (error) {
       console.log("Error archiving emergency contact", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,18 +92,30 @@ function EmergencyHotlines({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       await api.put(`/recoveremergencyhotlines/${emergencyID}`);
-      confirm("The emergency hotline has been successfully recovered.", "success");
+      confirm(
+        "The emergency hotline has been successfully recovered.",
+        "success"
+      );
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        confirm(response.data.message || "Something went wrong.", "errordialog");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
         confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -289,6 +310,11 @@ function EmergencyHotlines({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="text-[30px] font-extrabold font-title text-[#BC0F0F]">
           Emergency Hotlines
         </div>

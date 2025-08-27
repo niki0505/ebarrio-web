@@ -60,7 +60,6 @@ function OTP() {
   const handleVerify = async () => {
     try {
       const result = await verifyOTP(username, OTP);
-      confirm(result.message, "success");
       try {
         await api.put(`/login/${username}`);
         setIsAuthenticated(true);
@@ -71,7 +70,10 @@ function OTP() {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        confirm(response.data.message || "Something went wrong.", "errordialog");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
         confirm("An unexpected error occurred.", "errordialog");

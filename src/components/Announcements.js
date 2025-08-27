@@ -34,6 +34,7 @@ function Announcements({ isCollapsed }) {
   const [expandedAnnouncements, setExpandedAnnouncements] = useState([]);
   const [sortOption, setSortOption] = useState("Newest");
   const menuRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -79,19 +80,29 @@ function Announcements({ isCollapsed }) {
 
   /* PIN ANNOUNCEMENT */
   const togglePin = async (announcementID) => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/pinannouncement/${announcementID}`);
     } catch (error) {
       console.log("Error pinning announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   /* UNPIN ANNOUNCEMENT */
   const toggleUnpin = async (announcementID) => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/unpinannouncement/${announcementID}`);
     } catch (error) {
       console.log("Error pinning announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,12 +156,16 @@ function Announcements({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/archiveannouncement/${announcementID}`);
       confirm("The announcement has been successfully archived.", "success");
     } catch (error) {
       console.log("Error in archiving announcement", error);
-  
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,11 +177,16 @@ function Announcements({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/recoverannouncement/${announcementID}`);
       confirm("The announcement has been successfully recovered.", "success");
     } catch (error) {
       console.log("Error in recovering announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,6 +209,11 @@ function Announcements({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Announcements</div>
 
         <div className="announcement-container">
