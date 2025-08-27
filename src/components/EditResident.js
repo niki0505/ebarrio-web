@@ -1008,6 +1008,7 @@ function EditResident({ isCollapsed }) {
       }));
 
       setNewMembers((prev) => prev.filter((m) => m.tempId !== member.tempId));
+      confirm("The new member has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new member:", error);
     }
@@ -1053,11 +1054,25 @@ function EditResident({ isCollapsed }) {
     ]);
   };
 
-  const handleRemoveVehicle = (index) => {
-    const updatedVehicles = householdForm.vehicles.filter(
-      (_, i) => i !== index
+  const handleRemoveVehicle = async (vehicleID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to remove this vehicle?",
+      "confirmred"
     );
-    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
+    if (!isConfirmed) return;
+
+    try {
+      await api.delete(
+        `/household/${residentInfo.householdno._id}/vehicle/${vehicleID}`
+      );
+      setHouseholdForm((prev) => ({
+        ...prev,
+        vehicles: prev.vehicles.filter((v) => v._id !== vehicleID),
+      }));
+      confirm("The vehicle has been successfully removed.", "success");
+    } catch (error) {
+      console.error("Error removing vehicle:", error);
+    }
   };
 
   const handleSaveNewVehicle = async (vehicle) => {
@@ -1074,7 +1089,7 @@ function EditResident({ isCollapsed }) {
         platenumber: vehicle.platenumber,
       };
       const response = await api.post(
-        `/household/${residentInfo.householdno}/vehicle`,
+        `/household/${residentInfo.householdno._id}/vehicle`,
         payload
       );
 
@@ -1082,6 +1097,7 @@ function EditResident({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
+      setNewVehicles((prev) => prev.filter((v) => v.tempId !== vehicle.tempId));
       confirm("The vehicle has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
@@ -2735,7 +2751,9 @@ function EditResident({ isCollapsed }) {
                                   <button
                                     type="button"
                                     className="btn btn-danger"
-                                    onClick={() => handleRemoveVehicle(index)}
+                                    onClick={() =>
+                                      handleRemoveVehicle(vehicle._id)
+                                    }
                                   >
                                     Remove
                                   </button>

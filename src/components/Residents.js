@@ -53,6 +53,7 @@ function Residents({ isCollapsed }) {
   const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -115,6 +116,9 @@ function Residents({ isCollapsed }) {
     if (action === "cancel") {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     if (action === "generate") {
       try {
         const response = await api.post(`/generatebrgyID/${resID}`);
@@ -129,19 +133,16 @@ function Residents({ isCollapsed }) {
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
-      } catch (error) {
-        console.log("Error generating barangay ID", error);
-      }
-
-      try {
-        const response = await api.get(`/getresident/${resID}`);
-        const response2 = await api.get(`/getcaptain/`);
+        const response2 = await api.get(`/getresident/${resID}`);
+        const response3 = await api.get(`/getcaptain/`);
         BarangayID({
-          resData: response.data,
-          captainData: response2.data,
+          resData: response2.data,
+          captainData: response3.data,
         });
       } catch (error) {
         console.log("Error generating barangay ID", error);
+      } finally {
+        setLoading(false);
       }
     } else if (action === "current") {
       try {
@@ -154,17 +155,15 @@ function Residents({ isCollapsed }) {
           confirm("This resident has not yet been issued an ID.", "failed");
           return;
         }
-        try {
-          await api.post(`/printcurrentbrgyid/${resID}`);
-          BarangayID({
-            resData: response.data,
-            captainData: response2.data,
-          });
-        } catch (error) {
-          console.log("Error in printing current barangay ID", error);
-        }
+        await api.post(`/printcurrentbrgyid/${resID}`);
+        BarangayID({
+          resData: response.data,
+          captainData: response2.data,
+        });
       } catch (error) {
         console.log("Error viewing current barangay ID", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -187,6 +186,9 @@ function Residents({ isCollapsed }) {
       return;
     }
 
+    if (loading) return;
+
+    setLoading(true);
     try {
       const response = await api.get(`/getresidentimages/${resID}`);
       const { picture, signature } = response.data;
@@ -220,7 +222,12 @@ function Residents({ isCollapsed }) {
       confirm("The resident has been successfully approved.", "success");
     } catch (error) {
       console.log("Error in approving resident details", error);
-      confirm("An unexpected error occurred while approving the resident.", "errordialog");
+      confirm(
+        "An unexpected error occurred while approving the resident.",
+        "errordialog"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -260,13 +267,20 @@ function Residents({ isCollapsed }) {
       "Are you sure you want to archive this resident?",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/archiveresident/${resID}`);
-        confirm("The resident has been successfully archived.", "success");
-      } catch (error) {
-        console.log("Error", error);
-      }
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await api.put(`/archiveresident/${resID}`);
+      confirm("The resident has been successfully archived.", "success");
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -276,20 +290,30 @@ function Residents({ isCollapsed }) {
       "Are you sure you want to recover this resident?",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/recoverresident/${resID}`);
-        confirm("The resident has been successfully recovered.", "success");
-      } catch (error) {
-        const response = error.response;
-        if (response && response.data) {
-          console.log("❌ Error status:", response.status);
-          confirm(response.data.message || "Something went wrong.", "errordialog");
-        } else {
-          console.log("❌ Network or unknown error:", error.message);
-          confirm("An unexpected error occurred.", "errordialog");
-        }
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await api.put(`/recoverresident/${resID}`);
+      confirm("The resident has been successfully recovered.", "success");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -649,6 +673,11 @@ function Residents({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Residents</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
