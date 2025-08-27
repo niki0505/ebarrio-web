@@ -10,6 +10,7 @@ import api from "../api";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { FiCamera, FiUpload } from "react-icons/fi";
@@ -638,6 +639,7 @@ function EditResident({ isCollapsed }) {
     }
 
     if (
+      residentForm.telephone &&
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
@@ -1164,6 +1166,11 @@ function EditResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="flex flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
@@ -2948,10 +2955,9 @@ function EditResident({ isCollapsed }) {
           <div className="function-btn-container">
             <button
               type="submit"
-              disabled={loading}
               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
             >
-              {loading ? "Submitting..." : "Submit"}
+              Submit
             </button>
           </div>
         </form>

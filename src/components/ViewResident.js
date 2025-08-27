@@ -11,6 +11,8 @@ import api from "../api";
 //SCREENS
 import OpenCamera from "./OpenCamera";
 
+import "../Stylesheets/CommonStyle.css";
+
 //ICONS
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { BiSolidImageAlt } from "react-icons/bi";
@@ -36,6 +38,7 @@ function ViewResident({ isCollapsed }) {
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
   const [memberSuggestions, setMemberSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [residentForm, setResidentForm] = useState({
     firstname: "",
@@ -1288,6 +1291,9 @@ function ViewResident({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
 
     try {
       const response = await api.get(`/getresidentimages/${resID}`);
@@ -1339,11 +1345,18 @@ function ViewResident({ isCollapsed }) {
         "Something went wrong while approving the resident.",
         "errordialog"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="flex flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
@@ -2232,174 +2245,6 @@ function ViewResident({ isCollapsed }) {
             </div>
           </div>
 
-          {/* Family Information */}
-          <h3 className="section-title mt-8">Family Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label for="mother" className="form-label">
-                Mother
-              </label>
-              <select
-                id="mother"
-                name="mother"
-                value={residentForm.mother}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Female")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label for="father" className="form-label">
-                Father
-              </label>
-              <select
-                id="father"
-                name="father"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Male")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="spouse" className="form-label">
-                Spouse
-              </label>
-              <select
-                id="spouse"
-                name="spouse"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4">Siblings</label>
-              <input
-                name="numberofsiblings"
-                value={residentForm.numberofsiblings}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of siblings"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4 ">Children</label>
-              <input
-                name="numberofchildren"
-                value={residentForm.numberofchildren}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of children"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
-          )}
-
-          {/* Address Information */}
-          <h3 className="section-title mt-8">Address Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label className="form-label">House Number</label>
-              <input
-                name="housenumber"
-                value={residentForm.housenumber}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter house number"
-                maxLength={3}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label for="street" className="form-label">
-                Street<label className="text-red-600">*</label>
-              </label>
-              <select
-                id="street"
-                name="street"
-                onChange={handleDropdownChange}
-                required
-                value={residentForm.street}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {streetList.map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="HOAname" className="form-label">
-                HOA Name
-              </label>
-              <select
-                id="HOAname"
-                name="HOAname"
-                value={residentForm.HOAname}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-              </select>
-            </div>
-          </div>
-
           {/* Household Information */}
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
@@ -2493,6 +2338,56 @@ function ViewResident({ isCollapsed }) {
             {residentForm.head === "Yes" && (
               <div className="mt-4">
                 <div className="form-grid">
+                  <div className="form-group">
+                    <label className="form-label">House Number</label>
+                    <input
+                      name="housenumber"
+                      value={householdForm.housenumber}
+                      onChange={householdNumbersAndNoSpaceOnly}
+                      placeholder="Enter house number"
+                      maxLength={3}
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label for="street" className="form-label">
+                      Street<label className="text-red-600">*</label>
+                    </label>
+                    <select
+                      id="street"
+                      name="street"
+                      onChange={handleHouseholdDropdownChange}
+                      required
+                      value={householdForm.street}
+                      className="form-input"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      {streetList.map((element) => (
+                        <option value={element}>{element}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label for="HOAname" className="form-label">
+                      HOA Name
+                    </label>
+                    <select
+                      id="HOAname"
+                      name="HOAname"
+                      value={householdForm.HOAname}
+                      onChange={handleHouseholdDropdownChange}
+                      className="form-input"
+                    >
+                      <option value="" selected>
+                        Select
+                      </option>
+                      <option value="Bermuda Town Homes">
+                        Bermuda Town Homes
+                      </option>
+                    </select>
+                  </div>
                   <div className="col-span-2">
                     <label className="form-label">
                       Ethnicity<label className="text-red-600">*</label>
