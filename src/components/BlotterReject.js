@@ -21,8 +21,13 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
   const validateRemarks = (text) => {
     const errors = [];
 
+    if (!text.trim()) {
+      errors.push("Remarks cannot be empty.");
+      return errors;
+    }
+
     if (text.length < 10 || text.length > 200) {
-      errors.push("Remarks must be between 10 and 200 characters.");
+      errors.push("Remarks must be minimum of 10 characters.");
     }
 
     const invalidChars = /[^a-zA-Z0-9,.\s]/;
@@ -38,9 +43,9 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
     setError(validationErrors);
 
     if (validationErrors.length > 0) {
-      return; 
+      return;
     }
-    
+
     const isConfirmed = await confirm(
       "Are you sure you want to reject this blotter report?",
       "confirm"

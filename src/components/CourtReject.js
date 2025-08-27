@@ -13,9 +13,38 @@ import { IoClose } from "react-icons/io5";
 function CourtReject({ onClose, reservationID }) {
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
-    const confirm = useConfirm();
+  const confirm = useConfirm();
+
+  const [error, setError] = useState([]);
+
+  const validateRemarks = (text) => {
+    const errors = [];
+
+    if (!text.trim()) {
+      errors.push("Remarks cannot be empty.");
+      return errors;
+    }
+
+    if (text.length < 10 || text.length > 200) {
+      errors.push("Remarks must be minimum of 10 characters.");
+    }
+
+    const invalidChars = /[^a-zA-Z0-9,.\s]/;
+    if (invalidChars.test(text)) {
+      errors.push("Use only letters, numbers, commas, and periods.");
+    }
+
+    return errors;
+  };
 
   const handleSubmit = async () => {
+    const validationErrors = validateRemarks(remarks);
+    setError(validationErrors);
+
+    if (validationErrors.length > 0) {
+      return;
+    }
+
     try {
       await api.put(`/rejectcourtreservation/${reservationID}`, { remarks });
       confirm("Court reservation request successfully rejected", "success");
@@ -54,13 +83,24 @@ function CourtReject({ onClose, reservationID }) {
                 <textarea
                   placeholder="Enter your reason here..."
                   value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setRemarks(value);
+                    setError(validateRemarks(value));
+                  }}
                   rows={5}
                   minLength={20}
                   maxLength={255}
                   className="h-[11rem] textarea-container"
                 ></textarea>
                 <div className="textarea-length-text">{remarks.length}/255</div>
+                {error.length > 0 && (
+                  <div className="text-red-500 text-sm mt-1 space-y-1">
+                    {error.map((err, index) => (
+                      <p key={index}>{err}</p>
+                    ))}
+                  </div>
+                )}
                 <div className="flex justify-center">
                   <button
                     onClick={handleSubmit}

@@ -17,8 +17,13 @@ function ResidentReject({ onClose, resID }) {
   const validateRemarks = (input) => {
     const newErrors = [];
 
+    if (!input.trim()) {
+      newErrors.push("Remarks cannot be empty.");
+      return errors;
+    }
+
     if (input.length < 10 || input.length > 200) {
-      newErrors.push("Remarks must be between 10 and 200 characters.");
+      newErrors.push("Remarks must be minimum of 10 characters.");
     }
 
     const invalidChars = /[^a-zA-Z0-9,.\s]/;
