@@ -63,31 +63,31 @@ const Login = () => {
       console.log(res.status);
       if (res.status === 200) {
         try {
-          await api.put(`/login/${username}`);
-          setIsAuthenticated(true);
+          // await api.put(`/login/${username}`);
+          // setIsAuthenticated(true);
         } catch (error) {
           console.log("Error logging in", error);
         }
-        // if (res.data.message === "Credentials verified") {
-        //   try {
-        //     const response = await api.get(`/getmobilenumber/${username}`);
-        //     sendOTP(username, response.data);
-        //     navigation("/otp", {
-        //       state: {
-        //         username: username,
-        //         mobilenumber: response.data,
-        //       },
-        //     });
-        //   } catch (error) {
-        //     console.log("Error getting mobile number", error);
-        //   }
-        // } else if (res.data.message === "Token verified successfully.") {
-        //   navigation("/set-password", {
-        //     state: {
-        //       username: username,
-        //     },
-        //   });
-        // }
+        if (res.data.message === "Credentials verified") {
+          try {
+            const response = await api.get(`/getmobilenumber/${username}`);
+            sendOTP(username, response.data);
+            navigation("/otp", {
+              state: {
+                username: username,
+                mobilenumber: response.data,
+              },
+            });
+          } catch (error) {
+            console.log("Error getting mobile number", error);
+          }
+        } else if (res.data.message === "Token verified successfully.") {
+          navigation("/set-password", {
+            state: {
+              username: username,
+            },
+          });
+        }
       }
     } catch (error) {
       const response = error.response;
