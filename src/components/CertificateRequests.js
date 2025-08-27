@@ -43,6 +43,7 @@ function CertificateRequests({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [sortOption, setSortOption] = useState("Newest");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [isRejectClicked, setRejectClicked] = useState(false);
 
@@ -153,11 +154,16 @@ function CertificateRequests({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/notifycert/${certID}`);
       confirm("The resident has been duly notified.", "success");
     } catch (error) {
       console.log("Error in notifying user", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -170,6 +176,9 @@ function CertificateRequests({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/collectedcert/${certID}`);
       confirm(
@@ -178,6 +187,8 @@ function CertificateRequests({ isCollapsed }) {
       );
     } catch (error) {
       console.log("Error in updating the status", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,16 +201,26 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Indigency") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Are you sure you want to issue this document?",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -214,16 +235,25 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Are you sure you want to issue this document?",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -238,16 +268,25 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Business Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Are you sure you want to issue this document?",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -477,6 +516,11 @@ function CertificateRequests({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Document Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />

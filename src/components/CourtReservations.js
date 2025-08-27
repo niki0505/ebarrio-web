@@ -38,6 +38,7 @@ function CourtReservations({ isCollapsed }) {
   const [isRejectClicked, setRejectClicked] = useState(false);
   const [selectedReservationID, setSelectedReservationID] = useState(null);
   const [sortOption, setSortOption] = useState("Newest");
+  const [loading, setLoading] = useState(false);
 
   const [isPendingClicked, setPendingClicked] = useState(true);
   const [isApprovedClicked, setApprovedClicked] = useState(false);
@@ -168,6 +169,9 @@ function CourtReservations({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/approvereservation/${reservationID}`);
       confirm(
@@ -176,6 +180,8 @@ function CourtReservations({ isCollapsed }) {
       );
     } catch (error) {
       console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -406,6 +412,11 @@ function CourtReservations({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Court Reservations</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />

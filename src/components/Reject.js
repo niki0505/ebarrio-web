@@ -4,6 +4,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -13,12 +14,13 @@ function Reject({ onClose, certID }) {
   const [showModal, setShowModal] = useState(true);
   const confirm = useConfirm();
   const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const validateRemarks = (text) => {
     const errors = [];
 
     if (text.length < 10 || text.length > 200) {
-      errors.push("Remarks must be between 10 and 200 characters.");
+      errors.push("Remarks must be minimum of 10 characters.");
     }
 
     const invalidChars = /[^a-zA-Z0-9,.\s]/;
@@ -33,6 +35,16 @@ function Reject({ onClose, certID }) {
     const validationErrors = validateRemarks(remarks);
     setError(validationErrors);
 
+    const isConfirmed = await confirm(
+      "Are you sure you want to reject this document request?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/rejectcertificatereq/${certID}`, { remarks });
       confirm(
@@ -42,6 +54,8 @@ function Reject({ onClose, certID }) {
       onClose();
     } catch (error) {
       console.log("Error rejecting certificate request");
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -51,7 +65,7 @@ function Reject({ onClose, certID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">
@@ -92,10 +106,11 @@ function Reject({ onClose, certID }) {
                 <div className="flex justify-center">
                   <button
                     onClick={handleSubmit}
+                    disabled={loading}
                     type="submit"
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

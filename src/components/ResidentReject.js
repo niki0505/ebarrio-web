@@ -4,6 +4,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -13,6 +14,7 @@ function ResidentReject({ onClose, resID }) {
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
   const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const validateRemarks = (input) => {
     const newErrors = [];
@@ -40,6 +42,10 @@ function ResidentReject({ onClose, resID }) {
     if (!isConfirmed) {
       return;
     }
+
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post(`/rejectresident/${resID}`, { remarks });
       confirm(
@@ -49,6 +55,8 @@ function ResidentReject({ onClose, resID }) {
       onClose();
     } catch (error) {
       console.log("Error rejecting resident profile");
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -58,8 +66,13 @@ function ResidentReject({ onClose, resID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[30rem] h-[22rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

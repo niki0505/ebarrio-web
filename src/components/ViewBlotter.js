@@ -213,11 +213,11 @@ function ViewBlotter({ onClose, blotterID }) {
     const { date, starttime, endtime } = scheduleForm;
 
     if (!date || !starttime || !endtime) {
-      confirm("Please input all required fields.", "failed");
+      confirm("Please fill in the Date, Start Time, and End Time before submitting.", "failed");
       return;
     }
 
-    const isConfirmed = await confirm(
+    const isConfirmed = await confirm(  
       "Are you sure you want to schedule this blotter?",
       "confirm"
     );
@@ -234,6 +234,16 @@ function ViewBlotter({ onClose, blotterID }) {
   };
 
   const handleEdit = async () => {
+    const { date, starttime, endtime } = scheduleForm;
+
+    if (!date || !starttime || !endtime) {
+      confirm(
+        "Please fill in the Date, Start Time, and End Time before submitting.",
+        "failed"
+      );
+      return;
+    }
+
     const isConfirmed = await confirm(
       "Are you sure you want to edit this blotter's schedule?",
       "confirm"
