@@ -63,17 +63,6 @@ function ViewResident({ isCollapsed }) {
     emergencyname: "",
     emergencymobilenumber: "",
     emergencyaddress: "",
-    housenumber: "",
-    street: "",
-    HOAname: "",
-    address: "",
-    mother: "",
-    father: "",
-    spouse: "",
-    siblings: [],
-    children: [],
-    numberofsiblings: 0,
-    numberofchildren: "",
     employmentstatus: "",
     employmentfield: "",
     occupation: "",
@@ -84,13 +73,18 @@ function ViewResident({ isCollapsed }) {
     householdno: "",
     householdposition: "",
     head: "",
-    is4Ps: false,
     isSenior: false,
     isInfant: false,
-    isChild: false,
+    isNewborn: false,
+    isUnder5: false,
+    isSchoolAge: false,
+    isAdolescent: false,
+    isAdolescentPregnant: false,
+    isAdult: false,
+    isPostpartum: false,
+    isWomenOfReproductive: false,
     isPregnant: false,
     isPWD: false,
-    isSoloParent: false,
     philhealthid: "",
     philhealthtype: "",
     philhealthcategory: "",
@@ -99,7 +93,7 @@ function ViewResident({ isCollapsed }) {
     haveTubercolosis: false,
     haveSurgery: false,
     lastmenstrual: "",
-    haveFPmethod: false,
+    haveFPmethod: "",
     fpmethod: "",
     fpstatus: "",
   });
@@ -113,6 +107,10 @@ function ViewResident({ isCollapsed }) {
     nhtsno: "",
     watersource: "",
     toiletfacility: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
   });
 
   useEffect(() => {
@@ -122,31 +120,6 @@ function ViewResident({ isCollapsed }) {
 
   useEffect(() => {
     if (residentInfo) {
-      let houseNumber = "";
-      let streetName = "";
-      const siblingsLength = residentInfo.siblings
-        ? residentInfo.siblings.length
-        : 0;
-      const childrenLength = residentInfo.children
-        ? residentInfo.children.length
-        : 0;
-
-      const address = residentInfo.address || "";
-
-      const firstWord = address.trim().split(" ")[0];
-      const isNumber = !isNaN(firstWord);
-
-      if (isNumber) {
-        houseNumber = firstWord;
-        const preStreetName = address.split("Aniban")[0].trim();
-        const streetWords = preStreetName.split(" ");
-        streetWords.shift();
-        streetName = streetWords.join(" ");
-      } else {
-        streetName = address.split("Aniban")[0].trim();
-        houseNumber = "";
-      }
-
       let formattedNumber =
         residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
           ? "+63" + residentInfo.mobilenumber.slice(1)
@@ -166,13 +139,10 @@ function ViewResident({ isCollapsed }) {
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
-        numberofsiblings: siblingsLength,
-        numberofchildren: childrenLength,
-        street: streetName,
-        housenumber: houseNumber,
         mobilenumber: formattedNumber,
         emergencymobilenumber: formattedEmergencyNumber,
         telephone: formattedTelephone,
+        householdno: residentInfo.householdno?._id,
       }));
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
@@ -193,11 +163,29 @@ function ViewResident({ isCollapsed }) {
 
   useEffect(() => {
     if (residentInfo.householdno) {
+      let houseNumber = "";
+      let streetName = "";
       const fetchHousehold = async () => {
         try {
           const res = await api.get(
-            `/gethousehold/${residentInfo.householdno}`
+            `/gethousehold/${residentInfo.householdno._id}`
           );
+
+          const address = res.data.address || "";
+
+          const firstWord = address.trim().split(" ")[0];
+          const isNumber = !isNaN(firstWord);
+
+          if (isNumber) {
+            houseNumber = firstWord;
+            const preStreetName = address.split("Aniban")[0].trim();
+            const streetWords = preStreetName.split(" ");
+            streetWords.shift();
+            streetName = streetWords.join(" ");
+          } else {
+            streetName = address.split("Aniban")[0].trim();
+            houseNumber = "";
+          }
 
           const head = res.data.members.find(
             (member) => member.position === "Head"
@@ -220,6 +208,8 @@ function ViewResident({ isCollapsed }) {
               ...res.data,
               members: otherMembers,
               vehicles: res.data.vehicles,
+              housenumber: houseNumber,
+              street: streetName,
             }));
           } else {
             const currentMember = res.data.members.find(
@@ -239,8 +229,6 @@ function ViewResident({ isCollapsed }) {
       fetchHousehold();
     }
   }, [residentInfo.householdno]);
-
-  console.log(householdForm);
 
   const renderSiblingsDropdown = () => {
     const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
@@ -1291,6 +1279,7 @@ function ViewResident({ isCollapsed }) {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   }
+
   const approveBtn = async () => {
     const isConfirmed = await confirm(
       "Are you sure you want to approve this resident?",
