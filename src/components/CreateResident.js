@@ -9,6 +9,7 @@ import api from "../api";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { FiCamera, FiUpload } from "react-icons/fi";
@@ -914,6 +915,11 @@ function CreateResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="breadcrumbs-container">
         <h1
           onClick={() => navigation("/residents")}
@@ -2435,10 +2441,9 @@ function CreateResident({ isCollapsed }) {
             </button>
             <button
               type="submit"
-              disabled={loading}
               className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
             >
-              {loading ? "Submitting..." : "Submit"}
+              Submit
             </button>
           </div>
         </form>

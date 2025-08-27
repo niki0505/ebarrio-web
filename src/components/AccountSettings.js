@@ -1000,6 +1000,7 @@ function AccountSettings({ isCollapsed }) {
     }
 
     if (
+      residentForm.telephone &&
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
@@ -1591,6 +1592,11 @@ function AccountSettings({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Account Settings</div>
         <div className="settings-container">
           {/* Left Panel */}
