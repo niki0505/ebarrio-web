@@ -48,6 +48,7 @@ function CreateBlotter({ isCollapsed }) {
 
   useEffect(() => {
     fetchResidents();
+    fetchBlotterReports();
   }, []);
 
   const typeList = ["Theft", "Sexual Harassment", "Physical Injury"];
@@ -306,8 +307,13 @@ function CreateBlotter({ isCollapsed }) {
     const selectedEndTime = new Date(endTime);
 
     const parseCustomDate = (dateStr) => {
-      const [datePart, timePart] = dateStr.split(" at ");
-      return new Date(`${datePart} ${timePart}`);
+      if (!dateStr) return null;
+      if (dateStr.includes(" at ")) {
+        const [datePart, timePart] = dateStr.split(" at ");
+        const d = new Date(`${datePart} ${timePart}`);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      return new Date(dateStr);
     };
 
     if (
@@ -323,11 +329,7 @@ function CreateBlotter({ isCollapsed }) {
       .find((blot) => {
         const reservedStart = parseCustomDate(blot.starttime);
         const reservedEnd = parseCustomDate(blot.endtime);
-
-        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
-          return false; // skip invalid records
-        }
-
+        if (!reservedStart || !reservedEnd) return false;
         return (
           selectedStartTime < reservedEnd && selectedEndTime > reservedStart
         );
@@ -361,6 +363,10 @@ function CreateBlotter({ isCollapsed }) {
     const time = e.target.value;
     const newStartTime = new Date(`${blotterForm.date}T${time}:00`);
 
+    if (!time) {
+      setBlotterForm((prev) => ({ ...prev, starttime: "" }));
+      return;
+    }
     if (!blotterForm.date) {
       confirm("Please select a date first.", "failed");
       return;
@@ -377,6 +383,11 @@ function CreateBlotter({ isCollapsed }) {
     const time = e.target.value;
     const newEndTime = new Date(`${blotterForm.date}T${time}:00`);
     const startTime = new Date(blotterForm.starttime);
+
+    if (!time) {
+      setBlotterForm((prev) => ({ ...prev, endtime: "" }));
+      return;
+    }
     if (!blotterForm.date) {
       confirm("Please select a date first.", "failed");
       return;
@@ -408,8 +419,8 @@ function CreateBlotter({ isCollapsed }) {
             hour: "2-digit",
             minute: "2-digit",
           })}.`
-        : "This time slot overlaps with another schedule.";
-      alert(conflictInfo);
+        : null;
+      confirm(conflictInfo, "failed");
       setBlotterForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
@@ -694,7 +705,9 @@ function CreateBlotter({ isCollapsed }) {
                 {blotterForm.details.length}/1000
               </h3>
               {detailsError && (
-                <div className="text-red-500 mt-1 text-sm mb-8">{detailsError}</div>
+                <div className="text-red-500 mt-1 text-sm mb-8">
+                  {detailsError}
+                </div>
               )}
             </div>
           </div>

@@ -143,6 +143,11 @@ function ViewBlotter({ onClose, blotterID }) {
     const time = e.target.value;
     const newStartTime = new Date(`${scheduleForm.date}T${time}:00`);
 
+    if (!time) {
+      setScheduleForm((prev) => ({ ...prev, starttime: "" }));
+      return;
+    }
+
     if (!scheduleForm.date) {
       confirm("Please select a date first.", "failed");
       return;
@@ -213,11 +218,14 @@ function ViewBlotter({ onClose, blotterID }) {
     const { date, starttime, endtime } = scheduleForm;
 
     if (!date || !starttime || !endtime) {
-      confirm("Please fill in the Date, Start Time, and End Time before submitting.", "failed");
+      confirm(
+        "Please fill in the Date, Start Time, and End Time before submitting.",
+        "failed"
+      );
       return;
     }
 
-    const isConfirmed = await confirm(  
+    const isConfirmed = await confirm(
       "Are you sure you want to schedule this blotter?",
       "confirm"
     );
