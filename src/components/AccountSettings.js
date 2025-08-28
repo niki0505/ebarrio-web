@@ -359,12 +359,8 @@ function AccountSettings({ isCollapsed }) {
         });
         confirm(
           "Your password has been successully updated. Please log in again.",
-          "successchangepass"
+          "success"
         );
-
-        setTimeout(() => {
-          confirm("", "successchangepass", true);
-        }, 5000);
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
