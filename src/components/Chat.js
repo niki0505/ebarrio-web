@@ -303,7 +303,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
       <div ref={notifRef}>
         <button
           onClick={togglePlus}
-          className={`fixed bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out ${
+          className={`fixed hover:bg-[#0A7A9D] bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out ${
             showButtons ? "bg-white border border-[#0E94D3]" : "bg-[#0E94D3]"
           }`}
         >
@@ -318,7 +318,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
           <div className="fixed bottom-[5.5rem] right-7 flex flex-col space-y-2 z-40 transition-all duration-500 ease-in-out">
             <button
               onClick={handleFAQClick}
-              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+              className="bg-[#0E94D3] hover:bg-[#0A7A9D] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
             >
               <FaQuestionCircle className="w-6 h-6 text-white" />
             </button>
@@ -327,7 +327,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
             </label>
             <button
               onClick={toggleChat}
-              className="bg-[#0E94D3] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
+              className="bg-[#0E94D3] hover:bg-[#0A7A9D] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
             >
               <IoChatbubbleEllipses className="w-6 h-6 text-white" />
             </button>
@@ -352,12 +352,14 @@ const Chat = ({ isOpen, setIsOpen }) => {
 
             {/* Header */}
             <div className="px-4 py-2 border-b">
-              <h3
+              <button
                 onClick={() => setIsAI(!isAI)}
-                className="text-lg font-semibold cursor-pointer"
+                className="cursor-pointer p-1 bg-[#0E94D3] rounded-md"
               >
-                {isAI ? "Switch to Resident Chat" : "Switch to Gemini AI"}
-              </h3>
+                <span className="text-white text-lg font-semibold ">
+                  {isAI ? "Switch to Resident Chat" : "Switch to Gemini AI"}
+                </span>
+              </button>
             </div>
 
             {/* Body */}
@@ -421,7 +423,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
                     />
                     <button
                       onClick={handleSendGemini}
-                      className="text-white bg-blue-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
+                      className="text-white bg-[#0E94D3] hover:bg-[#0A7A9D] px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
                     >
                       <Send size={20} />
                       <span>Send</span>
@@ -647,7 +649,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
                             />
                             <button
                               onClick={handleSend}
-                              className="text-white bg-blue-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
+                              className="text-white bg-[#0E94D3] hover:bg-[#0A7A9D] px-4 py-2 rounded flex items-center space-x-2"
                             >
                               <Send size={20} />
                               <span>Send</span>

@@ -27,7 +27,7 @@ import {
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
 import { IoArchiveSharp } from "react-icons/io5";
-import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
+import { FaIdCard, FaEdit, FaArchive } from "react-icons/fa";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -45,10 +45,6 @@ function Employees({ isCollapsed }) {
 
   const exportRef = useRef(null);
   const filterRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -176,7 +172,10 @@ function Employees({ isCollapsed }) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          confirm(response.data.message || "Something went wrong.", "errordialog");
+          confirm(
+            response.data.message || "Something went wrong.",
+            "errordialog"
+          );
         } else {
           console.log("❌ Network or unknown error:", error.message);
           confirm("An unexpected error occurred.", "errorialog");
@@ -267,12 +266,19 @@ function Employees({ isCollapsed }) {
   };
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredEmployees.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredEmployees
+      : filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -762,7 +768,7 @@ function Employees({ isCollapsed }) {
                                     type="submit"
                                     onClick={(e) => archiveBtn(e, emp._id)}
                                   >
-                                    <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                    <FaArchive className="text-[24px] text-btn-color-blue" />
                                     <label className="text-btn-color-blue table-actions-text">
                                       ARCHIVE
                                     </label>
@@ -802,7 +808,7 @@ function Employees({ isCollapsed }) {
                                   type="submit"
                                   onClick={(e) => recoverBtn(e, emp._id)}
                                 >
-                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <FaArchive className="text-[24px] text-btn-color-blue" />
                                   <label className="text-btn-color-blue table-actions-text">
                                     RECOVER
                                   </label>
@@ -814,8 +820,8 @@ function Employees({ isCollapsed }) {
                           <>
                             <td>
                               {emp.resID.middlename
-                                ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                                : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                                ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
+                                : `${emp.resID.lastname}, ${emp.resID.firstname}`}
                             </td>
                             <td>{emp.resID.age}</td>
                             <td>{emp.resID.sex}</td>
@@ -848,13 +854,16 @@ function Employees({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -871,24 +880,26 @@ function Employees({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
 
         {isCreateClicked && (

@@ -572,7 +572,7 @@ function SettleBlotter({ isCollapsed }) {
 
             <div className="flex justify-end rounded-md mt-4">
               <button
-                className="actions-btn bg-btn-color-blue"
+                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] ml-auto"
                 type="submit"
                 disabled={loading}
               >
@@ -581,6 +581,7 @@ function SettleBlotter({ isCollapsed }) {
             </div>
           </form>
         </div>
+        <div className="mb-20"></div>
       </main>
     </>
   );

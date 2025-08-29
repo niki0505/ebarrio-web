@@ -772,6 +772,7 @@ function CreateBlotter({ isCollapsed }) {
             </button>
           </div>
         </form>
+        <div className="mb-20"></div>
       </main>
     </>
   );
