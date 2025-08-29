@@ -75,6 +75,7 @@ function ForgotPassword() {
       const response = await api.get(`/checkuser/${username}`);
       setIsExisting(true);
       setUser(response.data);
+      console.log(response.data);
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
@@ -123,7 +124,7 @@ function ForgotPassword() {
       setOTPClicked(true);
       setResendCount((prevCount) => prevCount + 1);
       setResendTimer(30);
-      sendOTP(username, user.empID.resID.mobilenumber);
+      sendOTP(username, user?.empID?.resID?.mobilenumber ?? user?.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
         confirm(
@@ -239,7 +240,10 @@ function ForgotPassword() {
   const handleResend = async () => {
     if (resendCount < 3) {
       try {
-        sendOTP(username, user.empID.resID.mobilenumber);
+        sendOTP(
+          username,
+          user?.empID?.resID?.mobilenumber ?? user?.mobilenumber
+        );
         setResendTimer(30);
         setIsResendDisabled(true);
         setResendCount((prevCount) => prevCount + 1);
@@ -260,7 +264,6 @@ function ForgotPassword() {
   const handleVerify = async () => {
     try {
       const result = await verifyOTP(username, OTP);
-      confirm(result.message, "succcess");
       setIsVerified(true);
     } catch (error) {
       const response = error.response;
@@ -518,7 +521,10 @@ function ForgotPassword() {
                               Enter the 6 digit code sent to:
                             </span>
                             <span className="text-navy-blue font-semibold">
-                              {maskMobileNumber(user.empID.resID.mobilenumber)}
+                              {maskMobileNumber(
+                                user?.empID?.resID?.mobilenumber ??
+                                  user?.mobilenumber
+                              )}
                             </span>
                           </div>
                         </div>

@@ -380,8 +380,8 @@ function AccountSettings({ isCollapsed }) {
 
   const handleQuestionsChange = async () => {
     let hasErrors = false;
-    const modifiedQuestions = securityquestions.map((q, index) => {
-      const current = userDetails.securityquestions?.[index];
+    const modifiedQuestions = securityquestions?.map((q, index) => {
+      const current = userDetails?.securityquestions?.[index];
       const isSameQuestion = current?.question === q.question;
       const hasNewAnswer = q.answer?.trim() !== "";
 

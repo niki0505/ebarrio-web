@@ -221,6 +221,7 @@ function Accounts({ isCollapsed }) {
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
     const rows = users
       .filter((user) => user.status === "Inactive" || user.status === "Active")
+      .filter((user) => user.role !== "Technical Admin")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -254,7 +255,7 @@ function Accounts({ isCollapsed }) {
       "data:text/csv;charset=utf-8," +
       [
         `${title}`,
-        `Exported by: ${user.name}`,
+        `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
         `Exported on: ${now}`,
         "",
         headers.join(","),
@@ -266,7 +267,9 @@ function Accounts({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Barangay_Aniban_2_Accounts_by_${user.name.replace(/ /g, "_")}.csv`
+      `Barangay_Aniban_2_Accounts_by_${
+        user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+      }.csv`
     );
 
     document.body.appendChild(link);
@@ -308,6 +311,7 @@ function Accounts({ isCollapsed }) {
     // Table
     const rows = users
       .filter((user) => user.status === "Inactive" || user.status === "Active")
+      .filter((user) => user.role !== "Technical Admin")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -357,7 +361,11 @@ function Accounts({ isCollapsed }) {
 
         // Exported by & exported on
         doc.setFontSize(10);
-        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(
+          `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
+          logoX + 20,
+          logoY + 5
+        );
         doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
 
         // Page number
@@ -371,10 +379,9 @@ function Accounts({ isCollapsed }) {
       },
     });
 
-    const filename = `Barangay_Aniban_2_Accounts_by_${user.name.replace(
-      / /g,
-      "_"
-    )}.pdf`;
+    const filename = `Barangay_Aniban_2_Accounts_by_${
+      user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+    }.pdf`;
     doc.save(filename);
     setexportDropdown(false);
 

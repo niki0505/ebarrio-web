@@ -55,7 +55,6 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
         username: user.username,
         password: password,
       });
-      console.log(res.status);
       if (res.status === 200) {
         setPassword("");
         setPasswordError("");
@@ -72,6 +71,11 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
         setPasswordError("An unexpected error occurred.");
       }
     }
+  };
+
+  const logoutSelected = () => {
+    resetTimer();
+    logout();
   };
 
   return (
@@ -120,7 +124,7 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
               <div className="flex gap-x-4">
                 <button
                   className="!text-base actions-btn bg-btn-color-red hover:bg-red-700"
-                  onClick={logout}
+                  onClick={logoutSelected}
                 >
                   Log Out
                 </button>

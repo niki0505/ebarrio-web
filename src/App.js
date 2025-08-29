@@ -110,7 +110,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Household />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />

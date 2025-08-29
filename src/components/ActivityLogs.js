@@ -126,7 +126,7 @@ function ActivityLogs({ isCollapsed }) {
         return [
           log.logno,
           fullname,
-          log.userID.username,
+          log.userID?.username ?? "N/A",
           log.action,
           `${log.description.replace(",", "")}`,
           `${createdDate.replace(",", "")}`,
@@ -137,7 +137,7 @@ function ActivityLogs({ isCollapsed }) {
       "data:text/csv;charset=utf-8," +
       [
         `${title}`,
-        `Exported by: ${user.name}`,
+        `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
         `Exported on: ${now}`,
         "",
         headers.join(","),
@@ -149,7 +149,9 @@ function ActivityLogs({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Barangay_Aniban_2_Activity_Logs_by_${user.name.replace(/ /g, "_")}.csv`
+      `Barangay_Aniban_2_Activity_Logs_by_${
+        user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+      }.csv`
     );
 
     document.body.appendChild(link);
@@ -205,7 +207,7 @@ function ActivityLogs({ isCollapsed }) {
         return [
           log.logno,
           fullname,
-          log.userID.username,
+          log.userID?.username ?? "N/A",
           log.action,
           `${log.description.replace(",", "")}`,
           `${createdDate.replace(",", "")}`,
@@ -232,7 +234,11 @@ function ActivityLogs({ isCollapsed }) {
 
         // Exported by & exported on
         doc.setFontSize(10);
-        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(
+          `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
+          logoX + 20,
+          logoY + 5
+        );
         doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
 
         // Page number
@@ -246,10 +252,9 @@ function ActivityLogs({ isCollapsed }) {
       },
     });
 
-    const filename = `Barangay_Aniban_2_Activity_Logs_by_${user.name.replace(
-      / /g,
-      "_"
-    )}.pdf`;
+    const filename = `Barangay_Aniban_2_Activity_Logs_by_${
+      user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+    }.pdf`;
     doc.save(filename);
     setexportDropdown(false);
 
