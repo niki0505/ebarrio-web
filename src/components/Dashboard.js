@@ -636,6 +636,10 @@ function Dashboard({ isCollapsed }) {
       animateCount(residentsData.voters, setAnimatedVoters);
   }, [residentsData.voters]);
 
+  const paddedroundedMaxDocumentFrequency = roundedMaxDocumentFrequency + 4;
+  const paddedMaxReservationFrequency = roundedMaxReservationFrequency + 4;
+  const paddedroundedMaxBlotterFrequency = roundedMaxBlotterFrequency + 4;
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
@@ -729,90 +733,6 @@ function Dashboard({ isCollapsed }) {
                   </div>
                 </div>
               </div>
-
-              {/* <div
-                className="form-group cursor-pointer"
-                onClick={() =>
-                  navigation("/residents", {
-                    state: {
-                      selectedSort: "Senior Citizens",
-                    },
-                  })
-                }
-              >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
-
-                  <div class="flex-grow">
-                    <h2 class="font-title text-[24px] font-bold">
-                      {residentsData.seniorCitizens}
-                    </h2>
-                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
-                      Senior Citizens
-                    </p>
-                  </div>
-
-                  <div class="demog-icon">
-                    <MdElderly />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="form-group cursor-pointer"
-                onClick={() =>
-                  navigation("/residents", {
-                    state: {
-                      selectedSort: "PWD",
-                    },
-                  })
-                }
-              >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
-
-                  <div class="flex-grow">
-                    <h2 class="font-title text-[24px] font-bold">
-                      {residentsData.PWD}
-                    </h2>
-                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
-                      PWD
-                    </p>
-                  </div>
-
-                  <div class="demog-icon">
-                    <MdElderly />
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className="form-group cursor-pointer"
-                onClick={() =>
-                  navigation("/residents", {
-                    state: {
-                      selectedSort: "Pregnant",
-                    },
-                  })
-                }
-              >
-                <div className="demog-card-container">
-                  <div class="demog-card-left-border bg-[#00DFA2]"></div>
-
-                  <div class="flex-grow">
-                    <h2 class="font-title text-[24px] font-bold">
-                      {residentsData.pregnant}
-                    </h2>
-                    <p class="text-[#00DFA2] font-title text-[16px] font-semibold">
-                      Pregnant
-                    </p>
-                  </div>
-
-                  <div class="demog-icon">
-                    <MdElderly />
-                  </div>
-                </div>
-              </div> */}
 
               <div
                 className="form-group cursor-pointer"
@@ -930,31 +850,68 @@ function Dashboard({ isCollapsed }) {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={classificationArray}
-                        margin={{ top: 20, right: 30, bottom: 60 }}
+                        margin={{ top: 20, right: 30, bottom: 80 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <defs>
+                          <linearGradient
+                            id="colorBlue"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#0096FF"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#0096FF"
+                              stopOpacity={0.3}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="4 4" />
                         <XAxis
                           dataKey="category"
                           tick={
                             isSmallScreen
                               ? false
-                              : { fontSize: 14, fill: "#04384E" }
+                              : { fontSize: 12, fill: "#04384E" }
                           }
                           interval={0}
                           angle={isSmallScreen ? 0 : -30}
                           textAnchor={isSmallScreen ? "middle" : "end"}
+                          tickLine={false}
+                          axisLine={{ stroke: "#ccc" }}
                         />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
+                        <YAxis tickLine={false} axisLine={{ stroke: "#ccc" }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#f9f9f9",
+                            borderRadius: 10,
+                          }}
+                        />
+                        <Legend
+                          iconType="circle"
+                          layout="horizontal"
+                          align="center"
+                          verticalAlign="top"
+                          wrapperStyle={{
+                            fontSize: "14px",
+                            fontFamily: "Quicksand",
+                            color: "#04384E",
+                          }}
+                        />
                         <Bar
                           dataKey="Total"
-                          fill="#0096FF"
-                          className="cursor-pointer"
+                          fill="url(#colorBlue)"
+                          radius={[10, 10, 0, 0]}
+                          animationDuration={1000}
                           onClick={(data, index) => {
                             const clickedCategory =
                               classificationArray[index].category;
-
                             navigation("/residents", {
                               state: {
                                 selectedSort: clickedCategory,
@@ -994,7 +951,68 @@ function Dashboard({ isCollapsed }) {
                           data={documentChartData}
                           margin={{ top: 20, right: 30, bottom: 5 }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" />
+                          <defs>
+                            <linearGradient
+                              id="yellowGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#FFC107"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#FFC107"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                            <linearGradient
+                              id="greenGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#4CAF50"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#4CAF50"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                            <linearGradient
+                              id="redGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#F63131"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#F63131"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                          </defs>
+
+                          <CartesianGrid
+                            stroke="#e0e0e0"
+                            strokeDasharray="4 4"
+                          />
+
                           <XAxis
                             dataKey="month"
                             tick={({ x, y, payload }) => (
@@ -1010,20 +1028,43 @@ function Dashboard({ isCollapsed }) {
                                 {payload.value}
                               </text>
                             )}
+                            tickLine={false}
+                            axisLine={{ stroke: "#ccc" }}
                           />
 
                           <YAxis
-                            domain={[0, roundedMaxDocumentFrequency]}
+                            domain={[0, paddedroundedMaxDocumentFrequency]}
                             ticks={documentYTicks}
+                            tickLine={false}
+                            axisLine={{ stroke: "#ccc" }}
+                            tick={{
+                              fontSize: 14,
+                              fill: "#04384E",
+                              fontWeight: 600,
+                            }}
                           />
 
-                          <Tooltip />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#f9f9f9",
+                              borderRadius: 10,
+                              borderColor: "#ccc",
+                            }}
+                            itemStyle={{ fontWeight: 500, color: "#333" }}
+                            labelStyle={{ color: "#666" }}
+                          />
+
                           <Legend
+                            iconType="circle"
+                            layout="horizontal"
+                            align="center"
+                            verticalAlign="top"
                             wrapperStyle={{
                               fontSize: "14px",
                               fontWeight: 600,
                               color: "#04384E",
                               fontFamily: "Quicksand",
+                              marginBottom: 10,
                             }}
                             onClick={(e) =>
                               handleLegendClick(
@@ -1034,26 +1075,40 @@ function Dashboard({ isCollapsed }) {
                               )
                             }
                           />
+
                           {activeDocumentKeys.includes("Pending") && (
-                            <Bar dataKey="Pending" fill="#FFC107">
+                            <Bar
+                              dataKey="Pending"
+                              fill="url(#yellowGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Pending"
                                 content={renderTopLabel()}
                               />
                             </Bar>
                           )}
-
                           {activeDocumentKeys.includes("Issued") && (
-                            <Bar dataKey="Issued" fill="#4CAF50">
+                            <Bar
+                              dataKey="Issued"
+                              fill="url(#greenGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Issued"
                                 content={renderTopLabel()}
                               />
                             </Bar>
                           )}
-
                           {activeDocumentKeys.includes("Rejected") && (
-                            <Bar dataKey="Rejected" fill="#F63131">
+                            <Bar
+                              dataKey="Rejected"
+                              fill="url(#redGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Rejected"
                                 content={renderTopLabel()}
@@ -1065,7 +1120,7 @@ function Dashboard({ isCollapsed }) {
                     </div>
                   ) : (
                     <div className="reports-empty-container">
-                      <h1 className="reports-empty-label">
+                      <h1 className="reports-empty-label text-gray-500">
                         No document request data available.
                       </h1>
                     </div>
@@ -1082,7 +1137,68 @@ function Dashboard({ isCollapsed }) {
                           data={reservationChartData}
                           margin={{ top: 20, right: 30, bottom: 5 }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" />
+                          <defs>
+                            <linearGradient
+                              id="yellowGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#FFC107"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#FFC107"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                            <linearGradient
+                              id="greenGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#4CAF50"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#4CAF50"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                            <linearGradient
+                              id="redGradient"
+                              x1="0"
+                              y1="0"
+                              x2="0"
+                              y2="1"
+                            >
+                              <stop
+                                offset="5%"
+                                stopColor="#F63131"
+                                stopOpacity={0.8}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor="#F63131"
+                                stopOpacity={0.3}
+                              />
+                            </linearGradient>
+                          </defs>
+
+                          <CartesianGrid
+                            stroke="#e0e0e0"
+                            strokeDasharray="4 4"
+                          />
+
                           <XAxis
                             dataKey="month"
                             tick={({ x, y, payload }) => (
@@ -1098,18 +1214,43 @@ function Dashboard({ isCollapsed }) {
                                 {payload.value}
                               </text>
                             )}
+                            tickLine={false}
+                            axisLine={{ stroke: "#ccc" }}
                           />
+
                           <YAxis
-                            domain={[0, roundedMaxReservationFrequency]}
+                            domain={[0, paddedMaxReservationFrequency]}
                             ticks={reservationYTicks}
+                            tickLine={false}
+                            axisLine={{ stroke: "#ccc" }}
+                            tick={{
+                              fontSize: 14,
+                              fill: "#04384E",
+                              fontWeight: 600,
+                            }}
                           />
-                          <Tooltip />
+
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "#f9f9f9",
+                              borderRadius: 10,
+                              borderColor: "#ccc",
+                            }}
+                            itemStyle={{ fontWeight: 500, color: "#333" }}
+                            labelStyle={{ color: "#666" }}
+                          />
+
                           <Legend
+                            iconType="circle"
+                            layout="horizontal"
+                            align="center"
+                            verticalAlign="top"
                             wrapperStyle={{
                               fontSize: "14px",
                               fontWeight: 600,
                               color: "#04384E",
                               fontFamily: "Quicksand",
+                              marginBottom: 10,
                             }}
                             onClick={(e) =>
                               handleLegendClick(
@@ -1120,8 +1261,14 @@ function Dashboard({ isCollapsed }) {
                               )
                             }
                           />
+
                           {activeReservationKeys.includes("Pending") && (
-                            <Bar dataKey="Pending" fill="#FFC107">
+                            <Bar
+                              dataKey="Pending"
+                              fill="url(#yellowGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Pending"
                                 content={renderTopLabel()}
@@ -1129,7 +1276,12 @@ function Dashboard({ isCollapsed }) {
                             </Bar>
                           )}
                           {activeReservationKeys.includes("Approved") && (
-                            <Bar dataKey="Approved" fill="#4CAF50">
+                            <Bar
+                              dataKey="Approved"
+                              fill="url(#greenGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Approved"
                                 content={renderTopLabel()}
@@ -1137,7 +1289,12 @@ function Dashboard({ isCollapsed }) {
                             </Bar>
                           )}
                           {activeReservationKeys.includes("Rejected") && (
-                            <Bar dataKey="Rejected" fill="#F63131">
+                            <Bar
+                              dataKey="Rejected"
+                              fill="url(#redGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
                               <LabelList
                                 dataKey="Rejected"
                                 content={renderTopLabel()}
@@ -1149,7 +1306,7 @@ function Dashboard({ isCollapsed }) {
                     </div>
                   ) : (
                     <div className="reports-empty-container">
-                      <h1 className="reports-empty-label">
+                      <h1 className="reports-empty-label text-gray-500">
                         No court reservation data available.
                       </h1>
                     </div>
@@ -1171,7 +1328,82 @@ function Dashboard({ isCollapsed }) {
                         data={blotterChartData}
                         margin={{ top: 20, right: 30, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <defs>
+                          <linearGradient
+                            id="yellowGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#FFC107"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#FFC107"
+                              stopOpacity={0.3}
+                            />
+                          </linearGradient>
+                          <linearGradient
+                            id="blueGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#0096FF"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#0096FF"
+                              stopOpacity={0.3}
+                            />
+                          </linearGradient>
+                          <linearGradient
+                            id="greenGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#4CAF50"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#4CAF50"
+                              stopOpacity={0.3}
+                            />
+                          </linearGradient>
+                          <linearGradient
+                            id="redGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#F63131"
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#F63131"
+                              stopOpacity={0.3}
+                            />
+                          </linearGradient>
+                        </defs>
+
+                        <CartesianGrid stroke="#e0e0e0" strokeDasharray="4 4" />
                         <XAxis
                           dataKey="month"
                           tick={({ x, y, payload }) => (
@@ -1187,19 +1419,41 @@ function Dashboard({ isCollapsed }) {
                               {payload.value}
                             </text>
                           )}
+                          tickLine={false}
+                          axisLine={{ stroke: "#ccc" }}
                         />
                         <YAxis
-                          domain={[0, roundedMaxBlotterFrequency]}
+                          domain={[0, paddedroundedMaxBlotterFrequency]}
                           ticks={blotterYTicks}
+                          tickLine={false}
+                          axisLine={{ stroke: "#ccc" }}
+                          tick={{
+                            fontSize: 14,
+                            fill: "#04384E",
+                            fontWeight: 600,
+                          }}
                         />
 
-                        <Tooltip />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#f9f9f9",
+                            borderRadius: 10,
+                            borderColor: "#ccc",
+                          }}
+                          itemStyle={{ fontWeight: 500, color: "#333" }}
+                          labelStyle={{ color: "#666" }}
+                        />
                         <Legend
+                          iconType="circle"
+                          layout="horizontal"
+                          align="center"
+                          verticalAlign="top"
                           wrapperStyle={{
                             fontSize: "14px",
                             fontWeight: 600,
                             color: "#04384E",
                             fontFamily: "Quicksand",
+                            marginBottom: 10,
                           }}
                           onClick={(e) =>
                             handleLegendClick(
@@ -1211,7 +1465,12 @@ function Dashboard({ isCollapsed }) {
                           }
                         />
                         {activeBlotterKeys.includes("Pending") && (
-                          <Bar dataKey="Pending" fill="#FFC107">
+                          <Bar
+                            dataKey="Pending"
+                            fill="url(#yellowGradient)"
+                            radius={[10, 10, 0, 0]}
+                            animationDuration={800}
+                          >
                             <LabelList
                               dataKey="Pending"
                               content={renderTopLabel()}
@@ -1219,7 +1478,12 @@ function Dashboard({ isCollapsed }) {
                           </Bar>
                         )}
                         {activeBlotterKeys.includes("Scheduled") && (
-                          <Bar dataKey="Scheduled" fill="#0096FF">
+                          <Bar
+                            dataKey="Scheduled"
+                            fill="url(#blueGradient)"
+                            radius={[10, 10, 0, 0]}
+                            animationDuration={800}
+                          >
                             <LabelList
                               dataKey="Scheduled"
                               content={renderTopLabel()}
@@ -1227,7 +1491,12 @@ function Dashboard({ isCollapsed }) {
                           </Bar>
                         )}
                         {activeBlotterKeys.includes("Settled") && (
-                          <Bar dataKey="Settled" fill="#4CAF50">
+                          <Bar
+                            dataKey="Settled"
+                            fill="url(#greenGradient)"
+                            radius={[10, 10, 0, 0]}
+                            animationDuration={800}
+                          >
                             <LabelList
                               dataKey="Settled"
                               content={renderTopLabel()}
@@ -1235,7 +1504,12 @@ function Dashboard({ isCollapsed }) {
                           </Bar>
                         )}
                         {activeBlotterKeys.includes("Rejected") && (
-                          <Bar dataKey="Rejected" fill="#F63131">
+                          <Bar
+                            dataKey="Rejected"
+                            fill="url(#redGradient)"
+                            radius={[10, 10, 0, 0]}
+                            animationDuration={800}
+                          >
                             <LabelList
                               dataKey="Rejected"
                               content={renderTopLabel()}
@@ -1247,7 +1521,7 @@ function Dashboard({ isCollapsed }) {
                   </div>
                 ) : (
                   <div className="reports-empty-container">
-                    <h1 className="reports-empty-label">
+                    <h1 className="reports-empty-label text-gray-500">
                       No blotter report data available.
                     </h1>
                   </div>

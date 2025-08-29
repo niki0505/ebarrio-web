@@ -298,12 +298,7 @@ function ForgotPassword() {
       {/* Forgot Password */}
       {!isExisting && (
         <>
-          <div
-            className="login-container"
-            style={{
-              backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-            }}
-          >
+          <div className="login-container">
             <img
               src={AppLogo}
               alt="App Logo"
