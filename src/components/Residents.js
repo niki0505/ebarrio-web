@@ -29,7 +29,7 @@ import {
   MdArrowDropDown,
 } from "react-icons/md";
 import { IoArchiveSharp } from "react-icons/io5";
-import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
+import { FaIdCard, FaEdit, FaTrashRestoreAlt, FaArchive } from "react-icons/fa";
 import { HiDocumentAdd } from "react-icons/hi";
 import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
 import { CgEyeAlt } from "react-icons/cg";
@@ -54,10 +54,6 @@ function Residents({ isCollapsed }) {
   const exportRef = useRef(null);
   const filterRef = useRef(null);
   const [loading, setLoading] = useState(false);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -433,12 +429,19 @@ function Residents({ isCollapsed }) {
   };
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredResidents.slice(indexOfFirstRow, indexOfLastRow);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredResidents.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredResidents
+      : filteredResidents.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -930,7 +933,7 @@ function Residents({ isCollapsed }) {
                                     type="submit"
                                     onClick={(e) => archiveBtn(e, res._id)}
                                   >
-                                    <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
+                                    <FaArchive className="text-[24px] text-btn-color-blue" />
                                     <label className="text-btn-color-blue text-xs">
                                       ARCHIVE
                                     </label>
@@ -980,7 +983,7 @@ function Residents({ isCollapsed }) {
                                   type="submit"
                                   onClick={(e) => recoverBtn(e, res._id)}
                                 >
-                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <FaArchive className="text-[24px] text-btn-color-blue" />
                                   <label className="text-btn-color-blue text-xs">
                                     RECOVER
                                   </label>
@@ -1027,8 +1030,8 @@ function Residents({ isCollapsed }) {
                           <>
                             <td>
                               {res.middlename
-                                ? `${res.lastname} ${res.middlename} ${res.firstname}`
-                                : `${res.lastname} ${res.firstname}`}
+                                ? `${res.lastname}, ${res.middlename} ${res.firstname}`
+                                : `${res.lastname}, ${res.firstname}`}
                             </td>
                             <td>{res.age}</td>
                             <td>{res.sex}</td>
@@ -1061,13 +1064,16 @@ function Residents({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -1084,25 +1090,30 @@ function Residents({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+        {currentRows.map((row, index) => (
+          <div key={index}>{row.name}</div>
+        ))}
 
         {isCertClicked && (
           <CreateCertificate

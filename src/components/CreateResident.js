@@ -2453,6 +2453,8 @@ function CreateResident({ isCollapsed }) {
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}
       </div>
+
+      <div className="mb-20"></div>
     </div>
   );
 }

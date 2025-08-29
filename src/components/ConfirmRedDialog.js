@@ -6,7 +6,7 @@ import { IoClose, IoArchiveSharp } from "react-icons/io5";
 
 const ConfirmRedDialog = ({ message, onConfirm, onCancel }) => {
   return (
-    <div className="modal-container">
+    <div className="session-container">
       <div className="modal-form-confirm-container">
         <div className="flex justify-end w-full">
           <IoClose

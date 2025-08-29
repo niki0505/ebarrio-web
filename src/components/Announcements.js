@@ -16,9 +16,7 @@ import "../Stylesheets/Announcements.css";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
-import { IoArchiveSharp } from "react-icons/io5";
-import { FaHeart } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
+import { FaHeart, FaArchive, FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
@@ -338,7 +336,8 @@ function Announcements({ isCollapsed }) {
                               className="navbar-dropdown-item justify-start"
                               onClick={() => handleArchive(announcement._id)}
                             >
-                              <IoArchiveSharp className="text-red-600 ml-2" />
+                              <FaArchive className="text-red-600 ml-2 text-sm" />
+
                               <li className="text-red-600 announcement-menu-text">
                                 Archive
                               </li>
@@ -453,7 +452,7 @@ function Announcements({ isCollapsed }) {
                           className="navbar-dropdown-item justify-start"
                           onClick={handleArchive}
                         >
-                          <IoArchiveSharp className="text-red-600 ml-2" />
+                          <FaArchive className="text-red-600 ml-2 text-sm" />
                           <li className="text-red-600 announcement-menu-text">
                             Archive
                           </li>
