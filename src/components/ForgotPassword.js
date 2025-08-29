@@ -362,7 +362,7 @@ function ForgotPassword() {
                 <div
                   className="w-screen h-screen relative overflow-hidden"
                   style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                    backgroundImage: `linear-gradient(to bottom,#0e94d3 0%,#0a70a0 50%,#095e86 75%,#074c6d 100%`,
                   }}
                 >
                   <img
@@ -489,7 +489,7 @@ function ForgotPassword() {
                 <div
                   className="w-screen h-screen relative overflow-hidden"
                   style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                    backgroundImage: `linear-gradient(to bottom,#0e94d3 0%,#0a70a0 50%,#095e86 75%,#074c6d 100%`,
                   }}
                 >
                   <img
@@ -567,7 +567,7 @@ function ForgotPassword() {
                   <div
                     className="w-screen h-screen relative overflow-hidden"
                     style={{
-                      backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                      backgroundImage: `linear-gradient(to bottom,#0e94d3 0%,#0a70a0 50%,#095e86 75%,#074c6d 100%`,
                     }}
                   >
                     <img
@@ -655,7 +655,7 @@ function ForgotPassword() {
                 <div
                   className="w-screen h-screen relative overflow-hidden"
                   style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                    backgroundImage: `linear-gradient(to bottom,#0e94d3 0%,#0a70a0 50%,#095e86 75%,#074c6d 100%`,
                   }}
                 >
                   <img
