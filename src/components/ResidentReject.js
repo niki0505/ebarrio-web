@@ -36,7 +36,7 @@ function ResidentReject({ onClose, resID }) {
     if (!validateRemarks(remarks)) return;
 
     const isConfirmed = await confirm(
-      "Are you sure you want to reject this resident profile?",
+      "Please confirm to proceed with rejecting this residency application request. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {

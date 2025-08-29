@@ -19,7 +19,7 @@ function EditEmployee({ onClose, empID }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this employee's position?",
+      "Please confirm to proceed with updating the employee’s position. Make sure the updated information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

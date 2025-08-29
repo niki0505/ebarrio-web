@@ -57,7 +57,7 @@ function CreateContact({ onClose }) {
 
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to create a new contact?",
+        "Please confirm to proceed with adding this emergency hotline. Make sure all details are correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {

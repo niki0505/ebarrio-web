@@ -37,7 +37,7 @@ function CourtReject({ onClose, reservationID }) {
     const validationErrors = validateRemarks(remarks);
     setError(validationErrors);
     const isConfirmed = await confirm(
-      "Are you sure you want to reject this reservation?",
+      "Please confirm to proceed with rejecting this court reservation. This action cannot be undone.",
       "confirmred"
     );
     if (!isConfirmed) {

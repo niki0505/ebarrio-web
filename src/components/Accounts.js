@@ -128,7 +128,7 @@ function Accounts({ isCollapsed }) {
 
   const handleDeactivate = async (userID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to deactivate this user?",
+      "Please confirm to proceed with deactivating this user account. This action can not be undone.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -149,7 +149,7 @@ function Accounts({ isCollapsed }) {
 
   const handleActivate = async (userID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to activate this user?",
+      "Please confirm to proceed with activating this user account. The account will be restored and the user can log in.",
       "confirm"
     );
     if (!isConfirmed) {

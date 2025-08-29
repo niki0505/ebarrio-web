@@ -49,7 +49,7 @@ function BlotterReject({ onClose, blotterID, onViewClose }) {
     }
 
     const isConfirmed = await confirm(
-      "Are you sure you want to reject this blotter report?",
+      "Please confirm to proceed with rejecting this blotter. This action cannot be undone.",
       "confirmred"
     );
     if (!isConfirmed) {

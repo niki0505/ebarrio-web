@@ -36,7 +36,7 @@ function Reject({ onClose, certID }) {
     setError(validationErrors);
 
     const isConfirmed = await confirm(
-      "Are you sure you want to reject this document request?",
+      "Please confirm to proceed with rejecting this document request. This action cannot be undone.",
       "confirmred"
     );
     if (!isConfirmed) {
