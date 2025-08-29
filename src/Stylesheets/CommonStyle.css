@@ -129,7 +129,15 @@ td {
 /*--------------------------------------------LOGIN, SIGNUP, OTP--------------------------------------------*/
 .login-container {
   @apply w-screen h-screen flex items-center justify-center overflow-hidden relative;
+  background-image: linear-gradient(
+    to bottom,
+    #0e94d3 0%,
+    #0a70a0 50%,
+    #095e86 75%,
+    #074c6d 100%
+  );
 }
+
 .right-login-container {
   @apply absolute right-0 h-screen overflow-y-auto bg-[#FFFBFC] shadow-lg p-24 lg:w-1/2 md:w-1/2 w-full flex flex-col justify-center gap-8 transition-all duration-1000 ease-in-out;
 }

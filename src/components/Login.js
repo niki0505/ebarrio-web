@@ -122,12 +122,7 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="login-container"
-      style={{
-        backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-      }}
-    >
+    <div className="login-container login-bg">
       {/* Logo */}
       <img
         src={AppLogo}
@@ -195,23 +190,15 @@ const Login = () => {
                     {showPassword ? <FaEye /> : <FaEyeSlash />}
                   </button>
                 </div>
-                <a href="/forgot-password" className="login-forgot-btn">
-                  Forgot password?
-                </a>
               </div>
 
               <div className="flex flex-col gap-2">
                 <button type="submit" disabled={loading} className="login-btn">
                   {loading ? "Logging in..." : "Login"}
                 </button>
-                <div className="flex flex-row justify-center items-center space-x-2">
-                  <a className="!text-[#808080] font-subTitle font-semibold">
-                    Don't have an account?
-                  </a>
-                  <a href="/signup" className="login-forgot-btn">
-                    Sign Up
-                  </a>
-                </div>
+                <a href="/forgot-password" className="login-forgot-btn">
+                  Forgot password?
+                </a>
               </div>
             </form>
           </div>
