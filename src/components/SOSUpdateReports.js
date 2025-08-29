@@ -32,9 +32,6 @@ function SOSUpdateReports({ isCollapsed }) {
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isHistoryClicked, setHistoryClicked] = useState(false);
   const [filteredReports, setFilteredReports] = useState([]);
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -155,12 +152,19 @@ function SOSUpdateReports({ isCollapsed }) {
   }, [reports, isActiveClicked, isHistoryClicked]);
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredReports.slice(indexOfFirstRow, indexOfLastRow);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredReports.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredReports
+      : filteredReports.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -189,56 +193,128 @@ function SOSUpdateReports({ isCollapsed }) {
         </p>
       </div>
 
+      <div className="line-container">
+        <hr className="line" />
+      </div>
+
       {isActiveClicked ? (
         <>
-          {isLoaded && (
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={position}
-              zoom={20}
-            >
-              {/* Marker */}
-              {filteredReports?.map((report) => {
-                return (
-                  <Marker
-                    key={report._id}
-                    position={report.location}
-                    onClick={() => setSelectedID(report._id)}
-                  />
-                );
-              })}
-            </GoogleMap>
-          )}
-          {report && (
-            <div key={report._id}>
-              <img
-                src={report.resID?.picture}
-                alt="Resident"
-                style={{ width: "80px", height: "80px", borderRadius: "50%" }}
-              />
-              <p>
-                {report.resID?.firstname} {report.resID?.lastname}
-              </p>
-              <p>{report.resID?.age}</p>
-              <p>{report.resID?.householdno?.address}</p>
-              <p>{report.resID?.mobilenumber}</p>
-              <p>
-                Heading:{" "}
-                {report.responder?.filter((r) => r.status === "Heading").length}
-              </p>
-              <p>
-                Arrived:{" "}
-                {report.responder?.filter((r) => r.status === "Arrived").length}
-              </p>
-            </div>
-          )}
+          <div
+            className={`mt-4 ${report ? "grid grid-cols-3 gap-4" : "w-full"}`}
+          >
+            {/* Map */}
+            {isLoaded && (
+              <div
+                className={`${
+                  report ? "col-span-2" : "w-full"
+                } border-4 border-[#BC0F0F] rounded-lg overflow-hidden`}
+              >
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "440px" }}
+                  center={position}
+                  zoom={18}
+                >
+                  {filteredReports?.map((report) => (
+                    <Marker
+                      key={report._id}
+                      position={report.location}
+                      onClick={() => setSelectedID(report._id)}
+                    />
+                  ))}
+                </GoogleMap>
+              </div>
+            )}
 
+            {/* Reporter Details */}
+            {report && (
+              <div>
+                {/* Reporter */}
+                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md flex flex-col items-center">
+                  <h2 className="text-lg font-bold mb-2">Reporter Details</h2>
+                  <img
+                    src={report.resID?.picture}
+                    alt="Resident"
+                    className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
+                  />
+                  <p className="text-xl font-semibold">
+                    {report.resID?.firstname} {report.resID?.lastname}
+                  </p>
+                  <p className="text-sm italic mb-2">Resident</p>
+                  <div className="flex flex-col items-start">
+                    <div className="flex flex-row gap-2">
+                      <span className="font-bold">Age:</span>
+                      <span className="opacity-80">
+                        {report.resID?.age || "N/A"}
+                      </span>
+                    </div>
+                    <span className="font-bold">Address:</span>
+                    <span className="opacity-80">
+                      {report.resID?.householdno?.address}
+                    </span>
+
+                    <div className="flex flex-row gap-2">
+                      <span className="font-bold">Mobile:</span>
+                      <span className="opacity-80">
+                        {report.resID?.mobilenumber}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md mt-3 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">Heading:</span>
+                    <span className="opacity-80">
+                      {
+                        report.responder?.filter((r) => r.status === "Heading")
+                          .length
+                      }
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold">Arrived:</span>
+                    <span className="opacity-80">
+                      {
+                        report.responder?.filter((r) => r.status === "Arrived")
+                          .length
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Emergency Table */}
           {report && (
-            <div>
-              <p>{report.reporttype ? report.reporttype : "N/A"}</p>
-              <p>{report.readableAddress}</p>
-              <p>{report.createdAt}</p>
-              <p>{report.reportdetails ? report.reportdetails : "N/A"}</p>
+            <div className="mt-6 border rounded-lg shadow overflow-hidden">
+              <table className="w-full border-collapse text-left">
+                <thead className="bg-[#BC0F0F] text-white">
+                  <tr>
+                    <th className="px-4 py-2">Emergency Type</th>
+                    <th className="px-4 py-2">Location</th>
+                    <th className="px-4 py-2">Date Reported</th>
+                    <th className="px-4 py-2">Time Reported</th>
+                    <th className="px-4 py-2">Additional Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="px-4 py-3">{report.reporttype || "N/A"}</td>
+                    <td className="px-4 py-3">{report.readableAddress}</td>
+                    <td className="px-4 py-3">
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      {new Date(report.createdAt).toLocaleTimeString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      {report.reportdetails || "N/A"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </>
@@ -299,18 +375,31 @@ function SOSUpdateReports({ isCollapsed }) {
                 )}
               </tbody>
             </table>
+
+            {isReportClicked && (
+              <ViewSOS
+                onClose={() => setReportClicked(false)}
+                reportID={selectedID}
+              />
+            )}
+
             <div className="table-pagination">
               <div className="table-pagination-size">
                 <span>Rows per page:</span>
                 <div className="relative w-12">
                   <select
-                    value={rowsPerPage}
+                    value={rowsPerPage === "All" ? "All" : rowsPerPage}
                     onChange={(e) => {
-                      setRowsPerPage(Number(e.target.value));
+                      const value =
+                        e.target.value === "All"
+                          ? "All"
+                          : Number(e.target.value);
+                      setRowsPerPage(value);
                       setCurrentPage(1);
                     }}
-                    className="!border-[#BC0F0F] !text-btn-color-red table-pagination-select"
+                    className="table-pagination-select"
                   >
+                    <option value="All">All</option>
                     {[5, 10, 15, 20].map((num) => (
                       <option key={num} value={num}>
                         {num}
@@ -318,7 +407,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     ))}
                   </select>
                   <div className="table-pagination-select-icon">
-                    <MdArrowDropDown size={18} color={"#F63131"} />
+                    <MdArrowDropDown size={18} color={"#0E94D3"} />
                   </div>
                 </div>
               </div>
@@ -327,36 +416,42 @@ function SOSUpdateReports({ isCollapsed }) {
                 {startRow}-{endRow} of {totalRows}
               </div>
 
-              <div>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="table-pagination-btn"
-                >
-                  <MdKeyboardArrowLeft color={"#F63131"} className="text-xl" />
-                </button>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="table-pagination-btn"
-                >
-                  <MdKeyboardArrowRight color={"#F63131"} className="text-xl" />
-                </button>
-              </div>
+              {rowsPerPage !== "All" && (
+                <div>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="table-pagination-btn"
+                  >
+                    <MdKeyboardArrowLeft
+                      color={"#0E94D3"}
+                      className="text-xl"
+                    />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="table-pagination-btn"
+                  >
+                    <MdKeyboardArrowRight
+                      color={"#0E94D3"}
+                      className="text-xl"
+                    />
+                  </button>
+                </div>
+              )}
             </div>
+            {currentRows.map((row, index) => (
+              <div key={index}>{row.name}</div>
+            ))}
           </div>
-          {isReportClicked && (
-            <ViewSOS
-              onClose={() => setReportClicked(false)}
-              reportID={selectedID}
-            />
-          )}
         </>
       )}
+      <div className="mb-20"></div>
     </main>
   );
 }

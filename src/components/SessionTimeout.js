@@ -79,27 +79,18 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
       {showModal && (
         <div className="session-container">
           <div className="session-modal">
-            <div className="dialog-title-bar flex-shrink-0 px-4 py-2">
-              <div className="flex flex-col w-full">
-                <div className="dialog-title-bar-items">
-                  <h1 className="dialog-title-bar-title">Session Expired</h1>
-                </div>
-                <hr className="dialog-line" />
-              </div>
-            </div>
-
             <div className="session-content-container modal-form-container">
               <div className="session-icon-container">
                 <MdOutlineQuestionMark className="session-icon" />
               </div>
 
-              <h2 className="mt-2">Session Expired</h2>
-              <p className="text-center">
-                You've been inactive for 15 minutes.
+              <h2 className="dialog-question">Session Expired</h2>
+              <p className="dialog-message">
+                You've been inactive for 15 minutes. Do you want to continue?
               </p>
 
-              <div className="mt-4 w-full">
-                <div className="relative w-full">
+              <div className="mt-4 w-[90%]">
+                <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
@@ -108,7 +99,7 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleConfirm();
                     }}
-                    className="form-input w-full"
+                    className="form-input"
                   />
                   <button
                     type="button"
@@ -128,14 +119,14 @@ function SessionTimeout({ timeout = 15 * 60 * 1000 }) {
 
               <div className="flex gap-x-4">
                 <button
-                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                  className="!text-base actions-btn bg-btn-color-red hover:bg-red-700"
                   onClick={logout}
                 >
                   Log Out
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                  className="!text-base actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                 >
                   Stay Logged In
                 </button>

@@ -94,7 +94,10 @@ td {
 
 /*--------------------------------------------MODAL--------------------------------------------*/
 .modal-container {
-  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
+  @apply h-full fixed inset-0 flex items-center justify-center z-50;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .modal-content {
   @apply flex flex-col justify-center items-center;

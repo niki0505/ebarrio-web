@@ -463,7 +463,7 @@ function CreateAnnouncement({ onClose }) {
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="modal-container">
+                        <div className="modal-container ">
                           <div className="create-announcement-event-details">
                             <div className="dialog-title-bar">
                               <div className="flex flex-col w-full">
@@ -572,7 +572,7 @@ function CreateAnnouncement({ onClose }) {
                                   <button
                                     onClick={handleOK}
                                     type="button"
-                                    className="actions-btn bg-btn-color-blue"
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                   >
                                     OK
                                   </button>

@@ -582,14 +582,14 @@ function ViewBlotter({ onClose, blotterID }) {
                         <button
                           type="button"
                           onClick={handleEdit}
-                          className="actions-btn bg-btn-color-blue"
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                         >
                           Update
                         </button>
                         <button
                           type="button"
                           onClick={handleSettle}
-                          className="actions-btn bg-[#06D001]"
+                          className="actions-btn bg-[#06D001] hover:bg-[#04A700]"
                         >
                           Settle
                         </button>
