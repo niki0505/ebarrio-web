@@ -304,10 +304,10 @@ function SOSUpdateReports({ isCollapsed }) {
                     <td className="px-4 py-3">{report.reporttype || "N/A"}</td>
                     <td className="px-4 py-3">{report.readableAddress}</td>
                     <td className="px-4 py-3">
-                      {new Date(report.createdAt).toLocaleDateString()}
+                      {report.createdAt.split(" at ")[0]}
                     </td>
                     <td className="px-4 py-3">
-                      {new Date(report.createdAt).toLocaleTimeString()}
+                      {report.createdAt.split(" at ")[1]}
                     </td>
                     <td className="px-4 py-3">
                       {report.reportdetails || "N/A"}
