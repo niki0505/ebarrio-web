@@ -154,13 +154,13 @@ function AccountSettings({ isCollapsed }) {
   }, [user]);
 
   useEffect(() => {
-    if (user.role !== "Technical Admin") {
-      const fetchUserDetails = async () => {
-        try {
-          const response = await api.get(`/getcurrentuser/${user.userID}`);
+    const fetchUserDetails = async () => {
+      try {
+        const response = await api.get(`/getcurrentuser/${user.userID}`);
 
-          setUserDetails(response.data);
+        setUserDetails(response.data);
 
+        if (user.role !== "Technical Admin") {
           try {
             const response2 = await api.get(
               `/getresident/${response.data.empID.resID._id}`
@@ -169,30 +169,30 @@ function AccountSettings({ isCollapsed }) {
           } catch (error) {
             console.log("Error fetching resident", error);
           }
-
-          if (
-            !Array.isArray(response.data.securityquestions) ||
-            response.data.securityquestions.length === 0
-          ) {
-            return;
-          }
-
-          setSecurityQuestions([
-            {
-              question: response.data.securityquestions[0]?.question || "",
-              answer: "",
-            },
-            {
-              question: response.data.securityquestions[1]?.question || "",
-              answer: "",
-            },
-          ]);
-        } catch (error) {
-          console.log("Error fetching user details", error);
         }
-      };
-      fetchUserDetails();
-    }
+
+        if (
+          !Array.isArray(response.data.securityquestions) ||
+          response.data.securityquestions.length === 0
+        ) {
+          return;
+        }
+
+        setSecurityQuestions([
+          {
+            question: response.data.securityquestions[0]?.question || "",
+            answer: "",
+          },
+          {
+            question: response.data.securityquestions[1]?.question || "",
+            answer: "",
+          },
+        ]);
+      } catch (error) {
+        console.log("Error fetching user details", error);
+      }
+    };
+    fetchUserDetails();
   }, [user.userID]);
 
   const handleMenu1 = () => {

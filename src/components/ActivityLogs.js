@@ -59,7 +59,7 @@ function ActivityLogs({ isCollapsed }) {
   };
 
   useEffect(() => {
-    setFilteredLogs(activitylogs);
+    setFilteredLogs(activitylogs || []);
     setCurrentPage(1);
   }, [activitylogs]);
 
@@ -100,6 +100,10 @@ function ActivityLogs({ isCollapsed }) {
   };
 
   const exportCSV = async () => {
+    if (filteredLogs.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Activity Logs";
     const now = new Date().toLocaleString();
     const headers = [
@@ -169,6 +173,10 @@ function ActivityLogs({ isCollapsed }) {
   };
 
   const exportPDF = async () => {
+    if (filteredLogs.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
