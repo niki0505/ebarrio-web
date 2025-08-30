@@ -112,7 +112,9 @@ function CreateAccount({ onClose }) {
 
       let roleFromPosition = "";
       if (selectedResident.empID) {
-        if (selectedResident.empID.position === "Clerk") {
+        if (selectedResident.empID.position === "Secretary") {
+          roleFromPosition = "Secretary";
+        } else if (selectedResident.empID.position === "Clerk") {
           roleFromPosition = "Clerk";
         } else if (selectedResident.empID.position === "Justice") {
           roleFromPosition = "Justice";
