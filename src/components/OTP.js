@@ -105,18 +105,20 @@ function OTP() {
 
   return (
     <>
-      <div
-        className="w-screen h-screen relative overflow-hidden"
-        style={{
-          backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-        }}
-      >
+      <div className="login-container">
         <img
           src={AppLogo}
           alt="App Logo"
-          className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+          className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
         />
-        <div className="modal-container">
+        <div
+          className="modal-container"
+          style={{
+            background: "none",
+            backdropFilter: "none",
+            WebkitBackdropFilter: "none",
+          }}
+        >
           <div className="flex flex-col bg-white rounded-xl shadow-lg p-5 w-[25rem] h-[25rem] ">
             <IoArrowBack
               className="text-2xl"

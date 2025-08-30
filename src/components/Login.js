@@ -122,7 +122,7 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container login-bg">
+    <div className="login-container">
       {/* Logo */}
       <img
         src={AppLogo}
