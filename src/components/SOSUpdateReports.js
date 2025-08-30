@@ -336,7 +336,7 @@ function SOSUpdateReports({ isCollapsed }) {
               <tbody className="bg-[#fff] cursor-fault">
                 {filteredReports.length === 0 ? (
                   <tr>
-                    <td colSpan={3}>No results found</td>
+                    <td colSpan={6}>No results found</td>
                   </tr>
                 ) : (
                   currentRows.map((report) => (
