@@ -50,7 +50,7 @@ function CreateEmployee({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new employee?",
+      "Please confirm to proceed with creating a new employee. Make sure all information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

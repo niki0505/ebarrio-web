@@ -58,7 +58,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const handleArchive = async (emergencyID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this emergency contact?",
+      "Please confirm to proceed with archiving this emergency hotline. You can restore it later if needed.",
       "confirmred"
     );
     if (!isConfirmed) {
@@ -82,7 +82,7 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const handleRecover = async (emergencyID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this emergency contact?",
+      "Please confirm to proceed with recovering this emergency contact. The contact will be restored to the active list.",
       "confirmred"
     );
     if (!isConfirmed) {
@@ -533,7 +533,7 @@ function EmergencyHotlines({ isCollapsed }) {
             </div>
           )}
         </div>
-        
+
         {isCreateClicked && (
           <CreateContact onClose={() => setCreateClicked(false)} />
         )}

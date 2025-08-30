@@ -183,64 +183,74 @@ function RiverSnapshots({ isCollapsed }) {
                 </div>
               </div>
             )}
+
+            <div className="table-pagination">
+              <div className="table-pagination-size">
+                <span>Rows per page:</span>
+                <div className="relative w-12">
+                  <select
+                    value={rowsPerPage === "All" ? "All" : rowsPerPage}
+                    onChange={(e) => {
+                      const value =
+                        e.target.value === "All"
+                          ? "All"
+                          : Number(e.target.value);
+                      setRowsPerPage(value);
+                      setCurrentPage(1);
+                    }}
+                    className="table-pagination-select !border-[#F63131] !text-[#F63131]"
+                  >
+                    <option value="All">All</option>
+                    {[5, 10, 15, 20].map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="table-pagination-select-icon">
+                    <MdArrowDropDown size={18} color={"#BC0F0F"} />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                {startRow}-{endRow} of {totalRows}
+              </div>
+
+              {rowsPerPage !== "All" && (
+                <div>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="table-pagination-btn"
+                  >
+                    <MdKeyboardArrowLeft
+                      color={"#BC0F0F"}
+                      className="text-xl"
+                    />
+                  </button>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="table-pagination-btn"
+                  >
+                    <MdKeyboardArrowRight
+                      color={"#BC0F0F"}
+                      className="text-xl"
+                    />
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
         {isAlertClicked && (
           <AlertResidents onClose={() => setAlertClicked(false)} />
         )}
-
-        <div className="table-pagination">
-          <div className="table-pagination-size">
-            <span>Rows per page:</span>
-            <div className="relative w-12">
-              <select
-                value={rowsPerPage === "All" ? "All" : rowsPerPage}
-                onChange={(e) => {
-                  const value =
-                    e.target.value === "All" ? "All" : Number(e.target.value);
-                  setRowsPerPage(value);
-                  setCurrentPage(1);
-                }}
-                className="table-pagination-select !border-[#F63131] !text-[#F63131]"
-              >
-                <option value="All">All</option>
-                {[5, 10, 15, 20].map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-              <div className="table-pagination-select-icon">
-                <MdArrowDropDown size={18} color={"#BC0F0F"} />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            {startRow}-{endRow} of {totalRows}
-          </div>
-
-          {rowsPerPage !== "All" && (
-            <div>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="table-pagination-btn"
-              >
-                <MdKeyboardArrowLeft color={"#BC0F0F"} className="text-xl" />
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="table-pagination-btn"
-              >
-                <MdKeyboardArrowRight color={"#BC0F0F"} className="text-xl" />
-              </button>
-            </div>
-          )}
-        </div>
 
         <div className="mb-20"></div>
       </main>

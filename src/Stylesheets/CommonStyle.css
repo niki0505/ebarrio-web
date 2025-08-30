@@ -148,7 +148,7 @@ td {
   @apply text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px];
 }
 .login-logo {
-  @apply w-[400px] h-[400px] absolute transition-all duration-[2000ms] ease-in-out;
+  @apply w-[420px] h-[420px] absolute transition-all duration-[2000ms] ease-in-out;
 }
 
 /*--------------------------------------------MENUS--------------------------------------------*/

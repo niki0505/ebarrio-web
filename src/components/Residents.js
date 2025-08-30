@@ -175,7 +175,7 @@ function Residents({ isCollapsed }) {
   const approveBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to approve this resident?",
+      "Please confirm to proceed with approving this residency application request. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -260,7 +260,7 @@ function Residents({ isCollapsed }) {
   const archiveBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this resident?",
+      "Please confirm to proceed with archiving this resident. You can restore this record later if needed.",
       "confirmred"
     );
     if (!isConfirmed) {
@@ -283,7 +283,7 @@ function Residents({ isCollapsed }) {
   const recoverBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this resident?",
+      "Please confirm to proceed with recovering this archived resident. The resident will be restored to the active list.",
       "confirmred"
     );
     if (!isConfirmed) {

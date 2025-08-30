@@ -235,7 +235,7 @@ function CreateBlotter({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to file a blotter report?",
+        "Please confirm to proceed with adding this blotter report. Make sure all information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {

@@ -75,7 +75,7 @@ function EditAnnouncement({ onClose, announcementID }) {
   }
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this announcement?",
+      "Please confirm to proceed with editing this announcement. Make sure all details are correct as this will be shared with the community.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -376,7 +376,9 @@ function EditAnnouncement({ onClose, announcementID }) {
                       </select>
                     </div>
                     <div className="employee-form-group">
-                      <label className="form-label">Title<label className="text-red-600">*</label></label>
+                      <label className="form-label">
+                        Title<label className="text-red-600">*</label>
+                      </label>
                       <input
                         type="text"
                         id="title"

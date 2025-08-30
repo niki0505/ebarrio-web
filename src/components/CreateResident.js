@@ -471,7 +471,7 @@ function CreateResident({ isCollapsed }) {
   };
   const handleReset = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to clear all the fields?",
+      "Please confirm to proceed with clearing all fields. This action will remove all current inputs.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -529,7 +529,7 @@ function CreateResident({ isCollapsed }) {
 
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to create a resident profile?",
+        "Please confirm to proceed with adding this resident. Make sure all information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {

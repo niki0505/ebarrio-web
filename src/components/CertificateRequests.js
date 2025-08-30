@@ -144,7 +144,7 @@ function CertificateRequests({ isCollapsed }) {
   const notifyBtn = async (e, certID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to notify the resident that their document is ready for pick-up?",
+      "Please confirm to proceed with notifying the resident that their document is ready for pickup.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -166,7 +166,7 @@ function CertificateRequests({ isCollapsed }) {
   const collectedBtn = async (e, certID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure the resident has already collected this document?",
+      "Please confirm to proceed with marking this document as collected. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -197,7 +197,7 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Indigency") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this document?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;
@@ -231,7 +231,7 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this document?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;
@@ -264,7 +264,7 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Business Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this document?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;

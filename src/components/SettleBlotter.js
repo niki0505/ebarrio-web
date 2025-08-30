@@ -233,7 +233,7 @@ function SettleBlotter({ isCollapsed }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to settle this blotter report?",
+      "Please confirm to proceed with settling this blotter. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

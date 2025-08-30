@@ -40,7 +40,7 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this contact?",
+      "Please confirm to proceed with editing this emergency hotline. Make sure the updated information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

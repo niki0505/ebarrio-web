@@ -133,7 +133,7 @@ function CreateAccount({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new account?",
+      "Please confirm to proceed with adding this new user account. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

@@ -131,7 +131,7 @@ function CreateAnnouncement({ onClose }) {
   const handleSubmit = async () => {
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to create an announcement?",
+        "Please confirm to proceed with creating this announcement. Make sure all details are correct as this will be shared with the community.",
         "confirm"
       );
       if (!isConfirmed) {

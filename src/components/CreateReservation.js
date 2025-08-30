@@ -53,7 +53,7 @@ function CreateReservation({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new court reservation?",
+      "Please confirm to proceed with adding this court reservation. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) return;
