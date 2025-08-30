@@ -479,7 +479,7 @@ function ForgotPassword() {
                           <button
                             type="submit"
                             disabled={loading}
-                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
+                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
                           >
                             {loading ? "Resetting..." : "Reset"}
                           </button>
