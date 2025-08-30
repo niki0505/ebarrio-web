@@ -912,11 +912,9 @@ function CreateResident({ isCollapsed }) {
     }));
   };
 
-  console.log(householdForm);
-
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
-      {loading && (
+      {(loading || isIDProcessing || isSignProcessing) && (
         <div className="loading-overlay">
           <div className="spinner"></div>
         </div>
