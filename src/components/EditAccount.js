@@ -20,7 +20,7 @@ function EditAccount({ onClose, userID, userUsername }) {
   console.log(userForm);
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this user?",
+      "Please confirm to proceed with editing this user account. Make sure the updated information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {

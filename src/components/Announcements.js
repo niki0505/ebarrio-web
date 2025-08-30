@@ -148,7 +148,7 @@ function Announcements({ isCollapsed }) {
 
   const handleArchive = async (announcementID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this announcement?",
+      "Please confirm to proceed with archiving this announcement. You can restore this announcement later if needed.",
       "confirmred"
     );
     if (!isConfirmed) {

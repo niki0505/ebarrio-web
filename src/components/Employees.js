@@ -145,7 +145,7 @@ function Employees({ isCollapsed }) {
   const archiveBtn = async (e, empID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this employee?",
+      "Please confirm to proceed with archiving this employee. You can restore this record later if needed.",
       "confirmred"
     );
     if (isConfirmed) {
@@ -161,7 +161,7 @@ function Employees({ isCollapsed }) {
   const recoverBtn = async (e, empID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this employee?",
+      "Please confirm to proceed with recovering this employee.",
       "confirmred"
     );
     if (isConfirmed) {

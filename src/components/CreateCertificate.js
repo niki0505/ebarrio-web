@@ -115,7 +115,7 @@ function CreateCertificate({ resID, onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to issue this resident a document?",
+      "Please confirm to proceed with issuing this document. Make sure the document details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -248,7 +248,7 @@ function CreateCertificate({ resID, onClose }) {
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Create Certificate</h1>
+                  <h1 className="modal-title">Create Document</h1>
                   <IoClose
                     onClick={handleClose}
                     class="dialog-title-bar-icon"
@@ -268,7 +268,7 @@ function CreateCertificate({ resID, onClose }) {
               <div className="modal-form">
                 <div className="employee-form-group">
                   <label for="typeofcertificate" className="form-label">
-                    Type of Certificate<label className="text-red-600">*</label>
+                    Type of Document<label className="text-red-600">*</label>
                   </label>
                   <select
                     id="typeofcertificate"

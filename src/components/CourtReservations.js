@@ -159,7 +159,7 @@ function CourtReservations({ isCollapsed }) {
   const approveBtn = async (e, reservationID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to approve this reservation?",
+      "Please confirm to proceed with approving this court reservation. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {

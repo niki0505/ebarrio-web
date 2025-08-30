@@ -281,7 +281,7 @@ function AccountSettings({ isCollapsed }) {
 
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your username? This action cannot be undone, and you can only change it once every 30 days.",
+        "Please confirm to proceed with changing the username. You can only change it once every 30 days.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -342,7 +342,7 @@ function AccountSettings({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your password? This action cannot be undone.",
+        "Please confirm to proceed with changing your password.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -409,7 +409,7 @@ function AccountSettings({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to update your security questions? This action cannot be undone.",
+        "Please confirm to proceed with changing your security questions.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -1011,7 +1011,7 @@ function AccountSettings({ isCollapsed }) {
       let idPicture;
       let signaturePicture;
       const isConfirmed = await confirm(
-        "Are you sure you want to update your resident profile? This action cannot be undone",
+        "Please confirm to save the updated resident profile. Make sure all information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {

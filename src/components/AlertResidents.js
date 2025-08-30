@@ -44,7 +44,7 @@ function AlertResidents({ onClose, resID }) {
     }
 
     const isConfirmed = await confirm(
-      "Are you sure you want to alert the residents?",
+      "Please confirm to proceed with sending this alert to residents via SMS. Make sure the message details are correct before sending.",
       "confirm"
     );
     if (!isConfirmed) {

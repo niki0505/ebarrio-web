@@ -123,7 +123,7 @@ const Navbar = ({ isCollapsed }) => {
 
   const handleLogout = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to log out?",
+      "Logging out will return you to the login page. Press confirm to continue.",
       "confirm"
     );
     if (!isConfirmed) {

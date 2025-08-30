@@ -654,7 +654,7 @@ function EditResident({ isCollapsed }) {
       let idPicture;
       let signaturePicture;
       const isConfirmed = await confirm(
-        "Are you sure you want to edit this resident profile?",
+        "Please confirm to proceed with editing this resident. Make sure the updated information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {
@@ -2965,6 +2965,8 @@ function EditResident({ isCollapsed }) {
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}
       </div>
+
+      <div className="mb-20"></div>
     </div>
   );
 }

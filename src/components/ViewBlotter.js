@@ -226,7 +226,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
 
     const isConfirmed = await confirm(
-      "Are you sure you want to schedule this blotter?",
+      "Please confirm to proceed with scheduling this pending blotter. Make sure the time and date are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -253,7 +253,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
 
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this blotter's schedule?",
+      "Please confirm to proceed with updating the date and time of this scheduled blotter. Make sure the new schedule is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
