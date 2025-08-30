@@ -216,6 +216,12 @@ function Accounts({ isCollapsed }) {
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (
+      filteredUsers.filter((u) => u.role !== "Technical Admin").length === 0
+    ) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Barangay Aniban 2 Accounts Reports";
     const now = new Date().toLocaleString();
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
@@ -287,6 +293,12 @@ function Accounts({ isCollapsed }) {
   };
 
   const exportPDF = async () => {
+    if (
+      filteredUsers.filter((u) => u.role !== "Technical Admin").length === 0
+    ) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
