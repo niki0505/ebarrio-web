@@ -85,10 +85,10 @@ function Accounts({ isCollapsed }) {
 
     if (user.userID) {
       otherUsers = otherUsers.filter(
-        (u) => u._id !== user.userID && u.role !== "Technical Admin"
+        (u) => u._id !== user.userID || u.role !== "Technical Admin"
       );
     } else {
-      otherUsers.filter((u) => u.role !== "Technical Admin");
+      otherUsers = otherUsers.filter((u) => u.role !== "Technical Admin");
     }
     if (search) {
       otherUsers = otherUsers.filter((user) => {

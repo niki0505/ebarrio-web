@@ -293,9 +293,11 @@ function Employees({ isCollapsed }) {
         return nameA.localeCompare(nameB);
       })
       .map((emp) => {
-        const fullname = emp.resID.middlename
-          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+        const fullname = emp.resID
+          ? emp.resID.middlename
+            ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+            : `${emp.resID.lastname} ${emp.resID.firstname}`
+          : "N/A";
 
         return [
           fullname,
@@ -647,13 +649,13 @@ function Employees({ isCollapsed }) {
             <tbody className="bg-[#fff]">
               {filteredEmployees.length === 0 ? (
                 <tr className="bg-white cursor-default">
-                  <td colSpan={6}>No results found</td>
+                  <td colSpan={7}>No results found</td>
                 </tr>
               ) : (
                 currentRows
                   .sort((a, b) => {
-                    const nameA = `${a.resID.lastname}`.toLowerCase();
-                    const nameB = `${b.resID.lastname}`.toLowerCase();
+                    const nameA = a.resID?.lastname?.toLowerCase() || "";
+                    const nameB = b.resID?.lastname?.toLowerCase() || "";
                     return nameA.localeCompare(nameB);
                   })
                   .map((emp) => (
@@ -683,9 +685,11 @@ function Employees({ isCollapsed }) {
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">
-                                    {emp.resID.middlename
-                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                    {emp.resID
+                                      ? emp.resID.middlename
+                                        ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
+                                        : `${emp.resID.lastname}, ${emp.resID.firstname}`
+                                      : "N/A"}
                                   </div>
 
                                   {/* Position */}
@@ -697,7 +701,7 @@ function Employees({ isCollapsed }) {
                                   {/* Age */}
                                   <div className="add-info-title">Age</div>
                                   <div className="add-info-container">
-                                    {emp.resID.age}
+                                    {emp.resID?.age}
                                   </div>
 
                                   <div className="add-info-title">
@@ -711,7 +715,7 @@ function Employees({ isCollapsed }) {
                                   {/* Sex */}
                                   <div className="add-info-title">Sex</div>
                                   <div className="add-info-container">
-                                    {emp.resID.sex}
+                                    {emp.resID?.sex}
                                   </div>
 
                                   {/* Emergency Contact */}
@@ -724,37 +728,37 @@ function Employees({ isCollapsed }) {
                                     Civil Status
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.civilstatus}
+                                    {emp.resID?.civilstatus}
                                   </div>
 
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">
-                                    {emp.resID.emergencyname}
+                                    {emp.resID?.emergencyname}
                                   </div>
                                   {/* Mobile Number */}
                                   <div className="add-info-title">
                                     Mobile Number
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.mobilenumber}
+                                    {emp.resID?.mobilenumber}
                                   </div>
 
                                   <div className="add-info-title">
                                     Mobile Number
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.emergencymobilenumber}
+                                    {emp.resID?.emergencymobilenumber}
                                   </div>
 
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container">
-                                    {emp.resID.householdno?.address}
+                                    {emp.resID?.householdno?.address}
                                   </div>
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container min-w-[250px] max-w-[250px]">
-                                    {emp.resID.emergencyaddress}
+                                    {emp.resID?.emergencyaddress}
                                   </div>
                                 </div>
                               </div>
@@ -819,14 +823,16 @@ function Employees({ isCollapsed }) {
                         ) : (
                           <>
                             <td>
-                              {emp.resID.middlename
-                                ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
-                                : `${emp.resID.lastname}, ${emp.resID.firstname}`}
+                              {emp.resID
+                                ? emp.resID.middlename
+                                  ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
+                                  : `${emp.resID.lastname}, ${emp.resID.firstname}`
+                                : "N/A"}
                             </td>
-                            <td>{emp.resID.age}</td>
-                            <td>{emp.resID.sex}</td>
-                            <td>{emp.resID.mobilenumber}</td>
-                            <td>{emp.resID.householdno?.address}</td>
+                            <td>{emp.resID?.age}</td>
+                            <td>{emp.resID?.sex}</td>
+                            <td>{emp.resID?.mobilenumber}</td>
+                            <td>{emp.resID?.householdno?.address}</td>
                             <td>{emp.position}</td>
 
                             {/* Dropdown Arrow */}
