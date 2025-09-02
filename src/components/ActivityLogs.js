@@ -305,6 +305,7 @@ function ActivityLogs({ isCollapsed }) {
               >
                 <option value="">All Users</option>
                 {users
+                  .filter((u) => u.role !== "Technical Admin")
                   .sort((a, b) => a.username.localeCompare(b.username))
                   .map((user, index) => (
                     <option key={index} value={user.username}>
