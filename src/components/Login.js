@@ -70,12 +70,6 @@ const Login = () => {
         // }
         if (res.data.message === "Credentials verified") {
           try {
-            await api.put(`/login/${username}`);
-            setIsAuthenticated(true);
-          } catch (error) {
-            console.log("Error logging in", error);
-          }
-          try {
             const response = await api.get(`/getmobilenumber/${username}`);
             sendOTP(username, response.data);
             navigation("/otp", {
