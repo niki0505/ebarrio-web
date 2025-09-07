@@ -283,6 +283,10 @@ function Employees({ isCollapsed }) {
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (filteredEmployees.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Barangay Aniban 2 Employees";
     const now = new Date().toLocaleString();
     const headers = ["Name", "Age", "Sex", "Mobile No.", "Address", "Position"];
@@ -333,16 +337,21 @@ function Employees({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Employees";
-    const description = "User exported employees' records to CSV.";
+    const action = "Export";
+    const target = "Employees";
+    const description = "User exported employee records to CSV.";
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (filteredEmployees.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
@@ -423,10 +432,11 @@ function Employees({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Employees";
-    const description = "User exported employees' records to PDF.";
+    const action = "Export";
+    const target = "Employees";
+    const description = "User exported employee records to PDF.";
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

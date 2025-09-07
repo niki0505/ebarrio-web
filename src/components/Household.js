@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { AuthContext } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
+import api from "../api";
 
 //SCREENS
 import ViewHousehold from "./ViewHousehold";
@@ -1161,6 +1162,15 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
     // Save the generated PDF
     doc.save(`Household_Profiling_Form_${now}.pdf`);
+
+    const action = "Export";
+    const target = "Households";
+    const description = `User exported household records to PDF.`;
+    try {
+      await api.post("/logexport", { action, target, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   const handleMenu1 = () => {

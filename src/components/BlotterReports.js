@@ -227,10 +227,11 @@ function BlotterReports({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Blotter Reports";
+    const action = "Export";
+    const target = "Blotter Reports";
     const description = `User exported settled blotter reports to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -343,10 +344,11 @@ function BlotterReports({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Blotter Reports";
+    const action = "Export";
+    const target = "Blotter Reports";
     const description = `User exported settled blotter reports to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

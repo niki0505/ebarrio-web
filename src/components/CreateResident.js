@@ -582,24 +582,24 @@ function CreateResident({ isCollapsed }) {
         ...updatedResidentForm,
         householdForm: updatedHouseholdForm,
       });
-      try {
-        const response2 = await api.post(
-          `/generatebrgyID/${response.data.resID}`
-        );
-        const qrCode = await uploadToFirebase(response2.data.qrCode);
-        try {
-          await api.put(`/savebrgyID/${response.data.resID}`, {
-            idNumber: response2.data.idNumber,
-            expirationDate: response2.data.expirationDate,
-            qrCode,
-            qrToken: response2.data.qrToken,
-          });
-        } catch (error) {
-          console.log("Error saving barangay ID", error);
-        }
-      } catch (error) {
-        console.log("Error generating barangay ID", error);
-      }
+      // try {
+      //   const response2 = await api.post(
+      //     `/generatebrgyID/${response.data.resID}`
+      //   );
+      //   const qrCode = await uploadToFirebase(response2.data.qrCode);
+      //   try {
+      //     await api.put(`/savebrgyID/${response.data.resID}`, {
+      //       idNumber: response2.data.idNumber,
+      //       expirationDate: response2.data.expirationDate,
+      //       qrCode,
+      //       qrToken: response2.data.qrToken,
+      //     });
+      //   } catch (error) {
+      //     console.log("Error saving barangay ID", error);
+      //   }
+      // } catch (error) {
+      //   console.log("Error generating barangay ID", error);
+      // }
       confirm(
         "A new resident record has been successfully created.",
         "success"

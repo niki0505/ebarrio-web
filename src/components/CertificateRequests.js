@@ -392,10 +392,11 @@ function CertificateRequests({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Document Requests";
+    const action = "Export";
+    const target = "Document Requests";
     const description = `User exported issued documents to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -483,10 +484,11 @@ function CertificateRequests({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Document Requests";
+    const action = "Export";
+    const target = "Document Requests";
     const description = `User exported issued documents to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

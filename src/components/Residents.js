@@ -151,7 +151,6 @@ function Residents({ isCollapsed }) {
           confirm("This resident has not yet been issued an ID.", "failed");
           return;
         }
-        await api.post(`/printcurrentbrgyid/${resID}`);
         BarangayID({
           resData: response.data,
           captainData: response2.data,
@@ -229,7 +228,6 @@ function Residents({ isCollapsed }) {
 
   const viewBtn = async (resID) => {
     try {
-      await api.post(`/viewresidentdetails/${resID}`);
       navigation("/view-resident", { state: { resID } });
     } catch (error) {
       console.log("Error in viewing resident details", error);
@@ -238,7 +236,6 @@ function Residents({ isCollapsed }) {
 
   const editBtn = async (resID) => {
     try {
-      await api.post(`/viewresidentdetails/${resID}`);
       navigation("/edit-resident", { state: { resID } });
     } catch (error) {
       console.log("Error in viewing resident details", error);
@@ -446,6 +443,10 @@ function Residents({ isCollapsed }) {
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (filteredResidents.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = `Barangay Aniban 2 ${
       sortOption === "All" ? "Residents" : sortOption
     }`;
@@ -510,18 +511,23 @@ function Residents({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Residents";
+    const action = "Export";
+    const target = "Residents";
     const description = `User exported ${
-      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+      sortOption === "All" ? "resident" : sortOption.toLowerCase()
     } records to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (filteredResidents.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -617,12 +623,13 @@ function Residents({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Residents";
+    const action = "Export";
+    const target = "Residents";
     const description = `User exported ${
       sortOption === "All" ? "residents'" : sortOption.toLowerCase()
     } records to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
