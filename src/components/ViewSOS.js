@@ -117,7 +117,7 @@ function ViewSOS({ onClose, reportID }) {
                       Age: {selectedReport.resID.age}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {selectedReport.resID.householdno.address}
+                      {selectedReport.resID.householdno?.address}
                     </p>
                   </div>
                 </div>

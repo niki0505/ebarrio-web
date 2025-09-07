@@ -334,7 +334,7 @@ function ActivityLogs({ isCollapsed }) {
 
     const action = "Export";
     const target = "Activity Logs";
-    const description = `User exported accounts to PDF.`;
+    const description = `User exported activity logs to PDF.`;
     try {
       await api.post("/logexport", { action, target, description });
     } catch (error) {
