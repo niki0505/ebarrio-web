@@ -16,7 +16,6 @@ import { PiSignOutBold } from "react-icons/pi";
 import { IoMdSettings, IoIosArrowDown } from "react-icons/io";
 import { IoNotifications } from "react-icons/io5";
 import { TbAdjustmentsHorizontal } from "react-icons/tb";
-import FAQs from "./FAQs";
 
 const Navbar = ({ isCollapsed }) => {
   const confirm = useConfirm();
@@ -25,14 +24,13 @@ const Navbar = ({ isCollapsed }) => {
   const [profileDropdown, setprofileDropdown] = useState(false);
   const [notificationDropdown, setnotificationDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
-  const { logout, user } = useContext(AuthContext);
+  const { logout, user, logoutLoading } = useContext(AuthContext);
   const { residents, fetchResidents } = useContext(InfoContext);
   const { fetchNotifications, notifications } = useContext(SocketContext);
   const { isAuthenticated } = useContext(AuthContext);
   const [profilePic, setProfilePic] = useState(null);
   const [sortOption, setSortOption] = useState("All");
   const [name, setName] = useState(null);
-  const [isFAQsClicked, setFAQsClicked] = useState(false);
 
   const notifRef = useRef(null);
   const profileRef = useRef(null);
@@ -125,7 +123,7 @@ const Navbar = ({ isCollapsed }) => {
 
   const handleLogout = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to log out?",
+      "Logging out will return you to the login page. Press confirm to continue.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -148,144 +146,146 @@ const Navbar = ({ isCollapsed }) => {
         className={`navbar ${isCollapsed ? "left-[5rem]" : "left-[18rem]"}`}
       >
         <div className="navbar-right">
-          <label onClick={() => setFAQsClicked(true)}>FAQs</label>
-          <div className="relative" ref={notifRef}>
-            {notifications.some((n) => n.read === false) && (
-              <div className="notif-dot"></div>
-            )}
+          {user?.role !== "Technical Admin" && (
+            <div className="relative" ref={notifRef}>
+              {notifications.some((n) => n.read === false) && (
+                <div className="notif-dot"></div>
+              )}
 
-            <IoNotifications
-              className={`navbar-icon ${
-                user?.role !== "Technical Admin" ? "" : "mt-3"
-              }`}
-              onClick={toggleNotificationDropdown}
-            />
+              <IoNotifications
+                className={`navbar-icon ${
+                  user?.role !== "Technical Admin" ? "" : "mt-3"
+                }`}
+                onClick={toggleNotificationDropdown}
+              />
 
-            {notificationDropdown && (
-              <div className="notif-dropdown-container">
-                {/* Header */}
-                <div className="notif-header-container">
-                  <div className="notif-title-container">
-                    <h1 className="notif-title">Notifications</h1>
-                    <h1 className="text-xs bg-[#BC0F0F] text-[#fff] px-1 rounded-full ml-2">
-                      {notifications.reduce(
-                        (count, notification) =>
-                          notification.read ? count : count + 1,
-                        0
-                      )}
-                    </h1>
-                  </div>
-                  <div className="relative" ref={filterRef}>
-                    <TbAdjustmentsHorizontal
-                      className="notif-filter-icon"
-                      onClick={toggleFilterDropdown}
-                    />
-                    {filterDropdown && (
-                      <div className="notif-filter-dropdown">
-                        <ul className="w-full">
-                          <div className="notif-filter-item">
-                            <li
-                              className="notif-filter-text"
-                              onClick={() => {
-                                setSortOption("All");
-                                setfilterDropdown(false);
-                              }}
-                            >
-                              All
-                            </li>
-                          </div>
-                          <div className="notif-filter-item">
-                            <li
-                              className="notif-filter-text"
-                              onClick={() => {
-                                setSortOption("Read");
-                                setfilterDropdown(false);
-                              }}
-                            >
-                              Read
-                            </li>
-                          </div>
-                          <div className="notif-filter-item">
-                            <li
-                              className="notif-filter-text"
-                              onClick={() => {
-                                setSortOption("Unread");
-                                setfilterDropdown(false);
-                              }}
-                            >
-                              Unread
-                            </li>
-                          </div>
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Scrollable Notification List */}
-                <div className="notif-list-container hide-scrollbar">
-                  {filteredNotifications.length === 0 ? (
-                    <div className="notif-empty-container">
-                      {sortOption === "Read" ? (
-                        <p className="notif-empty-text">
-                          You're all caught up. No read notifications.
-                        </p>
-                      ) : sortOption === "Unread" ? (
-                        <p className="notif-empty-text">
-                          You're all caught up. No unread notifications.
-                        </p>
-                      ) : (
-                        <p className="notif-empty-text">
-                          You're all caught up. No notifications.
-                        </p>
+              {notificationDropdown && (
+                <div className="notif-dropdown-container">
+                  {/* Header */}
+                  <div className="notif-header-container">
+                    <div className="notif-title-container">
+                      <h1 className="notif-title">Notifications</h1>
+                      <h1 className="text-xs bg-[#BC0F0F] text-[#fff] px-1 rounded-full ml-2">
+                        {notifications.reduce(
+                          (count, notification) =>
+                            notification.read ? count : count + 1,
+                          0
+                        )}
+                      </h1>
+                    </div>
+                    <div className="relative" ref={filterRef}>
+                      <TbAdjustmentsHorizontal
+                        className="notif-filter-icon"
+                        onClick={toggleFilterDropdown}
+                      />
+                      {filterDropdown && (
+                        <div className="notif-filter-dropdown">
+                          <ul className="w-full">
+                            <div className="notif-filter-item">
+                              <li
+                                className="notif-filter-text"
+                                onClick={() => {
+                                  setSortOption("All");
+                                  setfilterDropdown(false);
+                                }}
+                              >
+                                All
+                              </li>
+                            </div>
+                            <div className="notif-filter-item">
+                              <li
+                                className="notif-filter-text"
+                                onClick={() => {
+                                  setSortOption("Read");
+                                  setfilterDropdown(false);
+                                }}
+                              >
+                                Read
+                              </li>
+                            </div>
+                            <div className="notif-filter-item">
+                              <li
+                                className="notif-filter-text"
+                                onClick={() => {
+                                  setSortOption("Unread");
+                                  setfilterDropdown(false);
+                                }}
+                              >
+                                Unread
+                              </li>
+                            </div>
+                          </ul>
+                        </div>
                       )}
                     </div>
-                  ) : (
-                    [...filteredNotifications]
-                      .sort(
-                        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                      )
-                      .map((notif, index) => (
-                        <div
-                          onClick={() =>
-                            handleNotif(notif._id, notif.redirectTo)
-                          }
-                          key={index}
-                          className="notif-item-container"
-                        >
-                          <div className="notif-item-inner">
-                            <div className="notif-item-text-container">
-                              <label className="notif-title-text font-bold">
-                                {notif.title}
-                              </label>
-                              <label className="notif-title-text font-semibold">
-                                {truncateNotifMessage(notif.message)}
-                              </label>
-                              <label className="notif-time-text">
-                                {dayjs(notif.createdAt).fromNow()}
-                              </label>
+                  </div>
+
+                  {/* Scrollable Notification List */}
+                  <div className="notif-list-container hide-scrollbar">
+                    {filteredNotifications.length === 0 ? (
+                      <div className="notif-empty-container">
+                        {sortOption === "Read" ? (
+                          <p className="notif-empty-text">
+                            You're all caught up. No read notifications.
+                          </p>
+                        ) : sortOption === "Unread" ? (
+                          <p className="notif-empty-text">
+                            You're all caught up. No unread notifications.
+                          </p>
+                        ) : (
+                          <p className="notif-empty-text">
+                            You're all caught up. No notifications.
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      [...filteredNotifications]
+                        .sort(
+                          (a, b) =>
+                            new Date(b.createdAt) - new Date(a.createdAt)
+                        )
+                        .map((notif, index) => (
+                          <div
+                            onClick={() =>
+                              handleNotif(notif._id, notif.redirectTo)
+                            }
+                            key={index}
+                            className="notif-item-container"
+                          >
+                            <div className="notif-item-inner">
+                              <div className="notif-item-text-container">
+                                <label className="notif-title-text font-bold">
+                                  {notif.title}
+                                </label>
+                                <label className="notif-title-text font-semibold">
+                                  {truncateNotifMessage(notif.message)}
+                                </label>
+                                <label className="notif-time-text">
+                                  {dayjs(notif.createdAt).fromNow()}
+                                </label>
+                              </div>
+
+                              <div
+                                className={`notif-read-dot ${
+                                  notif.read ? "bg-transparent" : "bg-blue-500"
+                                }`}
+                              ></div>
                             </div>
-
-                            <div
-                              className={`notif-read-dot ${
-                                notif.read ? "bg-transparent" : "bg-blue-500"
-                              }`}
-                            ></div>
                           </div>
-                        </div>
-                      ))
-                  )}
-                </div>
+                        ))
+                    )}
+                  </div>
 
-                {/* Footer */}
-                <div className="p-3">
-                  <h1 onClick={markAllAsRead} className="notif-markall">
-                    Mark all as read
-                  </h1>
+                  {/* Footer */}
+                  <div className="p-3">
+                    <h1 onClick={markAllAsRead} className="notif-markall">
+                      Mark all as read
+                    </h1>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {user?.role !== "Technical Admin" && (
             <img
@@ -333,8 +333,12 @@ const Navbar = ({ isCollapsed }) => {
                   </div>
                   <div className="navbar-dropdown-item ">
                     <PiSignOutBold className="signout-icon" />
-                    <li className="signout-text" onClick={handleLogout}>
-                      Log Out
+                    <li
+                      className="signout-text"
+                      onClick={handleLogout}
+                      disabled={logoutLoading}
+                    >
+                      {logoutLoading ? "Logging out..." : "Logout"}
                     </li>
                   </div>
                 </ul>
@@ -343,7 +347,6 @@ const Navbar = ({ isCollapsed }) => {
           </div>
         </div>
       </header>
-      {isFAQsClicked && <FAQs />}
     </>
   );
 };

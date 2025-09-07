@@ -14,7 +14,6 @@ import { IoClose } from "react-icons/io5";
 function CreateAccount({ onClose }) {
   const confirm = useConfirm();
   const { fetchResidents, residents } = useContext(InfoContext);
-  const [availableRole, setAvailableRole] = useState([]);
   const [usernameErrors, setUsernameErrors] = useState([]);
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [userForm, setUserForm] = useState({
@@ -23,8 +22,8 @@ function CreateAccount({ onClose }) {
     resID: "",
     role: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -62,8 +61,6 @@ function CreateAccount({ onClose }) {
       [name]: formattedVal,
     }));
   };
-
-  console.log(userForm.username);
 
   const passwordValidation = (e) => {
     const { name, value } = e.target;
@@ -115,7 +112,9 @@ function CreateAccount({ onClose }) {
 
       let roleFromPosition = "";
       if (selectedResident.empID) {
-        if (selectedResident.empID.position === "Clerk") {
+        if (selectedResident.empID.position === "Secretary") {
+          roleFromPosition = "Secretary";
+        } else if (selectedResident.empID.position === "Clerk") {
           roleFromPosition = "Clerk";
         } else if (selectedResident.empID.position === "Justice") {
           roleFromPosition = "Justice";
@@ -136,25 +135,32 @@ function CreateAccount({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new account?",
+      "Please confirm to proceed with adding this new user account. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post("/createuser", userForm);
-      alert("Account has been created successfully.");
+      confirm("The account has been successfully created.", "success");
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -164,7 +170,7 @@ function CreateAccount({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content h-[25rem] w-[30rem]">
             <div className="dialog-title-bar">
@@ -207,6 +213,11 @@ function CreateAccount({ onClose }) {
                         (element) =>
                           !element.userID &&
                           !(element.empID && element.empID.userID)
+                      )
+                      .filter(
+                        (element) =>
+                          element.status !== "Archived" &&
+                          element.status !== "Rejected"
                       )
                       .map((element) => (
                         <option value={element._id}>
@@ -296,9 +307,10 @@ function CreateAccount({ onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

@@ -27,7 +27,7 @@ import {
 import Aniban2logo from "../assets/aniban2logo.jpg";
 import AppLogo from "../assets/applogo-lightbg.png";
 import { IoArchiveSharp } from "react-icons/io5";
-import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
+import { FaIdCard, FaEdit, FaArchive } from "react-icons/fa";
 
 function Employees({ isCollapsed }) {
   const confirm = useConfirm();
@@ -45,10 +45,6 @@ function Employees({ isCollapsed }) {
 
   const exportRef = useRef(null);
   const filterRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -125,7 +121,7 @@ function Employees({ isCollapsed }) {
           !Array.isArray(response.data.employeeID) ||
           response.data.employeeID.length === 0
         ) {
-          alert("This employee has not been issued an ID yet.");
+          confirm("This employee has not yet been issued an ID.", "failed");
           return;
         }
         EmployeeID({
@@ -149,13 +145,13 @@ function Employees({ isCollapsed }) {
   const archiveBtn = async (e, empID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this employee?",
+      "Please confirm to proceed with archiving this employee. You can restore this record later if needed.",
       "confirmred"
     );
     if (isConfirmed) {
       try {
         await api.put(`/archiveemployee/${empID}`);
-        alert("Employee has been successfully archived.");
+        confirm("The employee has been successfully archived.", "success");
       } catch (error) {
         console.log("Error", error);
       }
@@ -165,21 +161,24 @@ function Employees({ isCollapsed }) {
   const recoverBtn = async (e, empID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this employee?",
+      "Please confirm to proceed with recovering this employee.",
       "confirmred"
     );
     if (isConfirmed) {
       try {
         await api.put(`/recoveremployee/${empID}`);
-        alert("Employee has been successfully recovered.");
+        confirm("The employee has been successfully recovered.", "success");
       } catch (error) {
         const response = error.response;
         if (response && response.data) {
           console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
+          confirm(
+            response.data.message || "Something went wrong.",
+            "errordialog"
+          );
         } else {
           console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
+          confirm("An unexpected error occurred.", "errorialog");
         }
       }
     }
@@ -250,7 +249,7 @@ function Employees({ isCollapsed }) {
         return searchParts.every(
           (part) =>
             fullName.includes(part) ||
-            emp.resID.address.toLowerCase().includes(part)
+            emp.resID.householdno?.address.toLowerCase().includes(part)
         );
       });
     }
@@ -267,16 +266,27 @@ function Employees({ isCollapsed }) {
   };
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredEmployees.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredEmployees
+      : filteredEmployees.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (filteredEmployees.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Barangay Aniban 2 Employees";
     const now = new Date().toLocaleString();
     const headers = ["Name", "Age", "Sex", "Mobile No.", "Address", "Position"];
@@ -287,16 +297,18 @@ function Employees({ isCollapsed }) {
         return nameA.localeCompare(nameB);
       })
       .map((emp) => {
-        const fullname = emp.resID.middlename
-          ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-          : `${emp.resID.lastname} ${emp.resID.firstname}`;
+        const fullname = emp.resID
+          ? emp.resID.middlename
+            ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
+            : `${emp.resID.lastname} ${emp.resID.firstname}`
+          : "N/A";
 
         return [
           fullname,
           emp.resID.age,
           emp.resID.sex,
           `"${emp.resID.mobilenumber.replace(/"/g, '""')}"`,
-          `"${emp.resID.address.replace(/"/g, '""')}"`,
+          `"${emp.resID.householdno?.address.replace(/"/g, '""')}"`,
           emp.position,
         ];
       });
@@ -325,16 +337,21 @@ function Employees({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Employees";
-    const description = "User exported employees' records to CSV.";
+    const action = "Export";
+    const target = "Employees";
+    const description = "User exported employee records to CSV.";
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (filteredEmployees.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
@@ -369,7 +386,7 @@ function Employees({ isCollapsed }) {
           emp.resID.age,
           emp.resID.sex,
           emp.resID.mobilenumber,
-          emp.resID.address,
+          emp.resID.householdno?.address,
           emp.position,
         ];
       });
@@ -415,10 +432,11 @@ function Employees({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Employees";
-    const description = "User exported employees' records to PDF.";
+    const action = "Export";
+    const target = "Employees";
+    const description = "User exported employee records to PDF.";
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -477,42 +495,46 @@ function Employees({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              {sortOption === "All" && (
-                <div className="relative" ref={exportRef}>
-                  {/* Export Button */}
-                  <div
-                    className="export-sort-btn"
-                    onClick={toggleExportDropdown}
-                  >
-                    <h1 className="export-sort-btn-text">Export</h1>
-                    <div className="export-sort-btn-dropdown-icon ">
-                      <MdArrowDropDown size={18} color={"#0E94D3"} />
-                    </div>
-                  </div>
+              {user.role !== "Technical Admin" && (
+                <>
+                  {sortOption === "All" && (
+                    <div className="relative" ref={exportRef}>
+                      {/* Export Button */}
+                      <div
+                        className="export-sort-btn"
+                        onClick={toggleExportDropdown}
+                      >
+                        <h1 className="export-sort-btn-text">Export</h1>
+                        <div className="export-sort-btn-dropdown-icon ">
+                          <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        </div>
+                      </div>
 
-                  {exportDropdown && (
-                    <div className="export-sort-dropdown-menu w-36">
-                      <ul className="w-full">
-                        <div className="navbar-dropdown-item">
-                          <li
-                            className="export-sort-dropdown-option"
-                            onClick={exportCSV}
-                          >
-                            Export as CSV
-                          </li>
+                      {exportDropdown && (
+                        <div className="export-sort-dropdown-menu w-36">
+                          <ul className="w-full">
+                            <div className="navbar-dropdown-item">
+                              <li
+                                className="export-sort-dropdown-option"
+                                onClick={exportCSV}
+                              >
+                                Export as CSV
+                              </li>
+                            </div>
+                            <div className="navbar-dropdown-item">
+                              <li
+                                className="export-sort-dropdown-option"
+                                onClick={exportPDF}
+                              >
+                                Export as PDF
+                              </li>
+                            </div>
+                          </ul>
                         </div>
-                        <div className="navbar-dropdown-item">
-                          <li
-                            className="export-sort-dropdown-option"
-                            onClick={exportPDF}
-                          >
-                            Export as PDF
-                          </li>
-                        </div>
-                      </ul>
+                      )}
                     </div>
                   )}
-                </div>
+                </>
               )}
 
               <div className="relative" ref={filterRef}>
@@ -623,7 +645,7 @@ function Employees({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Age</th>
                 <th>Sex</th>
@@ -636,14 +658,14 @@ function Employees({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredEmployees.length === 0 ? (
-                <tr className="bg-white">
-                  <td colSpan={6}>No results found</td>
+                <tr className="bg-white cursor-default">
+                  <td colSpan={7}>No results found</td>
                 </tr>
               ) : (
                 currentRows
                   .sort((a, b) => {
-                    const nameA = `${a.resID.lastname}`.toLowerCase();
-                    const nameB = `${b.resID.lastname}`.toLowerCase();
+                    const nameA = a.resID?.lastname?.toLowerCase() || "";
+                    const nameB = b.resID?.lastname?.toLowerCase() || "";
                     return nameA.localeCompare(nameB);
                   })
                   .map((emp) => (
@@ -673,9 +695,11 @@ function Employees({ isCollapsed }) {
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">
-                                    {emp.resID.middlename
-                                      ? `${emp.resID.firstname} ${emp.resID.middlename} ${emp.resID.lastname}`
-                                      : `${emp.resID.firstname} ${emp.resID.lastname}`}
+                                    {emp.resID
+                                      ? emp.resID.middlename
+                                        ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
+                                        : `${emp.resID.lastname}, ${emp.resID.firstname}`
+                                      : "N/A"}
                                   </div>
 
                                   {/* Position */}
@@ -687,7 +711,7 @@ function Employees({ isCollapsed }) {
                                   {/* Age */}
                                   <div className="add-info-title">Age</div>
                                   <div className="add-info-container">
-                                    {emp.resID.age}
+                                    {emp.resID?.age}
                                   </div>
 
                                   <div className="add-info-title">
@@ -701,7 +725,7 @@ function Employees({ isCollapsed }) {
                                   {/* Sex */}
                                   <div className="add-info-title">Sex</div>
                                   <div className="add-info-container">
-                                    {emp.resID.sex}
+                                    {emp.resID?.sex}
                                   </div>
 
                                   {/* Emergency Contact */}
@@ -714,37 +738,37 @@ function Employees({ isCollapsed }) {
                                     Civil Status
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.civilstatus}
+                                    {emp.resID?.civilstatus}
                                   </div>
 
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">
-                                    {emp.resID.emergencyname}
+                                    {emp.resID?.emergencyname}
                                   </div>
                                   {/* Mobile Number */}
                                   <div className="add-info-title">
                                     Mobile Number
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.mobilenumber}
+                                    {emp.resID?.mobilenumber}
                                   </div>
 
                                   <div className="add-info-title">
                                     Mobile Number
                                   </div>
                                   <div className="add-info-container">
-                                    {emp.resID.emergencymobilenumber}
+                                    {emp.resID?.emergencymobilenumber}
                                   </div>
 
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container">
-                                    {emp.resID.address}
+                                    {emp.resID?.householdno?.address}
                                   </div>
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container min-w-[250px] max-w-[250px]">
-                                    {emp.resID.emergencyaddress}
+                                    {emp.resID?.emergencyaddress}
                                   </div>
                                 </div>
                               </div>
@@ -752,36 +776,44 @@ function Employees({ isCollapsed }) {
 
                             {emp.status === "Active" ? (
                               <div className="btn-container">
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, emp._id)}
-                                >
-                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    ARCHIVE
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => handleEmployeeID(e, emp._id)}
-                                >
-                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    EMPLOYEE ID
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => editBtn(e, emp._id)}
-                                >
-                                  <FaEdit className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue table-actions-text">
-                                    EDIT
-                                  </label>
-                                </button>
+                                {user.empID !== emp._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => archiveBtn(e, emp._id)}
+                                  >
+                                    <FaArchive className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      ARCHIVE
+                                    </label>
+                                  </button>
+                                )}
+                                {user.role !== "Technical Admin" && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) =>
+                                      handleEmployeeID(e, emp._id)
+                                    }
+                                  >
+                                    <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      EMPLOYEE ID
+                                    </label>
+                                  </button>
+                                )}
+                                {user.empID !== emp._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => editBtn(e, emp._id)}
+                                  >
+                                    <FaEdit className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue table-actions-text">
+                                      EDIT
+                                    </label>
+                                  </button>
+                                )}
                               </div>
                             ) : (
                               <div className="btn-container">
@@ -790,7 +822,7 @@ function Employees({ isCollapsed }) {
                                   type="submit"
                                   onClick={(e) => recoverBtn(e, emp._id)}
                                 >
-                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <FaArchive className="text-[24px] text-btn-color-blue" />
                                   <label className="text-btn-color-blue table-actions-text">
                                     RECOVER
                                   </label>
@@ -801,14 +833,16 @@ function Employees({ isCollapsed }) {
                         ) : (
                           <>
                             <td>
-                              {emp.resID.middlename
-                                ? `${emp.resID.lastname} ${emp.resID.middlename} ${emp.resID.firstname}`
-                                : `${emp.resID.lastname} ${emp.resID.firstname}`}
+                              {emp.resID
+                                ? emp.resID.middlename
+                                  ? `${emp.resID.lastname}, ${emp.resID.middlename} ${emp.resID.firstname}`
+                                  : `${emp.resID.lastname}, ${emp.resID.firstname}`
+                                : "N/A"}
                             </td>
-                            <td>{emp.resID.age}</td>
-                            <td>{emp.resID.sex}</td>
-                            <td>{emp.resID.mobilenumber}</td>
-                            <td>{emp.resID.address}</td>
+                            <td>{emp.resID?.age}</td>
+                            <td>{emp.resID?.sex}</td>
+                            <td>{emp.resID?.mobilenumber}</td>
+                            <td>{emp.resID?.householdno?.address}</td>
                             <td>{emp.position}</td>
 
                             {/* Dropdown Arrow */}
@@ -836,13 +870,16 @@ function Employees({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -859,24 +896,26 @@ function Employees({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
 
         {isCreateClicked && (
@@ -889,6 +928,8 @@ function Employees({ isCollapsed }) {
             empID={selectedEmployee}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

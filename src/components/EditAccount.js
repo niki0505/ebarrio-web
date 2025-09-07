@@ -17,16 +17,17 @@ function EditAccount({ onClose, userID, userUsername }) {
   });
   const [showModal, setShowModal] = useState(true);
 
+  console.log(userForm);
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this user?",
+      "Please confirm to proceed with editing this user account. Make sure the updated information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
     if (userForm.username === userUsername && userForm.password === "") {
-      alert("No changes detected");
+      confirm("No changes have been detected.", "success");
       return;
     }
 
@@ -37,18 +38,19 @@ function EditAccount({ onClose, userID, userUsername }) {
       if (userForm.password === "") {
         delete userForm.password;
       }
-      console.log(userForm);
       await api.put(`/edituser/${userID}`, { userForm });
-      alert("User has been successfully updated.");
+      confirm("The user account has been successfully updated.", "success");
       onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
       }
     }
   };
@@ -118,6 +120,7 @@ function EditAccount({ onClose, userID, userUsername }) {
                     value={userForm.username}
                     onChange={handleInputChange}
                     className="form-input h-[30px]"
+                    required
                   />
                 </div>
                 <div className="employee-form-group">

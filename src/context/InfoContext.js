@@ -7,12 +7,13 @@ export const SocketContext = createContext();
 
 export const InfoContext = createContext(undefined);
 
-const socket = io("https://api.ebarrio.online/website", {
+const socket = io("http://localhost:5000/website", {
   withCredentials: true,
 });
 
 export const InfoProvider = ({ children }) => {
-  const { isAuthenticated, setUserStatus, user } = useContext(AuthContext);
+  const { isAuthenticated, setUserStatus, user, setUserPasswordChanged } =
+    useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
@@ -25,9 +26,15 @@ export const InfoProvider = ({ children }) => {
   const [household, setHousehold] = useState([]);
   const [FAQslist, setFAQslist] = useState([]);
   const [chats, setChats] = useState([]);
+  const [AIMessages, setAIMessages] = useState([]);
   const [roomId, setRoomId] = useState(null);
   const [assignedAdmin, setAssignedAdmin] = useState(null);
-  const [pendingReservationCount, setPendingReservationCount] = useState(null);
+  const [pendingReservations, setPendingReservations] = useState(null);
+  const [pendingDocuments, setPendingDocuments] = useState(null);
+  const [pendingHouseholds, setPendingHouseholds] = useState(null);
+  const [pendingBlotters, setPendingBlotters] = useState(null);
+  const [pendingResidents, setPendingResidents] = useState(null);
+  const [reports, setReports] = useState(null);
 
   const announcementInitialForm = {
     category: "",
@@ -66,15 +73,6 @@ export const InfoProvider = ({ children }) => {
     emergencyname: "",
     emergencymobilenumber: "+63",
     emergencyaddress: "",
-    housenumber: "",
-    street: "",
-    HOAname: "",
-    address: "",
-    mother: "",
-    father: "",
-    spouse: "",
-    siblings: [],
-    children: [],
     numberofsiblings: "",
     numberofchildren: "",
     employmentstatus: "",
@@ -139,6 +137,7 @@ export const InfoProvider = ({ children }) => {
       users.map((usr) => {
         if (usr._id === user.userID) {
           setUserStatus(usr.status);
+          setUserPasswordChanged(usr.passwordchangedat);
         }
       });
     }
@@ -246,23 +245,102 @@ export const InfoProvider = ({ children }) => {
   const fetchChats = async () => {
     try {
       const response = await api.get("/getchats");
-      setChats(response.data);
+      const filteredChats = response.data.filter((chat) =>
+        chat.messages.some(
+          (m) =>
+            m.message !==
+            "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
+        )
+      );
+      setChats(filteredChats);
     } catch (error) {
       console.error("❌ Failed to fetch FAQs:", error);
     }
   };
 
+  const fetchPendingResidents = async () => {
+    try {
+      const response = await api.get("/pendingresidents");
+      setPendingResidents(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
+  const fetchPendingDocuments = async () => {
+    try {
+      const response = await api.get("/pendingdocuments");
+      setPendingDocuments(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
+  const fetchPendingReservations = async () => {
+    try {
+      const response = await api.get("/pendingreservations");
+      setPendingReservations(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchPendingBlotters = async () => {
+    try {
+      const response = await api.get("/pendingblotters");
+      setPendingBlotters(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchPendingHouseholds = async () => {
+    try {
+      const response = await api.get("/pendinghouseholds");
+      setPendingHouseholds(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchPrompts = async () => {
+    try {
+      const res = await api.get("/getprompts");
+      const prompts = res.data;
+      const messages = prompts.flatMap((p) => [
+        {
+          from: "user",
+          message: p.prompt,
+          timestamp: new Date(p.createdAt),
+        },
+        {
+          from: "ai",
+          message: p.response,
+          timestamp: new Date(p.createdAt),
+        },
+      ]);
+      setAIMessages(messages);
+    } catch (error) {
+      console.error("❌ Failed to fetch users:", error);
+    }
+  };
+
+  const fetchReports = async () => {
+    try {
+      const res = await api.get("/getreports");
+      setReports(res.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch SOS reports:", error);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      const fetchPendingReservations = async () => {
-        try {
-          const response = await api.get("/getpendingreservations");
-          setPendingReservationCount(response.data);
-        } catch (error) {
-          console.error("❌ Failed to fetch users:", error);
-        }
-      };
       fetchPendingReservations();
+      fetchPendingResidents();
+      fetchPendingDocuments();
+      fetchPendingBlotters();
+      fetchPendingHouseholds();
     }
   }, [isAuthenticated]);
 
@@ -275,7 +353,6 @@ export const InfoProvider = ({ children }) => {
       } else if (updatedData.type === "users") {
         setUsers(updatedData.data);
       } else if (updatedData.type === "certificates") {
-        console.log(updatedData.data);
         setCertificates(updatedData.data);
       } else if (updatedData.type === "emergencyhotlines") {
         setEmergencyHotlines(updatedData.data);
@@ -287,6 +364,22 @@ export const InfoProvider = ({ children }) => {
         setBlotterReports(updatedData.data);
       } else if (updatedData.type === "activitylogs") {
         setActivityLogs(updatedData.data);
+      } else if (updatedData.type === "faqs") {
+        setFAQslist(updatedData.data);
+      } else if (updatedData.type === "household") {
+        setHousehold(updatedData.data);
+      } else if (updatedData.type === "pendingresidents") {
+        setPendingResidents(updatedData.data);
+      } else if (updatedData.type === "pendingdocuments") {
+        setPendingDocuments(updatedData.data);
+      } else if (updatedData.type === "pendingreservations") {
+        setPendingReservations(updatedData.data);
+      } else if (updatedData.type === "pendingblotters") {
+        setPendingBlotters(updatedData.data);
+      } else if (updatedData.type === "pendinghouseholds") {
+        setPendingHouseholds(updatedData.data);
+      } else if (updatedData.type === "reports") {
+        setReports(updatedData.data);
       }
     });
 
@@ -312,7 +405,14 @@ export const InfoProvider = ({ children }) => {
           announcementForm,
           household,
           FAQslist,
-          pendingReservationCount,
+          pendingReservations,
+          pendingResidents,
+          pendingDocuments,
+          pendingHouseholds,
+          pendingBlotters,
+          fetchPendingResidents,
+          fetchReports,
+          reports,
           chats,
           roomId,
           setRoomId,
@@ -321,6 +421,9 @@ export const InfoProvider = ({ children }) => {
           setChats,
           setAnnouncementForm,
           fetchActivityLogs,
+          fetchPrompts,
+          AIMessages,
+          setAIMessages,
           activitylogs,
           setBlotterForm,
           setResidentForm,

@@ -23,6 +23,7 @@ function CreateReservation({ onClose }) {
     times: {},
     amount: "",
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -52,16 +53,21 @@ function CreateReservation({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new court reservation?",
+      "Please confirm to proceed with adding this court reservation. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) return;
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post("/createreservation", { reservationForm });
-      alert("Court reservation successfully created!");
+      confirm("The court reservation has been successfully added.", "success");
       onClose();
     } catch (error) {
       console.error("Error creating court reservation", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,7 +130,7 @@ function CreateReservation({ onClose }) {
 
     const currentTimes = reservationForm.times[date] || {};
     if (!currentTimes.starttime) {
-      alert("Please select a start time first for " + date);
+      confirm("Please select a start time first for " + date, "failed");
       return;
     }
 
@@ -134,7 +140,7 @@ function CreateReservation({ onClose }) {
     const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert(`End time must be after start time for ${date}`);
+      confirm(`End time must be after start time for ${date}`, "failed");
       return;
     }
 
@@ -159,7 +165,7 @@ function CreateReservation({ onClose }) {
       });
 
     if (conflict) {
-      alert(
+      confirm(
         `Time slot overlaps with existing reservation on ${date} (${new Date(
           conflict.times[date].starttime
         ).toLocaleTimeString([], {
@@ -168,7 +174,8 @@ function CreateReservation({ onClose }) {
         })} - ${new Date(conflict.times[date].endtime).toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-        })}).`
+        })}).`,
+        "failed"
       );
       return;
     }
@@ -225,6 +232,7 @@ function CreateReservation({ onClose }) {
                     onChange={handleDropdownChange}
                     className="form-input"
                     value={reservationForm.resID}
+                    required
                   >
                     <option value="" disabled>
                       Select
@@ -250,6 +258,7 @@ function CreateReservation({ onClose }) {
                     onChange={handleDropdownChange}
                     className="form-input"
                     value={reservationForm.purpose}
+                    required
                   >
                     <option value="" disabled>
                       Select
@@ -268,6 +277,7 @@ function CreateReservation({ onClose }) {
                     Date<label className="text-red-600">*</label>
                   </label>
                   <DatePicker
+                    required
                     multiple
                     value={reservationForm.date}
                     onChange={handleDateChange}
@@ -358,9 +368,10 @@ function CreateReservation({ onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

@@ -43,12 +43,30 @@ function CreateBlotter({ isCollapsed }) {
   };
 
   const { blotterForm, setBlotterForm } = useContext(InfoContext);
+  const [loading, setLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
 
   useEffect(() => {
     fetchResidents();
+    fetchBlotterReports();
   }, []);
 
   const typeList = ["Theft", "Sexual Harassment", "Physical Injury"];
+
+  const validateDetails = (value) => {
+    const errors = [];
+
+    if (value.length < 10 || value.length > 200) {
+      errors.push("Details must be minimum of 10 characters.");
+    }
+
+    const invalidChars = /[^a-zA-Z0-9,.\s]/;
+    if (invalidChars.test(value)) {
+      errors.push("Use only letters, numbers, commas, and periods.");
+    }
+
+    setDetailsError(errors.join(" "));
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +74,10 @@ function CreateBlotter({ isCollapsed }) {
       ...prevForm,
       [name]: value,
     }));
+
+    if (name === "details") {
+      validateDetails(value);
+    }
   };
 
   const smartCapitalize = (word) => {
@@ -213,12 +235,15 @@ function CreateBlotter({ isCollapsed }) {
     }
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to file a blotter report?",
+        "Please confirm to proceed with adding this blotter report. Make sure all information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {
         return;
       }
+      if (loading) return;
+
+      setLoading(true);
       let updatedForm = { ...blotterForm };
 
       if (updatedForm.complainantID) {
@@ -248,11 +273,16 @@ function CreateBlotter({ isCollapsed }) {
       }
       try {
         await api.post("/createblotter", { updatedForm });
-        alert("Blotter report successfully submitted!");
+        confirm(
+          "A new blotter report has been successfully created.",
+          "success"
+        );
         setBlotterForm(initialForm);
         navigation("/blotter-reports");
       } catch (error) {
         console.log("Error creating blotter report", error);
+      } finally {
+        setLoading(false);
       }
     } catch (error) {
       console.log("Error", error);
@@ -277,8 +307,13 @@ function CreateBlotter({ isCollapsed }) {
     const selectedEndTime = new Date(endTime);
 
     const parseCustomDate = (dateStr) => {
-      const [datePart, timePart] = dateStr.split(" at ");
-      return new Date(`${datePart} ${timePart}`);
+      if (!dateStr) return null;
+      if (dateStr.includes(" at ")) {
+        const [datePart, timePart] = dateStr.split(" at ");
+        const d = new Date(`${datePart} ${timePart}`);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      return new Date(dateStr);
     };
 
     if (
@@ -294,11 +329,7 @@ function CreateBlotter({ isCollapsed }) {
       .find((blot) => {
         const reservedStart = parseCustomDate(blot.starttime);
         const reservedEnd = parseCustomDate(blot.endtime);
-
-        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
-          return false; // skip invalid records
-        }
-
+        if (!reservedStart || !reservedEnd) return false;
         return (
           selectedStartTime < reservedEnd && selectedEndTime > reservedStart
         );
@@ -332,8 +363,12 @@ function CreateBlotter({ isCollapsed }) {
     const time = e.target.value;
     const newStartTime = new Date(`${blotterForm.date}T${time}:00`);
 
+    if (!time) {
+      setBlotterForm((prev) => ({ ...prev, starttime: "" }));
+      return;
+    }
     if (!blotterForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
 
@@ -348,17 +383,22 @@ function CreateBlotter({ isCollapsed }) {
     const time = e.target.value;
     const newEndTime = new Date(`${blotterForm.date}T${time}:00`);
     const startTime = new Date(blotterForm.starttime);
+
+    if (!time) {
+      setBlotterForm((prev) => ({ ...prev, endtime: "" }));
+      return;
+    }
     if (!blotterForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
     if (!blotterForm.starttime) {
-      alert("Please select a start time first.");
+      confirm("Please select a start time first.", "failed");
       return;
     }
 
     if (newEndTime <= startTime) {
-      alert("End time must be after the start time.");
+      confirm("The end time must be after the start time.", "failed");
       return;
     }
 
@@ -379,8 +419,8 @@ function CreateBlotter({ isCollapsed }) {
             hour: "2-digit",
             minute: "2-digit",
           })}.`
-        : "This time slot overlaps with another schedule.";
-      alert(conflictInfo);
+        : null;
+      confirm(conflictInfo, "failed");
       setBlotterForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
@@ -661,7 +701,14 @@ function CreateBlotter({ isCollapsed }) {
                 className="h-[15rem] textarea-container"
                 required
               />
-              <h3 className="textarea-length-text">{blotterForm.details.length}/1000</h3>
+              <h3 className="textarea-length-text">
+                {blotterForm.details.length}/1000
+              </h3>
+              {detailsError && (
+                <div className="text-red-500 mt-1 text-sm mb-8">
+                  {detailsError}
+                </div>
+              )}
             </div>
           </div>
 
@@ -716,11 +763,16 @@ function CreateBlotter({ isCollapsed }) {
             >
               Clear
             </button>
-            <button className="actions-btn bg-btn-color-blue" type="submit">
-              Submit
+            <button
+              className="actions-btn bg-btn-color-blue"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
+        <div className="mb-20"></div>
       </main>
     </>
   );

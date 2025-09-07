@@ -21,6 +21,7 @@ function CreateEmployee({ onClose }) {
     chairmanship: "",
   });
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchResidents();
@@ -49,21 +50,22 @@ function CreateEmployee({ onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to create a new employee?",
+      "Please confirm to proceed with creating a new employee. Make sure all information is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+
+    if (loading) return;
+
+    setLoading(true);
+
+    let formattedEmployeeForm = { ...employeeForm };
+    if (employeeForm.position !== "Kagawad") {
+      delete formattedEmployeeForm.chairmanship;
+    }
     try {
-      let formattedEmployeeForm = { ...employeeForm };
-      if (employeeForm.position !== "Justice") {
-        delete employeeForm.assignedday;
-        delete employeeForm.assignedweeks;
-      }
-      if (employeeForm.position !== "Kagawad") {
-        delete employeeForm.chairmanship;
-      }
       const response = await api.post("/createemployee", {
         formattedEmployeeForm,
       });
@@ -80,16 +82,23 @@ function CreateEmployee({ onClose }) {
             qrCode,
             qrToken: response2.data.qrToken,
           });
-          onClose();
-          alert("Employee has been successfully created.");
         } catch (error) {
           console.log("Error saving employee ID", error);
         }
       } catch (error) {
         console.log("Error generating employee ID", error);
       }
+      setEmployeeForm({
+        resID: "",
+        position: "",
+        chairmanship: "",
+      });
+      confirm("The employee has been successfully added.", "success");
+      onClose();
     } catch (error) {
       console.log("Error creating employee");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,7 +154,7 @@ function CreateEmployee({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content h-[16rem] w-[30rem]">
             <div className="dialog-title-bar">
@@ -176,6 +185,7 @@ function CreateEmployee({ onClose }) {
                   <select
                     id="resID"
                     name="resID"
+                    value={employeeForm.resID}
                     onChange={handleDropdownChange}
                     className="form-input h-[30px] appearance-none"
                     required
@@ -185,6 +195,10 @@ function CreateEmployee({ onClose }) {
                     </option>
                     {residents
                       .filter((res) => !res.empID)
+                      .filter(
+                        (res) =>
+                          res.status !== "Archived" && res.status !== "Rejected"
+                      )
                       .map((element) => (
                         <option value={element._id}>
                           {element.middlename
@@ -202,6 +216,7 @@ function CreateEmployee({ onClose }) {
                   <select
                     id="position"
                     name="position"
+                    value={employeeForm.position}
                     onChange={handleDropdownChange}
                     className="form-input h-[30px] appearance-none"
                     required
@@ -223,6 +238,7 @@ function CreateEmployee({ onClose }) {
                     <select
                       id="chairmanship"
                       name="chairmanship"
+                      value={employeeForm.chairmanship}
                       onChange={handleDropdownChange}
                       className="form-input h-[30px]"
                     >
@@ -241,61 +257,13 @@ function CreateEmployee({ onClose }) {
                   </div>
                 )}
 
-                {/* {employeeForm.position === "Justice" && (
-                  <div className="employee-form-group">
-                    <label for="assignedweeks" className="form-label">
-                      Assigned Weeks<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="assignedweeks"
-                      name="assignedweeks"
-                      onChange={handleDropdownChange}
-                      className="form-input h-[30px]"
-                    >
-                      <option value="" disabled selected hidden>
-                        Select
-                      </option>
-                      {availableWeeks.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {employeeForm.position === "Justice" &&
-                  employeeForm.assignedweeks && (
-                    <div className="employee-form-group">
-                      <label for="assignedday" className="form-label">
-                        Assigned Day<label className="text-red-600">*</label>
-                      </label>
-                      <select
-                        id="assignedday"
-                        name="assignedday"
-                        onChange={handleDropdownChange}
-                        className="form-input h-[30px]"
-                      >
-                        <option value="" disabled selected hidden>
-                          Select
-                        </option>
-                        {assignedDay
-                          .filter(
-                            (day) =>
-                              !getUsedDaysForSelectedWeek(
-                                employeeForm.assignedweeks
-                              ).includes(day)
-                          )
-                          .map((element) => (
-                            <option value={element}>{element}</option>
-                          ))}
-                      </select>
-                    </div>
-                  )} */}
-
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

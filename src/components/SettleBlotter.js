@@ -29,6 +29,8 @@ function SettleBlotter({ isCollapsed }) {
   const [witnessSuggestions, setWitnessSuggestions] = useState([]);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const [isSignProcessing2, setIsSignProcessing2] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [blotterForm, setBlotterForm] = useState({
     complainantID: "",
     complainantname: "",
@@ -41,6 +43,21 @@ function SettleBlotter({ isCollapsed }) {
     typeofthecomplaint: "",
     details: "",
   });
+
+  const validateDetails = (value) => {
+    const errors = [];
+
+    if (value.length < 10 || value.length > 200) {
+      errors.push("Details must be minimum of 10 characters.");
+    }
+
+    const invalidChars = /[^a-zA-Z0-9,.\s]/;
+    if (invalidChars.test(value)) {
+      errors.push("Use only letters, numbers, commas, and periods.");
+    }
+
+    setDetailsError(errors.join(" "));
+  };
 
   const [settleForm, setSettleForm] = useState({
     subjectsignature: "",
@@ -56,8 +73,6 @@ function SettleBlotter({ isCollapsed }) {
     fetchResidents();
   }, []);
 
-  console.log(blotter);
-
   useEffect(() => {
     const fetchBlotter = async () => {
       try {
@@ -71,8 +86,8 @@ function SettleBlotter({ isCollapsed }) {
                 response.data.complainantID.middlename || ""
               } ${response.data.complainantID.lastname}`
             : response.data.complainantname,
-          complainantaddress: response.data.complainantID
-            ? response.data.complainantID.address
+          complainantaddress: response.data.complainantID.householdno
+            ? response.data.complainantID.householdno.address
             : response.data.complainantaddress,
           complainantcontactno: response.data.complainantID
             ? response.data.complainantID.mobilenumber
@@ -82,8 +97,8 @@ function SettleBlotter({ isCollapsed }) {
                 response.data.subjectID.middlename || ""
               } ${response.data.subjectID.lastname}`
             : response.data.subjectname,
-          subjectaddress: response.data.subjectID
-            ? response.data.subjectID.address
+          subjectaddress: response.data.subjectID.householdno
+            ? response.data.subjectID.householdno.address
             : response.data.subjectaddress,
           typeofthecomplaint: response.data.typeofthecomplaint,
           details: response.data.details,
@@ -101,6 +116,10 @@ function SettleBlotter({ isCollapsed }) {
       ...prevForm,
       [name]: value,
     }));
+
+    if (name === "agreementdetails") {
+      validateDetails(value);
+    }
   };
 
   const smartCapitalize = (word) => {
@@ -117,12 +136,14 @@ function SettleBlotter({ isCollapsed }) {
       .join(" ");
 
     if (name === "witnessname") {
-      const matches = residents.filter((res) => {
-        const fullName = `${res.firstname} ${
-          res.middlename ? res.middlename + " " : ""
-        }${res.lastname}`.toLowerCase();
-        return fullName.includes(value.toLowerCase());
-      });
+      const matches = residents
+        .filter((r) => r.status === "Active" || r.status === "Change Requested")
+        .filter((res) => {
+          const fullName = `${res.firstname} ${
+            res.middlename ? res.middlename + " " : ""
+          }${res.lastname}`.toLowerCase();
+          return fullName.includes(value.toLowerCase());
+        });
 
       setWitnessSuggestions(matches);
       setSettleForm((prevForm) => ({
@@ -212,12 +233,15 @@ function SettleBlotter({ isCollapsed }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to settle this blotter report?",
+      "Please confirm to proceed with settling this blotter. Make sure all details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     let updatedForm = { ...settleForm };
 
     if (updatedForm.witnessID) {
@@ -247,14 +271,14 @@ function SettleBlotter({ isCollapsed }) {
 
     try {
       await api.put(`/settleblotter/${blotterID}`, { updatedForm });
-      alert("Blotter successfully settled!");
+      confirm("The blotter report has been successfully settled.", "success");
       navigation("/blotter-reports");
     } catch (error) {
       console.log("Error settling blotter", error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  console.log(settleForm);
 
   return (
     <>
@@ -445,105 +469,119 @@ function SettleBlotter({ isCollapsed }) {
               <h3 className="text-end">
                 {settleForm.agreementdetails.length}/1000
               </h3>
-            </div>
-          </div>
-
-          {/*Witness Information*/}
-          <h3 className="section-title mt-8">Witness Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group relative">
-              <div className="cols-span-1">
-                <label for="type" className="form-label">
-                  Name<label className="text-red-600">*</label>
-                </label>
-                <input
-                  name="witnessname"
-                  value={settleForm.witnessname}
-                  onChange={handleWitnessChange}
-                  placeholder="Enter name"
-                  className="form-input h-[30px] w-full"
-                  autoComplete="off"
-                />
-                {settleForm.witnessname?.length > 0 &&
-                  witnessSuggestions?.length > 0 && (
-                    <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
-                      {witnessSuggestions.map((res) => {
-                        const fullName = `${res.firstname} ${
-                          res.middlename ? res.middlename + " " : ""
-                        }${res.lastname}`;
-                        return (
-                          <li
-                            key={res.id}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleWitnessSuggestionClick(res)}
-                          >
-                            {fullName}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-              </div>
-            </div>
-          </div>
-
-          <div className="form-grid">
-            <div className="col-span-2">
-              {!settleForm.witnessID && (
-                <div className="form-group">
-                  <label for="type" className="form-label">
-                    Signature<label className="text-red-600">*</label>
-                  </label>
-                  <div className="upload-box">
-                    <input
-                      onChange={handleChangeSig2}
-                      type="file"
-                      name="witnesssignature"
-                      accept="image/jpeg, image/png"
-                      style={{ display: "none" }}
-                      ref={hiddenInputRef2}
-                    />
-                    <div className="upload-content">
-                      <div className="preview-container">
-                        {isSignProcessing2 ? (
-                          <p>Processing...</p>
-                        ) : settleForm.witnesssignature ? (
-                          <img
-                            src={settleForm.witnesssignature}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <p>No Picture Attached</p>
-                        )}
-                      </div>
-
-                      <div className="upload-signature-btn">
-                        <button
-                          onClick={handleUploadSig2}
-                          className="upload-btn"
-                        >
-                          <FiUpload />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+              {detailsError && (
+                <div className="text-red-500 mt-1 text-sm mb-8">
+                  {detailsError}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex justify-end rounded-md mt-4">
-            <button
-              onClick={handleSubmit}
-              className="actions-btn bg-btn-color-blue"
-              type="submit"
-            >
-              Submit
-            </button>
-          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+          >
+            {/*Witness Information*/}
+            <h3 className="section-title mt-8">Witness Information</h3>
+            <hr class="section-divider" />
+
+            <div className="form-grid">
+              <div className="form-group relative">
+                <div className="cols-span-1">
+                  <label for="type" className="form-label">
+                    Name<label className="text-red-600">*</label>
+                  </label>
+                  <input
+                    name="witnessname"
+                    value={settleForm.witnessname}
+                    onChange={handleWitnessChange}
+                    placeholder="Enter name"
+                    className="form-input h-[30px] w-full"
+                    autoComplete="off"
+                    required
+                  />
+                  {settleForm.witnessname?.length > 0 &&
+                    witnessSuggestions?.length > 0 && (
+                      <ul className="absolute left-0 top-full w-full bg-white border rounded shadow z-[9999] max-h-[150px] overflow-y-auto text-black">
+                        {witnessSuggestions.map((res) => {
+                          const fullName = `${res.firstname} ${
+                            res.middlename ? res.middlename + " " : ""
+                          }${res.lastname}`;
+                          return (
+                            <li
+                              key={res.id}
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleWitnessSuggestionClick(res)}
+                            >
+                              {fullName}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                </div>
+              </div>
+            </div>
+
+            <div className="form-grid">
+              <div className="col-span-2">
+                {!settleForm.witnessID && (
+                  <div className="form-group">
+                    <label for="type" className="form-label">
+                      Signature<label className="text-red-600">*</label>
+                    </label>
+                    <div className="upload-box">
+                      <input
+                        onChange={handleChangeSig2}
+                        type="file"
+                        name="witnesssignature"
+                        accept="image/jpeg, image/png"
+                        style={{ display: "none" }}
+                        ref={hiddenInputRef2}
+                      />
+                      <div className="upload-content">
+                        <div className="preview-container">
+                          {isSignProcessing2 ? (
+                            <p>Processing...</p>
+                          ) : settleForm.witnesssignature ? (
+                            <img
+                              src={settleForm.witnesssignature}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <p>No Picture Attached</p>
+                          )}
+                        </div>
+
+                        <div className="upload-signature-btn">
+                          <button
+                            onClick={handleUploadSig2}
+                            className="upload-btn"
+                          >
+                            <FiUpload />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end rounded-md mt-4">
+              <button
+                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D] ml-auto"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </button>
+            </div>
+          </form>
         </div>
+        <div className="mb-20"></div>
       </main>
     </>
   );

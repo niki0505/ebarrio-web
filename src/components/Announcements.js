@@ -16,9 +16,7 @@ import "../Stylesheets/Announcements.css";
 
 //ICONS
 import { BsPinAngleFill, BsPinAngle, BsThreeDots } from "react-icons/bs";
-import { IoArchiveSharp } from "react-icons/io5";
-import { FaHeart } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
+import { FaHeart, FaArchive, FaEdit } from "react-icons/fa";
 
 function Announcements({ isCollapsed }) {
   dayjs.extend(relativeTime);
@@ -28,13 +26,13 @@ function Announcements({ isCollapsed }) {
   const [isCreateClicked, setCreateClicked] = useState(false);
   const [isEditClicked, setEditClicked] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
-
   const [selectedCategory, setSelectedCategory] = useState("All Announcement");
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState([]);
   const [menuVisible, setMenuVisible] = useState(null);
   const [expandedAnnouncements, setExpandedAnnouncements] = useState([]);
   const [sortOption, setSortOption] = useState("Newest");
   const menuRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -80,19 +78,29 @@ function Announcements({ isCollapsed }) {
 
   /* PIN ANNOUNCEMENT */
   const togglePin = async (announcementID) => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/pinannouncement/${announcementID}`);
     } catch (error) {
       console.log("Error pinning announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   /* UNPIN ANNOUNCEMENT */
   const toggleUnpin = async (announcementID) => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/unpinannouncement/${announcementID}`);
     } catch (error) {
       console.log("Error pinning announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,17 +148,22 @@ function Announcements({ isCollapsed }) {
 
   const handleArchive = async (announcementID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this announcement?",
+      "Please confirm to proceed with archiving this announcement. You can restore this announcement later if needed.",
       "confirmred"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/archiveannouncement/${announcementID}`);
-      alert("The announcement has been successfully archived.");
+      confirm("The announcement has been successfully archived.", "success");
     } catch (error) {
       console.log("Error in archiving announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,11 +175,16 @@ function Announcements({ isCollapsed }) {
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/recoverannouncement/${announcementID}`);
-      alert("The announcement has been successfully recovered.");
+      confirm("The announcement has been successfully recovered.", "success");
     } catch (error) {
       console.log("Error in recovering announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -189,6 +207,11 @@ function Announcements({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Announcements</div>
 
         <div className="announcement-container">
@@ -313,7 +336,8 @@ function Announcements({ isCollapsed }) {
                               className="navbar-dropdown-item justify-start"
                               onClick={() => handleArchive(announcement._id)}
                             >
-                              <IoArchiveSharp className="text-red-600 ml-2" />
+                              <FaArchive className="text-red-600 ml-2 text-sm" />
+
                               <li className="text-red-600 announcement-menu-text">
                                 Archive
                               </li>
@@ -428,7 +452,7 @@ function Announcements({ isCollapsed }) {
                           className="navbar-dropdown-item justify-start"
                           onClick={handleArchive}
                         >
-                          <IoArchiveSharp className="text-red-600 ml-2" />
+                          <FaArchive className="text-red-600 ml-2 text-sm" />
                           <li className="text-red-600 announcement-menu-text">
                             Archive
                           </li>
@@ -495,6 +519,8 @@ function Announcements({ isCollapsed }) {
             ))}
           </div>
         </div>
+
+        <div className="mb-20"></div>
       </main>
 
       {isCreateClicked && (

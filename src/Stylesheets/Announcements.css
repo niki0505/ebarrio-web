@@ -44,7 +44,7 @@
   @apply absolute top-3 right-3 flex flex-col sm:flex-row gap-2;
 }
 .announcement-sort-dropdown {
-  @apply text-sm font-semibold w-full h-full rounded-md font-subTitle;
+  @apply text-sm font-semibold w-full h-full rounded-md font-subTitle cursor-pointer;
 }
 .announcement-heart {
   @apply text-btn-color-red text-xs;

@@ -38,12 +38,9 @@ function EmergencyHotlines({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const exportRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
 
@@ -61,40 +58,60 @@ function EmergencyHotlines({ isCollapsed }) {
 
   const handleArchive = async (emergencyID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this emergency contact?",
+      "Please confirm to proceed with archiving this emergency hotline. You can restore it later if needed.",
       "confirmred"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/archiveemergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully archived.");
+      confirm(
+        "The emergency hotline has been successfully archived.",
+        "success"
+      );
     } catch (error) {
       console.log("Error archiving emergency contact", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRecover = async (emergencyID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this emergency contact?",
+      "Please confirm to proceed with recovering this emergency contact. The contact will be restored to the active list.",
       "confirmred"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       await api.put(`/recoveremergencyhotlines/${emergencyID}`);
-      alert("Emergency hotline has been successfully recovered.");
+      confirm(
+        "The emergency hotline has been successfully recovered.",
+        "success"
+      );
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,15 +155,20 @@ function EmergencyHotlines({ isCollapsed }) {
   };
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredEmergencyHotlines.slice(
-    indexOfFirstRow,
-    indexOfLastRow
-  );
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredEmergencyHotlines.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredEmergencyHotlines
+      : filteredEmergencyHotlines.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -185,10 +207,11 @@ function EmergencyHotlines({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Emergency Hotlines";
+    const action = "Export";
+    const target = "Emergency Hotlines";
     const description = `User exported emergency hotlines to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -260,10 +283,12 @@ function EmergencyHotlines({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
-    const action = "Emergency Hotlines";
+
+    const action = "Export";
+    const target = "Emergency Hotlines";
     const description = `User exported emergency hotlines to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -289,6 +314,11 @@ function EmergencyHotlines({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="text-[30px] font-extrabold font-title text-[#BC0F0F]">
           Emergency Hotlines
         </div>
@@ -372,14 +402,14 @@ function EmergencyHotlines({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead className="bg-[#BC0F0F]">
-              <tr>
+              <tr className="cursor-default">
                 <th>Public Service Facilities</th>
                 <th>Contact Number</th>
                 <th>Action</th>
               </tr>
             </thead>
 
-            <tbody className="bg-[#fff]">
+            <tbody className="bg-[#fff] cursor-fault">
               {filteredEmergencyHotlines.length === 0 ? (
                 <tr>
                   <td colSpan={3}>No results found</td>
@@ -394,6 +424,7 @@ function EmergencyHotlines({ isCollapsed }) {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "";
                     }}
+                    className="cursor-default"
                   >
                     <td>{emergency.name}</td>
                     <td>{emergency.contactnumber}</td>
@@ -458,13 +489,16 @@ function EmergencyHotlines({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
-                className="!border-[#BC0F0F] !text-btn-color-red table-pagination-select"
+                className="table-pagination-select !border-[#F63131] !text-[#F63131]"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -481,25 +515,28 @@ function EmergencyHotlines({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#F63131"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#F63131"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#F63131"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#F63131"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+
         {isCreateClicked && (
           <CreateContact onClose={() => setCreateClicked(false)} />
         )}
@@ -510,6 +547,8 @@ function EmergencyHotlines({ isCollapsed }) {
             emergencyDetails={selectedEmergency}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

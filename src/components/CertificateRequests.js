@@ -43,6 +43,7 @@ function CertificateRequests({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [sortOption, setSortOption] = useState("Newest");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [isRejectClicked, setRejectClicked] = useState(false);
 
@@ -52,10 +53,6 @@ function CertificateRequests({ isCollapsed }) {
   const [selectedCertID, setSelectedCertID] = useState(null);
   const exportRef = useRef(null);
   const filterRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -147,34 +144,47 @@ function CertificateRequests({ isCollapsed }) {
   const notifyBtn = async (e, certID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to notify the resident that their document is ready for pick-up?",
+      "Please confirm to proceed with notifying the resident that their document is ready for pickup.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/notifycert/${certID}`);
-      alert("The resident has been successfully notified.");
+      confirm("The resident has been duly notified.", "success");
     } catch (error) {
       console.log("Error in notifying user", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const collectedBtn = async (e, certID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure the resident has already collected this document?",
+      "Please confirm to proceed with marking this document as collected. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/collectedcert/${certID}`);
-      alert("The resident has successfully collected their document.");
+      confirm(
+        "The resident has successfully collected their document.",
+        "success"
+      );
     } catch (error) {
       console.log("Error in updating the status", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,16 +197,26 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Indigency") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -211,16 +231,25 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -235,16 +264,25 @@ function CertificateRequests({ isCollapsed }) {
     if (response3.data.typeofcertificate === "Barangay Business Clearance") {
       if (response3.data.status === "Pending") {
         const isConfirmed = await confirm(
-          "Are you sure you want to issue this certificate?",
+          "Please confirm to proceed with issuing this document. This action cannot be undone.",
           "confirm"
         );
         if (!isConfirmed) return;
-        const gencert = await api.put(`/generatecertificatereq/${certID}`);
-        const qrCode = await uploadToFirebase(gencert.data.qrCode);
-        const savecert = await api.put(`/savecertificatereq/${certID}`, {
-          qrCode,
-        });
-        response3 = await api.get(`/getcertificate/${certID}`);
+        if (loading) return;
+
+        setLoading(true);
+        try {
+          const gencert = await api.put(`/generatecertificatereq/${certID}`);
+          const qrCode = await uploadToFirebase(gencert.data.qrCode);
+          const savecert = await api.put(`/savecertificatereq/${certID}`, {
+            qrCode,
+          });
+          response3 = await api.get(`/getcertificate/${certID}`);
+        } catch (error) {
+          console.log("Error in issuing document", error);
+        } finally {
+          setLoading(false);
+        }
       }
       setIssuedClicked(true);
       setPendingClicked(false);
@@ -283,12 +321,20 @@ function CertificateRequests({ isCollapsed }) {
       return parseDate(b.updatedAt) - parseDate(a.updatedAt);
     }
   });
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = sortedFilteredCert.slice(indexOfFirstRow, indexOfLastRow);
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredCertificates.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredCertificates
+      : filteredCertificates.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -346,10 +392,11 @@ function CertificateRequests({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Document Requests";
+    const action = "Export";
+    const target = "Document Requests";
     const description = `User exported issued documents to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -437,10 +484,11 @@ function CertificateRequests({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Document Requests";
+    const action = "Export";
+    const target = "Document Requests";
     const description = `User exported issued documents to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -474,6 +522,11 @@ function CertificateRequests({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Document Requests</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
@@ -486,6 +539,9 @@ function CertificateRequests({ isCollapsed }) {
               }`}
             >
               Pending
+              {certificates.some((cert) => cert.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}
@@ -592,7 +648,7 @@ function CertificateRequests({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 {isIssuedClicked && <th>No.</th>}
                 <th>Name</th>
                 <th>Type of Certificate</th>
@@ -606,7 +662,7 @@ function CertificateRequests({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredCertificates.length === 0 ? (
-                <tr className="bg-[#fff]">
+                <tr className="bg-[#fff] cursor-default">
                   <td colSpan={isIssuedClicked ? 6 : 4}>No results found</td>
                 </tr>
               ) : (
@@ -778,12 +834,12 @@ function CertificateRequests({ isCollapsed }) {
                                     </p>
                                     {/* Location of Business */}
                                     <h1 className="add-info-title min-w-[200px] max-w-[200px]">
-                                      Line of Business
+                                      Location of Business
                                     </h1>
                                     <p className="add-info-container">
                                       {cert.locationofbusiness ===
                                       "Resident's Address"
-                                        ? `${cert.resID.address}`
+                                        ? `${cert.resID.householdno?.address}`
                                         : `${cert.locationofbusiness}`}
                                     </p>
                                     {/* Date Requested */}
@@ -869,8 +925,8 @@ function CertificateRequests({ isCollapsed }) {
                           {isIssuedClicked && <td>{cert.certno}</td>}
                           <td>
                             {cert.resID.middlename
-                              ? `${cert.resID.lastname} ${cert.resID.middlename} ${cert.resID.firstname}`
-                              : `${cert.resID.lastname} ${cert.resID.firstname}`}
+                              ? `${cert.resID.lastname}, ${cert.resID.middlename} ${cert.resID.firstname}`
+                              : `${cert.resID.lastname}, ${cert.resID.firstname}`}
                           </td>
                           <td>{cert.typeofcertificate}</td>
                           {isPendingClicked && (
@@ -930,13 +986,16 @@ function CertificateRequests({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -953,25 +1012,30 @@ function CertificateRequests({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+        {currentRows.map((row, index) => (
+          <div key={index}>{row.name}</div>
+        ))}
 
         {isRejectClicked && (
           <Reject
@@ -979,6 +1043,8 @@ function CertificateRequests({ isCollapsed }) {
             onClose={() => setRejectClicked(false)}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

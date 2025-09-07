@@ -5,20 +5,15 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Outlet,
   Navigate,
 } from "react-router-dom";
-import OpenCamera from "./components/OpenCamera";
 import "./App.css";
-import Sidebar from "./components/Sidebar";
-import Navbar from "./components/Navbar";
 import Residents from "./components/Residents";
 import Employees from "./components/Employees";
 import Accounts from "./components/Accounts";
 import EditResident from "./components/EditResident";
 import { InfoProvider } from "./context/InfoContext";
 import Login from "./components/Login";
-import Signup from "./components/Signup";
 import OTP from "./components/OTP";
 import EmergencyHotlines from "./components/EmergencyHotlines";
 import CertificateRequests from "./components/CertificateRequests";
@@ -44,6 +39,7 @@ import RiverSnapshots from "./components/RiverSnapshots";
 import ActivityLogs from "./components/ActivityLogs";
 import Household from "./components/Household";
 import ViewResident from "./components/ViewResident";
+import NotFound from "./components/NotFound";
 
 // Scrolls to the top of the page when switching pages
 const ResetScrollToTop = () => {
@@ -77,14 +73,11 @@ function App() {
                   pauseOnHover
                 />
                 <Routes>
+                  <Route path="*" element={<NotFound />} />
                   <Route path="/" element={<Navigate to="/login" replace />} />
                   <Route
                     path="/login"
                     element={<PublicRoute element={<Login />} />}
-                  />
-                  <Route
-                    path="/signup"
-                    element={<PublicRoute element={<Signup />} />}
                   />
                   <Route
                     path="/otp"
@@ -104,7 +97,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Residents />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -113,7 +110,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Household />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -122,7 +123,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<CreateResident />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -131,7 +136,11 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<EditResident />}
-                          allowedRoles={["Secretary", "Clerk"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />
@@ -149,7 +158,7 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<Employees />}
-                          allowedRoles={["Secretary"]}
+                          allowedRoles={["Secretary", "Technical Admin"]}
                         />
                       }
                     />
@@ -248,7 +257,12 @@ function App() {
                       element={
                         <PrivateRoute
                           element={<AccountSettings />}
-                          allowedRoles={["Secretary", "Clerk", "Justice"]}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Justice",
+                            "Technical Admin",
+                          ]}
                         />
                       }
                     />

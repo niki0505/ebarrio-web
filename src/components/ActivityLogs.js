@@ -4,6 +4,7 @@ import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../Stylesheets/CommonStyle.css";
@@ -24,6 +25,9 @@ function ActivityLogs({ isCollapsed }) {
   const [toDate, setToDate] = useState("");
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
+  const [selectedAction, setSelectedAction] = useState("");
+  const [selectedTarget, setSelectedTarget] = useState("");
+  const confirm = useConfirm();
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,14 +61,53 @@ function ActivityLogs({ isCollapsed }) {
   };
 
   useEffect(() => {
-    setFilteredLogs(activitylogs);
+    setFilteredLogs(activitylogs || []);
     setCurrentPage(1);
   }, [activitylogs]);
 
+  const actions = [
+    "Login",
+    "Logout",
+    "Failed Login",
+    "Password Set",
+    "Password Reset",
+    "Create",
+    "Update",
+    "Generate",
+    "Archive",
+    "Export",
+    "Approve",
+    "Reject",
+    "Settle",
+    "Pin",
+    "Unpin",
+    "Notify",
+  ];
+
+  const target = [
+    "Employees",
+    "Residents",
+    "Households",
+    "Blotter Reports",
+    "Document Requests",
+    "Court Reservations",
+    "Announcements",
+    "SOS",
+    "River Snapshots",
+    "Emergency Hotlines",
+    "User Accounts",
+    "Activity Logs",
+    "Profile",
+    "Username",
+    "Password",
+    "Security Questions",
+  ];
+
   const handleSubmit = () => {
     if (fromDate && toDate && toDate < fromDate) {
-      alert(
-        "Invalid date range. Please ensure the 'To' date is not earlier than the 'From' date."
+      confirm(
+        "Invalid date range. Please ensure the 'To' date is not earlier than the 'From' date.",
+        "failed"
       );
       return;
     }
@@ -76,10 +119,22 @@ function ActivityLogs({ isCollapsed }) {
       const isUserMatch = selectedUser
         ? log.userID?.username === selectedUser
         : true;
+      const isActionMatch = selectedAction
+        ? log.action === selectedAction
+        : true;
+      const isTargetMatch = selectedTarget
+        ? log.target === selectedTarget
+        : true;
       const isFromDateMatch = fromDate ? logDate >= fromDate : true;
       const isToDateMatch = toDate ? logDate <= toDate : true;
 
-      return isUserMatch && isFromDateMatch && isToDateMatch;
+      return (
+        isUserMatch &&
+        isActionMatch &&
+        isTargetMatch &&
+        isFromDateMatch &&
+        isToDateMatch
+      );
     });
 
     setFilteredLogs(filtered);
@@ -97,6 +152,10 @@ function ActivityLogs({ isCollapsed }) {
   };
 
   const exportCSV = async () => {
+    if (filteredLogs.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Activity Logs";
     const now = new Date().toLocaleString();
     const headers = [
@@ -104,6 +163,7 @@ function ActivityLogs({ isCollapsed }) {
       "Name",
       "Username",
       "Action",
+      "Target",
       "Description",
       "Timestamp",
     ];
@@ -123,8 +183,9 @@ function ActivityLogs({ isCollapsed }) {
         return [
           log.logno,
           fullname,
-          log.userID.username,
+          log.userID?.username ?? "N/A",
           log.action,
+          log.target,
           `${log.description.replace(",", "")}`,
           `${createdDate.replace(",", "")}`,
         ];
@@ -134,7 +195,7 @@ function ActivityLogs({ isCollapsed }) {
       "data:text/csv;charset=utf-8," +
       [
         `${title}`,
-        `Exported by: ${user.name}`,
+        `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
         `Exported on: ${now}`,
         "",
         headers.join(","),
@@ -146,7 +207,9 @@ function ActivityLogs({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Barangay_Aniban_2_Activity_Logs_by_${user.name.replace(/ /g, "_")}.csv`
+      `Barangay_Aniban_2_Activity_Logs_by_${
+        user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+      }.csv`
     );
 
     document.body.appendChild(link);
@@ -154,16 +217,21 @@ function ActivityLogs({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Activity Logs";
+    const action = "Export";
+    const target = "Activity Logs";
     const description = `User exported activity logs to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (filteredLogs.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -202,15 +270,26 @@ function ActivityLogs({ isCollapsed }) {
         return [
           log.logno,
           fullname,
-          log.userID.username,
+          log.userID?.username ?? "N/A",
           log.action,
+          log.target,
           `${log.description.replace(",", "")}`,
           `${createdDate.replace(",", "")}`,
         ];
       });
 
     autoTable(doc, {
-      head: [["No.", "Name", "Username", "Action", "Description", "Timestamp"]],
+      head: [
+        [
+          "No.",
+          "Name",
+          "Username",
+          "Action",
+          "Target",
+          "Description",
+          "Timestamp",
+        ],
+      ],
       body: rows,
       startY: 65,
       margin: { bottom: 30 },
@@ -229,7 +308,11 @@ function ActivityLogs({ isCollapsed }) {
 
         // Exported by & exported on
         doc.setFontSize(10);
-        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(
+          `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
+          logoX + 20,
+          logoY + 5
+        );
         doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
 
         // Page number
@@ -243,17 +326,17 @@ function ActivityLogs({ isCollapsed }) {
       },
     });
 
-    const filename = `Barangay_Aniban_2_Activity_Logs_by_${user.name.replace(
-      / /g,
-      "_"
-    )}.pdf`;
+    const filename = `Barangay_Aniban_2_Activity_Logs_by_${
+      user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+    }.pdf`;
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Activity Logs";
+    const action = "Export";
+    const target = "Activity Logs";
     const description = `User exported accounts to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -287,14 +370,45 @@ function ActivityLogs({ isCollapsed }) {
                 onChange={(e) => setSelectedUser(e.target.value)}
                 className="logs-filter-select"
               >
-                <option value="">All Users</option>
+                <option value="">All</option>
                 {users
+                  .filter((u) => u.role !== "Technical Admin")
                   .sort((a, b) => a.username.localeCompare(b.username))
                   .map((user, index) => (
                     <option key={index} value={user.username}>
                       {user.username}
                     </option>
                   ))}
+              </select>
+            </div>
+            <div className="logs-filter-item">
+              <label className="logs-filter-label">Action</label>
+              <select
+                value={selectedAction}
+                onChange={(e) => setSelectedAction(e.target.value)}
+                className="logs-filter-select"
+              >
+                <option value="">All</option>
+                {actions.map((a, index) => (
+                  <option key={index} value={a}>
+                    {a}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="logs-filter-item">
+              <label className="logs-filter-label">Target</label>
+              <select
+                value={selectedTarget}
+                onChange={(e) => setSelectedTarget(e.target.value)}
+                className="logs-filter-select"
+              >
+                <option value="">All</option>
+                {target.map((a, index) => (
+                  <option key={index} value={a}>
+                    {a}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="logs-filter-item">
@@ -378,10 +492,11 @@ function ActivityLogs({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>No.</th>
                 <th>User</th>
                 <th>Action</th>
+                <th>Target</th>
                 <th>Description</th>
                 <th>Timestamp</th>
               </tr>
@@ -389,8 +504,8 @@ function ActivityLogs({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {displayedLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={5}>No results found</td>
+                <tr className="cursor-default">
+                  <td colSpan={6}>No results found</td>
                 </tr>
               ) : (
                 currentRows.map((log) => (
@@ -402,6 +517,7 @@ function ActivityLogs({ isCollapsed }) {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "";
                     }}
+                    className="cursor-default"
                   >
                     <td>{log.logno}</td>
                     <td>
@@ -435,6 +551,7 @@ function ActivityLogs({ isCollapsed }) {
                       </div>
                     </td>
                     <td>{log.action}</td>
+                    <td>{log.target}</td>
                     <td>{log.description}</td>
                     <td>{log.createdAt}</td>
                   </tr>
@@ -490,6 +607,8 @@ function ActivityLogs({ isCollapsed }) {
             </button>
           </div>
         </div>
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

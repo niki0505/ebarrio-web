@@ -32,8 +32,7 @@ function CreateCertificate({ resID, onClose }) {
     ornumber: "",
   });
   const [showModal, setShowModal] = useState(true);
-
-  console.log(certificateForm);
+  const [loading, setLoading] = useState(false);
 
   const certificates = [
     { name: "Barangay Indigency", price: "₱10.00" },
@@ -116,12 +115,15 @@ function CreateCertificate({ resID, onClose }) {
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
-      "Are you sure you want to issue this resident a document?",
+      "Please confirm to proceed with issuing this document. Make sure the document details are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     const requiredFields =
       certificateFields[certificateForm.typeofcertificate] || [];
 
@@ -178,9 +180,6 @@ function CreateCertificate({ resID, onClose }) {
 
         if (response3.data.typeofcertificate === "Barangay Indigency") {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             IndigencyPrint({
               certData: response3.data,
               captainData: response4.data,
@@ -192,9 +191,6 @@ function CreateCertificate({ resID, onClose }) {
           }
         } else if (response3.data.typeofcertificate === "Barangay Clearance") {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             ClearancePrint({
               certData: response3.data,
               captainData: response4.data,
@@ -208,9 +204,6 @@ function CreateCertificate({ resID, onClose }) {
           response3.data.typeofcertificate === "Barangay Business Clearance"
         ) {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             BusinessClearancePrint({
               certData: response3.data,
               captainData: response4.data,
@@ -229,6 +222,8 @@ function CreateCertificate({ resID, onClose }) {
       }
     } catch (error) {
       console.log("Error generating barangay certificate", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -244,7 +239,7 @@ function CreateCertificate({ resID, onClose }) {
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Create Certificate</h1>
+                  <h1 className="modal-title">Create Document</h1>
                   <IoClose
                     onClick={handleClose}
                     class="dialog-title-bar-icon"
@@ -264,7 +259,7 @@ function CreateCertificate({ resID, onClose }) {
               <div className="modal-form">
                 <div className="employee-form-group">
                   <label for="typeofcertificate" className="form-label">
-                    Type of Certificate<label className="text-red-600">*</label>
+                    Type of Document<label className="text-red-600">*</label>
                   </label>
                   <select
                     id="typeofcertificate"
@@ -392,9 +387,10 @@ function CreateCertificate({ resID, onClose }) {
                 <div className="flex justify-center">
                   <button
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

@@ -1,8 +1,9 @@
-import { useRef, useState, useEffect, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import OtpInput from "react-otp-input";
 import { OtpContext } from "../context/OtpContext";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import { IoArrowBack } from "react-icons/io5";
@@ -11,6 +12,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import AppLogo from "../assets/applogo-darkbg.png";
 
 function ForgotPassword() {
+  const confirm = useConfirm();
   const navigation = useNavigate();
   const [username, setUsername] = useState("");
   const [user, setUser] = useState([]);
@@ -34,6 +36,7 @@ function ForgotPassword() {
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [repasswordErrors, setRePasswordErrors] = useState([]);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleUsernameChange = (e) => {
     const input = e.target.value;
@@ -55,30 +58,42 @@ function ForgotPassword() {
       Array.isArray(user.securityquestions) &&
       user.securityquestions.length === 0
     ) {
-      alert("It looks like you haven't set up your security questions yet.");
+      confirm(
+        "It appears that you have not yet set up your security questions.",
+        "failed"
+      );
       return;
     }
     setQuestionsClicked(true);
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       const response = await api.get(`/checkuser/${username}`);
       setIsExisting(true);
       setUser(response.data);
+      console.log(response.data);
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleQuestionVerify = async () => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.post(`/verifyquestion/${username}`, { securityquestion });
       setIsVerified(true);
@@ -86,11 +101,13 @@ function ForgotPassword() {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,7 +116,7 @@ function ForgotPassword() {
       await api.get(`/checkotp/${username}`);
       if (resendCount === 3) {
         setIsResendDisabled(true);
-        alert("You can only resend OTP 3 times.");
+        confirm("You can only resend OTP 3 times.", "failed");
         setOTPClicked(false);
         await api.get(`/limitotp/${username}`);
         return;
@@ -107,10 +124,13 @@ function ForgotPassword() {
       setOTPClicked(true);
       setResendCount((prevCount) => prevCount + 1);
       setResendTimer(30);
-      sendOTP(username, user.empID.resID.mobilenumber);
+      sendOTP(username, user?.empID?.resID?.mobilenumber ?? user?.mobilenumber);
     } catch (error) {
       if (error.response && error.response.status === 429) {
-        alert("OTP use is currently disabled. Try again in after 30 minutes.");
+        confirm(
+          "OTP usage is currently disabled. Please try again after 30 minutes.",
+          "failed"
+        );
       } else {
         console.error("Error checking OTP:", error);
       }
@@ -119,17 +139,11 @@ function ForgotPassword() {
 
   const handleSuccessful = async () => {
     let hasErrors = false;
-    let nerrors = [];
-    let rnerrors = [];
-    if (!newPassword) {
-      nerrors.push("Password must not be empty.");
-      setPasswordErrors(nerrors);
+    if (passwordErrors.length !== 0) {
       hasErrors = true;
     }
 
-    if (!renewPassword) {
-      rnerrors.push("Password must not be empty.");
-      setRePasswordErrors(rnerrors);
+    if (repasswordErrors.length !== 0) {
       hasErrors = true;
     }
 
@@ -137,31 +151,43 @@ function ForgotPassword() {
       return;
     }
 
+    const isConfirmed = await confirm(
+      "Are you sure you want to reset your password?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       await api.post(`/newpassword/${username}`, { newPassword });
-      alert("You have successfully reset your password!");
+      confirm("Your password has been successfully reset.", "success");
       navigation("/login");
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const passwordValidation = (e) => {
     let val = e.target.value;
     let errors = [];
+    let errors2 = [];
     let formattedVal = val.replace(/\s+/g, "");
     setNewPassword(formattedVal);
 
-    if (!formattedVal) {
-      errors.push("Password must not be empty.");
-    }
     if (
       (formattedVal && formattedVal.length < 8) ||
       (formattedVal && formattedVal.length > 64)
@@ -173,7 +199,11 @@ function ForgotPassword() {
         "Password can only contain letters, numbers, and !, @, $, %, ^, &, *, +, #"
       );
     }
+    if (renewPassword && formattedVal !== renewPassword) {
+      errors2.push("Passwords do not match!");
+    }
     setPasswordErrors(errors);
+    setRePasswordErrors(errors2);
   };
 
   const repasswordValidation = (e) => {
@@ -182,9 +212,6 @@ function ForgotPassword() {
     let formattedVal = val.replace(/\s+/g, "");
     setReNewPassword(formattedVal);
 
-    if (!formattedVal) {
-      errors.push("Password must not be empty.");
-    }
     if (formattedVal !== newPassword && formattedVal.length > 0) {
       errors.push("Passwords do not match.");
     }
@@ -213,34 +240,39 @@ function ForgotPassword() {
   const handleResend = async () => {
     if (resendCount < 3) {
       try {
-        sendOTP(username, user.empID.resID.mobilenumber);
+        sendOTP(
+          username,
+          user?.empID?.resID?.mobilenumber ?? user?.mobilenumber
+        );
         setResendTimer(30);
         setIsResendDisabled(true);
         setResendCount((prevCount) => prevCount + 1);
         console.log("New OTP is generated");
       } catch (error) {
         console.error("Error sending OTP:", error);
-        alert("Something went wrong while sending OTP");
+        confirm(
+          "An error occurred while sending the OTP. Please try again.",
+          "failed"
+        );
       }
     } else {
       await api.get(`/limitotp/${username}`);
-      alert("You can only resend OTP 3 times.");
+      confirm("You can only resend OTP 3 times.", "failed");
     }
   };
 
   const handleVerify = async () => {
     try {
       const result = await verifyOTP(username, OTP);
-      alert(result.message);
       setIsVerified(true);
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
     }
   };
@@ -255,18 +287,21 @@ function ForgotPassword() {
     }
   }, [OTP, isOTPClicked]);
 
+  const maskMobileNumber = (number) => {
+    if (!number || number.length < 4) return number;
+    const start = number.slice(0, 2);
+    const end = number.slice(-2);
+    const masked = "*".repeat(number.length - 4);
+    return `${start}${masked}${end}`;
+  };
+
   return (
     <>
       {/* First Design */}
       {/* Forgot Password */}
       {!isExisting && (
         <>
-          <div
-            className="login-container"
-            style={{
-              backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-            }}
-          >
+          <div className="login-container">
             <img
               src={AppLogo}
               alt="App Logo"
@@ -302,8 +337,12 @@ function ForgotPassword() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <button type="submit" className="login-btn">
-                    Submit
+                  <button
+                    type="submit"
+                    className="login-btn"
+                    disabled={loading}
+                  >
+                    {loading ? "Checking..." : "Continue"}
                   </button>
                   <a href="/login" className="login-forgot-btn">
                     Remember your password?
@@ -323,136 +362,149 @@ function ForgotPassword() {
             {/* Reset Password */}
             {isVerified ? (
               <>
-                <div
-                  className="w-screen h-screen relative overflow-hidden"
-                  style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-                  }}
-                >
+                <div className="login-container">
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
-                  <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] justify-center items-center">
-                      <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
-                        <div>
-                          <h1 className="header-text text-start">
-                            Reset Password
-                          </h1>
-                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
-                            Enter your new password and confirm it to complete
-                            the reset process.
-                          </span>
-                        </div>
-
-                        <div className="flex flex-col gap-4 w-full">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSuccessful();
+                    }}
+                  >
+                    <div
+                      className="modal-container"
+                      style={{
+                        background: "none",
+                        backdropFilter: "none",
+                        WebkitBackdropFilter: "none",
+                      }}
+                    >
+                      <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] justify-center items-center">
+                        <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
                           <div>
-                            <div className="relative w-full">
-                              <input
-                                type={
-                                  showResetNewPassword ? "text" : "password"
-                                }
-                                placeholder="New Password"
-                                onChange={(e) => passwordValidation(e)}
-                                className="form-input w-full"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShowResetNewPassword((prev) => !prev)
-                                }
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                tabIndex={-1}
-                              >
-                                {showResetNewPassword ? (
-                                  <FaEye />
-                                ) : (
-                                  <FaEyeSlash />
-                                )}
-                              </button>
-                            </div>
-                            {passwordErrors.length > 0 && (
-                              <div style={{ width: 300 }}>
-                                {passwordErrors.map((error, index) => (
-                                  <p
-                                    key={index}
-                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
-                                  >
-                                    {error}
-                                  </p>
-                                ))}
-                              </div>
-                            )}
+                            <h1 className="header-text text-start">
+                              Reset Password
+                            </h1>
+                            <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                              Enter your new password and confirm it to complete
+                              the reset process.
+                            </span>
                           </div>
 
-                          <div>
-                            <div className="relative w-full">
-                              <input
-                                type={
-                                  showConfirmNewPassword ? "text" : "password"
-                                }
-                                placeholder="Confirm new password"
-                                onChange={(e) => repasswordValidation(e)}
-                                className="form-input w-full"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShowConfirmNewPassword((prev) => !prev)
-                                }
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                                tabIndex={-1}
-                              >
-                                {showConfirmNewPassword ? (
-                                  <FaEye />
-                                ) : (
-                                  <FaEyeSlash />
-                                )}
-                              </button>
-                            </div>
-                            {repasswordErrors.length > 0 && (
-                              <div style={{ marginTop: 5, width: 300 }}>
-                                {repasswordErrors.map((error, index) => (
-                                  <p
-                                    key={index}
-                                    className="text-red-500 font-semibold font-subTitle text-[14px]"
-                                  >
-                                    {error}
-                                  </p>
-                                ))}
+                          <div className="flex flex-col gap-4 w-full">
+                            <div>
+                              <div className="relative w-full">
+                                <input
+                                  type={
+                                    showResetNewPassword ? "text" : "password"
+                                  }
+                                  placeholder="New Password"
+                                  onChange={(e) => passwordValidation(e)}
+                                  className="form-input w-full"
+                                  required
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShowResetNewPassword((prev) => !prev)
+                                  }
+                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                  tabIndex={-1}
+                                >
+                                  {showResetNewPassword ? (
+                                    <FaEye />
+                                  ) : (
+                                    <FaEyeSlash />
+                                  )}
+                                </button>
                               </div>
-                            )}
-                          </div>
-                        </div>
+                              {passwordErrors.length > 0 && (
+                                <div style={{ width: 300 }}>
+                                  {passwordErrors.map((error, index) => (
+                                    <p
+                                      key={index}
+                                      className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                    >
+                                      {error}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
 
-                        <button
-                          type="button"
-                          onClick={handleSuccessful}
-                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
-                        >
-                          Submit
-                        </button>
+                            <div>
+                              <div className="relative w-full">
+                                <input
+                                  type={
+                                    showConfirmNewPassword ? "text" : "password"
+                                  }
+                                  placeholder="Confirm new password"
+                                  onChange={(e) => repasswordValidation(e)}
+                                  className="form-input w-full"
+                                  required
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setShowConfirmNewPassword((prev) => !prev)
+                                  }
+                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                  tabIndex={-1}
+                                >
+                                  {showConfirmNewPassword ? (
+                                    <FaEye />
+                                  ) : (
+                                    <FaEyeSlash />
+                                  )}
+                                </button>
+                              </div>
+                              {repasswordErrors.length > 0 && (
+                                <div style={{ marginTop: 5, width: 300 }}>
+                                  {repasswordErrors.map((error, index) => (
+                                    <p
+                                      key={index}
+                                      className="text-red-500 font-semibold font-subTitle text-[14px]"
+                                    >
+                                      {error}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
+                          >
+                            {loading ? "Resetting..." : "Reset"}
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </>
             ) : /* One-Time Password */ isOTPClicked ? (
               <>
-                <div
-                  className="w-screen h-screen relative overflow-hidden"
-                  style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-                  }}
-                >
+                <div className="login-container">
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
-                  <div className="modal-container">
+                  <div
+                    className="modal-container"
+                    style={{
+                      background: "none",
+                      backdropFilter: "none",
+                      WebkitBackdropFilter: "none",
+                    }}
+                  >
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
                       <IoArrowBack
                         className="text-2xl"
@@ -468,7 +520,10 @@ function ForgotPassword() {
                               Enter the 6 digit code sent to:
                             </span>
                             <span className="text-navy-blue font-semibold">
-                              {user.empID.resID.mobilenumber}
+                              {maskMobileNumber(
+                                user?.empID?.resID?.mobilenumber ??
+                                  user?.mobilenumber
+                              )}
                             </span>
                           </div>
                         </div>
@@ -492,14 +547,16 @@ function ForgotPassword() {
                           />
                         </div>
                         {isResendDisabled ? (
-                          <p className="text-[#808080] font-subTitle font-bold text-[14px] mt-5 text-end text-[14px]">
-                            Resend OTP in {resendTimer} second
+                          <p className="text-[#808080] font-subTitle font-bold mt-5 text-end text-[14px]">
+                            Resend OTP in{" "}
+                            <span className="text-red-600">{resendTimer}</span>{" "}
+                            second
                             {resendTimer !== 1 ? "s" : ""}
                           </p>
                         ) : (
                           <p
                             onClick={handleResend}
-                            className="cursor-pointer mt-5 text-end text-[#808080] font-subTitle font-bold text-[14px]"
+                            className="cursor-pointer mt-5 text-end text-[#0E94D3] font-subTitle font-bold text-[14px]"
                           >
                             Resend OTP
                           </p>
@@ -511,101 +568,121 @@ function ForgotPassword() {
               </>
             ) : /* Security Questions */ isQuestionsClicked ? (
               <>
-                <div
-                  className="w-screen h-screen relative overflow-hidden"
-                  style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleQuestionVerify();
                   }}
                 >
-                  <img
-                    src={AppLogo}
-                    alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
-                  />
-                  <div className="modal-container">
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
-                      <IoArrowBack
-                        className="text-2xl"
-                        onClick={() => setQuestionsClicked(false)}
-                      />
-                      <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
-                        <div>
-                          <h1 className="header-text text-start">
-                            Security Questions
-                          </h1>
-                          <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
-                            To verify your identity, please answer the security
-                            question below.
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-4">
-                          <select
-                            onChange={handleInputChange}
-                            className="form-input"
-                            name="question"
-                          >
-                            <option value="" disabled selected hidden>
-                              Select
-                            </option>
-                            {user.securityquestions?.map((element, index) => (
-                              <option key={index} value={element.question}>
-                                {element.question}
-                              </option>
-                            ))}
-                          </select>
-
-                          <div className="relative w-full">
-                            <input
-                              type={showSecurityPassword ? "text" : "password"}
-                              placeholder="Answer"
-                              name="answer"
-                              onChange={handleInputChange}
-                              className="form-input w-full"
-                            />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowSecurityPassword((prev) => !prev)
-                              }
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                              tabIndex={-1}
-                            >
-                              {showSecurityPassword ? (
-                                <FaEye />
-                              ) : (
-                                <FaEyeSlash />
-                              )}
-                            </button>
+                  <div
+                    className="login-container"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom,#0e94d3 0%,#0a70a0 50%,#095e86 75%,#074c6d 100%`,
+                    }}
+                  >
+                    <img
+                      src={AppLogo}
+                      alt="App Logo"
+                      className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
+                    />
+                    <div
+                      className="modal-container"
+                      style={{
+                        background: "none",
+                        backdropFilter: "none",
+                        WebkitBackdropFilter: "none",
+                      }}
+                    >
+                      <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
+                        <IoArrowBack
+                          className="text-2xl"
+                          onClick={() => setQuestionsClicked(false)}
+                        />
+                        <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
+                          <div>
+                            <h1 className="header-text text-start">
+                              Security Questions
+                            </h1>
+                            <span className="text-[#808080] font-subTitle font-semibold text-[14px]">
+                              To verify your identity, please answer the
+                              security question below.
+                            </span>
                           </div>
-                        </div>
+                          <div className="flex flex-col gap-4">
+                            <select
+                              onChange={handleInputChange}
+                              className="form-input"
+                              name="question"
+                              required
+                            >
+                              <option value="" disabled selected hidden>
+                                Select
+                              </option>
+                              {user.securityquestions?.map((element, index) => (
+                                <option key={index} value={element.question}>
+                                  {element.question}
+                                </option>
+                              ))}
+                            </select>
 
-                        <button
-                          type="button"
-                          onClick={handleQuestionVerify}
-                          className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
-                        >
-                          Next
-                        </button>
+                            <div className="relative w-full">
+                              <input
+                                type={
+                                  showSecurityPassword ? "text" : "password"
+                                }
+                                placeholder="Answer"
+                                name="answer"
+                                onChange={handleInputChange}
+                                className="form-input w-full"
+                                required
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowSecurityPassword((prev) => !prev)
+                                }
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                                tabIndex={-1}
+                              >
+                                {showSecurityPassword ? (
+                                  <FaEye />
+                                ) : (
+                                  <FaEyeSlash />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
+                          >
+                            {loading ? "Verifying..." : "Verify"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </form>
               </>
             ) : (
               /* Verification Method */
               <>
-                <div
-                  className="w-screen h-screen relative overflow-hidden"
-                  style={{
-                    backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-                  }}
-                >
+                <div className="login-container">
                   <img
                     src={AppLogo}
                     alt="App Logo"
-                    className="w-[400px] h-[400px] absolute bottom-[-100px] left-[-90px]"
+                    className="w-[500px] h-[500px] absolute bottom-[-110px] left-[-90px]"
                   />
-                  <div className="modal-container">
+                  <div
+                    className="modal-container"
+                    style={{
+                      background: "none",
+                      backdropFilter: "none",
+                      WebkitBackdropFilter: "none",
+                    }}
+                  >
                     <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem]">
                       <IoArrowBack
                         className="text-2xl"

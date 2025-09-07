@@ -4,20 +4,24 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
-import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
 
-function Reject({ onClose, certID }) {
-  const [remarks, setRemarks] = useState("");
-  const [showModal, setShowModal] = useState(true);
+function AlertResidents({ onClose, resID }) {
   const confirm = useConfirm();
-  const [error, setError] = useState([]);
+  const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState([]);
 
-  const validateRemarks = (text) => {
+  const validateMessage = (text) => {
     const errors = [];
+
+    if (!text.trim()) {
+      errors.push("Alert message cannot be empty.");
+      return errors;
+    }
 
     if (text.length < 10 || text.length > 200) {
       errors.push("Remarks must be minimum of 10 characters.");
@@ -32,28 +36,42 @@ function Reject({ onClose, certID }) {
   };
 
   const handleSubmit = async () => {
-    const validationErrors = validateRemarks(remarks);
+    const validationErrors = validateMessage(message);
     setError(validationErrors);
 
+    if (validationErrors.length > 0) {
+      return;
+    }
+
     const isConfirmed = await confirm(
-      "Please confirm to proceed with rejecting this document request. This action cannot be undone.",
-      "confirmred"
+      "Please confirm to proceed with sending this alert to residents via SMS. Make sure the message details are correct before sending.",
+      "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+
     if (loading) return;
 
     setLoading(true);
     try {
-      await api.put(`/rejectcertificatereq/${certID}`, { remarks });
+      await api.post(`/alertresidents`, { message });
       confirm(
-        "The document request has been successfully rejected.",
+        "Your alert has been successfully sent to the residents.",
         "success"
       );
       onClose();
     } catch (error) {
-      console.log("Error rejecting certificate request");
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -71,7 +89,7 @@ function Reject({ onClose, certID }) {
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Reject Document Request</h1>
+                  <h1 className="modal-title">Alert Residents</h1>
                   <IoClose
                     onClick={handleClose}
                     class="dialog-title-bar-icon"
@@ -82,20 +100,27 @@ function Reject({ onClose, certID }) {
             </div>
 
             <div className="modal-form-container">
-              <div className="modal-form">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+                className="modal-form"
+              >
                 <textarea
-                  placeholder="Enter your reason here..."
-                  value={remarks}
+                  placeholder="Enter your message here..."
+                  value={message}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setRemarks(value);
-                    setError(validateRemarks(value));
+                    setMessage(value);
+                    setError(validateMessage(value));
                   }}
                   rows={5}
+                  minLength={20}
                   maxLength={255}
                   className="h-[11rem] textarea-container"
                 ></textarea>
-                <div className="textarea-length-text">{remarks.length}/255</div>
+                <div className="textarea-length-text">{message.length}/255</div>
                 {error.length > 0 && (
                   <div className="text-red-500 text-sm mt-1 space-y-1">
                     {error.map((err, index) => (
@@ -105,15 +130,14 @@ function Reject({ onClose, certID }) {
                 )}
                 <div className="flex justify-center">
                   <button
-                    onClick={handleSubmit}
-                    disabled={loading}
                     type="submit"
+                    disabled={loading}
                     className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                   >
                     {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -122,4 +146,4 @@ function Reject({ onClose, certID }) {
   );
 }
 
-export default Reject;
+export default AlertResidents;

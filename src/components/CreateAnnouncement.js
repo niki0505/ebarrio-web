@@ -31,6 +31,7 @@ function CreateAnnouncement({ onClose }) {
     eventdetails: "",
   };
   const { announcementForm, setAnnouncementForm } = useContext(InfoContext);
+  const [loading, setLoading] = useState(false);
 
   const [showModal, setShowModal] = useState(true);
 
@@ -85,7 +86,7 @@ function CreateAnnouncement({ onClose }) {
 
     const currentTimes = announcementForm.times[date] || {};
     if (!currentTimes.starttime) {
-      alert("Please select a start time first for " + date);
+      confirm("Please select a start time first for " + date, "failed");
       return;
     }
 
@@ -95,7 +96,7 @@ function CreateAnnouncement({ onClose }) {
     const startTime = new Date(currentTimes.starttime);
 
     if (newEndTime <= startTime) {
-      alert(`End time must be after start time for ${date}`);
+      confirm(`End time must be after start time for ${date}`, "failed");
       return;
     }
 
@@ -130,12 +131,15 @@ function CreateAnnouncement({ onClose }) {
   const handleSubmit = async () => {
     try {
       const isConfirmed = await confirm(
-        "Are you sure you want to create an announcement?",
+        "Please confirm to proceed with creating this announcement. Make sure all details are correct as this will be shared with the community.",
         "confirm"
       );
       if (!isConfirmed) {
         return;
       }
+      if (loading) return;
+
+      setLoading(true);
       onClose();
       delete announcementForm.date;
       if (announcementForm.picture !== "") {
@@ -149,10 +153,12 @@ function CreateAnnouncement({ onClose }) {
         });
       }
 
-      alert("Announcement successfully created!");
+      confirm("Your announcement has been successfully posted.", "success");
       setAnnouncementForm(initialForm);
     } catch (error) {
       console.log("Error creating announcement", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -230,7 +236,10 @@ function CreateAnnouncement({ onClose }) {
     });
 
     if (hasMissingTimes) {
-      alert("Please fill in both start and end times for all selected dates.");
+      confirm(
+        "Please provide both the start and end times for all selected dates.",
+        "failed"
+      );
       return;
     }
 
@@ -287,7 +296,7 @@ function CreateAnnouncement({ onClose }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
@@ -454,7 +463,7 @@ function CreateAnnouncement({ onClose }) {
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="modal-container">
+                        <div className="modal-container ">
                           <div className="create-announcement-event-details">
                             <div className="dialog-title-bar">
                               <div className="flex flex-col w-full">
@@ -563,7 +572,7 @@ function CreateAnnouncement({ onClose }) {
                                   <button
                                     onClick={handleOK}
                                     type="button"
-                                    className="actions-btn bg-btn-color-blue"
+                                    className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                                   >
                                     OK
                                   </button>
@@ -577,9 +586,10 @@ function CreateAnnouncement({ onClose }) {
                   </div>
                   <button
                     type="submit"
+                    disabled={loading}
                     className="hover:bg-[#0A7A9D] px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full"
                   >
-                    Submit
+                    {loading ? "Submitting..." : "Submit"}
                   </button>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { OtpContext } from "../context/OtpContext";
 import api from "../api";
+import { useConfirm } from "../context/ConfirmContext";
 
 //ICONS
 import AppLogo from "../assets/applogo-darkbg.png";
@@ -15,8 +16,9 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
+  const confirm = useConfirm();
 
   //Animation
   const [animateScale, setAnimateScale] = useState(false);
@@ -44,6 +46,10 @@ const Login = () => {
   }, [location.pathname]);
 
   const handleLogin = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const res = await api.post(
         "/checkcredentials",
@@ -56,42 +62,50 @@ const Login = () => {
 
       console.log(res.status);
       if (res.status === 200) {
-        try {
-          await api.put(`/login/${username}`);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.log("Error logging in", error);
-        }
-        // if (res.data.message === "Credentials verified") {
-        //   try {
-        //     const response = await api.get(`/getmobilenumber/${username}`);
-        //     sendOTP(username, response.data);
-        //     navigation("/otp", {
-        //       state: {
-        //         username: username,
-        //         mobilenumber: response.data,
-        //       },
-        //     });
-        //   } catch (error) {
-        //     console.log("Error getting mobile number", error);
-        //   }
-        // } else if (res.data.message === "Token verified successfully.") {
-        //   navigation("/set-password", {
-        //     state: {
-        //       username: username,
-        //     },
-        //   });
+        // try {
+        //   await api.put(`/login/${username}`);
+        //   setIsAuthenticated(true);
+        // } catch (error) {
+        //   console.log("Error logging in", error);
         // }
+        if (res.data.message === "Credentials verified") {
+          // try {
+          //   await api.put(`/login/${username}`);
+          //   setIsAuthenticated(true);
+          // } catch (error) {
+          //   console.log("Error logging in", error);
+          // }
+          try {
+            const response = await api.get(`/getmobilenumber/${username}`);
+            sendOTP(username, response.data);
+            navigation("/otp", {
+              state: {
+                username: username,
+                mobilenumber: response.data,
+              },
+            });
+          } catch (error) {
+            console.log("Error getting mobile number", error);
+          }
+        } else if (res.data.message === "Token verified successfully.") {
+          navigation("/set-password", {
+            state: {
+              username: username,
+            },
+          });
+        }
       }
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
         console.log("❌ Error status:", response.status);
-        alert(response.data.message || "Something went wrong.");
+        confirm(response.data.message || "Something went wrong.", "failed");
       } else {
         console.log("❌ Network or unknown error:", error.message);
-        alert("An unexpected error occurred.");
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,12 +122,7 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="login-container"
-      style={{
-        backgroundImage: `radial-gradient(circle, #0981B4 0%, #075D81 50%, #04384E 100%)`,
-      }}
-    >
+    <div className="login-container">
       {/* Logo */}
       <img
         src={AppLogo}
@@ -156,7 +165,7 @@ const Login = () => {
                   placeholder="Username"
                   value={username}
                   onChange={(e) => handleUsernameChange(e)}
-                  className="form-input"
+                  className="form-input !h-[40px]"
                   minLength={3}
                   maxLength={16}
                   required
@@ -184,8 +193,8 @@ const Login = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <button type="submit" className="login-btn">
-                  Login
+                <button type="submit" disabled={loading} className="login-btn">
+                  {loading ? "Logging in..." : "Login"}
                 </button>
                 <a href="/forgot-password" className="login-forgot-btn">
                   Forgot password?

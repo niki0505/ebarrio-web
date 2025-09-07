@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
@@ -91,8 +91,18 @@ function ViewBlotter({ onClose, blotterID }) {
     const selectedEndTime = new Date(endTime);
 
     const parseCustomDate = (dateStr) => {
-      const [datePart, timePart] = dateStr.split(" at ");
-      return new Date(`${datePart} ${timePart}`);
+      if (!dateStr) return null;
+
+      // Check if it contains ' at ' (old format), else assume ISO
+      if (dateStr.includes(" at ")) {
+        const [datePart, timePart] = dateStr.split(" at ");
+        const d = new Date(`${datePart} ${timePart}`);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      // ISO string
+      const d = new Date(dateStr);
+      return isNaN(d.getTime()) ? null : d;
     };
 
     if (
@@ -109,9 +119,7 @@ function ViewBlotter({ onClose, blotterID }) {
         const reservedStart = parseCustomDate(blot.starttime);
         const reservedEnd = parseCustomDate(blot.endtime);
 
-        if (isNaN(reservedStart.getTime()) || isNaN(reservedEnd.getTime())) {
-          return false; // skip invalid records
-        }
+        if (!reservedStart || !reservedEnd) return false;
 
         return (
           selectedStartTime < reservedEnd && selectedEndTime > reservedStart
@@ -135,8 +143,13 @@ function ViewBlotter({ onClose, blotterID }) {
     const time = e.target.value;
     const newStartTime = new Date(`${scheduleForm.date}T${time}:00`);
 
+    if (!time) {
+      setScheduleForm((prev) => ({ ...prev, starttime: "" }));
+      return;
+    }
+
     if (!scheduleForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
 
@@ -151,17 +164,22 @@ function ViewBlotter({ onClose, blotterID }) {
     const time = e.target.value;
     const newEndTime = new Date(`${scheduleForm.date}T${time}:00`);
     const startTime = new Date(scheduleForm.starttime);
+
+    if (!time) {
+      setScheduleForm((prev) => ({ ...prev, endtime: "" }));
+      return;
+    }
     if (!scheduleForm.date) {
-      alert("Please select a date first.");
+      confirm("Please select a date first.", "failed");
       return;
     }
     if (!scheduleForm.starttime) {
-      alert("Please select a start time first.");
+      confirm("Please select a start time first.", "failed");
       return;
     }
 
     if (newEndTime <= startTime) {
-      alert("End time must be after the start time.");
+      confirm("The end time must be after the start time.", "failed");
       return;
     }
 
@@ -182,8 +200,8 @@ function ViewBlotter({ onClose, blotterID }) {
             hour: "2-digit",
             minute: "2-digit",
           })}.`
-        : "This time slot overlaps with another schedule.";
-      alert(conflictInfo);
+        : null;
+      confirm(conflictInfo, "failed");
       setScheduleForm((prev) => ({ ...prev, endtime: "" }));
       return;
     }
@@ -194,9 +212,21 @@ function ViewBlotter({ onClose, blotterID }) {
     }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { date, starttime, endtime } = scheduleForm;
+
+    if (!date || !starttime || !endtime) {
+      confirm(
+        "Please fill in the Date, Start Time, and End Time before submitting.",
+        "failed"
+      );
+      return;
+    }
+
     const isConfirmed = await confirm(
-      "Are you sure you want to schedule this blotter?",
+      "Please confirm to proceed with scheduling this pending blotter. Make sure the time and date are correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -204,7 +234,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/scheduleblotter/${blotterID}`, { scheduleForm });
-      alert("Blotter successfully scheduled!");
+      confirm("The hearing has been successfully scheduled.", "success");
       onClose();
     } catch (error) {
       console.log("Error scheduling blotter", error);
@@ -212,8 +242,18 @@ function ViewBlotter({ onClose, blotterID }) {
   };
 
   const handleEdit = async () => {
+    const { date, starttime, endtime } = scheduleForm;
+
+    if (!date || !starttime || !endtime) {
+      confirm(
+        "Please fill in the Date, Start Time, and End Time before submitting.",
+        "failed"
+      );
+      return;
+    }
+
     const isConfirmed = await confirm(
-      "Are you sure you want to edit this blotter's schedule?",
+      "Please confirm to proceed with updating the date and time of this scheduled blotter. Make sure the new schedule is correct before submission.",
       "confirm"
     );
     if (!isConfirmed) {
@@ -221,7 +261,7 @@ function ViewBlotter({ onClose, blotterID }) {
     }
     try {
       await api.put(`/editscheduleblotter/${blotterID}`, { scheduleForm });
-      alert("Blotter successfully updated!");
+      confirm("The hearing has been successfully rescheduled.", "success");
       onClose();
     } catch (error) {
       console.log("Error updating blotter", error);
@@ -251,7 +291,7 @@ function ViewBlotter({ onClose, blotterID }) {
   };
   const renderDetails = (blotter) => {
     const details = blotter.details || "";
-    const words = details.split(" ");
+    const words = details.split(" ") || "";
     const isLong = words.length > 50;
     const isExpanded = expandedDetails.includes(blotter._id);
     const displayText = isExpanded
@@ -283,7 +323,7 @@ function ViewBlotter({ onClose, blotterID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
@@ -323,7 +363,7 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.complainantID
-                          ? blotter.complainantID.address
+                          ? blotter.complainantID.householdno?.address
                           : blotter.complainantaddress}
                       </label>
                     </div>
@@ -359,7 +399,7 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="form-label">Address</label>
                       <label className="text-sm font-regular">
                         {blotter.subjectID
-                          ? blotter.subjectID.address
+                          ? blotter.subjectID.householdno?.address
                           : blotter.subjectaddress}
                       </label>
                     </div>
@@ -542,14 +582,14 @@ function ViewBlotter({ onClose, blotterID }) {
                         <button
                           type="button"
                           onClick={handleEdit}
-                          className="actions-btn bg-btn-color-blue"
+                          className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
                         >
-                          Edit
+                          Update
                         </button>
                         <button
                           type="button"
                           onClick={handleSettle}
-                          className="actions-btn bg-[#06D001]"
+                          className="actions-btn bg-[#06D001] hover:bg-[#04A700]"
                         >
                           Settle
                         </button>

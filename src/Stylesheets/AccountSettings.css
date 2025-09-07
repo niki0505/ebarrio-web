@@ -11,7 +11,7 @@
   @apply bg-btn-color-blue rounded-md text-[#fff] w-[14rem] p-2 opacity-70;
 }
 .settings-form-card {
-  @apply w-[30rem] h-auto text-red-600 m-0;
+  @apply w-[30rem] h-auto m-0;
 }
 .settings-btn {
   @apply bg-btn-color-blue hover:bg-[#0A7A9D] mt-4;

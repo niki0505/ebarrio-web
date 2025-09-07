@@ -1,17 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-} from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { AuthContext } from "./AuthContext";
 import { io } from "socket.io-client";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import { InfoContext } from "./InfoContext";
 
 export const SocketContext = createContext();
 
@@ -42,9 +35,13 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!isAuthenticated || !user?.userID || socketRef.current) return;
 
-    const newSocket = io("https://api.ebarrio.online", {
+    const newSocket = io("http://localhost:5000", {
       transports: ["websocket"],
       withCredentials: true,
+      timeout: 60000,
+      reconnectionAttempts: Infinity, // retry forever
+      reconnectionDelay: 1000, // start with 1s delay
+      reconnectionDelayMax: 10000, // max delay 10s
     });
 
     socketRef.current = newSocket;
@@ -59,12 +56,15 @@ export const SocketProvider = ({ children }) => {
         newSocket.emit("join_certificates");
         newSocket.emit("join_courtreservations");
         newSocket.emit("join_blotterreports");
+        newSocket.emit("join_chats");
       } else if (user.role === "Clerk") {
         newSocket.emit("join_announcements");
         newSocket.emit("join_certificates");
         newSocket.emit("join_courtreservations");
+        newSocket.emit("join_chats");
       } else if (user.role === "Justice") {
         newSocket.emit("join_blotterreports");
+        newSocket.emit("join_chats");
       }
     });
 
@@ -139,6 +139,18 @@ export const SocketProvider = ({ children }) => {
         </div>
       );
     });
+
+    // newSocket.on("chats", (chat) => {
+    //   toast.info(
+    //     <div
+    //       onClick={() => navigation("/blotter-reports")}
+    //       style={{ cursor: "pointer" }}
+    //     >
+    //       <strong>{chat.title}</strong>
+    //       <div>{chat.message}</div>
+    //     </div>
+    //   );
+    // });
 
     return () => {
       newSocket.disconnect();

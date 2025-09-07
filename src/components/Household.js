@@ -4,7 +4,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { AuthContext } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
-import { FiDownload } from "react-icons/fi";
+import api from "../api";
 
 //SCREENS
 import ViewHousehold from "./ViewHousehold";
@@ -15,7 +15,12 @@ import "../Stylesheets/CommonStyle.css";
 import "../Stylesheets/Announcements.css";
 
 //ICONS
-import { MdArrowDropDown } from "react-icons/md";
+import { FiDownload } from "react-icons/fi";
+import {
+  MdKeyboardArrowLeft,
+  MdKeyboardArrowRight,
+  MdArrowDropDown,
+} from "react-icons/md";
 
 function Household({ isCollapsed }) {
   const location = useLocation();
@@ -24,7 +29,6 @@ function Household({ isCollapsed }) {
   const { user } = useContext(AuthContext);
   const [isHouseholdClicked, setHouseholdClicked] = useState(false);
   const [selectedHousehold, setSelectedHousehold] = useState(null);
-  const [exportDropdown, setexportDropdown] = useState(false);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
   const [isChangeClicked, setChangedClicked] = useState(false);
@@ -35,10 +39,6 @@ function Household({ isCollapsed }) {
   const exportRef = useRef(null);
   const filterRef = useRef(null);
   const [filterDropdown, setfilterDropdown] = useState(false);
-
-  const toggleExportDropdown = () => {
-    setexportDropdown(!exportDropdown);
-  };
 
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);
@@ -1162,6 +1162,15 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
     // Save the generated PDF
     doc.save(`Household_Profiling_Form_${now}.pdf`);
+
+    const action = "Export";
+    const target = "Households";
+    const description = `User exported household records to PDF.`;
+    try {
+      await api.post("/logexport", { action, target, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
   };
 
   const handleMenu1 = () => {
@@ -1203,7 +1212,9 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
     } else if (isChangeClicked) {
       filtered = household.filter((res) => res.status === "Change Requested");
     } else if (isRejectedClicked) {
-      filtered = household.filter((res) => res.status === "Rejected");
+      filtered = household.filter(
+        (res) => res.status === "Rejected" || res.status === "Archived"
+      );
     }
 
     switch (sortOption) {
@@ -1225,7 +1236,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         const first = head.resID.firstname || "";
         const middle = head.resID.middlename || "";
         const last = head.resID.lastname || "";
-        const address = head.resID.address || "";
+        const address = h.address || "";
 
         const fullName = `${first} ${middle} ${last}`.trim().toLowerCase();
 
@@ -1246,6 +1257,23 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
   ]);
 
   console.log(household);
+
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
+  const totalRows = filteredHousehold.length;
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredHousehold
+      : filteredHousehold.slice(indexOfFirstRow, indexOfLastRow);
+  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  const endRow = Math.min(indexOfLastRow, totalRows);
 
   return (
     <>
@@ -1270,6 +1298,9 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               }`}
             >
               Pending
+              {household.some((house) => house.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu3}
@@ -1278,6 +1309,11 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
               }`}
             >
               Change Requested
+              {household.some(
+                (house) => house.status === "Change Requested"
+              ) && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu4}
@@ -1285,7 +1321,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                 isRejectedClicked ? "status-line" : "text-[#808080]"
               }`}
             >
-              Rejected
+              Archived/Rejected
             </p>
           </div>
           {isActiveClicked && (
@@ -1346,7 +1382,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>No</th>
                 <th>Household Name</th>
                 <th>Head of the Household</th>
@@ -1358,11 +1394,11 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
             <tbody className="bg-[#fff]">
               {filteredHousehold.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={6}>No results found</td>
                 </tr>
               ) : (
-                filteredHousehold.map((house, index) => {
+                currentRows.map((house, index) => {
                   const headMember = house.members.find(
                     (member) => member.position === "Head"
                   );
@@ -1382,7 +1418,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                       <td>{house.householdno}</td>
                       <td>{householdName}</td>
                       <td>{headName}</td>
-                      <td>{headMember.resID.address}</td>
+                      <td>{house.address}</td>
                       <td>{house.members.length}</td>
                       <td>{house.vehicles.length}</td>
                     </tr>
@@ -1398,6 +1434,64 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
             />
           )}
         </div>
+
+        <div className="table-pagination">
+          <div className="table-pagination-size">
+            <span>Rows per page:</span>
+            <div className="relative w-12">
+              <select
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
+                onChange={(e) => {
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
+                  setCurrentPage(1);
+                }}
+                className="table-pagination-select"
+              >
+                <option value="All">All</option>
+                {[5, 10, 15, 20].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              <div className="table-pagination-select-icon">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            {startRow}-{endRow} of {totalRows}
+          </div>
+
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
+        </div>
+        {currentRows.map((row, index) => (
+          <div key={index}>{row.name}</div>
+        ))}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

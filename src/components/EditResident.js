@@ -10,6 +10,7 @@ import api from "../api";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { FiCamera, FiUpload } from "react-icons/fi";
@@ -35,6 +36,7 @@ function EditResident({ isCollapsed }) {
   const [signature, setSignature] = useState(null);
   const hiddenInputRef1 = useRef(null);
   const hiddenInputRef2 = useRef(null);
+  const [loading, setLoading] = useState(false);
   const [memberSuggestions, setMemberSuggestions] = useState([]);
 
   const [residentForm, setResidentForm] = useState({
@@ -63,17 +65,6 @@ function EditResident({ isCollapsed }) {
     emergencyname: "",
     emergencymobilenumber: "",
     emergencyaddress: "",
-    housenumber: "",
-    street: "",
-    HOAname: "",
-    address: "",
-    mother: "",
-    father: "",
-    spouse: "",
-    siblings: [],
-    children: [],
-    numberofsiblings: 0,
-    numberofchildren: "",
     employmentstatus: "",
     employmentfield: "",
     occupation: "",
@@ -84,7 +75,6 @@ function EditResident({ isCollapsed }) {
     householdno: "",
     householdposition: "",
     head: "",
-    // is4Ps: false,
     isSenior: false,
     isInfant: false,
     isNewborn: false,
@@ -97,7 +87,6 @@ function EditResident({ isCollapsed }) {
     isWomenOfReproductive: false,
     isPregnant: false,
     isPWD: false,
-    // isSoloParent: false,
     philhealthid: "",
     philhealthtype: "",
     philhealthcategory: "",
@@ -120,40 +109,27 @@ function EditResident({ isCollapsed }) {
     nhtsno: "",
     watersource: "",
     toiletfacility: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
   });
+  console.log(householdForm);
 
   useEffect(() => {
     fetchResidents();
     fetchHouseholds();
   }, []);
 
+  console.log(
+    "Household no",
+    residentForm.householdno,
+    "Is Head",
+    residentForm.head
+  );
+
   useEffect(() => {
     if (residentInfo) {
-      let houseNumber = "";
-      let streetName = "";
-      const siblingsLength = residentInfo.siblings
-        ? residentInfo.siblings.length
-        : 0;
-      const childrenLength = residentInfo.children
-        ? residentInfo.children.length
-        : 0;
-
-      const address = residentInfo.address || "";
-
-      const firstWord = address.trim().split(" ")[0];
-      const isNumber = !isNaN(firstWord);
-
-      if (isNumber) {
-        houseNumber = firstWord;
-        const preStreetName = address.split("Aniban")[0].trim();
-        const streetWords = preStreetName.split(" ");
-        streetWords.shift();
-        streetName = streetWords.join(" ");
-      } else {
-        streetName = address.split("Aniban")[0].trim();
-        houseNumber = "";
-      }
-
       let formattedNumber =
         residentInfo.mobilenumber && residentInfo.mobilenumber.length > 0
           ? "+63" + residentInfo.mobilenumber.slice(1)
@@ -173,13 +149,10 @@ function EditResident({ isCollapsed }) {
       setResidentForm((prevForm) => ({
         ...prevForm,
         ...residentInfo,
-        numberofsiblings: siblingsLength,
-        numberofchildren: childrenLength,
-        street: streetName,
-        housenumber: houseNumber,
         mobilenumber: formattedNumber,
         emergencymobilenumber: formattedEmergencyNumber,
         telephone: formattedTelephone,
+        householdno: residentInfo.householdno?._id,
       }));
       if (residentInfo.picture) setId(residentInfo.picture);
       if (residentInfo.signature) setSignature(residentInfo.signature);
@@ -200,11 +173,29 @@ function EditResident({ isCollapsed }) {
 
   useEffect(() => {
     if (residentInfo.householdno) {
+      let houseNumber = "";
+      let streetName = "";
       const fetchHousehold = async () => {
         try {
           const res = await api.get(
-            `/gethousehold/${residentInfo.householdno}`
+            `/gethousehold/${residentInfo.householdno._id}`
           );
+
+          const address = res.data.address || "";
+
+          const firstWord = address.trim().split(" ")[0];
+          const isNumber = !isNaN(firstWord);
+
+          if (isNumber) {
+            houseNumber = firstWord;
+            const preStreetName = address.split("Aniban")[0].trim();
+            const streetWords = preStreetName.split(" ");
+            streetWords.shift();
+            streetName = streetWords.join(" ");
+          } else {
+            streetName = address.split("Aniban")[0].trim();
+            houseNumber = "";
+          }
 
           const head = res.data.members.find(
             (member) => member.position === "Head"
@@ -227,6 +218,8 @@ function EditResident({ isCollapsed }) {
               ...res.data,
               members: otherMembers,
               vehicles: res.data.vehicles,
+              housenumber: houseNumber,
+              street: streetName,
             }));
           } else {
             const currentMember = res.data.members.find(
@@ -246,75 +239,6 @@ function EditResident({ isCollapsed }) {
       fetchHousehold();
     }
   }, [residentInfo.householdno]);
-
-  const renderSiblingsDropdown = () => {
-    const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
-
-    const siblingsDropdowns = [];
-    for (let i = 0; i < numberOfSiblings; i++) {
-      siblingsDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`sibling-${i}`} className="form-label">
-            Sibling
-          </label>
-          <select
-            id={`sibling-${i}`}
-            name={`sibling-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
-            value={residentForm.siblings[i]}
-            className="form-input"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return siblingsDropdowns;
-  };
-
-  const renderChildrenDropdown = () => {
-    const numberOfChildren = parseInt(residentForm.numberofchildren, 10) || 0;
-
-    const childrenDropdowns = [];
-    for (let i = 0; i < numberOfChildren; i++) {
-      childrenDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`child-${i}`} className="form-label">
-            Child
-          </label>
-          <select
-            id={`child-${i}`}
-            name={`child-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
-            value={residentForm.children[i]}
-            className="form-input"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return childrenDropdowns;
-  };
-
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
   const salutationList = [
@@ -544,16 +468,6 @@ function EditResident({ isCollapsed }) {
     }));
   };
 
-  const handleMultipleDropdownChange = (e, index, field) => {
-    const selectedValue = e.target.value;
-    const updatedArray = [...residentForm[field]];
-    updatedArray[index] = selectedValue;
-    setResidentForm({
-      ...residentForm,
-      [field]: updatedArray,
-    });
-  };
-
   const smartCapitalize = (word) => {
     if (word === word.toUpperCase()) return word;
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -661,7 +575,10 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -706,26 +623,27 @@ function EditResident({ isCollapsed }) {
     let hasErrors = false;
 
     if (!id) {
-      alert("Picture is required");
+      confirm("Please attach a picture.", "failed");
       hasErrors = true;
     } else if (!signature) {
-      alert("Signature is required");
+      confirm("Please attach a signature.", "failed");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
+      setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setEmMobileNumError("Invalid mobile number.");
+      setEmMobileNumError("Invalid mobile number format!");
       hasErrors = true;
     }
 
     if (
+      residentForm.telephone &&
       residentForm.telephone.length > 3 &&
       residentForm.telephone.length < 12
     ) {
-      setTelephoneNumError("Invalid telephone.");
+      setTelephoneNumError("Invalid telephone number format!");
       hasErrors = true;
     }
 
@@ -736,30 +654,16 @@ function EditResident({ isCollapsed }) {
       let idPicture;
       let signaturePicture;
       const isConfirmed = await confirm(
-        "Are you sure you want to edit this resident profile?",
+        "Please confirm to proceed with editing this resident. Make sure the updated information is correct before submission.",
         "confirm"
       );
       if (!isConfirmed) {
         return;
       }
-      if (residentForm.numberofsiblings == 0) {
-        residentForm.siblings = [];
-      } else {
-        residentForm.siblings = residentForm.siblings.slice(
-          0,
-          residentForm.numberofsiblings
-        );
-      }
+      if (loading) return;
 
-      if (residentForm.numberofchildren == 0) {
-        residentForm.children = [];
-      } else {
-        residentForm.children = residentForm.children.slice(
-          0,
-          residentForm.numberofchildren
-        );
-      }
-      const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
+      setLoading(true);
+      const fulladdress = `${householdForm.housenumber} ${householdForm.street} Aniban 2, Bacoor, Cavite`;
       if (id !== residentInfo.picture) {
         console.log("Uploading new picture...");
         idPicture = await uploadToFirebase(id);
@@ -788,23 +692,28 @@ function EditResident({ isCollapsed }) {
 
       delete residentForm.mobilenumber;
       delete residentForm.emergencymobilenumber;
+      const updatedHouseholdForm = {
+        ...householdForm,
+        address: fulladdress,
+      };
 
       const updatedResidentForm = {
         ...residentForm,
         picture: idPicture,
         signature: signaturePicture,
-        address: fulladdress,
         mobilenumber: formattedMobileNumber,
         emergencymobilenumber: formattedEmergencyMobileNumber,
         telephone: formattedTelephone,
-        householdForm,
+        householdForm: updatedHouseholdForm,
       };
 
       await api.put(`/updateresident/${resID}`, updatedResidentForm);
-      alert("Resident successfully updated!");
+      confirm("The resident's data has been successfully updated.", "success");
       navigation("/residents");
     } catch (error) {
       console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -814,7 +723,10 @@ function EditResident({ isCollapsed }) {
     const maxSize = 1 * 1024 * 1024;
 
     if (fileUploaded && fileUploaded.size > maxSize) {
-      alert("File is too large. Maximum allowed size is 1 MB.");
+      confirm(
+        "The file is too large. The maximum allowed size is 1 MB.",
+        "failed"
+      );
       event.target.value = "";
       return;
     }
@@ -850,7 +762,7 @@ function EditResident({ isCollapsed }) {
       if (value.length >= 13) {
         setMobileNumError(null);
       } else {
-        setMobileNumError("Invalid mobile number.");
+        setMobileNumError("Invalid mobile number format!");
       }
     }
 
@@ -858,7 +770,7 @@ function EditResident({ isCollapsed }) {
       if (value.length >= 13) {
         setEmMobileNumError(null);
       } else {
-        setEmMobileNumError("Invalid mobile number.");
+        setEmMobileNumError("Invalid mobile number format!");
       }
     }
   };
@@ -885,7 +797,7 @@ function EditResident({ isCollapsed }) {
       } else if (value.length > 11) {
         setTelephoneNumError(null);
       } else {
-        setTelephoneNumError("Invalid mobile number.");
+        setTelephoneNumError("Invalid telephone number format!");
       }
     }
   };
@@ -941,51 +853,6 @@ function EditResident({ isCollapsed }) {
     setResidentForm({ ...residentForm, head: value });
   };
 
-  const handleMemberChange = (index, field, value) => {
-    const updatedMembers = [...householdForm.members];
-
-    if (field === "resident") {
-      updatedMembers[index] = {
-        ...updatedMembers[index],
-        resident: value,
-        resID: "",
-      };
-
-      setHouseholdForm((prev) => ({
-        ...prev,
-        members: updatedMembers,
-      }));
-
-      if (value.trim() === "") {
-        setMemberSuggestions((prev) => {
-          const newSuggestions = [...prev];
-          newSuggestions[index] = [];
-          return newSuggestions;
-        });
-        return;
-      }
-
-      const matches = residents.filter((res) => {
-        const fullName = `${res.firstname} ${
-          res.middlename ? res.middlename + " " : ""
-        }${res.lastname}`.toLowerCase();
-        return fullName.includes(value.toLowerCase());
-      });
-
-      setMemberSuggestions((prev) => {
-        const newSuggestions = [...prev];
-        newSuggestions[index] = matches;
-        return newSuggestions;
-      });
-    } else {
-      updatedMembers[index][field] = value;
-      setHouseholdForm((prev) => ({
-        ...prev,
-        members: updatedMembers,
-      }));
-    }
-  };
-
   const handleMemberSuggestionClick = (index, resident) => {
     setNewMembers((prev) => {
       const updated = [...prev];
@@ -1032,7 +899,7 @@ function EditResident({ isCollapsed }) {
     if (!isConfirmed) return;
     try {
       await api.put(
-        `/household/${residentInfo.householdno}/member/${member._id}`,
+        `/household/${residentInfo.householdno._id}/member/${member._id}`,
         {
           position: editedPosition,
         }
@@ -1047,7 +914,10 @@ function EditResident({ isCollapsed }) {
 
       setEditingMemberId(null);
       setEditedPosition("");
-      alert("The member's position successfully updated.");
+      confirm(
+        "The member's position has been successfully updated.",
+        "success"
+      );
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -1067,13 +937,13 @@ function EditResident({ isCollapsed }) {
 
     try {
       await api.delete(
-        `/household/${residentInfo.householdno}/member/${member._id}`
+        `/household/${residentInfo.householdno._id}/member/${member._id}`
       );
       setHouseholdForm((prev) => ({
         ...prev,
         members: prev.members.filter((m) => m._id !== member._id),
       }));
-      alert("Member has been removed successfully.");
+      confirm("The member has been successfully removed.", "success");
     } catch (error) {
       console.error("Error removing member:", error);
     }
@@ -1099,7 +969,7 @@ function EditResident({ isCollapsed }) {
     );
     if (!isConfirmed) return;
     if (!member.resID || !member.position) {
-      alert("Please select resident and position.");
+      confirm("Please select both the resident and position.", "failed");
       return;
     }
     try {
@@ -1109,7 +979,7 @@ function EditResident({ isCollapsed }) {
       };
 
       const response = await api.post(
-        `/household/${residentInfo.householdno}/member`,
+        `/household/${residentInfo.householdno._id}/member`,
         payload
       );
 
@@ -1119,6 +989,7 @@ function EditResident({ isCollapsed }) {
       }));
 
       setNewMembers((prev) => prev.filter((m) => m.tempId !== member.tempId));
+      confirm("The new member has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new member:", error);
     }
@@ -1138,6 +1009,7 @@ function EditResident({ isCollapsed }) {
     if (value.length > 0) {
       const filtered = residents
         .filter((r) => !r.householdno)
+        .filter((r) => r.status === "Active" || r.status === "Change Requested")
         .filter((r) => {
           const fullName = `${r.firstname} ${
             r.middlename ? r.middlename + " " : ""
@@ -1156,12 +1028,6 @@ function EditResident({ isCollapsed }) {
     }
   };
 
-  const handleVehicleChange = (index, field, value) => {
-    const updatedVehicles = [...householdForm.vehicles];
-    updatedVehicles[index][field] = value;
-    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
-  };
-
   const handleAddVehicle = () => {
     setNewVehicles([
       ...newVehicles,
@@ -1169,11 +1035,25 @@ function EditResident({ isCollapsed }) {
     ]);
   };
 
-  const handleRemoveVehicle = (index) => {
-    const updatedVehicles = householdForm.vehicles.filter(
-      (_, i) => i !== index
+  const handleRemoveVehicle = async (vehicleID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to remove this vehicle?",
+      "confirmred"
     );
-    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
+    if (!isConfirmed) return;
+
+    try {
+      await api.delete(
+        `/household/${residentInfo.householdno._id}/vehicle/${vehicleID}`
+      );
+      setHouseholdForm((prev) => ({
+        ...prev,
+        vehicles: prev.vehicles.filter((v) => v._id !== vehicleID),
+      }));
+      confirm("The vehicle has been successfully removed.", "success");
+    } catch (error) {
+      console.error("Error removing vehicle:", error);
+    }
   };
 
   const handleSaveNewVehicle = async (vehicle) => {
@@ -1190,7 +1070,7 @@ function EditResident({ isCollapsed }) {
         platenumber: vehicle.platenumber,
       };
       const response = await api.post(
-        `/household/${residentInfo.householdno}/vehicle`,
+        `/household/${residentInfo.householdno._id}/vehicle`,
         payload
       );
 
@@ -1198,7 +1078,8 @@ function EditResident({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
-      alert("Vehicle has been added successfully.");
+      setNewVehicles((prev) => prev.filter((v) => v.tempId !== vehicle.tempId));
+      confirm("The vehicle has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
     }
@@ -1218,7 +1099,7 @@ function EditResident({ isCollapsed }) {
       };
 
       await api.put(
-        `/household/${residentInfo.householdno}/vehicle/${editedVehicle._id}`,
+        `/household/${residentInfo.householdno._id}/vehicle/${editedVehicle._id}`,
         { payload }
       );
 
@@ -1231,7 +1112,7 @@ function EditResident({ isCollapsed }) {
 
       setEditingVehicleIndex(null);
       setEditedVehicle("");
-      alert("The vehicle was successfully updated.");
+      confirm("The vehicle has been successfully updated.", "success");
     } catch (error) {
       console.error("Error updating position:", error);
     }
@@ -1285,6 +1166,11 @@ function EditResident({ isCollapsed }) {
 
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+      {(loading || isIDProcessing || isSignProcessing) && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div className="flex flex-row gap-x-3 items-center">
         <h1
           onClick={() => navigation("/residents")}
@@ -1318,6 +1204,7 @@ function EditResident({ isCollapsed }) {
                     <p>Processing...</p>
                   ) : id ? (
                     <img
+                      alt="ID"
                       src={id}
                       className="w-full h-full object-contain bg-white"
                     />
@@ -1358,6 +1245,7 @@ function EditResident({ isCollapsed }) {
                     <p>Processing...</p>
                   ) : signature ? (
                     <img
+                      alt="Signature"
                       src={signature}
                       className="w-full h-full object-contain bg-white"
                     />
@@ -2183,120 +2071,7 @@ function EditResident({ isCollapsed }) {
             </div>
           </div>
 
-          {/* Family Information */}
-          <h3 className="section-title mt-8">Family Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label for="mother" className="form-label">
-                Mother
-              </label>
-              <select
-                id="mother"
-                name="mother"
-                value={residentForm.mother}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Female")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label for="father" className="form-label">
-                Father
-              </label>
-              <select
-                id="father"
-                name="father"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents
-                  .filter((element) => element.sex === "Male")
-                  .map((element) => (
-                    <option value={element._id}>
-                      {element.middlename
-                        ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                        : `${element.firstname} ${element.lastname}`}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="spouse" className="form-label">
-                Spouse
-              </label>
-              <select
-                id="spouse"
-                name="spouse"
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {residents.map((element) => (
-                  <option value={element._id}>
-                    {element.middlename
-                      ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                      : `${element.firstname} ${element.lastname}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4">Siblings</label>
-              <input
-                name="numberofsiblings"
-                value={residentForm.numberofsiblings}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of siblings"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofsiblings, 10) > 0 && (
-            <div className="form-grid mt-4">{renderSiblingsDropdown()}</div>
-          )}
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="form-group">
-              <label className="form-label mt-4 ">Children</label>
-              <input
-                name="numberofchildren"
-                value={residentForm.numberofchildren}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter number of children"
-                className="form-input"
-                maxLength={1}
-              />
-            </div>
-          </div>
-          {parseInt(residentForm.numberofchildren, 10) > 0 && (
-            <div className="form-grid mt-4">{renderChildrenDropdown()}</div>
-          )}
-
-          {/* Address Information */}
+          {/* Address Information
           <h3 className="section-title mt-8">Address Information</h3>
           <hr class="section-divider" />
 
@@ -2349,7 +2124,7 @@ function EditResident({ isCollapsed }) {
                 <option value="Bermuda Town Homes">Bermuda Town Homes</option>
               </select>
             </div>
-          </div>
+          </div> */}
 
           {/* Household Information */}
           <h3 className="section-title mt-8">Household Information</h3>
@@ -2396,19 +2171,21 @@ function EditResident({ isCollapsed }) {
                       <option value="" selected>
                         Select
                       </option>
-                      {household.map((h) => {
-                        const head = h.members.find(
-                          (m) => m.position === "Head"
-                        );
-                        const headName = head.resID
-                          ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
-                          : "Unnamed";
-                        return (
-                          <option key={h._id} value={h._id}>
-                            {headName}
-                          </option>
-                        );
-                      })}
+                      {household
+                        .filter((h) => h.status !== "Rejected")
+                        .map((h) => {
+                          const head = h.members.find(
+                            (m) => m.position === "Head"
+                          );
+                          const headName = head.resID
+                            ? `${head.resID.lastname}'s Residence - ${h.address}`
+                            : "Unnamed";
+                          return (
+                            <option key={h._id} value={h._id}>
+                              {headName}
+                            </option>
+                          );
+                        })}
                     </select>
                   </div>
                   <div className="form-group">
@@ -2424,7 +2201,8 @@ function EditResident({ isCollapsed }) {
                     >
                       <option value="">Select Position</option>
                       <option value="Spouse">Spouse</option>
-                      <option value="Child">Child</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
                       <option value="Parent">Parent</option>
                       <option value="Sibling">Sibling</option>
                       <option value="Grandparent">Grandparent</option>
@@ -2445,6 +2223,57 @@ function EditResident({ isCollapsed }) {
               <>
                 <div className="mt-4">
                   <div className="form-grid">
+                    <div className="form-group">
+                      <label className="form-label">House Number</label>
+                      <input
+                        name="housenumber"
+                        value={householdForm.housenumber}
+                        onChange={householdNumbersAndNoSpaceOnly}
+                        placeholder="Enter house number"
+                        maxLength={3}
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label for="street" className="form-label">
+                        Street<label className="text-red-600">*</label>
+                      </label>
+                      <select
+                        id="street"
+                        name="street"
+                        onChange={handleHouseholdDropdownChange}
+                        required
+                        value={householdForm.street}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        {streetList.map((element) => (
+                          <option value={element}>{element}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label for="HOAname" className="form-label">
+                        HOA Name
+                      </label>
+                      <select
+                        id="HOAname"
+                        name="HOAname"
+                        value={householdForm.HOAname}
+                        onChange={handleHouseholdDropdownChange}
+                        className="form-input"
+                      >
+                        <option value="" selected>
+                          Select
+                        </option>
+                        <option value="Bermuda Town Homes">
+                          Bermuda Town Homes
+                        </option>
+                      </select>
+                    </div>
+
                     <div className="col-span-2">
                       <label className="form-label">
                         Ethnicity<label className="text-red-600">*</label>
@@ -2908,7 +2737,9 @@ function EditResident({ isCollapsed }) {
                                   <button
                                     type="button"
                                     className="btn btn-danger"
-                                    onClick={() => handleRemoveVehicle(index)}
+                                    onClick={() =>
+                                      handleRemoveVehicle(vehicle._id)
+                                    }
                                   >
                                     Remove
                                   </button>
@@ -3082,7 +2913,7 @@ function EditResident({ isCollapsed }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
             <div className="form-group">
               <label for="educationalattainment" className="form-label">
-                Highest Educational Attainment
+                Educational Attainment
               </label>
               <select
                 id="educationalattainment"
@@ -3099,36 +2930,26 @@ function EditResident({ isCollapsed }) {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label for="typeofschool" className="form-label">
-                Type of School
-              </label>
-              <select
-                id="typeofschool"
-                name="typeofschool"
-                value={residentForm.typeofschool}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Public">Public</option>
-                <option value="Private">Private</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label">Course</label>
-              <input
-                name="course"
-                value={residentForm.course}
-                minLength={2}
-                maxLength={100}
-                onChange={lettersAndSpaceOnly}
-                placeholder="Enter course"
-                className="form-input"
-              />
-            </div>
+            {[
+              "Vocational Course",
+              "College Student",
+              "College Undergrad",
+              "College Graduate",
+              "Postgraduate",
+            ].includes(residentForm.educationalattainment) && (
+              <div className="form-group">
+                <label className="form-label">Course</label>
+                <input
+                  name="course"
+                  value={residentForm.course}
+                  minLength={2}
+                  maxLength={100}
+                  onChange={lettersAndSpaceOnly}
+                  placeholder="Enter course"
+                  className="form-input"
+                />
+              </div>
+            )}
           </div>
 
           <div className="function-btn-container">
@@ -3144,6 +2965,8 @@ function EditResident({ isCollapsed }) {
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}
       </div>
+
+      <div className="mb-20"></div>
     </div>
   );
 }

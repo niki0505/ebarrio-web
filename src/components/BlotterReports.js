@@ -37,10 +37,6 @@ function BlotterReports({ isCollapsed }) {
   const exportRef = useRef(null);
   const filterRef = useRef(null);
 
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
 
@@ -145,15 +141,20 @@ function BlotterReports({ isCollapsed }) {
     }
   });
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = sortedFilteredReports.slice(
-    indexOfFirstRow,
-    indexOfLastRow
-  );
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredBlotterReports.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredBlotterReports
+      : filteredBlotterReports.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -226,10 +227,11 @@ function BlotterReports({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Blotter Reports";
+    const action = "Export";
+    const target = "Blotter Reports";
     const description = `User exported settled blotter reports to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -342,10 +344,11 @@ function BlotterReports({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Blotter Reports";
+    const action = "Export";
+    const target = "Blotter Reports";
     const description = `User exported settled blotter reports to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -392,6 +395,11 @@ function BlotterReports({ isCollapsed }) {
               }`}
             >
               Pending
+              {blotterreports.some(
+                (blotter) => blotter.status === "Pending"
+              ) && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}
@@ -507,7 +515,7 @@ function BlotterReports({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 {isSettledClicked && <th>No.</th>}
                 <th>Complainant</th>
                 <th>Subject of the Complaint</th>
@@ -521,7 +529,7 @@ function BlotterReports({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredBlotterReports.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td
                     colSpan={isSettledClicked ? 6 : 4}
                     className="text-center p-2"
@@ -548,14 +556,14 @@ function BlotterReports({ isCollapsed }) {
 
                       <td className="p-2">
                         {blot.complainantID
-                          ? `${blot.complainantID.lastname} ${
+                          ? `${blot.complainantID.lastname}, ${
                               blot.complainantID.firstname
                             } ${blot.complainantID.middlename || ""}`.trim()
                           : blot.complainantname}
                       </td>
                       <td className="p-2">
                         {blot.subjectID
-                          ? `${blot.subjectID.lastname} ${
+                          ? `${blot.subjectID.lastname}, ${
                               blot.subjectID.firstname
                             } ${blot.subjectID.middlename || ""}`.trim()
                           : blot.subjectname}
@@ -599,13 +607,16 @@ function BlotterReports({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -622,31 +633,38 @@ function BlotterReports({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+        {currentRows.map((row, index) => (
+          <div key={index}>{row.name}</div>
+        ))}
         {isBlotterClicked && (
           <ViewBlotter
             onClose={() => setBlotterClicked(false)}
             blotterID={selectedBlotter}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

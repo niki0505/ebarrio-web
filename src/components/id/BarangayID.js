@@ -38,6 +38,7 @@ const BarangayID = ({ resData, captainData }) => {
           }}
         >
           <img
+            alt="ID"
             style={{ width: "100%", height: "100%" }}
             src={resData.picture}
           />
@@ -56,6 +57,7 @@ const BarangayID = ({ resData, captainData }) => {
           }}
         >
           <img
+            alt="Signature"
             style={{ width: "100%", height: "100%" }}
             src={resData.signature}
           />
@@ -75,6 +77,7 @@ const BarangayID = ({ resData, captainData }) => {
           }}
         >
           <img
+            alt="QR"
             style={{ width: "100%", height: "100%" }}
             src={resData.brgyID[0]?.qrCode}
           />
@@ -207,11 +210,11 @@ const BarangayID = ({ resData, captainData }) => {
               fontSize: "8px",
             }}
           >
-            {resData.address}
+            {resData.householdno?.address}
           </p>
         </div>
 
-        <img className="id-img" src={BrgyIDFront} />
+        <img alt="Barangay ID Front" className="id-img" src={BrgyIDFront} />
       </div>
       <div className="id-page">
         <div
@@ -266,6 +269,7 @@ const BarangayID = ({ resData, captainData }) => {
           }}
         >
           <img
+            alt="Signature"
             style={{
               position: "absolute",
               width: "50px",
@@ -300,7 +304,7 @@ const BarangayID = ({ resData, captainData }) => {
           </p>
         </div>
 
-        <img className="id-img" src={BrgyIDBack} />
+        <img alt="Barangay ID Back" className="id-img" src={BrgyIDBack} />
       </div>
     </div>
   );

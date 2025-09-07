@@ -35,7 +35,7 @@
   @apply p-5 flex justify-end gap-4 mt-[-10px];
 }
 .actions-btn {
-  @apply px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
+  @apply text-lg px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
 }
 
 /*--------------------------------------------TABLE--------------------------------------------*/
@@ -52,7 +52,7 @@ th {
   @apply text-center font-[750px] text-sm p-3 text-[#fff];
 }
 tr {
-  @apply border-t transition-colors duration-300 ease-in-out;
+  @apply border-t transition-colors duration-300 ease-in-out cursor-pointer;
 }
 td {
   @apply text-center text-xs font-bold p-2 font-subTitle;
@@ -83,18 +83,21 @@ td {
   @apply flex items-center space-x-1;
 }
 .table-pagination-select {
-  @apply border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3];
+  @apply cursor-pointer border-[#0E94D3] appearance-none w-full border px-1 py-1 pr-5 rounded bg-white text-center text-[#0E94D3];
 }
 .table-pagination-select-icon {
   @apply pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-600 pr-1;
 }
 .table-pagination-btn {
-  @apply px-2 py-1 rounded;
+  @apply px-2 py-1 rounded cursor-pointer;
 }
 
 /*--------------------------------------------MODAL--------------------------------------------*/
 .modal-container {
-  @apply h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50;
+  @apply h-full fixed inset-0 flex items-center justify-center z-50;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .modal-content {
   @apply flex flex-col justify-center items-center;
@@ -103,7 +106,7 @@ td {
   @apply w-full h-[3rem] rounded-tl-xl rounded-tr-xl bg-navy-blue flex items-center justify-between p-4;
 }
 .modal-title {
-  @apply text-base text-navy-blue font-bold font-title;
+  @apply text-lg text-navy-blue font-bold font-title;
 }
 .modal-btn-close {
   @apply hover:bg-red-600 rounded-full p-1;
@@ -111,17 +114,30 @@ td {
 .modal-btn-close-icon {
   @apply text-2xl text-[#fff];
 }
+
+.modal-form-confirm-container {
+  @apply h-auto w-[28rem] flex flex-col justify-center items-center bg-[#fff] rounded-xl p-6;
+}
+
 .modal-form-container {
   @apply bg-[#fff] w-full h-full rounded-bl-xl rounded-br-xl p-6;
 }
 .modal-form {
-  @apply h-full overflow-y-auto flex-col space-y-2 pr-4;
+  @apply h-full overflow-y-auto flex flex-col space-y-2;
 }
 
 /*--------------------------------------------LOGIN, SIGNUP, OTP--------------------------------------------*/
 .login-container {
   @apply w-screen h-screen flex items-center justify-center overflow-hidden relative;
+  background-image: linear-gradient(
+    to bottom,
+    #0e94d3 0%,
+    #0a70a0 50%,
+    #095e86 75%,
+    #074c6d 100%
+  );
 }
+
 .right-login-container {
   @apply absolute right-0 h-screen overflow-y-auto bg-[#FFFBFC] shadow-lg p-24 lg:w-1/2 md:w-1/2 w-full flex flex-col justify-center gap-8 transition-all duration-1000 ease-in-out;
 }
@@ -132,7 +148,7 @@ td {
   @apply text-[#0E94D3] ml-auto font-subTitle font-semibold text-[16px];
 }
 .login-logo {
-  @apply w-[350px] h-[350px] absolute transition-all duration-[2000ms] ease-in-out;
+  @apply w-[420px] h-[420px] absolute transition-all duration-[2000ms] ease-in-out;
 }
 
 /*--------------------------------------------MENUS--------------------------------------------*/
@@ -192,7 +208,7 @@ td {
 
 /*--------------------------------------------TEXT AREA--------------------------------------------*/
 .textarea-container {
-  @apply w-full resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-2;
+  @apply w-full resize-none border border-btn-color-gray rounded-md text-justify font-subTitle font-semibold p-4;
 }
 .textarea-length-text {
   @apply w-full text-right text-sm text-gray-500;
@@ -249,6 +265,17 @@ td {
 .household-tbl-th {
   @apply border border-gray-300 px-4 py-2;
 }
+/*--------------------------------------------FAQS--------------------------------------------*/
+.faq-answer {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.faq-answer.expanded {
+  max-height: 1000px; /* or some high value to accommodate content */
+  opacity: 1;
+}
 
 /*--------------------------------------------HIDE DEFAULT ICON--------------------------------------------*/
 /* Hide default eye icon in some browsers */
@@ -259,6 +286,46 @@ input[type="password"]::-ms-clear {
 
 input[type="password"]::-webkit-credentials-auto-fill-button {
   display: none !important;
+}
+
+/*--------------------------------------------LOADING SCREEN--------------------------------------------*/
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #0e94d3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* To prevent text selection blue highlight */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 /*RESPONSIVE*/

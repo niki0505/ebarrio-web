@@ -29,7 +29,7 @@ import {
   MdArrowDropDown,
 } from "react-icons/md";
 import { IoArchiveSharp } from "react-icons/io5";
-import { FaIdCard, FaEdit, FaTrashRestoreAlt } from "react-icons/fa";
+import { FaIdCard, FaEdit, FaTrashRestoreAlt, FaArchive } from "react-icons/fa";
 import { HiDocumentAdd } from "react-icons/hi";
 import { FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
 import { CgEyeAlt } from "react-icons/cg";
@@ -53,10 +53,7 @@ function Residents({ isCollapsed }) {
   const [sortOption, setSortOption] = useState(selectedSort || "All");
   const exportRef = useRef(null);
   const filterRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -115,6 +112,9 @@ function Residents({ isCollapsed }) {
     if (action === "cancel") {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     if (action === "generate") {
       try {
         const response = await api.post(`/generatebrgyID/${resID}`);
@@ -129,19 +129,16 @@ function Residents({ isCollapsed }) {
         } catch (error) {
           console.log("Error saving barangay ID", error);
         }
-      } catch (error) {
-        console.log("Error generating barangay ID", error);
-      }
-
-      try {
-        const response = await api.get(`/getresident/${resID}`);
-        const response2 = await api.get(`/getcaptain/`);
+        const response2 = await api.get(`/getresident/${resID}`);
+        const response3 = await api.get(`/getcaptain/`);
         BarangayID({
-          resData: response.data,
-          captainData: response2.data,
+          resData: response2.data,
+          captainData: response3.data,
         });
       } catch (error) {
         console.log("Error generating barangay ID", error);
+      } finally {
+        setLoading(false);
       }
     } else if (action === "current") {
       try {
@@ -151,20 +148,17 @@ function Residents({ isCollapsed }) {
           !Array.isArray(response.data.brgyID) ||
           response.data.brgyID.length === 0
         ) {
-          alert("This resident has not been issued an ID yet.");
+          confirm("This resident has not yet been issued an ID.", "failed");
           return;
         }
-        try {
-          await api.post(`/printcurrentbrgyid/${resID}`);
-          BarangayID({
-            resData: response.data,
-            captainData: response2.data,
-          });
-        } catch (error) {
-          console.log("Error in printing current barangay ID", error);
-        }
+        BarangayID({
+          resData: response.data,
+          captainData: response2.data,
+        });
       } catch (error) {
         console.log("Error viewing current barangay ID", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -180,13 +174,16 @@ function Residents({ isCollapsed }) {
   const approveBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to approve this resident?",
+      "Please confirm to proceed with approving this residency application request. This action cannot be undone.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
 
+    if (loading) return;
+
+    setLoading(true);
     try {
       const response = await api.get(`/getresidentimages/${resID}`);
       const { picture, signature } = response.data;
@@ -211,36 +208,26 @@ function Residents({ isCollapsed }) {
         pictureURL = await uploadToFirebase(pictureBlob);
       }
 
-      // Try removing background from signature
-      try {
-        const removedBgSignature = await removeBackground(signatureBlob);
-        signatureURL = await uploadToFirebaseImages(
-          new Blob([removedBgSignature], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from signature. Uploading original."
-        );
-        signatureURL = await uploadToFirebase(signatureBlob);
-      }
-
       await api.post(`/approveresident/${resID}`, {
         pictureURL,
-        signatureURL,
       });
 
       setActiveClicked(true);
       setPendingClicked(false);
-      alert("Resident has been approved successfully.");
+      confirm("The resident has been successfully approved.", "success");
     } catch (error) {
       console.log("Error in approving resident details", error);
-      alert("Something went wrong while approving the resident.");
+      confirm(
+        "An unexpected error occurred while approving the resident.",
+        "errordialog"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   const viewBtn = async (resID) => {
     try {
-      await api.post(`/viewresidentdetails/${resID}`);
       navigation("/view-resident", { state: { resID } });
     } catch (error) {
       console.log("Error in viewing resident details", error);
@@ -249,7 +236,6 @@ function Residents({ isCollapsed }) {
 
   const editBtn = async (resID) => {
     try {
-      await api.post(`/viewresidentdetails/${resID}`);
       navigation("/edit-resident", { state: { resID } });
     } catch (error) {
       console.log("Error in viewing resident details", error);
@@ -271,39 +257,56 @@ function Residents({ isCollapsed }) {
   const archiveBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to archive this resident?",
+      "Please confirm to proceed with archiving this resident. You can restore this record later if needed.",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/archiveresident/${resID}`);
-        alert("Resident has been successfully archived.");
-      } catch (error) {
-        console.log("Error", error);
-      }
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await api.put(`/archiveresident/${resID}`);
+      confirm("The resident has been successfully archived.", "success");
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const recoverBtn = async (e, resID) => {
     e.stopPropagation();
     const isConfirmed = await confirm(
-      "Are you sure you want to recover this resident?",
+      "Please confirm to proceed with recovering this archived resident. The resident will be restored to the active list.",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/recoverresident/${resID}`);
-        alert("Resident has been successfully recovered.");
-      } catch (error) {
-        const response = error.response;
-        if (response && response.data) {
-          console.log("❌ Error status:", response.status);
-          alert(response.data.message || "Something went wrong.");
-        } else {
-          console.log("❌ Network or unknown error:", error.message);
-          alert("An unexpected error occurred.");
-        }
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await api.put(`/recoverresident/${resID}`);
+      confirm("The resident has been successfully recovered.", "success");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -392,7 +395,7 @@ function Residents({ isCollapsed }) {
         return searchParts.every(
           (part) =>
             fullName.includes(part) ||
-            resident.address.toLowerCase().includes(part)
+            resident.householdno?.address.toLowerCase().includes(part)
         );
       });
     }
@@ -423,16 +426,27 @@ function Residents({ isCollapsed }) {
   };
 
   //For Pagination
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredResidents.slice(indexOfFirstRow, indexOfLastRow);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredResidents.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredResidents
+      : filteredResidents.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (filteredResidents.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = `Barangay Aniban 2 ${
       sortOption === "All" ? "Residents" : sortOption
     }`;
@@ -458,7 +472,7 @@ function Residents({ isCollapsed }) {
           res.age,
           res.sex,
           `"${res.mobilenumber.replace(/"/g, '""')}"`,
-          `"${res.address.replace(/"/g, '""')}"`,
+          `"${res.householdno?.address.replace(/"/g, '""')}"`,
         ];
         if (sortOption === "Voters") {
           return [...baseRow, res.precinct || "N/A"];
@@ -497,18 +511,23 @@ function Residents({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Residents";
+    const action = "Export";
+    const target = "Residents";
     const description = `User exported ${
-      sortOption === "All" ? "residents'" : sortOption.toLowerCase()
+      sortOption === "All" ? "resident" : sortOption.toLowerCase()
     } records to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (filteredResidents.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -546,7 +565,7 @@ function Residents({ isCollapsed }) {
           res.age,
           res.sex,
           res.mobilenumber,
-          res.address,
+          res.householdno?.address,
         ];
         if (sortOption === "Voters") {
           return [...baseRow, res.precinct || "N/A"];
@@ -604,12 +623,13 @@ function Residents({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Residents";
+    const action = "Export";
+    const target = "Residents";
     const description = `User exported ${
       sortOption === "All" ? "residents'" : sortOption.toLowerCase()
     } records to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -663,6 +683,11 @@ function Residents({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Residents</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
@@ -684,6 +709,9 @@ function Residents({ isCollapsed }) {
               }`}
             >
               Pending
+              {residents.some((resident) => resident.status === "Pending") && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
             </p>
             <p
               onClick={handleMenu2}
@@ -696,38 +724,45 @@ function Residents({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              <div className="relative" ref={exportRef}>
-                {/* Export Button */}
-                <div className="export-sort-btn" onClick={toggleExportDropdown}>
-                  <h1 className="export-sort-btn-text">Export</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
-                </div>
+              {user.role !== "Technical Admin" && (
+                <>
+                  <div className="relative" ref={exportRef}>
+                    {/* Export Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleExportDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Export</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
 
-                {exportDropdown && (
-                  <div className="export-sort-dropdown-menu">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportCSV}
-                        >
-                          Export as CSV
-                        </li>
+                    {exportDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportCSV}
+                            >
+                              Export as CSV
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportPDF}
+                            >
+                              Export as PDF
+                            </li>
+                          </div>
+                        </ul>
                       </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               <div className="relative" ref={filterRef}>
                 {/* Filter Button */}
@@ -773,7 +808,7 @@ function Residents({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Age</th>
                 <th>Sex</th>
@@ -786,7 +821,7 @@ function Residents({ isCollapsed }) {
 
             <tbody className="bg-[#fff]">
               {filteredResidents.length === 0 ? (
-                <tr className="bg-white">
+                <tr className="bg-white cursor-default">
                   <td colSpan={sortOption === "Voters" ? 7 : 6}>
                     No results found
                   </td>
@@ -886,7 +921,7 @@ function Residents({ isCollapsed }) {
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
                                   <div className="add-info-container min-w-[250px] max-w-[250px]">
-                                    {res.address}
+                                    {res.householdno?.address}
                                   </div>
                                   <div className="add-info-title min-w-[250px] max-w-[250px]">
                                     Address
@@ -899,47 +934,54 @@ function Residents({ isCollapsed }) {
                             </div>
                             {res.status === "Active" ? (
                               <div className="btn-container">
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => archiveBtn(e, res._id)}
-                                >
-                                  <IoArchiveSharp className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    ARCHIVE
-                                  </label>
-                                </button>
-
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => handleBRGYID(e, res._id)}
-                                >
-                                  <FaIdCard className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    BRGY ID
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={(e) => certBtn(e, res._id)}
-                                >
-                                  <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    DOCUMENT
-                                  </label>
-                                </button>
-                                <button
-                                  className="table-actions-container"
-                                  type="submit"
-                                  onClick={() => editBtn(res._id)}
-                                >
-                                  <FaEdit className="text-[24px] text-btn-color-blue" />
-                                  <label className="text-btn-color-blue text-xs">
-                                    EDIT
-                                  </label>
-                                </button>
+                                {user.resID !== res._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={(e) => archiveBtn(e, res._id)}
+                                  >
+                                    <FaArchive className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      ARCHIVE
+                                    </label>
+                                  </button>
+                                )}
+                                {user.role !== "Technical Admin" && (
+                                  <>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => handleBRGYID(e, res._id)}
+                                    >
+                                      <FaIdCard className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        BRGY ID
+                                      </label>
+                                    </button>
+                                    <button
+                                      className="table-actions-container"
+                                      type="submit"
+                                      onClick={(e) => certBtn(e, res._id)}
+                                    >
+                                      <HiDocumentAdd className="text-[24px] text-btn-color-blue" />
+                                      <label className="text-btn-color-blue text-xs">
+                                        DOCUMENT
+                                      </label>
+                                    </button>
+                                  </>
+                                )}
+                                {user.resID !== res._id && (
+                                  <button
+                                    className="table-actions-container"
+                                    type="submit"
+                                    onClick={() => editBtn(res._id)}
+                                  >
+                                    <FaEdit className="text-[24px] text-btn-color-blue" />
+                                    <label className="text-btn-color-blue text-xs">
+                                      EDIT
+                                    </label>
+                                  </button>
+                                )}
                               </div>
                             ) : res.status === "Archived" ? (
                               <div className="btn-container">
@@ -948,7 +990,7 @@ function Residents({ isCollapsed }) {
                                   type="submit"
                                   onClick={(e) => recoverBtn(e, res._id)}
                                 >
-                                  <FaTrashRestoreAlt className="text-[24px] text-btn-color-blue" />
+                                  <FaArchive className="text-[24px] text-btn-color-blue" />
                                   <label className="text-btn-color-blue text-xs">
                                     RECOVER
                                   </label>
@@ -995,13 +1037,13 @@ function Residents({ isCollapsed }) {
                           <>
                             <td>
                               {res.middlename
-                                ? `${res.lastname} ${res.middlename} ${res.firstname}`
-                                : `${res.lastname} ${res.firstname}`}
+                                ? `${res.lastname}, ${res.middlename} ${res.firstname}`
+                                : `${res.lastname}, ${res.firstname}`}
                             </td>
                             <td>{res.age}</td>
                             <td>{res.sex}</td>
                             <td>{res.mobilenumber}</td>
-                            <td>{res.address}</td>
+                            <td>{res.householdno?.address}</td>
                             {sortOption === "Voters" && (
                               <td>{res.precinct ? res.precinct : "N/A"}</td>
                             )}
@@ -1029,13 +1071,16 @@ function Residents({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -1052,25 +1097,30 @@ function Residents({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+        {currentRows.map((row, index) => (
+          <div key={index}>{row.name}</div>
+        ))}
 
         {isCertClicked && (
           <CreateCertificate
@@ -1084,6 +1134,8 @@ function Residents({ isCollapsed }) {
             onClose={() => setRejectClicked(false)}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

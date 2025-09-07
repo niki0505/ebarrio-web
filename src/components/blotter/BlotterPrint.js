@@ -42,7 +42,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         >
           <p style={{ fontSize: 12 }}>
             {blotterData.complainantID
-              ? blotterData.complainantID.address
+              ? blotterData.complainantID.householdno?.address
               : blotterData.complainantaddress}
           </p>
         </div>
@@ -80,7 +80,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         >
           <p style={{ fontSize: 12 }}>
             {blotterData.subjectID
-              ? blotterData.subjectID.address
+              ? blotterData.subjectID.householdno?.address
               : blotterData.subjectaddress}
           </p>
         </div>

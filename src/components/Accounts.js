@@ -34,6 +34,7 @@ function Accounts({ isCollapsed }) {
   const [selectedUserID, setSelectedUserID] = useState(null);
   const [selectedUsername, setSelectedUsername] = useState(null);
   const [sortOption, setSortOption] = useState("Newest");
+  const [loading, setLoading] = useState(false);
 
   const [isCurrentClicked, setCurrentClicked] = useState(true);
   const [isPendingClicked, setPendingClicked] = useState(false);
@@ -41,10 +42,6 @@ function Accounts({ isCollapsed }) {
 
   const exportRef = useRef(null);
   const filterRef = useRef(null);
-
-  //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [exportDropdown, setexportDropdown] = useState(false);
   const [filterDropdown, setfilterDropdown] = useState(false);
@@ -91,7 +88,7 @@ function Accounts({ isCollapsed }) {
         (u) => u._id !== user.userID && u.role !== "Technical Admin"
       );
     } else {
-      otherUsers.filter((u) => u.role !== "Technical Admin");
+      otherUsers = otherUsers.filter((u) => u.role !== "Technical Admin");
     }
     if (search) {
       otherUsers = otherUsers.filter((user) => {
@@ -131,33 +128,44 @@ function Accounts({ isCollapsed }) {
 
   const handleDeactivate = async (userID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to deactivate this user?",
+      "Please confirm to proceed with deactivating this user account. This action can not be undone.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/deactivateuser/${userID}`);
-      alert("User deactivated successfully!");
+      confirm("User has been successfully deactivated.", "success");
     } catch (error) {
       console.log("Error in deactivating user", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleActivate = async (userID) => {
     const isConfirmed = await confirm(
-      "Are you sure you want to activate this user?",
+      "Please confirm to proceed with activating this user account. The account will be restored and the user can log in.",
       "confirm"
     );
     if (!isConfirmed) {
       return;
     }
+
+    if (loading) return;
+
+    setLoading(true);
     try {
       await api.put(`/activateuser/${userID}`);
-      alert("User activated successfully!");
+      confirm("User has been successfully activated.", "success");
     } catch (error) {
-      console.log("Error in activating user", error);
+      console.log("Error while activating user", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,24 +198,36 @@ function Accounts({ isCollapsed }) {
     }
   });
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = sortedFilteredUsers.slice(
-    indexOfFirstRow,
-    indexOfLastRow
-  );
+  //For Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredUsers.length;
-  const totalPages = Math.ceil(totalRows / rowsPerPage);
-
+  const totalPages =
+    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  const indexOfLastRow =
+    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const indexOfFirstRow =
+    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  const currentRows =
+    rowsPerPage === "All"
+      ? filteredUsers
+      : filteredUsers.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
   const exportCSV = async () => {
+    if (
+      filteredUsers.filter((u) => u.role !== "Technical Admin").length === 0
+    ) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const title = "Barangay Aniban 2 Accounts Reports";
     const now = new Date().toLocaleString();
     const headers = ["No", "Name", "Username", "User Role", "Date Created"];
     const rows = users
       .filter((user) => user.status === "Inactive" || user.status === "Active")
+      .filter((user) => user.role !== "Technical Admin")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -241,7 +261,7 @@ function Accounts({ isCollapsed }) {
       "data:text/csv;charset=utf-8," +
       [
         `${title}`,
-        `Exported by: ${user.name}`,
+        `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
         `Exported on: ${now}`,
         "",
         headers.join(","),
@@ -253,7 +273,9 @@ function Accounts({ isCollapsed }) {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Barangay_Aniban_2_Accounts_by_${user.name.replace(/ /g, "_")}.csv`
+      `Barangay_Aniban_2_Accounts_by_${
+        user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+      }.csv`
     );
 
     document.body.appendChild(link);
@@ -261,16 +283,23 @@ function Accounts({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Accounts";
+    const action = "Export";
+    const target = "User Accounts";
     const description = `User exported accounts to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
   };
 
   const exportPDF = async () => {
+    if (
+      filteredUsers.filter((u) => u.role !== "Technical Admin").length === 0
+    ) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
     const now = new Date().toLocaleString();
     const doc = new jsPDF();
 
@@ -295,6 +324,7 @@ function Accounts({ isCollapsed }) {
     // Table
     const rows = users
       .filter((user) => user.status === "Inactive" || user.status === "Active")
+      .filter((user) => user.role !== "Technical Admin")
       .sort(
         (a, b) =>
           new Date(a.createdAt.split(" at")[0]) -
@@ -344,7 +374,11 @@ function Accounts({ isCollapsed }) {
 
         // Exported by & exported on
         doc.setFontSize(10);
-        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(
+          `Exported by: ${user?.name ? user.name : "Technical Admin"}`,
+          logoX + 20,
+          logoY + 5
+        );
         doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
 
         // Page number
@@ -358,17 +392,17 @@ function Accounts({ isCollapsed }) {
       },
     });
 
-    const filename = `Barangay_Aniban_2_Accounts_by_${user.name.replace(
-      / /g,
-      "_"
-    )}.pdf`;
+    const filename = `Barangay_Aniban_2_Accounts_by_${
+      user?.name ? user.name.replace(/ /g, "_") : "Technical_Admin"
+    }.pdf`;
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Accounts";
+    const action = "Export";
+    const target = "User Accounts";
     const description = `User exported accounts to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -402,6 +436,12 @@ function Accounts({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
+
         <div className="header-text">User Accounts</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
@@ -521,7 +561,7 @@ function Accounts({ isCollapsed }) {
         <div className="table-container">
           <table>
             <thead>
-              <tr>
+              <tr className="cursor-default">
                 <th>Name</th>
                 <th>Username</th>
                 <th>User Role</th>
@@ -534,7 +574,7 @@ function Accounts({ isCollapsed }) {
               </tr>
             </thead>
 
-            <tbody className="bg-[#fff]">
+            <tbody className="bg-[#fff] cursor-default">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={isArchivedClicked ? 4 : 6}>No results found</td>
@@ -543,7 +583,7 @@ function Accounts({ isCollapsed }) {
                 currentRows.map((user) => (
                   <tr
                     key={user._id}
-                    className="accounts-table-row"
+                    className="accounts-table-row cursor-default"
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = "#f0f0f0";
                     }}
@@ -563,8 +603,8 @@ function Accounts({ isCollapsed }) {
                         />
                         {user.empID
                           ? user.empID.resID.middlename
-                            ? `${user.empID.resID.lastname} ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
-                            : `${user.empID.resID.lastname} ${user.empID.resID.firstname}`
+                            ? `${user.empID.resID.lastname}, ${user.empID.resID.middlename} ${user.empID.resID.firstname}`
+                            : `${user.empID.resID.lastname}, ${user.empID.resID.firstname}`
                           : user.resID
                           ? user.resID.middlename
                             ? `${user.resID.lastname} ${user.resID.middlename} ${user.resID.firstname}`
@@ -573,7 +613,9 @@ function Accounts({ isCollapsed }) {
                       </div>
                     </td>
                     <td>{user.username}</td>
-                    <td>{user.role}</td>
+                    <td>
+                      {user.role === "Official" ? "Personnel" : user.role}
+                    </td>
                     {isCurrentClicked && (
                       <td>
                         <span
@@ -674,13 +716,16 @@ function Accounts({ isCollapsed }) {
             <span>Rows per page:</span>
             <div className="relative w-12">
               <select
-                value={rowsPerPage}
+                value={rowsPerPage === "All" ? "All" : rowsPerPage}
                 onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
+                  const value =
+                    e.target.value === "All" ? "All" : Number(e.target.value);
+                  setRowsPerPage(value);
                   setCurrentPage(1);
                 }}
                 className="table-pagination-select"
               >
+                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}
@@ -697,25 +742,28 @@ function Accounts({ isCollapsed }) {
             {startRow}-{endRow} of {totalRows}
           </div>
 
-          <div>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
-            </button>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="table-pagination-btn"
-            >
-              <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
-            </button>
-          </div>
+          {rowsPerPage !== "All" && (
+            <div>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowLeft color={"#0E94D3"} className="text-xl" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="table-pagination-btn"
+              >
+                <MdKeyboardArrowRight color={"#0E94D3"} className="text-xl" />
+              </button>
+            </div>
+          )}
         </div>
+
         {isCreateClicked && (
           <CreateAccount onClose={() => setCreateClicked(false)} />
         )}
@@ -726,6 +774,8 @@ function Accounts({ isCollapsed }) {
             userUsername={selectedUsername}
           />
         )}
+
+        <div className="mb-20"></div>
       </main>
     </>
   );

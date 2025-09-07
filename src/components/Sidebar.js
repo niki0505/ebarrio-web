@@ -13,7 +13,7 @@ import { PiCourtBasketballFill, PiUserSwitchFill } from "react-icons/pi";
 import { RiContactsBook3Fill } from "react-icons/ri";
 import { FaUsersCog } from "react-icons/fa";
 import { MdDashboard, MdEditDocument } from "react-icons/md";
-import { IoPeople, IoLocation, IoDocumentTextSharp } from "react-icons/io5";
+import { IoPeople, IoDocumentTextSharp } from "react-icons/io5";
 import {
   BiMenuAltLeft,
   BiMenu,
@@ -26,10 +26,15 @@ import AppLogo from "../assets/applogo-darkbg.png";
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
   const { user } = useContext(AuthContext);
-  const { pendingReservationCount } = useContext(InfoContext);
+  const {
+    pendingReservations,
+    pendingBlotters,
+    pendingHouseholds,
+    pendingResidents,
+    pendingDocuments,
+  } = useContext(InfoContext);
   const location = useLocation();
   if (!user) return null;
-
   const Menus = [
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
@@ -38,33 +43,72 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
       icon: <MdDashboard />,
       path: "/dashboard",
     },
-    user.role === "Secretary" && {
+    (user.role === "Secretary" || user.role === "Technical Admin") && {
       title: "Employees",
       icon: <IoPeople />,
       path: "/employees",
     },
-    (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Residents",
+    (user.role === "Secretary" ||
+      user.role === "Technical Admin" ||
+      user.role === "Clerk") && {
+      title: (
+        <div className="flex items-center gap-2">
+          Residents
+          {pendingResidents > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <IoIosPeople />,
       path: "/residents",
     },
-    (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Households",
+    (user.role === "Secretary" ||
+      user.role === "Clerk" ||
+      user.role === "Technical Admin") && {
+      title: (
+        <div className="flex items-center gap-2">
+          Households
+          {pendingHouseholds > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <BsFillHouseFill />,
       path: "/households",
     },
     (user.role === "Justice" || user.role === "Secretary") && {
-      title: "Blotter Reports",
+      title: (
+        <div className="flex items-center gap-2">
+          Blotter Reports
+          {pendingBlotters > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <MdEditDocument />,
       path: "/blotter-reports",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Document Requests",
+      title: (
+        <div className="flex items-center gap-2">
+          Document Requests
+          {pendingDocuments > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <IoDocumentTextSharp />,
       path: "/document-requests",
     },
     (user.role === "Secretary" || user.role === "Clerk") && {
-      title: "Court Reservations",
+      title: (
+        <div className="flex items-center gap-2">
+          Court Reservations
+          {pendingReservations > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <PiCourtBasketballFill />,
       path: "/court-reservations",
     },
