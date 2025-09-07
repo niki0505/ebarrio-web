@@ -283,10 +283,11 @@ function Accounts({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Accounts";
+    const action = "Export";
+    const target = "User Accounts";
     const description = `User exported accounts to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -397,10 +398,11 @@ function Accounts({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Accounts";
+    const action = "Export";
+    const target = "User Accounts";
     const description = `User exported accounts to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

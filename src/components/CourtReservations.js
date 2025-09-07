@@ -304,10 +304,11 @@ function CourtReservations({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Court Reservations";
+    const action = "Export";
+    const target = "Court Reservations";
     const description = `User exported court reservations to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -401,10 +402,11 @@ function CourtReservations({ isCollapsed }) {
     doc.save(filename);
     setexportDropdown(false);
 
-    const action = "Court Reservations";
+    const action = "Export";
+    const target = "Court Reservations";
     const description = `User exported court reservations to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

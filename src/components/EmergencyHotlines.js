@@ -207,10 +207,11 @@ function EmergencyHotlines({ isCollapsed }) {
     document.body.removeChild(link);
     setexportDropdown(false);
 
-    const action = "Emergency Hotlines";
+    const action = "Export";
+    const target = "Emergency Hotlines";
     const description = `User exported emergency hotlines to CSV.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }
@@ -282,10 +283,12 @@ function EmergencyHotlines({ isCollapsed }) {
     )}.pdf`;
     doc.save(filename);
     setexportDropdown(false);
-    const action = "Emergency Hotlines";
+
+    const action = "Export";
+    const target = "Emergency Hotlines";
     const description = `User exported emergency hotlines to PDF.`;
     try {
-      await api.post("/logexport", { action, description });
+      await api.post("/logexport", { action, target, description });
     } catch (error) {
       console.log("Error in logging export", error);
     }

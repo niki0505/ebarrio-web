@@ -180,9 +180,6 @@ function CreateCertificate({ resID, onClose }) {
 
         if (response3.data.typeofcertificate === "Barangay Indigency") {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             IndigencyPrint({
               certData: response3.data,
               captainData: response4.data,
@@ -194,9 +191,6 @@ function CreateCertificate({ resID, onClose }) {
           }
         } else if (response3.data.typeofcertificate === "Barangay Clearance") {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             ClearancePrint({
               certData: response3.data,
               captainData: response4.data,
@@ -210,9 +204,6 @@ function CreateCertificate({ resID, onClose }) {
           response3.data.typeofcertificate === "Barangay Business Clearance"
         ) {
           try {
-            await api.post(`/issuedocument/${resID}`, {
-              typeofcertificate: response3.data.typeofcertificate,
-            });
             BusinessClearancePrint({
               certData: response3.data,
               captainData: response4.data,
