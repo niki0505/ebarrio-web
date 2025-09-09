@@ -1,11 +1,11 @@
 .logs-filter-container {
-  @apply flex flex-row justify-between items-center px-4;
+  @apply flex flex-col justify-between items-center;
 }
 .logs-filter-controls {
-  @apply flex gap-4 items-center;
+  @apply flex gap-4;
 }
 .logs-filter-item {
-  @apply flex flex-col items-start justify-center mt-8;
+  @apply flex flex-col items-start justify-center mt-4;
 }
 .logs-filter-label {
   @apply mr-2 font-title font-semibold text-base;
@@ -14,7 +14,7 @@
   @apply cursor-pointer border px-2 py-1 rounded bg-white border border-gray-400 appearance-none font-subTitle font-semibold text-sm;
 }
 .logs-reset-submit-btn {
-  @apply mt-12 h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0;
+  @apply h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border font-medium text-sm text-[#fff] m-0;
 }
 .logs-user-cell {
   @apply flex flex-row items-center justify-center gap-2 text-left;

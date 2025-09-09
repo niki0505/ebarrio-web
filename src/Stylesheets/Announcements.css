@@ -56,7 +56,7 @@
   @apply flex items-center mb-4;
 }
 .announcement-uploadedby-position {
-  @apply text-sm text-[#808080] font-medium font-subTitle;
+  @apply text-[13px] text-[#808080] font-semibold font-subTitle;
 }
 .announcement-heart-container {
   @apply flex flex-row items-center gap-1 mt-2;
