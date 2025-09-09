@@ -298,8 +298,8 @@ const Landing = () => {
 
           <div className="flex flex-col items-center gap-3 mt-4">
             <a
-              href="/ebarrio.apk"
-              download
+              // href="/ebarrio.apk"
+              // download
               className="bg-[#0E94D3] hover:bg-[#0A70A0] text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-subTitle font-semibold"
             >
               Download APK
