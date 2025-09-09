@@ -20,12 +20,12 @@ import { useEffect } from "react";
 
 const Landing = () => {
   const [openFAQ, setOpenFAQ] = useState(null);
-  const [active, setActive] = useState(window.location.hash || "#home");
+  const [active, setActive] = useState(window.location.hash || "home");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleHashChange = () => {
-      setActive(window.location.hash || "#home");
+      setActive(window.location.hash || "home");
     };
 
     const handleScroll = () => {
@@ -46,11 +46,11 @@ const Landing = () => {
   }, []);
 
   const links = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#services", label: "Services" },
-    { href: "#download", label: "Download" },
-    { href: "#faqs", label: "FAQs" },
+    { href: "/home", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/services", label: "Services" },
+    { href: "/download", label: "Download" },
+    { href: "/faqs", label: "FAQs" },
   ];
 
   const faqs = [
@@ -112,7 +112,7 @@ const Landing = () => {
             to="/login"
             className="px-5 py-2 rounded-lg shadow font-bold font-subTitle transition bg-[#0E94D3] text-white hover:bg-[#0A70A0]"
           >
-            Sign In
+            Login
           </Link>
         </div>
       </header>

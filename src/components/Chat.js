@@ -8,6 +8,7 @@ import api from "../api";
 
 //SCREENS
 import FAQs from "./FAQs";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { FaQuestionCircle } from "react-icons/fa";
@@ -37,6 +38,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
   const aiEndRef = useRef(null);
   const chatEndRef = useRef(null);
   const confirm = useConfirm();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -245,6 +247,17 @@ const Chat = ({ isOpen, setIsOpen }) => {
   };
 
   const endChat = async (chatID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to end this conversation?",
+      "confirmred"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
     try {
       const systemMessage = {
         from: user.userID,
@@ -259,6 +272,8 @@ const Chat = ({ isOpen, setIsOpen }) => {
       confirm("Chat has been successfully ended.", "success");
     } catch (error) {
       console.log("Error ending the chat");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -296,6 +311,11 @@ const Chat = ({ isOpen, setIsOpen }) => {
 
   return (
     <>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div ref={notifRef}>
         <button
           onClick={togglePlus}

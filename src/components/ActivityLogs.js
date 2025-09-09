@@ -71,6 +71,7 @@ function ActivityLogs({ isCollapsed }) {
     "Password Set",
     "Password Reset",
     "Create",
+    "Cancel",
     "Update",
     "Generate",
     "Archive",
@@ -80,6 +81,8 @@ function ActivityLogs({ isCollapsed }) {
     "Settle",
     "Pin",
     "Unpin",
+    "Like",
+    "Unlike",
     "Notify",
   ];
 

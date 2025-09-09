@@ -75,10 +75,30 @@ function App() {
                 />
                 <Routes>
                   <Route path="*" element={<NotFound />} />
-                  <Route path="/" element={<Landing />} />
+                  <Route path="/" element={<Navigate to="/home" replace />} />
                   <Route
                     path="/login"
                     element={<PublicRoute element={<Login />} />}
+                  />
+                  <Route
+                    path="/home"
+                    element={<PublicRoute element={<Landing />} />}
+                  />
+                  <Route
+                    path="/about"
+                    element={<PublicRoute element={<Landing />} />}
+                  />
+                  <Route
+                    path="/services"
+                    element={<PublicRoute element={<Landing />} />}
+                  />
+                  <Route
+                    path="/download"
+                    element={<PublicRoute element={<Landing />} />}
+                  />
+                  <Route
+                    path="/faqs"
+                    element={<PublicRoute element={<Landing />} />}
                   />
                   <Route
                     path="/otp"
