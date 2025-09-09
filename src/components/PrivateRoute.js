@@ -7,7 +7,6 @@ import LoadingScreen from "./LoadingScreen";
 
 const PrivateRoute = ({ element, allowedRoles }) => {
   const { isAuthenticated, user } = useContext(AuthContext);
-  console.log(isAuthenticated);
 
   if (isAuthenticated === null) {
     return <LoadingScreen />;

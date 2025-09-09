@@ -425,7 +425,7 @@ function CourtReservations({ isCollapsed }) {
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
         <div className="status-add-container">
-          <div className="status-container">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-x-8 mt-5">
             <p
               onClick={handleMenu1}
               className={`status-text ${

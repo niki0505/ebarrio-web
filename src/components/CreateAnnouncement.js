@@ -329,10 +329,10 @@ function CreateAnnouncement({ onClose }) {
                       className="navbar-profile-img"
                     />
                     <div className="create-announcement-info-container">
-                      <label className="text-base font-semibold">
+                      <label className="font-bold font-subTitle text-[15px]">
                         {user.name}
                       </label>
-                      <label className="text-sm font-regular text-gray-500">
+                      <label className="announcement-uploadedby-position">
                         {user.role}
                       </label>
                     </div>

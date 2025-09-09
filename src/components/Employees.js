@@ -495,145 +495,152 @@ function Employees({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              {user.role !== "Technical Admin" && (
-                <>
-                  {sortOption === "All" && (
-                    <div className="relative" ref={exportRef}>
-                      {/* Export Button */}
-                      <div
-                        className="export-sort-btn"
-                        onClick={toggleExportDropdown}
-                      >
-                        <h1 className="export-sort-btn-text">Export</h1>
-                        <div className="export-sort-btn-dropdown-icon ">
-                          <MdArrowDropDown size={18} color={"#0E94D3"} />
-                        </div>
-                      </div>
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <div className="flex flex-row gap-4 sm:gap-4">
+                  {user.role !== "Technical Admin" && (
+                    <>
+                      {sortOption === "All" && (
+                        <div className="relative" ref={exportRef}>
+                          {/* Export Button */}
+                          <div
+                            className="export-sort-btn"
+                            onClick={toggleExportDropdown}
+                          >
+                            <h1 className="export-sort-btn-text">Export</h1>
+                            <div className="export-sort-btn-dropdown-icon ">
+                              <MdArrowDropDown size={18} color={"#0E94D3"} />
+                            </div>
+                          </div>
 
-                      {exportDropdown && (
-                        <div className="export-sort-dropdown-menu w-36">
-                          <ul className="w-full">
-                            <div className="navbar-dropdown-item">
-                              <li
-                                className="export-sort-dropdown-option"
-                                onClick={exportCSV}
-                              >
-                                Export as CSV
-                              </li>
+                          {exportDropdown && (
+                            <div className="export-sort-dropdown-menu w-36">
+                              <ul className="w-full">
+                                <div className="navbar-dropdown-item">
+                                  <li
+                                    className="export-sort-dropdown-option"
+                                    onClick={exportCSV}
+                                  >
+                                    Export as CSV
+                                  </li>
+                                </div>
+                                <div className="navbar-dropdown-item">
+                                  <li
+                                    className="export-sort-dropdown-option"
+                                    onClick={exportPDF}
+                                  >
+                                    Export as PDF
+                                  </li>
+                                </div>
+                              </ul>
                             </div>
-                            <div className="navbar-dropdown-item">
-                              <li
-                                className="export-sort-dropdown-option"
-                                onClick={exportPDF}
-                              >
-                                Export as PDF
-                              </li>
-                            </div>
-                          </ul>
+                          )}
                         </div>
                       )}
-                    </div>
+                    </>
                   )}
-                </>
-              )}
 
-              <div className="relative" ref={filterRef}>
-                {/* Filter Button */}
-                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-                  <h1 className="export-sort-btn-text">Filter</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                  <div className="relative" ref={filterRef}>
+                    {/* Filter Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleFilterDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Filter</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
+
+                    {filterDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("All");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              All
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Captain");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Captain
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Secretary");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Secretary
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Clerk");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Clerk
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Kagawad");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Kagawad
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Tanod");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Tanod
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Justice");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Justice
+                            </li>
+                          </div>
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {filterDropdown && (
-                  <div className="export-sort-dropdown-menu">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("All");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          All
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Captain");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Captain
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Secretary");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Secretary
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Clerk");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Clerk
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Kagawad");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Kagawad
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Tanod");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Tanod
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Justice");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Justice
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
+                <button className="add-new-btn" onClick={handleAdd}>
+                  <h1 className="add-new-btn-text">Add New Employee</h1>
+                </button>
               </div>
-
-              <button className="add-new-btn" onClick={handleAdd}>
-                <h1 className="add-new-btn-text">Add New Employee</h1>
-              </button>
             </div>
           )}
         </div>

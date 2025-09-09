@@ -658,7 +658,7 @@ function Dashboard({ isCollapsed }) {
                   <div class="demog-card-left-border bg-[#FFB200]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{animatedTotal}</h2>
+                    <h2 class="demog-total">{animatedTotal}</h2>
                     <p class="text-[#FFB200] demog-text">Total Residents</p>
                   </div>
 
@@ -885,6 +885,8 @@ function Dashboard({ isCollapsed }) {
                           textAnchor={isSmallScreen ? "middle" : "end"}
                           tickLine={false}
                           axisLine={{ stroke: "#ccc" }}
+                          fontFamily="Quicksand"
+                          fontWeight="550"
                         />
                         <YAxis tickLine={false} axisLine={{ stroke: "#ccc" }} />
                         <Tooltip
@@ -1023,7 +1025,7 @@ function Dashboard({ isCollapsed }) {
                                 fontSize={14}
                                 fontFamily="Quicksand"
                                 fill="#04384E"
-                                fontWeight="600"
+                                fontWeight="550"
                               >
                                 {payload.value}
                               </text>
@@ -1209,7 +1211,7 @@ function Dashboard({ isCollapsed }) {
                                 fontSize={14}
                                 fontFamily="Quicksand"
                                 fill="#04384E"
-                                fontWeight="600"
+                                fontWeight="550"
                               >
                                 {payload.value}
                               </text>
@@ -1414,7 +1416,7 @@ function Dashboard({ isCollapsed }) {
                               fontSize={14}
                               fontFamily="Quicksand"
                               fill="#04384E"
-                              fontWeight="600"
+                              fontWeight="550"
                             >
                               {payload.value}
                             </text>
