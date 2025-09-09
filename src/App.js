@@ -40,6 +40,7 @@ import ActivityLogs from "./components/ActivityLogs";
 import Household from "./components/Household";
 import ViewResident from "./components/ViewResident";
 import NotFound from "./components/NotFound";
+import Landing from "./components/Landing";
 
 // Scrolls to the top of the page when switching pages
 const ResetScrollToTop = () => {
@@ -74,7 +75,7 @@ function App() {
                 />
                 <Routes>
                   <Route path="*" element={<NotFound />} />
-                  <Route path="/" element={<Navigate to="/login" replace />} />
+                  <Route path="/" element={<Landing />} />
                   <Route
                     path="/login"
                     element={<PublicRoute element={<Login />} />}

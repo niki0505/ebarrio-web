@@ -32,7 +32,7 @@
   @apply flex ml-auto items-center w-auto justify-end space-x-2 mt-5 cursor-pointer text-btn-color-blue;
 }
 .btn-container {
-  @apply p-5 flex justify-end gap-4 mt-[-10px];
+  @apply p-5 flex flex-row justify-end gap-4 mt-[-10px];
 }
 .actions-btn {
   @apply text-lg px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-[12rem] truncate overflow-hidden whitespace-nowrap mt-6;
@@ -311,6 +311,107 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   animation: spin 1s linear infinite;
 }
 
+/*--------------------------------------------CHAT--------------------------------------------*/
+.chat-plus {
+  @apply fixed hover:bg-[#0A7A9D] bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out;
+}
+.chat-action-btn-container {
+  @apply fixed bottom-[5.5rem] right-7 flex flex-col space-y-2 z-40 transition-all duration-500 ease-in-out;
+}
+.chat-faq-btn {
+  @apply bg-[#0E94D3] hover:bg-[#0A7A9D] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out;
+}
+.chat-faq-label {
+  @apply fixed bottom-[9.5rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl;
+}
+.chat-label {
+  @apply fixed bottom-[6rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl;
+}
+.chat-icon {
+  @apply w-6 h-6 text-white;
+}
+.chat-modal-content {
+  @apply bg-white w-full max-w-4xl rounded-2xl shadow-lg relative h-[500px] flex flex-col;
+}
+.chat-close-btn {
+  @apply absolute top-3 right-4 text-white hover:text-red-600 transition-all;
+}
+.chat-modal-header {
+  @apply px-4 py-3 border-b bg-gradient-to-r from-[#0E94D3] to-[#0783A6] rounded-t-2xl text-white flex justify-between items-center;
+}
+.chat-modal-body {
+  @apply flex-1 overflow-hidden flex;
+}
+.ai-conversation {
+  @apply flex flex-col h-full w-full bg-[#F1FBFF] rounded-b-2xl relative;
+}
+.msgs-container {
+  @apply flex-1 overflow-y-auto p-4 space-y-2;
+}
+.ai-input {
+  @apply border-t pt-2 flex items-center gap-2 p-4 relative;
+}
+.floating-btn {
+  @apply absolute left-5 bottom-3 bg-[#0E94D3] text-white p-3 rounded-full shadow-lg hover:bg-[#0A7A9D] transition-all;
+}
+.msgs-input {
+  @apply flex-1 border rounded px-3 py-2 text-sm focus:outline-none ml-16;
+}
+.send-btn {
+  @apply text-white bg-[#0E94D3] hover:bg-[#0A7A9D] px-4 py-2 rounded flex items-center space-x-2;
+}
+.end-btn {
+  @apply text-white bg-red-600 px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-700;
+}
+.chat-list {
+  @apply w-1/3 bg-[#F1FBFF] border-r rounded-bl-2xl p-2 overflow-y-auto;
+}
+.chat-item {
+  @apply px-2 py-3 hover:bg-[#E0F7FF] rounded-lg cursor-pointer;
+}
+.chat-item-container {
+  @apply flex items-center space-x-4 p-2 bg-white rounded-lg hover:bg-[#E0F7FF] transition-all;
+}
+.chat-item-img {
+  @apply w-10 h-10 rounded-full object-cover;
+}
+.chat-item-name {
+  @apply text-sm font-semibold font-subTitle text-gray-800;
+}
+.chat-item-last-msg {
+  @apply text-xs text-gray-500 truncate;
+}
+.chat-right-container {
+  @apply w-2/3 flex flex-col justify-between bg-[#F1FBFF] rounded-br-2xl rounded-bl-2xl overflow-hidden;
+}
+.chat-header {
+  @apply border-b py-3 bg-white flex items-center space-x-4 px-6;
+}
+.resident-info {
+  @apply flex items-center space-x-3;
+}
+.resident-name {
+  @apply text-lg font-semibold text-gray-700;
+}
+.chat-history {
+  @apply flex-1 overflow-y-auto p-4 space-y-4;
+}
+.date-header {
+  @apply text-center text-xs text-gray-400 my-4;
+}
+.system-msg {
+  @apply text-center text-gray-500 text-sm italic my-2;
+}
+.sender-label {
+  @apply text-sm font-semibold text-gray-500 mb-1;
+}
+.message-input-section {
+  @apply flex items-center gap-3 p-4 bg-white border-t rounded-br-2xl;
+}
+.no-chat-selected {
+  @apply flex-1 flex items-center justify-center text-gray-500;
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -326,6 +427,24 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+}
+
+/* Landing Page */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+.animate-float-delay {
+  animation: float 4s ease-in-out infinite;
+  animation-delay: 2s;
 }
 
 /*RESPONSIVE*/

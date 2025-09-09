@@ -12,6 +12,7 @@ import FAQs from "./FAQs";
 //ICONS
 import { FaQuestionCircle } from "react-icons/fa";
 import { IoChatbubbleEllipses } from "react-icons/io5";
+import { RiRobot2Fill } from "react-icons/ri";
 
 const Chat = ({ isOpen, setIsOpen }) => {
   const {
@@ -24,7 +25,6 @@ const Chat = ({ isOpen, setIsOpen }) => {
   } = useContext(InfoContext);
   const { socket } = useContext(SocketContext);
   const { user } = useContext(AuthContext);
-  // const [isOpen, setIsOpen] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
   const [selectedResidentId, setSelectedResidentId] = useState(null);
   const [message, setMessage] = useState("");
@@ -37,10 +37,6 @@ const Chat = ({ isOpen, setIsOpen }) => {
   const aiEndRef = useRef(null);
   const chatEndRef = useRef(null);
   const confirm = useConfirm();
-
-  // useEffect(() => {
-  //   setIsOpen(Opened);
-  // }, [Opened]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -303,71 +299,53 @@ const Chat = ({ isOpen, setIsOpen }) => {
       <div ref={notifRef}>
         <button
           onClick={togglePlus}
-          className={`fixed hover:bg-[#0A7A9D] bottom-6 right-6 text-white shadow-xl p-3 rounded-full z-40 transition-all duration-300 ease-in-out ${
+          className={`chat-plus ${
             showButtons ? "bg-white border border-[#0E94D3]" : "bg-[#0E94D3]"
           }`}
         >
           {showButtons ? (
-            <X className="w-7 h-7 text-[#0E94D3]" />
+            <X className="w-7 h-7 text-[#0E94D3] hover:text-white" />
           ) : (
-            <Plus className="w-7 h-7" />
+            <Plus className="w-7 h-7 text-wh" />
           )}
         </button>
 
         {showButtons && (
-          <div className="fixed bottom-[5.5rem] right-7 flex flex-col space-y-2 z-40 transition-all duration-500 ease-in-out">
-            <button
-              onClick={handleFAQClick}
-              className="bg-[#0E94D3] hover:bg-[#0A7A9D] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
-            >
-              <FaQuestionCircle className="w-6 h-6 text-white" />
+          <div className="chat-action-btn-container">
+            <button onClick={handleFAQClick} className="chat-faq-btn">
+              <FaQuestionCircle className="chat-icon" />
             </button>
-            <label className="fixed bottom-[9.5rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
-              FAQs
-            </label>
-            <button
-              onClick={toggleChat}
-              className="bg-[#0E94D3] hover:bg-[#0A7A9D] shadow-xl p-3 rounded-full transform transition-transform duration-300 ease-in-out"
-            >
-              <IoChatbubbleEllipses className="w-6 h-6 text-white" />
+            <label className="chat-faq-label">FAQs</label>
+            <button onClick={toggleChat} className="chat-faq-btn">
+              <IoChatbubbleEllipses className="chat-icon" />
             </button>
-            <label className="fixed bottom-[6rem] right-20 bg-[#0E94D3] text-white rounded-md px-2 py-1 shadow-xl">
-              Chats
-            </label>
+            <label className="chat-label">Chats</label>
           </div>
         )}
         {showFAQs && <FAQs onClose={setShowFAQs} />}
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-40 flex items-end md:items-center justify-center bg-black/40">
-          <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg relative h-[500px] flex flex-col">
+        <div className="modal-container">
+          <div className="chat-modal-content">
             {/* Close button */}
-            <button
-              onClick={toggleChat}
-              className="absolute top-4 right-4 text-gray-600 hover:text-black"
-            >
+            <button onClick={toggleChat} className="chat-close-btn">
               <X className="w-5 h-5" />
             </button>
 
             {/* Header */}
-            <div className="px-4 py-2 border-b">
-              <button
-                onClick={() => setIsAI(!isAI)}
-                className="cursor-pointer p-1 bg-[#0E94D3] rounded-md"
-              >
-                <span className="text-white text-lg font-semibold ">
-                  {isAI ? "Switch to Resident Chat" : "Switch to Gemini AI"}
-                </span>
-              </button>
+            <div className="chat-modal-header">
+              <h2 className="text-xl font-semibold">
+                {isAI ? "MariBot" : "Barangay Chat"}
+              </h2>
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-hidden">
+            <div className="chat-modal-body">
               {isAI ? (
                 // Gemini AI full conversation
-                <div className="flex flex-col h-full justify-between bg-[#F1FBFF] rounded-b-2xl">
-                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                <div className="ai-conversation">
+                  <div className="msgs-container">
                     {AIMessages.map((msg, i) => {
                       const msgDate = new Date(msg.timestamp).toDateString();
                       const showDateHeader = msgDate !== lastDate;
@@ -411,20 +389,23 @@ const Chat = ({ isOpen, setIsOpen }) => {
                     <div ref={aiEndRef} />
                   </div>
 
-                  {/* Input */}
-                  <div className="border-t pt-2 flex items-center gap-2 p-2">
+                  {/* Input Section with Floating Button */}
+                  <div className="ai-input">
+                    <button
+                      onClick={() => setIsAI(!isAI)}
+                      className="floating-btn"
+                    >
+                      <IoChatbubbleEllipses className="w-6 h-6" />
+                    </button>
                     <input
                       type="text"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Type a message..."
-                      className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
+                      className="msgs-input"
                       onKeyDown={(e) => e.key === "Enter" && handleSendGemini()}
                     />
-                    <button
-                      onClick={handleSendGemini}
-                      className="text-white bg-[#0E94D3] hover:bg-[#0A7A9D] px-4 py-2 rounded flex items-center space-x-2 hover:bg-blue-700"
-                    >
+                    <button onClick={handleSendGemini} className="send-btn">
                       <Send size={20} />
                       <span>Send</span>
                     </button>
@@ -432,9 +413,9 @@ const Chat = ({ isOpen, setIsOpen }) => {
                 </div>
               ) : (
                 // Resident chat layout
-                <div className="flex h-full">
+                <div className="flex w-full">
                   {/* Left Column - Chat List */}
-                  <div className="w-1/3 border-r overflow-y-auto bg-[#0E94D3] rounded-tl-2xl rounded-bl-2xl">
+                  <div className="chat-list">
                     {[
                       ...chats
                         .reduce((map, chat) => {
@@ -461,24 +442,26 @@ const Chat = ({ isOpen, setIsOpen }) => {
                       const picture = otherParticipant?.resID?.picture;
 
                       return (
-                        <div key={conv._id} className="px-2 py-1">
+                        <div key={conv._id} className="chat-item">
                           <div
                             onClick={() => handleSelectChat(conv)}
-                            className={`cursor-pointer hover:bg-gray-100 flex flex-row space-x-2 border-b p-2 bg-white rounded-lg ${
-                              activeChat?._id === conv._id ? "bg-blue-100" : ""
+                            className={`chat-item-container ${
+                              activeChat?._id === conv._id
+                                ? "bg-[#0E94D3] text-white"
+                                : ""
                             }`}
                           >
                             <img
                               src={picture}
                               alt="Profile"
-                              className="w-10 h-10 rounded-full object-cover border"
+                              className="chat-item-img"
                             />
-                            <div>
-                              <p className="text-sm font-bold font-subTitle text-navy-blue">
+                            <div className="flex-1">
+                              <p className="chat-item-name">
                                 {otherParticipant?.resID?.firstname}{" "}
                                 {otherParticipant?.resID?.lastname}
                               </p>
-                              <p className="text-xs text-red-600 truncate max-w-[200px] break-words">
+                              <p className="chat-item-last-msg">
                                 {lastMsg?.message || "No messages yet"}
                               </p>
                             </div>
@@ -486,13 +469,20 @@ const Chat = ({ isOpen, setIsOpen }) => {
                         </div>
                       );
                     })}
+
+                    <button
+                      onClick={() => setIsAI(!isAI)}
+                      className="floating-btn"
+                    >
+                      <RiRobot2Fill className="w-6 h-6" />
+                    </button>
                   </div>
 
                   {/* Right Column - Chat Messages */}
-                  <div className="w-2/3 flex flex-col justify-between rounded-tr-2xl">
+                  <div className="chat-right-container">
                     {selectedResidentId ? (
                       <>
-                        <div className="border-b py-2">
+                        <div className="chat-header">
                           {(() => {
                             const anyChat = chats.find((chat) =>
                               chat.participants.some(
@@ -509,13 +499,13 @@ const Chat = ({ isOpen, setIsOpen }) => {
                             );
 
                             return resident ? (
-                              <div className="flex items-center space-x-2 ml-2">
+                              <div className="resident-info">
                                 <img
                                   src={resident.resID.picture}
                                   alt={`${resident.resID.lastname}'s profile`}
-                                  className="w-10 h-10 rounded-full object-cover border"
+                                  className="chat-item-img border"
                                 />
-                                <h2 className="text-md font-semibold text-navy-blue">
+                                <h2 className="resident-name">
                                   {resident.resID.firstname}{" "}
                                   {resident.resID.lastname}
                                 </h2>
@@ -524,139 +514,131 @@ const Chat = ({ isOpen, setIsOpen }) => {
                           })()}
                         </div>
 
-                        <div className="flex-1 overflow-hidden py-3 space-y-2 bg-[#F1FBFF] rounded-br-2xl">
-                          <div className="px-4 overflow-y-auto h-full">
-                            {fullChatHistory.map((msg, i) => {
-                              const isDefaultMessage =
-                                msg.message ===
-                                "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
-                              if (isDefaultMessage) return null;
+                        <div className="chat-history">
+                          {fullChatHistory.map((msg, i) => {
+                            const isDefaultMessage =
+                              msg.message ===
+                              "This conversation has been forwarded to the barangay office. An admin will get back to you shortly.";
+                            if (isDefaultMessage) return null;
 
-                              const timestamp = new Date(msg.timestamp);
-                              const currentDateStr = timestamp.toDateString();
-                              let prevValidIndex = i - 1;
-                              while (
-                                prevValidIndex >= 0 &&
-                                fullChatHistory[prevValidIndex].message ===
-                                  "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
-                              ) {
-                                prevValidIndex--;
-                              }
+                            const timestamp = new Date(msg.timestamp);
+                            const currentDateStr = timestamp.toDateString();
+                            let prevValidIndex = i - 1;
+                            while (
+                              prevValidIndex >= 0 &&
+                              fullChatHistory[prevValidIndex].message ===
+                                "This conversation has been forwarded to the barangay office. An admin will get back to you shortly."
+                            ) {
+                              prevValidIndex--;
+                            }
 
-                              const prevDateStr =
-                                prevValidIndex >= 0
-                                  ? new Date(
-                                      fullChatHistory[prevValidIndex].timestamp
-                                    ).toDateString()
-                                  : null;
-                              const showDateHeader =
-                                currentDateStr !== prevDateStr;
+                            const prevDateStr =
+                              prevValidIndex >= 0
+                                ? new Date(
+                                    fullChatHistory[prevValidIndex].timestamp
+                                  ).toDateString()
+                                : null;
+                            const showDateHeader =
+                              currentDateStr !== prevDateStr;
 
-                              const isSystemMessage =
-                                msg.message === "This chat has ended.";
+                            const isSystemMessage =
+                              msg.message === "This chat has ended.";
 
-                              const chatOfMessage = chats.find((c) =>
-                                c.messages.some(
-                                  (m) =>
-                                    m.message === msg.message &&
-                                    new Date(m.timestamp).getTime() ===
-                                      timestamp.getTime()
-                                )
-                              );
+                            const chatOfMessage = chats.find((c) =>
+                              c.messages.some(
+                                (m) =>
+                                  m.message === msg.message &&
+                                  new Date(m.timestamp).getTime() ===
+                                    timestamp.getTime()
+                              )
+                            );
 
-                              const sender = chatOfMessage?.participants?.find(
-                                (p) =>
-                                  p._id === msg.from || p._id === msg.from?._id
-                              );
+                            const sender = chatOfMessage?.participants?.find(
+                              (p) =>
+                                p._id === msg.from || p._id === msg.from?._id
+                            );
 
-                              const isOwnMessage =
-                                user.userID === msg.from ||
-                                user.userID === msg.from?._id;
+                            const isOwnMessage =
+                              user.userID === msg.from ||
+                              user.userID === msg.from?._id;
 
-                              const senderPosition = sender?.empID?.position;
-                              const isStaff =
-                                senderPosition === "Secretary" ||
-                                senderPosition === "Clerk";
-                              const alignRight = isStaff || false;
-                              const senderLabel = isOwnMessage
-                                ? "You"
-                                : senderPosition || "Unknown";
+                            const senderPosition = sender?.empID?.position;
+                            const isStaff =
+                              senderPosition === "Secretary" ||
+                              senderPosition === "Clerk";
+                            const alignRight = isStaff || false;
+                            const senderLabel = isOwnMessage
+                              ? "You"
+                              : senderPosition || "Unknown";
 
-                              return (
-                                <React.Fragment key={i}>
-                                  {showDateHeader && (
-                                    <div className="text-center text-xs text-gray-400 my-4">
-                                      {timestamp.toDateString()}
-                                    </div>
-                                  )}
+                            return (
+                              <React.Fragment key={i}>
+                                {showDateHeader && (
+                                  <div className="date-header">
+                                    {timestamp.toDateString()}
+                                  </div>
+                                )}
 
-                                  {isSystemMessage ? (
-                                    <div className="text-center text-gray-500 text-sm italic my-2">
-                                      {msg.message}
-                                    </div>
-                                  ) : (
+                                {isSystemMessage ? (
+                                  <div className="system-msg">
+                                    {msg.message}
+                                  </div>
+                                ) : (
+                                  <div
+                                    className={`mb-2 ${
+                                      alignRight ? "text-right" : "text-left"
+                                    }`}
+                                  >
+                                    {isStaff && (
+                                      <div className="sender-label">
+                                        {senderLabel}
+                                      </div>
+                                    )}
+
                                     <div
-                                      className={`mb-2 ${
-                                        alignRight ? "text-right" : "text-left"
+                                      className={`inline-block px-3 py-2 rounded max-w-sm ${
+                                        alignRight
+                                          ? "bg-blue-600 text-white"
+                                          : "bg-gray-300"
                                       }`}
                                     >
-                                      {isStaff && (
-                                        <div className="text-sm font-semibold text-gray-500 mb-1">
-                                          {senderLabel}
-                                        </div>
-                                      )}
-
-                                      <div
-                                        className={`inline-block px-3 py-2 rounded max-w-sm ${
-                                          alignRight
-                                            ? "bg-blue-600 text-white"
-                                            : "bg-gray-300"
-                                        }`}
-                                      >
-                                        {msg.message}
-                                      </div>
-
-                                      <div className="text-xs text-gray-500 mt-1">
-                                        {timestamp.toLocaleTimeString(
-                                          undefined,
-                                          {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            hour12: true,
-                                          }
-                                        )}
-                                      </div>
+                                      {msg.message}
                                     </div>
-                                  )}
-                                </React.Fragment>
-                              );
-                            })}
-                            <div ref={chatEndRef} />
-                          </div>
+
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {timestamp.toLocaleTimeString(undefined, {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                          <div ref={chatEndRef} />
                         </div>
 
                         {!isChatEnded && (
-                          <div className="border-t pt-2 flex items-center gap-2 p-2">
+                          <div className="message-input-section">
                             <input
                               type="text"
                               value={message}
                               onChange={(e) => setMessage(e.target.value)}
                               placeholder="Type a message..."
-                              className="flex-1 border rounded px-3 py-2 text-sm focus:outline-none"
+                              className="msgs-input !ml-0"
                               onKeyDown={(e) =>
                                 e.key === "Enter" && handleSend()
                               }
                             />
-                            <button
-                              onClick={handleSend}
-                              className="text-white bg-[#0E94D3] hover:bg-[#0A7A9D] px-4 py-2 rounded flex items-center space-x-2"
-                            >
+                            <button onClick={handleSend} className="send-btn">
                               <Send size={20} />
                               <span>Send</span>
                             </button>
                             <button
                               onClick={() => endChat(activeChat._id)}
-                              className="text-white bg-red-600 px-4 py-2 rounded flex items-center space-x-2 hover:bg-red-700"
+                              className="end-btn"
                             >
                               <Ban size={20} />
                               <span>End</span>
@@ -665,7 +647,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
                         )}
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-gray-400">
+                      <div className="no-chat-selected">
                         Select a conversation
                       </div>
                     )}

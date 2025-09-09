@@ -693,7 +693,7 @@ function Residents({ isCollapsed }) {
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
         <div className="status-add-container">
-          <div className="status-container">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-x-8 mt-5">
             <p
               onClick={handleMenu1}
               className={`status-text ${
@@ -724,79 +724,86 @@ function Residents({ isCollapsed }) {
           </div>
           {isActiveClicked && (
             <div className="export-sort-btn-container">
-              {user.role !== "Technical Admin" && (
-                <>
-                  <div className="relative" ref={exportRef}>
-                    {/* Export Button */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <div className="flex flex-row gap-4 sm:gap-4">
+                  {user.role !== "Technical Admin" && (
+                    <>
+                      <div className="relative" ref={exportRef}>
+                        {/* Export Button */}
+                        <div
+                          className="export-sort-btn"
+                          onClick={toggleExportDropdown}
+                        >
+                          <h1 className="export-sort-btn-text">Export</h1>
+                          <div className="export-sort-btn-dropdown-icon">
+                            <MdArrowDropDown size={18} color={"#0E94D3"} />
+                          </div>
+                        </div>
+
+                        {exportDropdown && (
+                          <div className="export-sort-dropdown-menu w-36">
+                            <ul className="w-full">
+                              <div className="navbar-dropdown-item">
+                                <li
+                                  className="export-sort-dropdown-option"
+                                  onClick={exportCSV}
+                                >
+                                  Export as CSV
+                                </li>
+                              </div>
+                              <div className="navbar-dropdown-item">
+                                <li
+                                  className="export-sort-dropdown-option"
+                                  onClick={exportPDF}
+                                >
+                                  Export as PDF
+                                </li>
+                              </div>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  <div className="relative" ref={filterRef}>
+                    {/* Filter Button */}
                     <div
                       className="export-sort-btn"
-                      onClick={toggleExportDropdown}
+                      onClick={toggleFilterDropdown}
                     >
-                      <h1 className="export-sort-btn-text">Export</h1>
+                      <h1 className="export-sort-btn-text">{sortOption}</h1>
                       <div className="export-sort-btn-dropdown-icon">
                         <MdArrowDropDown size={18} color={"#0E94D3"} />
                       </div>
                     </div>
 
-                    {exportDropdown && (
-                      <div className="export-sort-dropdown-menu">
-                        <ul className="w-full">
-                          <div className="navbar-dropdown-item">
-                            <li
-                              className="export-sort-dropdown-option"
-                              onClick={exportCSV}
-                            >
-                              Export as CSV
-                            </li>
-                          </div>
-                          <div className="navbar-dropdown-item">
-                            <li
-                              className="export-sort-dropdown-option"
-                              onClick={exportPDF}
-                            >
-                              Export as PDF
-                            </li>
-                          </div>
+                    {filterDropdown && (
+                      <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md max-h-60 overflow-y-auto">
+                        <ul className="dropdown-list">
+                          {sortOptionsList.map((option) => (
+                            <div className="navbar-dropdown-item" key={option}>
+                              <li
+                                className="export-sort-dropdown-option"
+                                onClick={() => {
+                                  setSortOption(option);
+                                  setfilterDropdown(false);
+                                }}
+                              >
+                                {option}
+                              </li>
+                            </div>
+                          ))}
                         </ul>
                       </div>
                     )}
                   </div>
-                </>
-              )}
-
-              <div className="relative" ref={filterRef}>
-                {/* Filter Button */}
-                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-                  <h1 className="export-sort-btn-text">{sortOption}</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
                 </div>
 
-                {filterDropdown && (
-                  <div className="absolute mt-2 w-40 bg-white shadow-md z-10 rounded-md max-h-60 overflow-y-auto">
-                    <ul className="dropdown-list">
-                      {sortOptionsList.map((option) => (
-                        <div className="navbar-dropdown-item" key={option}>
-                          <li
-                            className="export-sort-dropdown-option"
-                            onClick={() => {
-                              setSortOption(option);
-                              setfilterDropdown(false);
-                            }}
-                          >
-                            {option}
-                          </li>
-                        </div>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <button className="add-new-btn" onClick={handleAdd}>
+                  <h1 className="add-new-btn-text">Add New Resident</h1>
+                </button>
               </div>
-
-              <button className="add-new-btn" onClick={handleAdd}>
-                <h1 className="add-new-btn-text">Add New Resident</h1>
-              </button>
             </div>
           )}
         </div>
@@ -920,13 +927,11 @@ function Residents({ isCollapsed }) {
 
                                   {/* Address */}
                                   <div className="add-info-title">Address</div>
-                                  <div className="add-info-container min-w-[250px] max-w-[250px]">
+                                  <div className="add-info-container">
                                     {res.householdno?.address}
                                   </div>
-                                  <div className="add-info-title min-w-[250px] max-w-[250px]">
-                                    Address
-                                  </div>
-                                  <div className="add-info-container">
+                                  <div className="add-info-title">Address</div>
+                                  <div className="add-info-container min-w-[250px] max-w-[250px]">
                                     {res.emergencyaddress}
                                   </div>
                                 </div>

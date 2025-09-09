@@ -187,7 +187,6 @@ function Accounts({ isCollapsed }) {
   };
 
   //For Pagination
-
   const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
 
   const sortedFilteredUsers = [...filteredUsers].sort((a, b) => {
@@ -198,7 +197,6 @@ function Accounts({ isCollapsed }) {
     }
   });
 
-  //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("All");
   const totalRows = filteredUsers.length;
@@ -447,7 +445,7 @@ function Accounts({ isCollapsed }) {
         <SearchBar handleSearch={handleSearch} searchValue={search} />
 
         <div className="status-add-container">
-          <div className="status-container">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-x-8 mt-5">
             <p
               onClick={handleMenu1}
               className={`status-text ${
@@ -475,81 +473,91 @@ function Accounts({ isCollapsed }) {
           </div>
           {isCurrentClicked && (
             <div className="export-sort-btn-container">
-              <div className="relative" ref={exportRef}>
-                {/* Export Button */}
-                <div className="export-sort-btn" onClick={toggleExportDropdown}>
-                  <h1 className="export-sort-btn-text">Export</h1>
-                  <div className="export-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <div className="flex flex-row gap-4 sm:gap-4">
+                  <div className="relative" ref={exportRef}>
+                    {/* Export Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleExportDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Export</h1>
+                      <div className="export-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
+
+                    {exportDropdown && (
+                      <div className="export-sort-dropdown-menu w-36">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportCSV}
+                            >
+                              Export as CSV
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportPDF}
+                            >
+                              Export as PDF
+                            </li>
+                          </div>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative" ref={filterRef}>
+                    {/* Filter Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleFilterDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Sort</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
+
+                    {filterDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Newest");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Newest
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Oldest");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Oldest
+                            </li>
+                          </div>
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {exportDropdown && (
-                  <div className="export-sort-dropdown-menu w-36">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportCSV}
-                        >
-                          Export as CSV
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={exportPDF}
-                        >
-                          Export as PDF
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
+                <button className="add-new-btn" onClick={handleAdd}>
+                  <h1 className="add-new-btn-text ">Add New User</h1>
+                </button>
               </div>
-
-              <div className="relative" ref={filterRef}>
-                {/* Filter Button */}
-                <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-                  <h1 className="export-sort-btn-text">Sort</h1>
-                  <div className="export-sort-btn-dropdown-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
-                  </div>
-                </div>
-
-                {filterDropdown && (
-                  <div className="export-sort-dropdown-menu">
-                    <ul className="w-full">
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Newest");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Newest
-                        </li>
-                      </div>
-                      <div className="navbar-dropdown-item">
-                        <li
-                          className="export-sort-dropdown-option"
-                          onClick={() => {
-                            setSortOption("Oldest");
-                            setfilterDropdown(false);
-                          }}
-                        >
-                          Oldest
-                        </li>
-                      </div>
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <button className="add-new-btn" onClick={handleAdd}>
-                <h1 className="add-new-btn-text ">Add New User</h1>
-              </button>
             </div>
           )}
         </div>

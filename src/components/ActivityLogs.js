@@ -8,7 +8,6 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../Stylesheets/CommonStyle.css";
-import "../Stylesheets/Announcements.css";
 import "../Stylesheets/ActivityLogs.css";
 
 //ICONS
@@ -362,7 +361,7 @@ function ActivityLogs({ isCollapsed }) {
         <div className="header-text">Activity Logs</div>
 
         <div className="logs-filter-container">
-          <div className="logs-filter-controls">
+          <div className="logs-filter-controls flex-wrap">
             <div className="logs-filter-item">
               <label className="logs-filter-label">User</label>
               <select
@@ -432,7 +431,9 @@ function ActivityLogs({ isCollapsed }) {
                 className="logs-filter-select"
               />
             </div>
+          </div>
 
+          <div className="export-sort-btn-container">
             <button
               onClick={handleReset}
               className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
@@ -446,42 +447,42 @@ function ActivityLogs({ isCollapsed }) {
             >
               Submit
             </button>
-          </div>
 
-          <div className="relative" ref={exportRef}>
-            {/* Export Button */}
-            <div
-              className="mt-12 export-sort-btn"
-              onClick={toggleExportDropdown}
-            >
-              <h1 className="export-sort-btn-text">Export</h1>
-              <div className="export-sort-btn-dropdown-icon">
-                <MdArrowDropDown size={18} color={"#0E94D3"} />
+            <div className="relative" ref={exportRef}>
+              {/* Export Button */}
+              <div
+                className="export-sort-btn"
+                onClick={toggleExportDropdown}
+              >
+                <h1 className="export-sort-btn-text">Export</h1>
+                <div className="export-sort-btn-dropdown-icon">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
               </div>
+
+              {exportDropdown && (
+                <div className="export-sort-dropdown-menu w-36">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="export-sort-dropdown-option"
+                        onClick={exportCSV}
+                      >
+                        Export as CSV
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="export-sort-dropdown-option"
+                        onClick={exportPDF}
+                      >
+                        Export as PDF
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
             </div>
-
-            {exportDropdown && (
-              <div className="export-sort-dropdown-menu">
-                <ul className="w-full">
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={exportCSV}
-                    >
-                      Export as CSV
-                    </li>
-                  </div>
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={exportPDF}
-                    >
-                      Export as PDF
-                    </li>
-                  </div>
-                </ul>
-              </div>
-            )}
           </div>
         </div>
 
