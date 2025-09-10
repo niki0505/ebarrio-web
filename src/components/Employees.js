@@ -17,6 +17,7 @@ import EmployeeID from "./id/EmployeeID";
 
 //STYLES
 import "../Stylesheets/Employees.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import {
@@ -42,6 +43,7 @@ function Employees({ isCollapsed }) {
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isArchivedClicked, setArchivedClicked] = useState(false);
   const [sortOption, setSortOption] = useState("All");
+  const [loading, setLoading] = useState(false);
 
   const exportRef = useRef(null);
   const filterRef = useRef(null);
@@ -84,37 +86,29 @@ function Employees({ isCollapsed }) {
     if (action === "cancel") {
       return;
     }
+    if (loading) return;
 
-    if (action === "generate") {
-      try {
-        const response = await api.post(`/generateemployeeID/${empID}`);
-        const qrCode = await uploadToFirebase(response.data.qrCode);
+    setLoading(true);
 
-        try {
-          const response2 = await api.put(`/saveemployeeID/${empID}`, {
-            idNumber: response.data.idNumber,
-            expirationDate: response.data.expirationDate,
-            qrCode,
-            qrToken: response.data.qrToken,
-          });
-          try {
-            const response = await api.get(`/getemployee/${empID}`);
-            const response2 = await api.get(`/getcaptain/`);
-            EmployeeID({
-              empData: response.data,
-              captainData: response2.data,
-            });
-          } catch (error) {
-            console.log("Error viewing current employee ID", error);
-          }
-        } catch (error) {
-          console.log("Error saving employee ID", error);
-        }
-      } catch (error) {
-        console.log("Error generating employee ID", error);
-      }
-    } else if (action === "current") {
-      try {
+    try {
+      if (action === "generate") {
+        const res = await api.post(`/generateemployeeID/${empID}`);
+        const qrCode = await uploadToFirebase(res.data.qrCode);
+
+        const res2 = await api.put(`/saveemployeeID/${empID}`, {
+          idNumber: res.data.idNumber,
+          expirationDate: res.data.expirationDate,
+          qrCode,
+          qrToken: res.data.qrToken,
+        });
+
+        const response = await api.get(`/getemployee/${empID}`);
+        const response2 = await api.get(`/getcaptain/`);
+        EmployeeID({
+          empData: response.data,
+          captainData: response2.data,
+        });
+      } else if (action === "current") {
         const response = await api.get(`/getemployee/${empID}`);
         const response2 = await api.get(`/getcaptain/`);
         if (
@@ -128,9 +122,11 @@ function Employees({ isCollapsed }) {
           empData: response.data,
           captainData: response2.data,
         });
-      } catch (error) {
-        console.log("Error viewing current employee ID", error);
       }
+    } catch (error) {
+      console.log("Error handling employee ID:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -470,6 +466,11 @@ function Employees({ isCollapsed }) {
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+          </div>
+        )}
         <div className="header-text">Employees</div>
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />

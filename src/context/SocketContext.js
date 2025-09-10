@@ -5,13 +5,16 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import longNotification from "../assets/long-notification.mp3";
+import alertNotification from "../assets/alert-notification.mp3";
 
 export const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const navigation = useNavigate();
   const [notifications, setNotifications] = useState([]);
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { user, isAuthenticated, playNotificationSound } =
+    useContext(AuthContext);
   const [socket, setSocket] = useState(null);
 
   const socketRef = useRef(null);
@@ -39,9 +42,9 @@ export const SocketProvider = ({ children }) => {
       transports: ["websocket"],
       withCredentials: true,
       timeout: 60000,
-      reconnectionAttempts: Infinity, // retry forever
-      reconnectionDelay: 1000, // start with 1s delay
-      reconnectionDelayMax: 10000, // max delay 10s
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
     });
 
     socketRef.current = newSocket;
@@ -57,14 +60,17 @@ export const SocketProvider = ({ children }) => {
         newSocket.emit("join_courtreservations");
         newSocket.emit("join_blotterreports");
         newSocket.emit("join_chats");
+        newSocket.emit("join_sos");
       } else if (user.role === "Clerk") {
         newSocket.emit("join_announcements");
         newSocket.emit("join_certificates");
         newSocket.emit("join_courtreservations");
         newSocket.emit("join_chats");
+        newSocket.emit("join_sos");
       } else if (user.role === "Justice") {
         newSocket.emit("join_blotterreports");
         newSocket.emit("join_chats");
+        newSocket.emit("join_sos");
       }
     });
 
@@ -75,6 +81,7 @@ export const SocketProvider = ({ children }) => {
 
     // NOTIFICATION EVENTS
     newSocket.on("announcement", (announcement) => {
+      playNotificationSound(longNotification);
       toast.info(
         <div
           onClick={() => navigation("/announcements")}
@@ -91,6 +98,7 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("certificates", (certificate) => {
+      playNotificationSound(longNotification);
       toast.info(
         <div
           onClick={() =>
@@ -110,18 +118,20 @@ export const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("blotterreports", (blotter) => {
+      playNotificationSound(longNotification);
       toast.info(
         <div
           onClick={() => navigation("/blotter-reports")}
           style={{ cursor: "pointer" }}
         >
-          <strong>📄 {blotter.title}</strong>
+          <strong>{blotter.title}</strong>
           <div>{blotter.message}</div>
         </div>
       );
     });
 
     newSocket.on("courtreservations", (court) => {
+      playNotificationSound(longNotification);
       toast.info(
         <div
           onClick={() =>
@@ -140,17 +150,18 @@ export const SocketProvider = ({ children }) => {
       );
     });
 
-    // newSocket.on("chats", (chat) => {
-    //   toast.info(
-    //     <div
-    //       onClick={() => navigation("/blotter-reports")}
-    //       style={{ cursor: "pointer" }}
-    //     >
-    //       <strong>{chat.title}</strong>
-    //       <div>{chat.message}</div>
-    //     </div>
-    //   );
-    // });
+    newSocket.on("sos", (s) => {
+      playNotificationSound(alertNotification);
+      toast.info(
+        <div
+          onClick={() => navigation("/sos-update-reports")}
+          style={{ cursor: "pointer" }}
+        >
+          <strong>{s.title}</strong>
+          <div>{s.message}</div>
+        </div>
+      );
+    });
 
     return () => {
       newSocket.disconnect();

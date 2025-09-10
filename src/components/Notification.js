@@ -8,15 +8,11 @@ const Notification = () => {
   useEffect(() => {
     if (!socket) return;
 
-    // Listen to 'announcement' event from server
     socket.on("announcement", (notification) => {
       console.log("Received notification:", notification);
-
-      // Add new notification to the list
       setNotifications((prev) => [notification, ...prev]);
     });
 
-    // Clean up the listener when component unmounts or socket changes
     return () => {
       socket.off("announcement");
     };

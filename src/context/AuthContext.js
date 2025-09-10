@@ -13,6 +13,12 @@ export const AuthProvider = ({ children }) => {
   const [userPasswordChanged, setUserPasswordChanged] = useState(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  const playNotificationSound = (sound) => {
+    const audio = new Audio(sound);
+    audio.currentTime = 0;
+    audio.play().catch((err) => console.log("Audio play failed:", err));
+  };
+
   useEffect(() => {
     if (user && userPasswordChanged) {
       const passwordchangedat = new Date(userPasswordChanged).getTime();
@@ -132,6 +138,7 @@ export const AuthProvider = ({ children }) => {
         setUserPasswordChanged,
         logoutLoading,
         isAuthenticated,
+        playNotificationSound,
         setIsAuthenticated,
       }}
     >
