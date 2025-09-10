@@ -627,7 +627,7 @@ function Residents({ isCollapsed }) {
     const target = "Residents";
     const description = `User exported ${
       sortOption === "All" ? "residents'" : sortOption.toLowerCase()
-    } records to CSV.`;
+    } records to PDF.`;
     try {
       await api.post("/logexport", { action, target, description });
     } catch (error) {

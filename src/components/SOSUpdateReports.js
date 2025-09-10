@@ -1,10 +1,5 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import {
-  GoogleMap,
-  Marker,
-  InfoWindow,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+import { useContext, useEffect, useState, useRef } from "react";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 import { InfoContext } from "../context/InfoContext";
 import {
   MdKeyboardArrowLeft,
@@ -12,11 +7,13 @@ import {
   MdArrowDropDown,
 } from "react-icons/md";
 import ViewSOS from "./ViewSOS";
-
-const containerStyle = {
-  width: "100%",
-  height: "500px",
-};
+import { AuthContext } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
+import Aniban2logo from "../assets/aniban2logo.jpg";
+import AppLogo from "../assets/applogo-lightbg.png";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import api from "../api";
 
 const defaultCenter = {
   lat: 14.46, // Aniban 2 latitude
@@ -24,17 +21,21 @@ const defaultCenter = {
 };
 
 function SOSUpdateReports({ isCollapsed }) {
+  const confirm = useConfirm();
   const [position, setPosition] = useState(defaultCenter);
   const [selectedID, setSelectedID] = useState(null);
   const { fetchReports, reports } = useContext(InfoContext);
   const [report, setReport] = useState([]);
+  const { user } = useContext(AuthContext);
   const [isReportClicked, setReportClicked] = useState(false);
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isHistoryClicked, setHistoryClicked] = useState(false);
   const [filteredReports, setFilteredReports] = useState([]);
   const [sortOption, setSortOption] = useState("Newest");
   const [filterDropdown, setfilterDropdown] = useState(false);
+  const [exportDropdown, setexportDropdown] = useState(false);
   const filterRef = useRef(null);
+  const exportRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -42,6 +43,9 @@ function SOSUpdateReports({ isCollapsed }) {
   });
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);
+  };
+  const toggleExportDropdown = () => {
+    setexportDropdown(!exportDropdown);
   };
 
   useEffect(() => {
@@ -183,6 +187,199 @@ function SOSUpdateReports({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const exportCSV = async () => {
+    if (filteredReports.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
+    const title = `Barangay Aniban 2 SOS Reports`;
+    const now = new Date().toLocaleString();
+    const headers = [
+      "No.",
+      "Reporter",
+      "Responder/s",
+      "Type of the Incident",
+      "Details",
+      "Post-Incident/False Alarm Report",
+      "Status",
+      "Date Completed",
+    ];
+    const rows = filteredReports
+      .sort((a, b) => {
+        const nameA = `${a.resID.lastname}`.toLowerCase();
+        const nameB = `${b.resID.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((res, index) => {
+        const fullname = res.resID.middlename
+          ? `${res.resID.lastname} ${res.resID.middlename} ${res.resID.firstname}`
+          : `${res.resID.lastname} ${res.resID.firstname}`;
+
+        const responders = res.responder
+          .map((r) => `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`)
+          .join(", ");
+
+        const baseRow = [
+          res.SOSno,
+          fullname,
+          responders,
+          res.reporttype ? res.reporttype : "N/A",
+          res.reportdetails ? res.reportdetails : "N/A",
+          res.postreportdetails,
+          res.status,
+          res.updatedAt.replace(",", " "),
+        ];
+        return baseRow;
+      });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        `${title}`,
+        `Exported by: ${user.name}`,
+        `Exported on: ${now}`,
+        "",
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Barangay_Aniban_2_SOS_by_${user.name.replace(/ /g, "_")}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setexportDropdown(false);
+
+    const action = "Export";
+    const target = "SOS";
+    const description = `User exported SOS records to CSV.`;
+    try {
+      await api.post("/logexport", { action, target, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
+  const exportPDF = async () => {
+    if (filteredReports.length === 0) {
+      confirm("No records available for export.", "failed");
+      return;
+    }
+    const now = new Date().toLocaleString();
+    const doc = new jsPDF();
+
+    const pageWidth = doc.internal.pageSize.width;
+    const imageWidth = 30;
+    const centerX = (pageWidth - imageWidth) / 2;
+
+    //Header
+    doc.addImage(Aniban2logo, "JPEG", centerX, 10, imageWidth, 30);
+    doc.setFont("times");
+    doc.setFontSize(14);
+    doc.text("Barangay Aniban 2, Bacoor, Cavite", pageWidth / 2, 50, {
+      align: "center",
+    });
+
+    //Title
+    doc.setFontSize(12);
+    doc.text(`SOS Reports`, pageWidth / 2, 57, { align: "center" });
+
+    // Table
+    const rows = filteredReports
+      .sort((a, b) => {
+        const nameA = `${a.resID.lastname}`.toLowerCase();
+        const nameB = `${b.resID.lastname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      })
+      .map((res, index) => {
+        const fullname = res.resID.middlename
+          ? `${res.resID.lastname} ${res.resID.middlename} ${res.resID.firstname}`
+          : `${res.resID.lastname} ${res.resID.firstname}`;
+
+        const responders = res.responder
+          .map((r) => `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`)
+          .join(", ");
+
+        const baseRow = [
+          res.SOSno,
+          fullname,
+          responders,
+          res.reporttype ? res.reporttype : "N/A",
+          res.reportdetails ? res.reportdetails : "N/A",
+          res.postreportdetails,
+          res.status,
+          res.updatedAt.replace(",", " "),
+        ];
+        return baseRow;
+      });
+
+    autoTable(doc, {
+      head: [
+        [
+          "No.",
+          "Reporter",
+          "Responder/s",
+          "Type of the Incident",
+          "Details",
+          "Post-Incident/False Alarm Report",
+          "Status",
+          "Date Completed",
+        ],
+      ],
+      body: rows,
+      startY: 65,
+      margin: { bottom: 30 },
+      didDrawPage: function (data) {
+        const pageHeight = doc.internal.pageSize.height;
+
+        // Footer
+        const logoX = 10;
+        const logoY = pageHeight - 20;
+
+        doc.setFontSize(8);
+        doc.text("Powered by", logoX + 7.5, logoY - 2, { align: "center" });
+
+        // App Logo (left)
+        doc.addImage(AppLogo, "PNG", logoX, logoY, 15, 15);
+
+        // Exported by & exported on
+        doc.setFontSize(10);
+        doc.text(`Exported by: ${user.name}`, logoX + 20, logoY + 5);
+        doc.text(`Exported on: ${now}`, logoX + 20, logoY + 10);
+
+        // Page number
+        const pageWidth = doc.internal.pageSize.width;
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageText = `Page ${
+          doc.internal.getCurrentPageInfo().pageNumber
+        } of ${pageCount}`;
+        doc.setFontSize(10);
+        doc.text(pageText, pageWidth - 40, pageHeight - 10);
+      },
+    });
+
+    const filename = `Barangay_Aniban_2_SOS_by_${user.name.replace(
+      / /g,
+      "_"
+    )}.pdf`;
+    doc.save(filename);
+    setexportDropdown(false);
+
+    const action = "Export";
+    const target = "SOS";
+    const description = `User exported SOS records to PDF.`;
+    try {
+      await api.post("/logexport", { action, target, description });
+    } catch (error) {
+      console.log("Error in logging export", error);
+    }
+  };
+
   return (
     <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="text-[30px] font-bold font-title text-[#BC0F0F]">
@@ -212,44 +409,90 @@ function SOSUpdateReports({ isCollapsed }) {
         </div>
 
         {isHistoryClicked && (
-          <div className="relative" ref={filterRef}>
-            {/* Filter Button */}
-            <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-              <h1 className="export-sort-btn-text">{sortOption}</h1>
-              <div className="export-sort-btn-dropdown-icon">
-                <MdArrowDropDown size={18} color={"#0E94D3"} />
+          <>
+            <div className="export-sort-btn-container">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <div className="flex flex-row gap-4 sm:gap-4">
+                  <div className="relative" ref={exportRef}>
+                    {/* Export Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleExportDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">Export</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
+
+                    {exportDropdown && (
+                      <div className="export-sort-dropdown-menu w-36">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportCSV}
+                            >
+                              Export as CSV
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={exportPDF}
+                            >
+                              Export as PDF
+                            </li>
+                          </div>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative" ref={filterRef}>
+                    {/* Filter Button */}
+                    <div
+                      className="export-sort-btn"
+                      onClick={toggleFilterDropdown}
+                    >
+                      <h1 className="export-sort-btn-text">{sortOption}</h1>
+                      <div className="export-sort-btn-dropdown-icon">
+                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                      </div>
+                    </div>
+
+                    {filterDropdown && (
+                      <div className="export-sort-dropdown-menu">
+                        <ul className="w-full">
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Newest");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Newest
+                            </li>
+                          </div>
+                          <div className="navbar-dropdown-item">
+                            <li
+                              className="export-sort-dropdown-option"
+                              onClick={() => {
+                                setSortOption("Oldest");
+                                setfilterDropdown(false);
+                              }}
+                            >
+                              Oldest
+                            </li>
+                          </div>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-
-            {filterDropdown && (
-              <div className="export-sort-dropdown-menu">
-                <ul className="w-full">
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={() => {
-                        setSortOption("Newest");
-                        setfilterDropdown(false);
-                      }}
-                    >
-                      Newest
-                    </li>
-                  </div>
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={() => {
-                        setSortOption("Oldest");
-                        setfilterDropdown(false);
-                      }}
-                    >
-                      Oldest
-                    </li>
-                  </div>
-                </ul>
-              </div>
-            )}
-          </div>
+          </>
         )}
       </div>
 
