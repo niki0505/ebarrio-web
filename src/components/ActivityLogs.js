@@ -436,27 +436,25 @@ function ActivityLogs({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="export-sort-btn-container">
-            <button
-              onClick={handleReset}
-              className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
-            >
-              Reset
-            </button>
+          <div className="flex justify-between items-center w-full mt-4">
+            <div className="flex gap-2">
+              <button
+                onClick={handleReset}
+                className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
+              >
+                Reset
+              </button>
 
-            <button
-              onClick={handleSubmit}
-              className="bg-[#0E94D3] hover:bg-[#0A7A9D] logs-reset-submit-btn"
-            >
-              Submit
-            </button>
+              <button
+                onClick={handleSubmit}
+                className="bg-[#0E94D3] hover:bg-[#0A7A9D] logs-reset-submit-btn"
+              >
+                Submit
+              </button>
+            </div>
 
             <div className="relative" ref={exportRef}>
-              {/* Export Button */}
-              <div
-                className="export-sort-btn"
-                onClick={toggleExportDropdown}
-              >
+              <div className="export-sort-btn" onClick={toggleExportDropdown}>
                 <h1 className="export-sort-btn-text">Export</h1>
                 <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
@@ -464,7 +462,7 @@ function ActivityLogs({ isCollapsed }) {
               </div>
 
               {exportDropdown && (
-                <div className="export-sort-dropdown-menu w-36">
+                <div className="export-sort-dropdown-menu w-36 absolute right-0">
                   <ul className="w-full">
                     <div className="navbar-dropdown-item">
                       <li
