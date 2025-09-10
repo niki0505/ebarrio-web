@@ -5,6 +5,7 @@ import AlertResidents from "./AlertResidents";
 //STYLES
 import "../Stylesheets/CommonStyle.css";
 import "../Stylesheets/Announcements.css";
+import Lottie from "react-lottie";
 
 //ICONS
 import { X } from "lucide-react";
@@ -65,6 +66,19 @@ function RiverSnapshots({ isCollapsed }) {
       : history.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: require("../assets/loading.json"),
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  useEffect(() => {
+    console.log("Lottie animation loaded", defaultOptions);
+  }, []);
 
   return (
     <>
@@ -129,7 +143,9 @@ function RiverSnapshots({ isCollapsed }) {
                 </p>
               </div>
             ) : (
-              <p className="text-gray-500">Loading latest snapshot...</p>
+              <div className="w-full h-screen flex justify-center items-center">
+                <Lottie options={defaultOptions} height={150} width={300} />
+              </div>
             )}
           </div>
         )}
