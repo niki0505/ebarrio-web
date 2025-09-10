@@ -144,7 +144,7 @@ function BlotterReports({ isCollapsed }) {
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("All");
-  const totalRows = filteredBlotterReports.length;
+  const totalRows = sortedFilteredReports.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
   const indexOfLastRow =
@@ -153,8 +153,8 @@ function BlotterReports({ isCollapsed }) {
     indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
   const currentRows =
     rowsPerPage === "All"
-      ? filteredBlotterReports
-      : filteredBlotterReports.slice(indexOfFirstRow, indexOfLastRow);
+      ? sortedFilteredReports
+      : sortedFilteredReports.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -474,7 +474,7 @@ function BlotterReports({ isCollapsed }) {
                     className="export-sort-btn"
                     onClick={toggleFilterDropdown}
                   >
-                    <h1 className="export-sort-btn-text">Sort</h1>
+                    <h1 className="export-sort-btn-text">{sortOption}</h1>
                     <div className="export-sort-btn-dropdown-icon">
                       <MdArrowDropDown size={18} color={"#0E94D3"} />
                     </div>
@@ -534,6 +534,7 @@ function BlotterReports({ isCollapsed }) {
                 {isScheduledClicked && <th>Date Scheduled</th>}
                 {isSettledClicked && <th>Witness</th>}
                 {isSettledClicked && <th>Date Settled</th>}
+                {isRejectedClicked && <th>Date Rejected</th>}
               </tr>
             </thead>
 
@@ -601,6 +602,11 @@ function BlotterReports({ isCollapsed }) {
                         </td>
                       )}
                       {isSettledClicked && (
+                        <td className="p-2">
+                          {blot.updatedAt.split(" at ")[0]}
+                        </td>
+                      )}
+                      {isRejectedClicked && (
                         <td className="p-2">
                           {blot.updatedAt.split(" at ")[0]}
                         </td>

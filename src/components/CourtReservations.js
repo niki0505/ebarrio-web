@@ -210,7 +210,7 @@ function CourtReservations({ isCollapsed }) {
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("All");
-  const totalRows = filteredReservations.length;
+  const totalRows = sortedFilteredCourt.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
   const indexOfLastRow =
@@ -219,8 +219,8 @@ function CourtReservations({ isCollapsed }) {
     indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
   const currentRows =
     rowsPerPage === "All"
-      ? filteredReservations
-      : filteredReservations.slice(indexOfFirstRow, indexOfLastRow);
+      ? sortedFilteredCourt
+      : sortedFilteredCourt.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -495,7 +495,7 @@ function CourtReservations({ isCollapsed }) {
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
               <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-                <h1 className="export-sort-btn-text">Sort</h1>
+                <h1 className="export-sort-btn-text">{sortOption}</h1>
                 <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>
@@ -549,7 +549,10 @@ function CourtReservations({ isCollapsed }) {
                 <th>Name</th>
                 <th>Purpose</th>
                 <th>Date & Time</th>
+                {isPendingClicked && <th>Date Requested</th>}
                 {isRejectedClicked && <th>Remarks</th>}
+                {isRejectedClicked && <th>Date Cancelled/Rejected</th>}
+                {isApprovedClicked && <th>Date Approved</th>}
                 {isPendingClicked && <th>Action</th>}
               </tr>
             </thead>
@@ -557,7 +560,7 @@ function CourtReservations({ isCollapsed }) {
             <tbody className="bg-[#fff]">
               {filteredReservations.length === 0 ? (
                 <tr className="bg-white cursor-default">
-                  <td colSpan={4} className="text-center p-2">
+                  <td colSpan={5} className="text-center p-2">
                     No results found
                   </td>
                 </tr>
@@ -588,6 +591,23 @@ function CourtReservations({ isCollapsed }) {
                           <div>No times available</div>
                         )}
                       </td>
+                      {isPendingClicked && (
+                        <td>
+                          {court.createdAt.substring(
+                            0,
+                            court.createdAt.indexOf(" at")
+                          )}
+                        </td>
+                      )}
+                      {isApprovedClicked && (
+                        <td>
+                          {court.updatedAt.substring(
+                            0,
+                            court.updatedAt.indexOf(" at")
+                          )}
+                        </td>
+                      )}
+
                       {isPendingClicked && court.status == "Pending" && (
                         <td className="flex justify-center gap-x-8">
                           <>
@@ -624,6 +644,14 @@ function CourtReservations({ isCollapsed }) {
                           court.status == "Cancelled") && (
                           <td>{court.remarks}</td>
                         )}
+                      {isRejectedClicked && (
+                        <td>
+                          {court.updatedAt.substring(
+                            0,
+                            court.updatedAt.indexOf(" at")
+                          )}
+                        </td>
+                      )}
                     </tr>
                   );
                 })

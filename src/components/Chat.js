@@ -39,6 +39,8 @@ const Chat = ({ isOpen, setIsOpen }) => {
   const chatEndRef = useRef(null);
   const confirm = useConfirm();
   const [loading, setLoading] = useState(false);
+  const [loadingSend, setLoadingSend] = useState(false);
+  const [loadingAI, setLoadingAI] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -217,7 +219,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
   const activeChat = chats.find((chat) => chat._id === activeChatId);
 
   const handleSend = async () => {
-    if (!message.trim() || !activeChat || !socket) return;
+    if (!message.trim() || !activeChat || !socket || loadingSend) return;
 
     const newMessage = {
       from: user.userID,
@@ -227,23 +229,32 @@ const Chat = ({ isOpen, setIsOpen }) => {
       roomId: activeChat._id,
     };
 
+    setLoadingSend(true);
     // Emit the message to the server
-    socket.emit("send_message", newMessage);
-
-    setChats((prevChats) => {
-      const updatedChats = [...prevChats];
-      const chatIndex = updatedChats.findIndex(
-        (chat) => chat._id === activeChat._id
-      );
-      if (chatIndex !== -1) {
-        updatedChats[chatIndex] = {
-          ...updatedChats[chatIndex],
-          messages: [...updatedChats[chatIndex].messages, newMessage],
-        };
+    socket.emit("send_message", newMessage, (ack) => {
+      if (ack.success) {
+        setChats((prevChats) => {
+          const updatedChats = [...prevChats];
+          const chatIndex = updatedChats.findIndex(
+            (chat) => chat._id === activeChat._id
+          );
+          if (chatIndex !== -1) {
+            updatedChats[chatIndex] = {
+              ...updatedChats[chatIndex],
+              messages: [...updatedChats[chatIndex].messages, newMessage],
+            };
+          }
+          return updatedChats;
+        });
+        setMessage("");
+        setLoadingSend(false);
+      } else {
+        confirm(
+          "An unexpected error occurred. Please try again later.",
+          "errordialog"
+        );
       }
-      return updatedChats;
     });
-    setMessage("");
   };
 
   const endChat = async (chatID) => {
@@ -283,7 +294,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
   }, [fullChatHistory]);
 
   const handleSendGemini = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || loadingAI) return;
 
     setAIMessages((prev) => [
       ...prev,
@@ -292,22 +303,46 @@ const Chat = ({ isOpen, setIsOpen }) => {
     const userMessage = message;
     setMessage("");
 
+    setTimeout(() => {
+      setAIMessages((prev) => [
+        ...prev,
+        { from: "ai", message: "", timestamp: new Date() },
+      ]);
+    }, 1000);
+
+    setLoadingAI(true);
     try {
       const response = await api.post("/analytics", { prompt: userMessage });
 
       setTimeout(() => {
-        setAIMessages((prev) => [
-          ...prev,
-          { from: "ai", message: response.data, timestamp: new Date() },
-        ]);
+        setLoadingAI(false);
+        setAIMessages((prev) => {
+          const updated = [...prev];
+          const lastIndex = updated.findIndex(
+            (msg, i) => msg.from === "ai" && msg.message === ""
+          );
+          if (lastIndex !== -1) {
+            updated[lastIndex] = {
+              from: "ai",
+              message: response.data,
+              timestamp: new Date(),
+            };
+          } else {
+            // fallback: append if placeholder not found
+            updated.push({
+              from: "ai",
+              message: response.data,
+              timestamp: new Date(),
+            });
+          }
+          return updated;
+        });
       }, 1500);
     } catch (error) {
       console.log("Error sending the prompt:", error);
     }
   };
   let lastDate = null;
-
-  console.log(AIMessages);
 
   return (
     <>
@@ -387,8 +422,8 @@ const Chat = ({ isOpen, setIsOpen }) => {
                               className={`inline-block px-3 py-2 rounded max-w-sm ${
                                 msg.from === "ai"
                                   ? "bg-gray-300"
-                                  : "bg-blue-600 text-white"
-                              }`}
+                                  : "bg-[#0E94D3] text-white"
+                              } ${msg.message === "" ? "typing" : ""}`}
                             >
                               {msg.message}
                             </div>
@@ -425,7 +460,11 @@ const Chat = ({ isOpen, setIsOpen }) => {
                       className="msgs-input"
                       onKeyDown={(e) => e.key === "Enter" && handleSendGemini()}
                     />
-                    <button onClick={handleSendGemini} className="send-btn">
+                    <button
+                      onClick={handleSendGemini}
+                      disabled={loadingAI || !message.trim() || !socket}
+                      className="send-btn"
+                    >
                       <Send size={20} />
                       <span>Send</span>
                     </button>
@@ -618,7 +657,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
                                     <div
                                       className={`inline-block px-3 py-2 rounded max-w-sm ${
                                         alignRight
-                                          ? "bg-blue-600 text-white"
+                                          ? "bg-[#0E94D3] text-white"
                                           : "bg-gray-300"
                                       }`}
                                     >
@@ -652,7 +691,13 @@ const Chat = ({ isOpen, setIsOpen }) => {
                                 e.key === "Enter" && handleSend()
                               }
                             />
-                            <button onClick={handleSend} className="send-btn">
+                            <button
+                              disabled={
+                                loadingSend || !socket || !message.trim()
+                              }
+                              onClick={handleSend}
+                              className="send-btn"
+                            >
                               <Send size={20} />
                               <span>Send</span>
                             </button>

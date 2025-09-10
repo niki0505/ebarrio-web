@@ -108,7 +108,11 @@ const Navbar = ({ isCollapsed }) => {
     try {
       await api.put(`/readnotification/${notifID}`);
       setnotificationDropdown(false);
-      navigation(redirectTo);
+      if (redirectTo === "SOSRequests") {
+        navigation("/sos-update-reports");
+      } else {
+        navigation(redirectTo);
+      }
     } catch (error) {
       console.log("Error in reading notification", error);
     }

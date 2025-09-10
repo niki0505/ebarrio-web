@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   GoogleMap,
   Marker,
@@ -32,11 +32,17 @@ function SOSUpdateReports({ isCollapsed }) {
   const [isActiveClicked, setActiveClicked] = useState(true);
   const [isHistoryClicked, setHistoryClicked] = useState(false);
   const [filteredReports, setFilteredReports] = useState([]);
+  const [sortOption, setSortOption] = useState("Newest");
+  const [filterDropdown, setfilterDropdown] = useState(false);
+  const filterRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: "AIzaSyC3T3SOxoBKrTVpuJwvxGZIBQKg2iuFHGE",
   });
+  const toggleFilterDropdown = () => {
+    setfilterDropdown(!filterDropdown);
+  };
 
   useEffect(() => {
     fetchReports();
@@ -151,10 +157,19 @@ function SOSUpdateReports({ isCollapsed }) {
     }
   }, [reports, isActiveClicked, isHistoryClicked]);
 
+  const parseDate = (dateStr) => new Date(dateStr.replace(" at ", " "));
+  const sortedFilteredReports = [...filteredReports].sort((a, b) => {
+    if (sortOption === "Oldest") {
+      return parseDate(a.updatedAt) - parseDate(b.updatedAt);
+    } else {
+      return parseDate(b.updatedAt) - parseDate(a.updatedAt);
+    }
+  });
+
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("All");
-  const totalRows = filteredReports.length;
+  const totalRows = sortedFilteredReports.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
   const indexOfLastRow =
@@ -163,8 +178,8 @@ function SOSUpdateReports({ isCollapsed }) {
     indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
   const currentRows =
     rowsPerPage === "All"
-      ? filteredReports
-      : filteredReports.slice(indexOfFirstRow, indexOfLastRow);
+      ? sortedFilteredReports
+      : sortedFilteredReports.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -192,6 +207,46 @@ function SOSUpdateReports({ isCollapsed }) {
           History
         </p>
       </div>
+      {isHistoryClicked && (
+        <div className="relative" ref={filterRef}>
+          {/* Filter Button */}
+          <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+            <h1 className="export-sort-btn-text">{sortOption}</h1>
+            <div className="export-sort-btn-dropdown-icon">
+              <MdArrowDropDown size={18} color={"#0E94D3"} />
+            </div>
+          </div>
+
+          {filterDropdown && (
+            <div className="export-sort-dropdown-menu">
+              <ul className="w-full">
+                <div className="navbar-dropdown-item">
+                  <li
+                    className="export-sort-dropdown-option"
+                    onClick={() => {
+                      setSortOption("Newest");
+                      setfilterDropdown(false);
+                    }}
+                  >
+                    Newest
+                  </li>
+                </div>
+                <div className="navbar-dropdown-item">
+                  <li
+                    className="export-sort-dropdown-option"
+                    onClick={() => {
+                      setSortOption("Oldest");
+                      setfilterDropdown(false);
+                    }}
+                  >
+                    Oldest
+                  </li>
+                </div>
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="line-container">
         <hr className="line" />
@@ -229,17 +284,19 @@ function SOSUpdateReports({ isCollapsed }) {
             {report && (
               <div>
                 {/* Reporter */}
-                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md flex flex-col items-center">
-                  <h2 className="text-lg font-bold mb-2">Reporter Details</h2>
-                  <img
-                    src={report.resID?.picture}
-                    alt="Resident"
-                    className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
-                  />
-                  <p className="text-xl font-semibold">
-                    {report.resID?.firstname} {report.resID?.lastname}
-                  </p>
-                  <p className="text-sm italic mb-2">Resident</p>
+                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
+                  <div className="flex flex-col items-center">
+                    <h2 className="text-lg font-bold mb-2">Reporter Details</h2>
+                    <img
+                      src={report.resID?.picture}
+                      alt="Resident"
+                      className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
+                    />
+                    <p className="text-xl font-semibold">
+                      {report.resID?.firstname} {report.resID?.lastname}
+                    </p>
+                    <p className="text-sm italic mb-2">Resident</p>
+                  </div>
                   <div className="flex flex-col items-start">
                     <div className="flex flex-row gap-2">
                       <span className="font-bold">Age:</span>
@@ -247,9 +304,12 @@ function SOSUpdateReports({ isCollapsed }) {
                         {report.resID?.age || "N/A"}
                       </span>
                     </div>
+
                     <span className="font-bold">Address:</span>
-                    <span className="opacity-80">
-                      {report.resID?.householdno?.address}
+                    <span className="opacity-80 break-words flex-1">
+                      {report.resID?.householdno
+                        ? report.resID.householdno.address
+                        : "N/A"}
                     </span>
 
                     <div className="flex flex-row gap-2">
@@ -360,12 +420,14 @@ function SOSUpdateReports({ isCollapsed }) {
                       </td>
 
                       <td>
-                        {report.responder
-                          .map(
-                            (r) =>
-                              `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`
-                          )
-                          .join(", ")}
+                        {report.responder.length > 0
+                          ? report.responder
+                              .map(
+                                (r) =>
+                                  `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`
+                              )
+                              .join(", ")
+                          : "N/A"}
                       </td>
                       <td>{report.reporttype ? report.reporttype : "N/A"}</td>
                       <td>{report.status}</td>
