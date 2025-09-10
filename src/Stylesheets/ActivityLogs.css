@@ -1,11 +1,11 @@
 .logs-filter-container {
-  @apply flex flex-col justify-between items-center;
+  @apply flex flex-col justify-between items-start p-4;
 }
 .logs-filter-controls {
   @apply flex gap-4;
 }
 .logs-filter-item {
-  @apply flex flex-col items-start justify-center mt-4;
+  @apply flex flex-col items-start justify-center;
 }
 .logs-filter-label {
   @apply mr-2 font-title font-semibold text-base;

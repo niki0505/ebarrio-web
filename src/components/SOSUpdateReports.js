@@ -189,64 +189,69 @@ function SOSUpdateReports({ isCollapsed }) {
         SOS Update Reports
       </div>
 
-      <div className="status-container">
-        <p
-          onClick={handleMenu1}
-          className={`status-text ${
-            isActiveClicked ? "border-b-4 border-[#BC0F0F]" : "text-[#808080]"
-          }`}
-        >
-          Active
-        </p>
-        <p
-          onClick={handleMenu2}
-          className={`status-text ${
-            isHistoryClicked ? "border-b-4 border-[#BC0F0F]" : "text-[#808080]"
-          }`}
-        >
-          History
-        </p>
-      </div>
-      {isHistoryClicked && (
-        <div className="relative" ref={filterRef}>
-          {/* Filter Button */}
-          <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-            <h1 className="export-sort-btn-text">{sortOption}</h1>
-            <div className="export-sort-btn-dropdown-icon">
-              <MdArrowDropDown size={18} color={"#0E94D3"} />
-            </div>
-          </div>
-
-          {filterDropdown && (
-            <div className="export-sort-dropdown-menu">
-              <ul className="w-full">
-                <div className="navbar-dropdown-item">
-                  <li
-                    className="export-sort-dropdown-option"
-                    onClick={() => {
-                      setSortOption("Newest");
-                      setfilterDropdown(false);
-                    }}
-                  >
-                    Newest
-                  </li>
-                </div>
-                <div className="navbar-dropdown-item">
-                  <li
-                    className="export-sort-dropdown-option"
-                    onClick={() => {
-                      setSortOption("Oldest");
-                      setfilterDropdown(false);
-                    }}
-                  >
-                    Oldest
-                  </li>
-                </div>
-              </ul>
-            </div>
-          )}
+      <div className="status-add-container">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-x-8">
+          <p
+            onClick={handleMenu1}
+            className={`status-text ${
+              isActiveClicked ? "border-b-4 border-[#BC0F0F]" : "text-[#808080]"
+            }`}
+          >
+            Active
+          </p>
+          <p
+            onClick={handleMenu2}
+            className={`status-text ${
+              isHistoryClicked
+                ? "border-b-4 border-[#BC0F0F]"
+                : "text-[#808080]"
+            }`}
+          >
+            History
+          </p>
         </div>
-      )}
+
+        {isHistoryClicked && (
+          <div className="relative" ref={filterRef}>
+            {/* Filter Button */}
+            <div className="export-sort-btn" onClick={toggleFilterDropdown}>
+              <h1 className="export-sort-btn-text">{sortOption}</h1>
+              <div className="export-sort-btn-dropdown-icon">
+                <MdArrowDropDown size={18} color={"#0E94D3"} />
+              </div>
+            </div>
+
+            {filterDropdown && (
+              <div className="export-sort-dropdown-menu">
+                <ul className="w-full">
+                  <div className="navbar-dropdown-item">
+                    <li
+                      className="export-sort-dropdown-option"
+                      onClick={() => {
+                        setSortOption("Newest");
+                        setfilterDropdown(false);
+                      }}
+                    >
+                      Newest
+                    </li>
+                  </div>
+                  <div className="navbar-dropdown-item">
+                    <li
+                      className="export-sort-dropdown-option"
+                      onClick={() => {
+                        setSortOption("Oldest");
+                        setfilterDropdown(false);
+                      }}
+                    >
+                      Oldest
+                    </li>
+                  </div>
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="line-container">
         <hr className="line" />
