@@ -5,6 +5,7 @@ import AlertResidents from "./AlertResidents";
 //STYLES
 import "../Stylesheets/CommonStyle.css";
 import "../Stylesheets/Announcements.css";
+import Lottie from "react-lottie";
 
 //ICONS
 import { X } from "lucide-react";
@@ -35,7 +36,7 @@ function RiverSnapshots({ isCollapsed }) {
     };
 
     fetchLatest();
-    const interval = setInterval(fetchLatest, 60000);
+    const interval = setInterval(fetchLatest, 600000);
 
     return () => clearInterval(interval);
   }, []);
@@ -66,14 +67,27 @@ function RiverSnapshots({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: require("../assets/loading.json"),
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  useEffect(() => {
+    console.log("Lottie animation loaded", defaultOptions);
+  }, []);
+
   return (
     <>
       <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
         <div className="text-[30px] font-bold font-title text-[#BC0F0F]">
           River Snapshots
         </div>
-        <div className="status-add-container">
-          <div className="status-container">
+        <div className="status-add-container flex flex-col md:flex-row items-center justify-between md:space-x-4">
+          <div className="status-container flex space-x-4 mb-4 md:mb-0">
             <p
               onClick={handleMenu1}
               className={`status-text ${
@@ -97,75 +111,82 @@ function RiverSnapshots({ isCollapsed }) {
           </div>
 
           <button
-            className="hover:bg-red-600 bg-btn-color-red mt-4 h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
+            className="hover:bg-red-600 bg-btn-color-red h-7 px-4 py-4 cursor-pointer flex items-center justify-center rounded border"
             onClick={() => setAlertClicked(true)}
           >
-            <h1 className="add-new-btn-text">Alert Residents</h1>
+            <h1 className="add-new-btn-text"> Alert Residents</h1>
           </button>
         </div>
-        <div className="line-container">
+        <div className="line-container my-4">
           <hr className="line" />
         </div>
+
         {isRecentClicked && (
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center flex-col">
             {latest.url ? (
               <div>
-                <div className="mt-8 flex flex-col justify-center items-center bg-[#0E94D3] rounded-md py-4 w-[900px]">
+                <div className="mt-8 flex flex-col justify-center items-center bg-[#0E94D3] rounded-md py-4 w-full md:w-[900px]">
                   <p className="subheader-text text-white mb-4">Zapote River</p>
                   <img
                     src={latest.url}
                     alt="Latest River Snapshot"
-                    className="rounded rounded-lg w-full h-[400px]"
+                    className="rounded rounded-lg w-full h-[400px] object-cover"
                   />
                   <p className="text-md mt-4 text-white font-medium">
                     CCTV Snapshot as of{" "}
                     {latest.datetime?.split(" at ")[1] || "Unknown Time"}
                   </p>
                 </div>
-                <p className="text-md mt-4 text-[#808080] font-medium text-center">
+
+                <p className="text-md text-[#808080] font-medium text-center">
                   The next update will be after 10 minutes.
                 </p>
               </div>
             ) : (
-              <p className="text-gray-500">Loading latest snapshot...</p>
+              <div className="w-full h-screen flex justify-center items-center">
+                <Lottie options={defaultOptions} height={150} width={300} />
+              </div>
             )}
           </div>
         )}
+
         {isHistoryClicked && (
           <>
-            <table>
-              <thead className="bg-[#BC0F0F]">
-                <tr className="cursor-default">
-                  <th>Date</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-[#BC0F0F]">
+                  <tr className="cursor-default">
+                    <th className="py-2 px-4 text-left">Date</th>
+                    <th className="py-2 px-4 text-left">Time</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-[#fff]">
+                  {currentRows.map((snap, index) => {
+                    const [datePart, timePart] = snap.datetime.split(" at ");
+                    return (
+                      <tr
+                        key={index}
+                        onClick={() => {
+                          setSelectedImage(snap.url);
+                          setModal(true);
+                        }}
+                        className="border-t transition-colors duration-300 ease-in-out"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#f0f0f0";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "";
+                        }}
+                      >
+                        <td className="py-2 px-4">{datePart}</td>
+                        <td className="py-2 px-4">{timePart}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-              <tbody className="bg-[#fff]">
-                {currentRows.map((snap, index) => {
-                  const [datePart, timePart] = snap.datetime.split(" at ");
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => {
-                        setSelectedImage(snap.url);
-                        setModal(true);
-                      }}
-                      className="border-t transition-colors duration-300 ease-in-out"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "#f0f0f0";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "";
-                      }}
-                    >
-                      <td>{datePart}</td>
-                      <td>{timePart}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
             {isModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                 <div className="bg-white py-10 px-6 rounded-lg shadow-lg max-w-3xl w-full relative">
@@ -184,10 +205,10 @@ function RiverSnapshots({ isCollapsed }) {
               </div>
             )}
 
-            <div className="table-pagination">
-              <div className="table-pagination-size">
-                <span>Rows per page:</span>
-                <div className="relative w-12">
+            <div className="table-pagination mt-4">
+              <div className="table-pagination-size flex items-center space-x-2">
+                <span className="text-sm">Rows per page:</span>
+                <div className="relative w-20">
                   <select
                     value={rowsPerPage === "All" ? "All" : rowsPerPage}
                     onChange={(e) => {
@@ -213,12 +234,12 @@ function RiverSnapshots({ isCollapsed }) {
                 </div>
               </div>
 
-              <div>
+              <div className="text-sm">
                 {startRow}-{endRow} of {totalRows}
               </div>
 
               {rowsPerPage !== "All" && (
-                <div>
+                <div className="flex items-center space-x-2 mt-2">
                   <button
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
@@ -248,6 +269,7 @@ function RiverSnapshots({ isCollapsed }) {
             </div>
           </>
         )}
+
         {isAlertClicked && (
           <AlertResidents onClose={() => setAlertClicked(false)} />
         )}

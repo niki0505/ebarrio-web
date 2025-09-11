@@ -125,7 +125,7 @@ function Announcements({ isCollapsed }) {
       : words.slice(0, 25).join(" ") + (isLong ? "..." : "");
 
     return (
-      <div className="text-sm font-medium mt-4 font-subTitle whitespace-pre-wrap">
+      <div className="text-sm font-[600] mt-4 font-subTitle whitespace-pre-wrap">
         {announcement.eventdetails && (
           <>
             {announcement.eventdetails}
@@ -356,7 +356,7 @@ function Announcements({ isCollapsed }) {
                       className="announcement-profile-img"
                     />
                     <div className="flex flex-col">
-                      <label className="font-semibold text-base">
+                      <label className="font-bold font-subTitle text-[15px]">
                         {announcement.uploadedby?.resID?.firstname}{" "}
                         {announcement.uploadedby?.resID?.lastname}
                       </label>
@@ -368,16 +368,12 @@ function Announcements({ isCollapsed }) {
 
                   {/* CATEGORY, TITLE */}
                   <div>
-                    <label className="announcement-info-label">
-                      Category:{" "}
-                    </label>
                     <label className="announcement-heart-value">
                       {announcement.category}
                     </label>
                   </div>
                   <div>
-                    <label className="announcement-info-label">Title: </label>
-                    <label className="announcement-heart-value">
+                    <label className="announcement-heart-value text-gray-500 !font-semibold">
                       {announcement.title}
                     </label>
                   </div>
@@ -470,16 +466,16 @@ function Announcements({ isCollapsed }) {
                     className="announcement-profile-img"
                   />
                   <div className="flex flex-col">
-                    <label className="font-semibold text-base">
+                    <label className="font-bold font-subTitle text-[15px]">
                       {announcement.uploadedby?.resID?.firstname}{" "}
                       {announcement.uploadedby?.resID?.lastname}
                     </label>
-                    <label className="text-sm text-gray-500">
+                    <label className="announcement-uploadedby-position">
                       {announcement.uploadedby?.position}
                     </label>
                   </div>
                 </div>
-
+ 
                 {/* CATEGORY, TITLE */}
 
                 <div>

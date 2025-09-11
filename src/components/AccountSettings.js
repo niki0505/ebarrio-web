@@ -8,7 +8,6 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 //SCREENS
 import OpenCamera from "./OpenCamera";
-import SuccessDialog from "./SuccessDialog";
 
 //STYLES
 import "../Stylesheets/Residents.css";

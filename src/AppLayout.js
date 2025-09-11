@@ -8,10 +8,12 @@ import { AuthContext } from "./context/AuthContext";
 import { SocketContext } from "./context/SocketContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import softNotification from "./assets/soft-notification.mp3";
 
 const AppLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { user, isAuthenticated, playNotificationSound } =
+    useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
   const { socket } = useContext(SocketContext);
 
@@ -22,6 +24,7 @@ const AppLayout = () => {
       return;
     }
     const handleChatEvent = (chat) => {
+      playNotificationSound(softNotification);
       toast.info(
         <div onClick={() => setIsOpen(true)} style={{ cursor: "pointer" }}>
           <strong>{chat.title}</strong>

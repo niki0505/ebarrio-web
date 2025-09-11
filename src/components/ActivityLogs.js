@@ -8,7 +8,6 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../Stylesheets/CommonStyle.css";
-import "../Stylesheets/Announcements.css";
 import "../Stylesheets/ActivityLogs.css";
 
 //ICONS
@@ -72,6 +71,7 @@ function ActivityLogs({ isCollapsed }) {
     "Password Set",
     "Password Reset",
     "Create",
+    "Cancel",
     "Update",
     "Generate",
     "Archive",
@@ -81,6 +81,8 @@ function ActivityLogs({ isCollapsed }) {
     "Settle",
     "Pin",
     "Unpin",
+    "Like",
+    "Unlike",
     "Notify",
   ];
 
@@ -362,7 +364,7 @@ function ActivityLogs({ isCollapsed }) {
         <div className="header-text">Activity Logs</div>
 
         <div className="logs-filter-container">
-          <div className="logs-filter-controls">
+          <div className="logs-filter-controls flex-wrap">
             <div className="logs-filter-item">
               <label className="logs-filter-label">User</label>
               <select
@@ -432,56 +434,56 @@ function ActivityLogs({ isCollapsed }) {
                 className="logs-filter-select"
               />
             </div>
-
-            <button
-              onClick={handleReset}
-              className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
-            >
-              Reset
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              className="bg-[#0E94D3] hover:bg-[#0A7A9D] logs-reset-submit-btn"
-            >
-              Submit
-            </button>
           </div>
 
-          <div className="relative" ref={exportRef}>
-            {/* Export Button */}
-            <div
-              className="mt-12 export-sort-btn"
-              onClick={toggleExportDropdown}
-            >
-              <h1 className="export-sort-btn-text">Export</h1>
-              <div className="export-sort-btn-dropdown-icon">
-                <MdArrowDropDown size={18} color={"#0E94D3"} />
-              </div>
+          <div className="flex justify-between items-center w-full mt-4">
+            <div className="flex gap-2">
+              <button
+                onClick={handleReset}
+                className="bg-btn-color-gray hover:bg-gray-400 logs-reset-submit-btn"
+              >
+                Reset
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                className="bg-[#0E94D3] hover:bg-[#0A7A9D] logs-reset-submit-btn"
+              >
+                Submit
+              </button>
             </div>
 
-            {exportDropdown && (
-              <div className="export-sort-dropdown-menu">
-                <ul className="w-full">
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={exportCSV}
-                    >
-                      Export as CSV
-                    </li>
-                  </div>
-                  <div className="navbar-dropdown-item">
-                    <li
-                      className="export-sort-dropdown-option"
-                      onClick={exportPDF}
-                    >
-                      Export as PDF
-                    </li>
-                  </div>
-                </ul>
+            <div className="relative" ref={exportRef}>
+              <div className="export-sort-btn" onClick={toggleExportDropdown}>
+                <h1 className="export-sort-btn-text">Export</h1>
+                <div className="export-sort-btn-dropdown-icon">
+                  <MdArrowDropDown size={18} color={"#0E94D3"} />
+                </div>
               </div>
-            )}
+
+              {exportDropdown && (
+                <div className="export-sort-dropdown-menu w-36 absolute right-0">
+                  <ul className="w-full">
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="export-sort-dropdown-option"
+                        onClick={exportCSV}
+                      >
+                        Export as CSV
+                      </li>
+                    </div>
+                    <div className="navbar-dropdown-item">
+                      <li
+                        className="export-sort-dropdown-option"
+                        onClick={exportPDF}
+                      >
+                        Export as PDF
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

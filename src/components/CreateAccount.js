@@ -6,6 +6,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { MdAutorenew } from "react-icons/md";
@@ -147,7 +148,6 @@ function CreateAccount({ onClose }) {
     try {
       await api.post("/createuser", userForm);
       confirm("The account has been successfully created.", "success");
-      onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
@@ -160,6 +160,7 @@ function CreateAccount({ onClose }) {
         console.log("❌ Network or unknown error:", error.message);
       }
     } finally {
+      onClose();
       setLoading(false);
     }
   };
@@ -172,6 +173,11 @@ function CreateAccount({ onClose }) {
     <>
       {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content h-[25rem] w-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

@@ -76,7 +76,6 @@ function CertificateRequests({ isCollapsed }) {
       setPendingClicked(false);
       setIssuedClicked(false);
     }
-    console.log(cancelled);
   }, [cancelled]);
 
   useEffect(() => {
@@ -324,7 +323,7 @@ function CertificateRequests({ isCollapsed }) {
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState("All");
-  const totalRows = filteredCertificates.length;
+  const totalRows = sortedFilteredCert.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
   const indexOfLastRow =
@@ -333,8 +332,8 @@ function CertificateRequests({ isCollapsed }) {
     indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
   const currentRows =
     rowsPerPage === "All"
-      ? filteredCertificates
-      : filteredCertificates.slice(indexOfFirstRow, indexOfLastRow);
+      ? sortedFilteredCert
+      : sortedFilteredCert.slice(indexOfFirstRow, indexOfLastRow);
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
@@ -531,7 +530,7 @@ function CertificateRequests({ isCollapsed }) {
 
         <SearchBar handleSearch={handleSearch} searchValue={search} />
         <div className="status-add-container">
-          <div className="status-container">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-x-8 mt-5">
             <p
               onClick={handleMenu1}
               className={`status-text ${
@@ -603,7 +602,7 @@ function CertificateRequests({ isCollapsed }) {
             <div className="relative" ref={filterRef}>
               {/* Filter Button */}
               <div className="export-sort-btn" onClick={toggleFilterDropdown}>
-                <h1 className="export-sort-btn-text">Sort</h1>
+                <h1 className="export-sort-btn-text">{sortOption}</h1>
                 <div className="export-sort-btn-dropdown-icon">
                   <MdArrowDropDown size={18} color={"#0E94D3"} />
                 </div>

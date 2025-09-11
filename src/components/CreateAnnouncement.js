@@ -10,6 +10,7 @@ import { InfoContext } from "../context/InfoContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
@@ -140,7 +141,6 @@ function CreateAnnouncement({ onClose }) {
       if (loading) return;
 
       setLoading(true);
-      onClose();
       delete announcementForm.date;
       if (announcementForm.picture !== "") {
         const pictureUrl = await uploadToFirebase(announcementForm.picture);
@@ -158,6 +158,7 @@ function CreateAnnouncement({ onClose }) {
     } catch (error) {
       console.log("Error creating announcement", error);
     } finally {
+      onClose();
       setLoading(false);
     }
   };
@@ -298,6 +299,11 @@ function CreateAnnouncement({ onClose }) {
     <>
       {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
@@ -329,10 +335,10 @@ function CreateAnnouncement({ onClose }) {
                       className="navbar-profile-img"
                     />
                     <div className="create-announcement-info-container">
-                      <label className="text-base font-semibold">
+                      <label className="font-bold font-subTitle text-[15px]">
                         {user.name}
                       </label>
-                      <label className="text-sm font-regular text-gray-500">
+                      <label className="announcement-uploadedby-position">
                         {user.role}
                       </label>
                     </div>
