@@ -1253,6 +1253,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
     isActiveClicked,
     isPendingClicked,
     isRejectedClicked,
+    isChangeClicked,
     sortOption,
   ]);
 

@@ -5,6 +5,7 @@ import { InfoContext } from "../context/InfoContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -16,6 +17,7 @@ function EditEmployee({ onClose, empID }) {
   const [position, setPosition] = useState("");
   const [chairmanship, setChairmanship] = useState("");
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     const isConfirmed = await confirm(
@@ -25,7 +27,11 @@ function EditEmployee({ onClose, empID }) {
     if (!isConfirmed) {
       return;
     }
-    onClose();
+
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const response = await api.put(`/editemployee/${empID}`, {
         position,
@@ -37,6 +43,9 @@ function EditEmployee({ onClose, empID }) {
       );
     } catch (error) {
       console.log("Error updating employee position", error);
+    } finally {
+      onClose();
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -91,8 +100,13 @@ function EditEmployee({ onClose, empID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[30rem] h-[12rem] ">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

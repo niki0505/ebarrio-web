@@ -175,7 +175,14 @@ function CourtReservations({ isCollapsed }) {
         "success"
       );
     } catch (error) {
-      console.log("Error", error);
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(response.data.message || "Something went wrong.", "failed");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        confirm("An unexpected error occurred.", "errordialog");
+      }
     } finally {
       setLoading(false);
     }

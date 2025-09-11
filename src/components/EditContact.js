@@ -4,6 +4,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -18,6 +19,7 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
 
   const [nameError, setNameError] = useState("");
   const [mobileNumError, setMobileNumError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validateName = (name) => {
     if (name.length < 10 || name.length > 50) {
@@ -39,14 +41,6 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
   };
 
   const handleSubmit = async () => {
-    const isConfirmed = await confirm(
-      "Please confirm to proceed with editing this emergency hotline. Make sure the updated information is correct before submission.",
-      "confirm"
-    );
-    if (!isConfirmed) {
-      return;
-    }
-
     if (
       emergencyDetails.name === name &&
       emergencyDetails.contactnumber === contactNumber
@@ -54,7 +48,6 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
       confirm("No changes have been detected.", "success");
       return;
     }
-
     const nameValidationError = validateName(name);
     const mobileValidationError = validateMobileNumber(contactNumber);
 
@@ -64,6 +57,18 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
     if (nameValidationError || mobileValidationError) {
       return;
     }
+
+    const isConfirmed = await confirm(
+      "Please confirm to proceed with editing this emergency hotline. Make sure the updated information is correct before submission.",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (loading) return;
+
+    setLoading(true);
 
     try {
       let formattednumber = contactNumber;
@@ -76,7 +81,6 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
         "The emergency hotline has been successfully updated.",
         "success"
       );
-      onClose();
     } catch (error) {
       const response = error.response;
       if (response && response.data) {
@@ -89,6 +93,9 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
         console.log("❌ Network or unknown error:", error.message);
         confirm("An unexpected error occurred.", "errordialog");
       }
+    } finally {
+      onClose();
+      setLoading(false);
     }
   };
 
@@ -119,6 +126,11 @@ function EditContact({ onClose, emergencyID, emergencyDetails }) {
     <>
       {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[30rem] h-[16rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

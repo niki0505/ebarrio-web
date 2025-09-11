@@ -223,7 +223,8 @@ function CreateAccount({ onClose }) {
                       .filter(
                         (element) =>
                           element.status !== "Archived" &&
-                          element.status !== "Rejected"
+                          element.status !== "Rejected" &&
+                          element.status !== "Pending"
                       )
                       .map((element) => (
                         <option value={element._id}>

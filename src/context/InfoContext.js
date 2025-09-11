@@ -34,6 +34,7 @@ export const InfoProvider = ({ children }) => {
   const [pendingHouseholds, setPendingHouseholds] = useState(null);
   const [pendingBlotters, setPendingBlotters] = useState(null);
   const [pendingResidents, setPendingResidents] = useState(null);
+  const [activeSOS, setActiveSOS] = useState(null);
   const [reports, setReports] = useState(null);
 
   const announcementInitialForm = {
@@ -380,6 +381,8 @@ export const InfoProvider = ({ children }) => {
         setPendingHouseholds(updatedData.data);
       } else if (updatedData.type === "reports") {
         setReports(updatedData.data);
+      } else if (updatedData.type === "activesos") {
+        setActiveSOS(updatedData.data);
       }
     });
 
@@ -410,6 +413,7 @@ export const InfoProvider = ({ children }) => {
           pendingDocuments,
           pendingHouseholds,
           pendingBlotters,
+          activeSOS,
           fetchPendingResidents,
           fetchReports,
           reports,
