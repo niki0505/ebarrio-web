@@ -4,6 +4,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { MdAutorenew } from "react-icons/md";
@@ -16,9 +17,13 @@ function EditAccount({ onClose, userID, userUsername }) {
     password: "",
   });
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  console.log(userForm);
   const handleSubmit = async () => {
+    if (userForm.username === userUsername && userForm.password === "") {
+      confirm("No changes have been detected.", "success");
+      return;
+    }
     const isConfirmed = await confirm(
       "Please confirm to proceed with editing this user account. Make sure the updated information is correct before submission.",
       "confirm"
@@ -26,10 +31,10 @@ function EditAccount({ onClose, userID, userUsername }) {
     if (!isConfirmed) {
       return;
     }
-    if (userForm.username === userUsername && userForm.password === "") {
-      confirm("No changes have been detected.", "success");
-      return;
-    }
+
+    if (loading) return;
+
+    setLoading(true);
 
     try {
       if (userForm.username === userUsername) {
@@ -52,6 +57,9 @@ function EditAccount({ onClose, userID, userUsername }) {
       } else {
         console.log("❌ Network or unknown error:", error.message);
       }
+    } finally {
+      onClose();
+      setLoading(false);
     }
   };
   const handleClose = () => {
@@ -85,8 +93,13 @@ function EditAccount({ onClose, userID, userUsername }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[30rem] h-[16rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

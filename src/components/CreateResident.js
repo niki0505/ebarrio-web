@@ -741,6 +741,12 @@ function CreateResident({ isCollapsed }) {
 
       const matches = residents
         .filter((r) => !r.householdno)
+        .filter(
+          (r) =>
+            r.status !== "Archived" &&
+            r.status !== "Pending" &&
+            r.status !== "Rejected"
+        )
         .filter((res) => {
           const fullName = `${res.firstname} ${
             res.middlename ? res.middlename + " " : ""

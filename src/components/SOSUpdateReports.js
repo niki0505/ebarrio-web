@@ -416,12 +416,14 @@ function SOSUpdateReports({ isCollapsed }) {
                   <div className="relative" ref={exportRef}>
                     {/* Export Button */}
                     <div
-                      className="export-sort-btn"
+                      className="relative flex items-center bg-[#fff] border-btn-color-red h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                       onClick={toggleExportDropdown}
                     >
-                      <h1 className="export-sort-btn-text">Export</h1>
+                      <h1 className="text-sm font-medium mr-2 text-btn-color-red">
+                        Export
+                      </h1>
                       <div className="export-sort-btn-dropdown-icon">
-                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        <MdArrowDropDown size={18} color={"#F63131"} />
                       </div>
                     </div>
 
@@ -430,7 +432,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         <ul className="w-full">
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={exportCSV}
                             >
                               Export as CSV
@@ -438,7 +440,7 @@ function SOSUpdateReports({ isCollapsed }) {
                           </div>
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={exportPDF}
                             >
                               Export as PDF
@@ -451,12 +453,14 @@ function SOSUpdateReports({ isCollapsed }) {
                   <div className="relative" ref={filterRef}>
                     {/* Filter Button */}
                     <div
-                      className="export-sort-btn"
+                      className="relative flex items-center bg-[#fff] border-btn-color-red h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                       onClick={toggleFilterDropdown}
                     >
-                      <h1 className="export-sort-btn-text">{sortOption}</h1>
+                      <h1 className="text-sm font-medium mr-2 text-btn-color-red">
+                        {sortOption}
+                      </h1>
                       <div className="export-sort-btn-dropdown-icon">
-                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        <MdArrowDropDown size={18} color={"#F63131"} />
                       </div>
                     </div>
 
@@ -465,7 +469,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         <ul className="w-full">
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={() => {
                                 setSortOption("Newest");
                                 setfilterDropdown(false);
@@ -476,7 +480,7 @@ function SOSUpdateReports({ isCollapsed }) {
                           </div>
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={() => {
                                 setSortOption("Oldest");
                                 setfilterDropdown(false);
@@ -707,7 +711,7 @@ function SOSUpdateReports({ isCollapsed }) {
                       setRowsPerPage(value);
                       setCurrentPage(1);
                     }}
-                    className="table-pagination-select"
+                    className="table-pagination-select !border-[#F63131] !text-[#F63131]"
                   >
                     <option value="All">All</option>
                     {[5, 10, 15, 20].map((num) => (
@@ -717,7 +721,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     ))}
                   </select>
                   <div className="table-pagination-select-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                    <MdArrowDropDown size={18} color={"#F63131"} />
                   </div>
                 </div>
               </div>
@@ -736,7 +740,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     className="table-pagination-btn"
                   >
                     <MdKeyboardArrowLeft
-                      color={"#0E94D3"}
+                      color={"#F63131"}
                       className="text-xl"
                     />
                   </button>
@@ -748,7 +752,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     className="table-pagination-btn"
                   >
                     <MdKeyboardArrowRight
-                      color={"#0E94D3"}
+                      color={"#F63131"}
                       className="text-xl"
                     />
                   </button>

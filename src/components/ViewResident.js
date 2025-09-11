@@ -39,6 +39,8 @@ function ViewResident({ isCollapsed }) {
   const hiddenInputRef2 = useRef(null);
   const [memberSuggestions, setMemberSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedChangeID, setSelectedChangeID] = useState(null);
+  const [changeID, setChangeID] = useState(null);
 
   const [residentForm, setResidentForm] = useState({
     firstname: "",
@@ -153,16 +155,19 @@ function ViewResident({ isCollapsed }) {
   }, [residentInfo]);
 
   useEffect(() => {
-    const fetchResident = async () => {
-      try {
-        const response = await api.get(`/getresident/${resID}`);
-        setResidentInfo(response.data);
-      } catch (error) {
-        console.log("Error fetching resident", error);
-      }
-    };
     fetchResident();
   }, []);
+
+  const fetchResident = async () => {
+    try {
+      const response = await api.get(`/getresident/${resID}`);
+      setChangeID(response.data.changeID);
+      setSelectedChangeID(null);
+      setResidentInfo(response.data);
+    } catch (error) {
+      console.log("Error fetching resident", error);
+    }
+  };
 
   useEffect(() => {
     if (residentInfo.householdno) {
@@ -218,11 +223,18 @@ function ViewResident({ isCollapsed }) {
             const currentMember = res.data.members.find(
               (member) => member.resID?._id === resID
             );
-            setResidentForm((prev) => ({
-              ...prev,
-              head: "No",
-              householdposition: currentMember?.position || "",
-            }));
+            if (!residentInfo.householdposition) {
+              setResidentForm((prev) => ({
+                ...prev,
+                head: "No",
+                householdposition: currentMember?.position,
+              }));
+            } else {
+              setResidentForm((prev) => ({
+                ...prev,
+                head: "No",
+              }));
+            }
           }
         } catch (error) {
           console.log("Error in fetching household", error);
@@ -232,74 +244,6 @@ function ViewResident({ isCollapsed }) {
       fetchHousehold();
     }
   }, [residentInfo.householdno]);
-
-  const renderSiblingsDropdown = () => {
-    const numberOfSiblings = parseInt(residentForm.numberofsiblings, 10) || 0;
-
-    const siblingsDropdowns = [];
-    for (let i = 0; i < numberOfSiblings; i++) {
-      siblingsDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`sibling-${i}`} className="form-label">
-            Sibling
-          </label>
-          <select
-            id={`sibling-${i}`}
-            name={`sibling-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "siblings")}
-            value={residentForm.siblings[i]}
-            className="form-input"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return siblingsDropdowns;
-  };
-
-  const renderChildrenDropdown = () => {
-    const numberOfChildren = parseInt(residentForm.numberofchildren, 10) || 0;
-
-    const childrenDropdowns = [];
-    for (let i = 0; i < numberOfChildren; i++) {
-      childrenDropdowns.push(
-        <div key={i} className="form-group">
-          <label htmlFor={`child-${i}`} className="form-label">
-            Child
-          </label>
-          <select
-            id={`child-${i}`}
-            name={`child-${i}`}
-            onChange={(e) => handleMultipleDropdownChange(e, i, "children")}
-            value={residentForm.children[i]}
-            className="form-input"
-          >
-            <option value="" disabled selected hidden>
-              Select
-            </option>
-            {residents.map((element) => (
-              <option key={element._id} value={element._id}>
-                {element.middlename
-                  ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                  : `${element.firstname} ${element.lastname}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      );
-    }
-    return childrenDropdowns;
-  };
 
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV", "None"];
@@ -688,112 +632,6 @@ function ViewResident({ isCollapsed }) {
     return downloadURL;
   }
 
-  const handleSubmit = async () => {
-    let hasErrors = false;
-
-    if (!id) {
-      confirm("Picture is required", "failed");
-      hasErrors = true;
-    } else if (!signature) {
-      confirm("Signature is required", "failed");
-      hasErrors = true;
-    }
-    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setMobileNumError("Invalid mobile number.");
-      hasErrors = true;
-    }
-    if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
-      setEmMobileNumError("Invalid mobile number.");
-      hasErrors = true;
-    }
-
-    if (
-      residentForm.telephone.length > 3 &&
-      residentForm.telephone.length < 12
-    ) {
-      setTelephoneNumError("Invalid telephone.");
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      return;
-    }
-    try {
-      let idPicture;
-      let signaturePicture;
-      const isConfirmed = await confirm(
-        "Are you sure you want to edit this resident profile?",
-        "confirm"
-      );
-      if (!isConfirmed) {
-        return;
-      }
-      if (residentForm.numberofsiblings == 0) {
-        residentForm.siblings = [];
-      } else {
-        residentForm.siblings = residentForm.siblings.slice(
-          0,
-          residentForm.numberofsiblings
-        );
-      }
-
-      if (residentForm.numberofchildren == 0) {
-        residentForm.children = [];
-      } else {
-        residentForm.children = residentForm.children.slice(
-          0,
-          residentForm.numberofchildren
-        );
-      }
-      const fulladdress = `${residentForm.housenumber} ${residentForm.street} Aniban 2, Bacoor, Cavite`;
-      if (id !== residentInfo.picture) {
-        console.log("Uploading new picture...");
-        idPicture = await uploadToFirebase(id);
-      } else {
-        idPicture = residentInfo.picture;
-      }
-
-      if (signature !== residentInfo.signature) {
-        signaturePicture = await uploadToFirebase(signature);
-      } else {
-        signaturePicture = residentInfo.signature;
-      }
-
-      let formattedMobileNumber = residentForm.mobilenumber;
-      formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
-
-      let formattedEmergencyMobileNumber = residentForm.emergencymobilenumber;
-      formattedEmergencyMobileNumber =
-        "0" + residentForm.emergencymobilenumber.slice(3);
-
-      let formattedTelephone = residentForm.telephone;
-      if (residentForm.telephone) {
-        formattedTelephone = "0" + residentForm.telephone.slice(3);
-        delete residentForm.telephone;
-      }
-
-      delete residentForm.mobilenumber;
-      delete residentForm.emergencymobilenumber;
-
-      const updatedResidentForm = {
-        ...residentForm,
-        picture: idPicture,
-        signature: signaturePicture,
-        address: fulladdress,
-        mobilenumber: formattedMobileNumber,
-        emergencymobilenumber: formattedEmergencyMobileNumber,
-        telephone: formattedTelephone,
-        householdForm,
-      };
-
-      await api.put(`/updateresident/${resID}`, updatedResidentForm);
-      confirm("Resident has been successfully updated.", "success");
-      navigation("/residents");
-    } catch (error) {
-      console.log("Error", error);
-    }
-  };
-
   const handleChangeSig = async (event) => {
     const fileUploaded = event.target.files[0];
 
@@ -979,20 +817,6 @@ function ViewResident({ isCollapsed }) {
       [index]: [],
     }));
   };
-
-  // const addMember = () => {
-  //   setHouseholdForm((prev) => ({
-  //     ...prev,
-  //     members: [...prev.members, { resident: "", position: "" }],
-  //   }));
-  // };
-
-  // const removeMember = (index) => {
-  //   setHouseholdForm((prev) => ({
-  //     ...prev,
-  //     members: prev.members.filter((_, i) => i !== index),
-  //   }));
-  // };
 
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [editedPosition, setEditedPosition] = useState("");
@@ -1350,6 +1174,43 @@ function ViewResident({ isCollapsed }) {
     }
   };
 
+  const getResidentChange = async (changeID) => {
+    try {
+      const res = await api.get(`/getresidentchange/${changeID}`);
+      setResidentInfo(res.data);
+      setSelectedChangeID(changeID);
+    } catch (error) {
+      console.log("Error in fetching household change", error);
+    }
+  };
+
+  const approveResidentChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to approve this resident's request to change their profile?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post(
+        `/approve/resident/${resID}/change/${selectedChangeID}`
+      );
+      confirm(
+        "The changes to the resident profile has been successfully approved.",
+        "success"
+      );
+      navigation("/residents");
+    } catch (error) {
+      console.log("Error in approving resident change", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       {loading && (
@@ -1367,6 +1228,25 @@ function ViewResident({ isCollapsed }) {
         <GrNext className="breadcrumbs-arrow" />
         <h1 className="header-text">Pending Resident</h1>
       </div>
+
+      {changeID && (
+        <div>
+          {selectedChangeID ? (
+            <div onClick={() => fetchResident()}>
+              <p>Current Info</p>
+            </div>
+          ) : (
+            <>
+              <div
+                onClick={() => getResidentChange(residentInfo.changeID)}
+                className="change-item"
+              >
+                <p>Change</p>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Personal Information */}
       <div className="white-bg-container">
@@ -2295,7 +2175,7 @@ function ViewResident({ isCollapsed }) {
                           (m) => m.position === "Head"
                         );
                         const headName = head.resID
-                          ? `${head.resID.lastname}'s Residence - ${head.resID.address}`
+                          ? `${head.resID.lastname}'s Residence - ${h.address}`
                           : "Unnamed";
                         return (
                           <option key={h._id} value={h._id}>
@@ -3066,21 +2946,42 @@ function ViewResident({ isCollapsed }) {
             </div>
           </div>
 
-          <div className="function-btn-container">
-            <button
-              type="button"
-              // onClick={handleReset}
-              className="actions-btn bg-btn-color-red hover:bg-red-700"
-            >
-              Reject
-            </button>
-            <button
-              type="submit"
-              className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
-            >
-              Approve
-            </button>
-          </div>
+          {!changeID ? (
+            <div className="function-btn-container">
+              <button
+                type="button"
+                // onClick={handleReset}
+                className="actions-btn bg-btn-color-red hover:bg-red-700"
+              >
+                Reject
+              </button>
+              <button
+                type="submit"
+                className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+              >
+                Approve
+              </button>
+            </div>
+          ) : (
+            selectedChangeID && (
+              <div className="function-btn-container">
+                <button
+                  type="button"
+                  // onClick={handleReset}
+                  className="actions-btn bg-btn-color-red hover:bg-red-700"
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  onClick={approveResidentChange}
+                  className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                >
+                  Approve
+                </button>
+              </div>
+            )
+          )}
         </form>
         {isCameraOpen && (
           <OpenCamera onDone={handleDone} onClose={handleClose} />

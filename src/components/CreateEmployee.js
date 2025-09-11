@@ -7,6 +7,7 @@ import { useConfirm } from "../context/ConfirmContext";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
@@ -96,7 +97,14 @@ function CreateEmployee({ onClose }) {
       confirm("The employee has been successfully added.", "success");
       onClose();
     } catch (error) {
-      console.log("Error creating employee");
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(response.data.message || "Something went wrong.", "failed");
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        confirm("An unexpected error occurred.", "errordialog");
+      }
     } finally {
       setLoading(false);
     }
@@ -156,6 +164,11 @@ function CreateEmployee({ onClose }) {
     <>
       {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content h-[16rem] w-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 function ViewHousehold({ onClose, householdID }) {
   const confirm = useConfirm();
@@ -15,9 +16,9 @@ function ViewHousehold({ onClose, householdID }) {
   const [selectedHousehold, setSelectedHousehold] = useState([]);
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [editedPosition, setEditedPosition] = useState("");
-  const [newMembers, setNewMembers] = useState([]);
+  const [selectedChangeID, setSelectedChangeID] = useState(null);
   const { fetchResidents, residents } = useContext(InfoContext);
-  const [memberSuggestions, setMemberSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleClose = () => {
     setShowModal(false);
@@ -29,16 +30,18 @@ function ViewHousehold({ onClose, householdID }) {
   }, []);
 
   useEffect(() => {
-    const fetchHousehold = async () => {
-      try {
-        const response = await api.get(`/gethousehold/${householdID}`);
-        setSelectedHousehold(response.data);
-      } catch (error) {
-        console.log("Error in fetching household", error);
-      }
-    };
     fetchHousehold();
   }, []);
+
+  const fetchHousehold = async () => {
+    try {
+      const response = await api.get(`/gethousehold/${householdID}`);
+      setSelectedHousehold(response.data);
+      setSelectedChangeID(null);
+    } catch (error) {
+      console.log("Error in fetching household", error);
+    }
+  };
 
   const sortedMembers = Array.isArray(selectedHousehold.members)
     ? [...selectedHousehold.members].sort((a, b) => {
@@ -48,147 +51,41 @@ function ViewHousehold({ onClose, householdID }) {
       })
     : [];
 
-  const handleEditMember = (member) => {
-    setEditingMemberId(member._id);
-    setEditedPosition(member.position);
+  const getHouseholdChange = async (changeID) => {
+    try {
+      const res = await api.get(`/gethouseholdchange/${changeID}`);
+      setSelectedHousehold(res.data);
+      setSelectedChangeID(changeID);
+    } catch (error) {
+      console.log("Error in fetching household change", error);
+    }
   };
 
-  // const handleSavePosition = async (member) => {
-  //   try {
-  //     await api.put(`/household/${householdID}/member/${member._id}`, {
-  //       position: editedPosition,
-  //     });
+  const approveHouseholdChange = async () => {
+    if (loading) return;
 
-  //     setSelectedHousehold((prev) => ({
-  //       ...prev,
-  //       members: prev.members.map((m) =>
-  //         m._id === member._id ? { ...m, position: editedPosition } : m
-  //       ),
-  //     }));
-
-  //     setEditingMemberId(null);
-  //     setEditedPosition("");
-  //     alert("The member's position successfully updated.");
-  //   } catch (error) {
-  //     console.error("Error updating position:", error);
-  //   }
-  // };
-
-  // const handleCancelEdit = () => {
-  //   setEditingMemberId(null);
-  //   setEditedPosition("");
-  // };
-
-  // const handleRemoveMember = async (member) => {
-  //   const isConfirmed = await confirm(
-  //     "Are you sure you want to remove this member?"
-  //   );
-  //   if (!isConfirmed) return;
-
-  //   try {
-  //     await api.delete(`/household/${householdID}/member/${member._id}`);
-  //     setSelectedHousehold((prev) => ({
-  //       ...prev,
-  //       members: prev.members.filter((m) => m._id !== member._id),
-  //     }));
-  //     alert("Member has been removed successfully.");
-  //   } catch (error) {
-  //     console.error("Error removing member:", error);
-  //   }
-  // };
-
-  // const handleAddMember = () => {
-  //   setNewMembers((prev) => [
-  //     ...prev,
-  //     {
-  //       tempId: Date.now(),
-  //       resID: null,
-  //       position: "",
-  //       resident: "",
-  //       isNew: true,
-  //     },
-  //   ]);
-  // };
-
-  // const handleSaveNewMember = async (member) => {
-  //   if (!member.resID || !member.position) {
-  //     alert("Please select resident and position.");
-  //     return;
-  //   }
-  //   try {
-  //     const payload = {
-  //       resID: member.resID._id,
-  //       position: member.position,
-  //     };
-
-  //     const response = await api.post(
-  //       `/household/${householdID}/member`,
-  //       payload
-  //     );
-
-  //     setSelectedHousehold((prev) => ({
-  //       ...prev,
-  //       members: [...(prev.members || []), response.data],
-  //     }));
-
-  //     setNewMembers((prev) => prev.filter((m) => m.tempId !== member.tempId));
-  //   } catch (error) {
-  //     console.error("Error adding new member:", error);
-  //   }
-  // };
-
-  // const handleCancelNewMember = (tempId) => {
-  //   setNewMembers((prev) => prev.filter((m) => m.tempId !== tempId));
-  // };
-
-  // const handleMemberInputChange = (index, value) => {
-  //   setNewMembers((prev) => {
-  //     const updated = [...prev];
-  //     updated[index].resident = value;
-  //     updated[index].resID = null;
-  //     return updated;
-  //   });
-  //   if (value.length > 0) {
-  //     const filtered = residents
-  //       .filter((r) => !r.householdno)
-  //       .filter((r) => {
-  //         const fullName = `${r.firstname} ${
-  //           r.middlename ? r.middlename + " " : ""
-  //         }${r.lastname}`.toLowerCase();
-  //         return fullName.includes(value.toLowerCase());
-  //       });
-  //     setMemberSuggestions((prev) => ({
-  //       ...prev,
-  //       [index]: filtered,
-  //     }));
-  //   } else {
-  //     setMemberSuggestions((prev) => ({
-  //       ...prev,
-  //       [index]: [],
-  //     }));
-  //   }
-  // };
-
-  // const handleMemberSuggestionClick = (index, resident) => {
-  //   setNewMembers((prev) => {
-  //     const updated = [...prev];
-  //     updated[index].resID = resident;
-  //     updated[index].resident = `${resident.firstname} ${
-  //       resident.middlename ? resident.middlename + " " : ""
-  //     }${resident.lastname}`;
-  //     return updated;
-  //   });
-
-  //   setMemberSuggestions((prev) => ({
-  //     ...prev,
-  //     [index]: [],
-  //   }));
-  // };
+    setLoading(true);
+    try {
+      const res = await api.post(
+        `/approve/household/${householdID}/change/${selectedChangeID}`
+      );
+      setSelectedHousehold(res.data.household);
+    } catch (error) {
+      console.log("Error in fetching household change", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[70rem] h-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
@@ -206,6 +103,28 @@ function ViewHousehold({ onClose, householdID }) {
             {selectedHousehold && (
               <div className="modal-form-container">
                 <div className="modal-form">
+                  {selectedChangeID ? (
+                    <div onClick={() => fetchHousehold()}>
+                      <p>Current Info</p>
+                    </div>
+                  ) : (
+                    <>
+                      {selectedHousehold.change?.length > 0 && (
+                        <>
+                          <h2>Change Requests:</h2>
+                          {selectedHousehold.change.map((c, index) => (
+                            <div
+                              key={c.changeID?._id || index}
+                              onClick={() => getHouseholdChange(c.changeID)}
+                              className="change-item"
+                            >
+                              <p>Change {index + 1}</p>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  )}
                   <div className="col-span-1 flex-row">
                     <label>
                       <strong>Household No.:</strong>
@@ -496,6 +415,17 @@ function ViewHousehold({ onClose, householdID }) {
                       <p>No vehicles found.</p>
                     )}
                   </div>
+                  {selectedChangeID && (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={approveHouseholdChange}
+                        className="actions-btn bg-btn-color-blue hover:bg-[#0A7A9D]"
+                      >
+                        Approve
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

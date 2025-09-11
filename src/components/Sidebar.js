@@ -32,6 +32,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     pendingHouseholds,
     pendingResidents,
     pendingDocuments,
+    activeSOS,
   } = useContext(InfoContext);
   const location = useLocation();
   if (!user) return null;
@@ -122,7 +123,14 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     (user.role === "Secretary" ||
       user.role === "Clerk" ||
       user.role === "Justice") && {
-      title: "SOS Update Reports",
+      title: (
+        <div className="flex items-center gap-2">
+          SOS Update Reports
+          {activeSOS > 0 && (
+            <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+          )}
+        </div>
+      ),
       icon: <AiFillAlert />,
       path: "/sos-update-reports",
     },

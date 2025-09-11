@@ -144,13 +144,19 @@ function Employees({ isCollapsed }) {
       "Please confirm to proceed with archiving this employee. You can restore this record later if needed.",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/archiveemployee/${empID}`);
-        confirm("The employee has been successfully archived.", "success");
-      } catch (error) {
-        console.log("Error", error);
-      }
+    if (!isConfirmed) return;
+
+    if (loading) return;
+
+    setLoading(true);
+
+    try {
+      await api.put(`/archiveemployee/${empID}`);
+      confirm("The employee has been successfully archived.", "success");
+    } catch (error) {
+      console.log("Error", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -160,23 +166,27 @@ function Employees({ isCollapsed }) {
       "Please confirm to proceed with recovering this employee.",
       "confirmred"
     );
-    if (isConfirmed) {
-      try {
-        await api.put(`/recoveremployee/${empID}`);
-        confirm("The employee has been successfully recovered.", "success");
-      } catch (error) {
-        const response = error.response;
-        if (response && response.data) {
-          console.log("❌ Error status:", response.status);
-          confirm(
-            response.data.message || "Something went wrong.",
-            "errordialog"
-          );
-        } else {
-          console.log("❌ Network or unknown error:", error.message);
-          confirm("An unexpected error occurred.", "errorialog");
-        }
+    if (!isConfirmed) return;
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      await api.put(`/recoveremployee/${empID}`);
+      confirm("The employee has been successfully recovered.", "success");
+    } catch (error) {
+      const response = error.response;
+      if (response && response.data) {
+        console.log("❌ Error status:", response.status);
+        confirm(
+          response.data.message || "Something went wrong.",
+          "errordialog"
+        );
+      } else {
+        console.log("❌ Network or unknown error:", error.message);
+        confirm("An unexpected error occurred.", "errorialog");
       }
+    } finally {
+      setLoading(false);
     }
   };
 

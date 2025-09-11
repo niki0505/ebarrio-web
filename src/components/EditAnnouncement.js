@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState, useContext } from "react";
-import axios from "axios";
-import { InfoContext } from "../context/InfoContext";
 import api from "../api";
 import { useConfirm } from "../context/ConfirmContext";
 import { AuthContext } from "../context/AuthContext";
@@ -10,6 +8,7 @@ import DatePicker from "react-multi-date-picker";
 
 //STYLES
 import "../App.css";
+import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { MdInsertPhoto, MdCalendarMonth } from "react-icons/md";
@@ -33,6 +32,7 @@ function EditAnnouncement({ onClose, announcementID }) {
     eventdetails: "",
   });
   const [showModal, setShowModal] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
@@ -81,7 +81,10 @@ function EditAnnouncement({ onClose, announcementID }) {
     if (!isConfirmed) {
       return;
     }
-    onClose();
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const firebaseBaseUrl = "https://firebasestorage.googleapis.com/";
       if (
@@ -103,6 +106,9 @@ function EditAnnouncement({ onClose, announcementID }) {
       );
     } catch (error) {
       console.log("Error updating announcement", error);
+    } finally {
+      onClose();
+      setLoading(false);
     }
   };
 
@@ -312,8 +318,13 @@ function EditAnnouncement({ onClose, announcementID }) {
 
   return (
     <>
-      {setShowModal && (
+      {showModal && (
         <div className="modal-container">
+          {loading && (
+            <div className="loading-overlay">
+              <div className="spinner"></div>
+            </div>
+          )}
           <div className="modal-content w-[45rem] h-[30rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
