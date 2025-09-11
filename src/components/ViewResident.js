@@ -18,6 +18,7 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { BiSolidImageAlt } from "react-icons/bi";
 import { GrNext } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
+import ResidentReject from "./ResidentReject";
 
 function ViewResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -41,6 +42,7 @@ function ViewResident({ isCollapsed }) {
   const [loading, setLoading] = useState(false);
   const [selectedChangeID, setSelectedChangeID] = useState(null);
   const [changeID, setChangeID] = useState(null);
+  const [isRejectClicked, setRejectClicked] = useState(false);
 
   const [residentForm, setResidentForm] = useState({
     firstname: "",
@@ -1174,6 +1176,39 @@ function ViewResident({ isCollapsed }) {
     }
   };
 
+  const rejectBtn = (e) => {
+    e.stopPropagation();
+    setRejectClicked(true);
+  };
+
+  // const rejectBtn = async () => {
+  //   const isConfirmed = await confirm(
+  //     "Are you sure you want to reject this resident?",
+  //     "confirm"
+  //   );
+  //   if (!isConfirmed) {
+  //     return;
+  //   }
+  //   if (loading) return;
+
+  //   setLoading(true);
+
+  //   try {
+  //     await api.post(`/rejectresident/${resID}`);
+
+  //     confirm("The resident has been successfully rejected.", "success");
+  //     navigation("/residents");
+  //   } catch (error) {
+  //     console.log("Error in rejecting resident details", error);
+  //     confirm(
+  //       "Something went wrong while approving the resident.",
+  //       "errordialog"
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const getResidentChange = async (changeID) => {
     try {
       const res = await api.get(`/getresidentchange/${changeID}`);
@@ -1206,6 +1241,33 @@ function ViewResident({ isCollapsed }) {
       navigation("/residents");
     } catch (error) {
       console.log("Error in approving resident change", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectResidentChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to reject this resident's request to change their profile?",
+      "confirm"
+    );
+    if (!isConfirmed) {
+      return;
+    }
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post(
+        `/reject/resident/${resID}/change/${selectedChangeID}`
+      );
+      confirm(
+        "The changes to the resident profile has been successfully rejected.",
+        "success"
+      );
+      navigation("/residents");
+    } catch (error) {
+      console.log("Error in rejecting resident change", error);
     } finally {
       setLoading(false);
     }
@@ -2950,7 +3012,7 @@ function ViewResident({ isCollapsed }) {
             <div className="function-btn-container">
               <button
                 type="button"
-                // onClick={handleReset}
+                onClick={(e) => rejectBtn(e)}
                 className="actions-btn bg-btn-color-red hover:bg-red-700"
               >
                 Reject
@@ -2967,7 +3029,7 @@ function ViewResident({ isCollapsed }) {
               <div className="function-btn-container">
                 <button
                   type="button"
-                  // onClick={handleReset}
+                  onClick={rejectResidentChange}
                   className="actions-btn bg-btn-color-red hover:bg-red-700"
                 >
                   Reject
@@ -2983,6 +3045,12 @@ function ViewResident({ isCollapsed }) {
             )
           )}
         </form>
+        {isRejectClicked && (
+          <ResidentReject
+            resID={resID}
+            onClose={() => setRejectClicked(false)}
+          />
+        )}
         {isCameraOpen && (
           <OpenCamera onDone={handleDone} onClose={handleClose} />
         )}

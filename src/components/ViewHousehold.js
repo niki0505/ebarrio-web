@@ -62,6 +62,11 @@ function ViewHousehold({ onClose, householdID }) {
   };
 
   const approveHouseholdChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to approve this change in household?",
+      "confirm"
+    );
+    if (!isConfirmed) return;
     if (loading) return;
 
     setLoading(true);
@@ -69,9 +74,40 @@ function ViewHousehold({ onClose, householdID }) {
       const res = await api.post(
         `/approve/household/${householdID}/change/${selectedChangeID}`
       );
+      setSelectedChangeID(null);
       setSelectedHousehold(res.data.household);
+      confirm(
+        "The change in household information has been successfully approved.",
+        "success"
+      );
     } catch (error) {
       console.log("Error in fetching household change", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectHouseholdChange = async () => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to reject this change in household?",
+      "confirmred"
+    );
+    if (!isConfirmed) return;
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post(
+        `/reject/household/${householdID}/change/${selectedChangeID}`
+      );
+      setSelectedChangeID(null);
+      setSelectedHousehold(res.data.household);
+      confirm(
+        "The change in household information has been successfully rejected.",
+        "success"
+      );
+    } catch (error) {
+      console.log("Error in rejecting household change", error);
     } finally {
       setLoading(false);
     }
@@ -417,6 +453,13 @@ function ViewHousehold({ onClose, householdID }) {
                   </div>
                   {selectedChangeID && (
                     <div>
+                      <button
+                        type="button"
+                        onClick={rejectHouseholdChange}
+                        className="actions-btn bg-btn-color-red hover:bg-red-700"
+                      >
+                        Reject
+                      </button>
                       <button
                         type="button"
                         onClick={approveHouseholdChange}

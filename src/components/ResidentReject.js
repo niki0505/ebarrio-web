@@ -8,8 +8,10 @@ import "../Stylesheets/CommonStyle.css";
 
 //ICONS
 import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 function ResidentReject({ onClose, resID }) {
+  const navigation = useNavigate();
   const confirm = useConfirm();
   const [remarks, setRemarks] = useState("");
   const [showModal, setShowModal] = useState(true);
@@ -37,7 +39,7 @@ function ResidentReject({ onClose, resID }) {
 
     const isConfirmed = await confirm(
       "Please confirm to proceed with rejecting this residency application request. This action cannot be undone.",
-      "confirm"
+      "confirmred"
     );
     if (!isConfirmed) {
       return;
@@ -53,6 +55,7 @@ function ResidentReject({ onClose, resID }) {
         "success"
       );
       onClose();
+      navigation("/residents");
     } catch (error) {
       console.log("Error rejecting resident profile");
     } finally {
