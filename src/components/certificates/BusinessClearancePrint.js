@@ -128,10 +128,6 @@ const BusinessClearancePrint = ({
               fontWeight: "bold",
             }}
           >
-            <img
-              style={{ width: "75px", height: "75px" }}
-              src={preparedByData.signature}
-            />
             <p style={{ fontSize: "12px" }}>
               {preparedByData.name.toUpperCase()}
             </p>
@@ -151,10 +147,6 @@ const BusinessClearancePrint = ({
               fontWeight: "bold",
             }}
           >
-            <img
-              style={{ width: "75px", height: "75px" }}
-              src={captainData.resID.signature}
-            />
             <p style={{ fontSize: "12px" }}>
               {captainData.resID.middlename
                 ? `${captainData.resID.firstname.toUpperCase()} ${captainData.resID.middlename.substring(

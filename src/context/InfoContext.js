@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import api from "../api";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
+import alertNotification from "../assets/alert-notification.mp3";
 // Create a context for socket connection
 export const SocketContext = createContext();
 
@@ -12,8 +13,13 @@ const socket = io("http://localhost:5000/website", {
 });
 
 export const InfoProvider = ({ children }) => {
-  const { isAuthenticated, setUserStatus, user, setUserPasswordChanged } =
-    useContext(AuthContext);
+  const {
+    isAuthenticated,
+    setUserStatus,
+    user,
+    setUserPasswordChanged,
+    playNotificationSound,
+  } = useContext(AuthContext);
   const [residents, setResidents] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
@@ -128,10 +134,20 @@ export const InfoProvider = ({ children }) => {
   }, [announcementForm]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchUsers();
+    let interval;
+
+    if (activeSOS) {
+      interval = setInterval(() => {
+        playNotificationSound(alertNotification);
+      }, 2000);
+
+      playNotificationSound(alertNotification);
     }
-  }, [isAuthenticated]);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [activeSOS]);
 
   useEffect(() => {
     if (users && user) {
@@ -304,6 +320,15 @@ export const InfoProvider = ({ children }) => {
     }
   };
 
+  const fetchActiveSOS = async () => {
+    try {
+      const response = await api.get("/activesos");
+      setActiveSOS(response.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch FAQs:", error);
+    }
+  };
+
   const fetchPrompts = async () => {
     try {
       const res = await api.get("/getprompts");
@@ -342,6 +367,8 @@ export const InfoProvider = ({ children }) => {
       fetchPendingDocuments();
       fetchPendingBlotters();
       fetchPendingHouseholds();
+      fetchActiveSOS();
+      fetchUsers();
     }
   }, [isAuthenticated]);
 

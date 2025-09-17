@@ -107,25 +107,6 @@ const ClearancePrint = ({
             style={{
               position: "absolute",
               top: "700px",
-              left: "335px",
-              width: "160px",
-              height: "65px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              flexDirection: "column",
-            }}
-          >
-            <img
-              style={{ width: "100%", height: "100%" }}
-              src={certData.resID.signature}
-            />
-          </div>
-
-          <div
-            style={{
-              position: "absolute",
-              top: "700px",
               left: "565px",
               width: "200px",
               height: "65px",
@@ -136,10 +117,6 @@ const ClearancePrint = ({
               fontWeight: "bold",
             }}
           >
-            <img
-              style={{ width: "75px", height: "75px" }}
-              src={preparedByData.signature}
-            />
             <p style={{ fontSize: "12px" }}>
               {preparedByData.name.toUpperCase()}
             </p>
@@ -159,10 +136,6 @@ const ClearancePrint = ({
               fontWeight: "bold",
             }}
           >
-            <img
-              style={{ width: "75px", height: "75px" }}
-              src={captainData.resID.signature}
-            />
             <p style={{ fontSize: "12px" }}>
               {captainData.resID.middlename
                 ? `${captainData.resID.firstname.toUpperCase()} ${captainData.resID.middlename.substring(
