@@ -110,28 +110,6 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         >
           <p style={{ fontSize: 12 }}>{blotterData.type}</p>
         </div>
-        {/* <div
-          style={{
-            position: "absolute",
-            top: "248px",
-            left: "460px",
-            width: "255px",
-            height: "20px",
-          }}
-        >
-          <p style={{ fontSize: 12 }}>SAMPLE TEXT</p>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            top: "273px",
-            left: "460px",
-            width: "255px",
-            height: "20px",
-          }}
-        >
-          <p style={{ fontSize: 12 }}>SAMPLE TEXT</p>
-        </div> */}
 
         {/* SUMBONG */}
         <div
@@ -179,26 +157,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* MGA MAYSUMBONG */}
-        <div
-          style={{
-            position: "absolute",
-            top: "858px",
-            left: "545px",
-            width: "170px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            width={100}
-            src={
-              blotterData.complainantID
-                ? blotterData.complainantID.signature
-                : blotterData.complainantsignature
-            }
-          />
-        </div>
+
         <div
           style={{
             position: "absolute",
@@ -252,19 +211,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* PUNONG BARANGAY */}
-        <div
-          style={{
-            position: "absolute",
-            top: "980px",
-            left: "545px",
-            width: "170px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img width={100} src={captainData.resID.signature} />
-        </div>
+
         <div
           style={{
             position: "absolute",
@@ -466,26 +413,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* MGA MAYSUMBONG */}
-        <div
-          style={{
-            position: "absolute",
-            top: "1918px",
-            left: "110px",
-            width: "167px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            width={100}
-            src={
-              blotterData.complainantID
-                ? blotterData.complainantID.signature
-                : blotterData.complainantsignature
-            }
-          />
-        </div>
+
         <div
           style={{
             position: "absolute",
@@ -509,26 +437,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* MGA IPINAGSUSUMBONG */}
-        <div
-          style={{
-            position: "absolute",
-            top: "1918px",
-            left: "510px",
-            width: "167px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            width={100}
-            src={
-              blotterData.subjectID
-                ? blotterData.subjectID.signature
-                : blotterData.subjectsignature
-            }
-          />
-        </div>
+
         <div
           style={{
             position: "absolute",
@@ -552,26 +461,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* WITNESS BY */}
-        <div
-          style={{
-            position: "absolute",
-            top: "1958px",
-            left: "312px",
-            width: "167px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            width={100}
-            src={
-              blotterData.witnessID
-                ? blotterData.witnessID.signature
-                : blotterData.witnesssignature
-            }
-          />
-        </div>
+
         <div
           style={{
             position: "absolute",
@@ -595,19 +485,7 @@ const BlotterPrint = ({ blotterData, captainData }) => {
         </div>
 
         {/* PUNONG BARANGAY */}
-        <div
-          style={{
-            position: "absolute",
-            top: "2102px",
-            left: "547px",
-            width: "167px",
-            height: "50px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <img width={100} src={captainData.resID.signature} />
-        </div>
+
         <div
           style={{
             position: "absolute",

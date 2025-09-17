@@ -2582,7 +2582,12 @@ function AccountSettings({ isCollapsed }) {
                                     Select
                                   </option>
                                   {household
-                                    .filter((h) => h.status !== "Rejected")
+                                    .filter(
+                                      (h) =>
+                                        h.status !== "Rejected" &&
+                                        h.status !== "Pending" &&
+                                        h.status !== "Archived"
+                                    )
                                     .map((h) => {
                                       const head = h.members.find(
                                         (m) => m.position === "Head"

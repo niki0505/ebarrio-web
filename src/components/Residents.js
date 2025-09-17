@@ -44,6 +44,7 @@ function Residents({ isCollapsed }) {
   const [expandedRow, setExpandedRow] = useState(null);
   const [isCertClicked, setCertClicked] = useState(false);
   const [isRejectClicked, setRejectClicked] = useState(false);
+  const [isChangeClicked, setChangedClicked] = useState(false);
   const [selectedResID, setSelectedResID] = useState(null);
   const [search, setSearch] = useState("");
   const { user } = useContext(AuthContext);
@@ -323,6 +324,8 @@ function Residents({ isCollapsed }) {
       filtered = residents.filter(
         (res) => res.status === "Archived" || res.status === "Rejected"
       );
+    } else if (isChangeClicked) {
+      filtered = residents.filter((res) => res.status === "Change Requested");
     } else if (isPendingClicked) {
       filtered = residents.filter((res) => res.status === "Pending");
     }
@@ -406,6 +409,7 @@ function Residents({ isCollapsed }) {
     isActiveClicked,
     isArchivedClicked,
     isPendingClicked,
+    isChangeClicked,
     sortOption,
   ]);
 
@@ -413,15 +417,24 @@ function Residents({ isCollapsed }) {
     setActiveClicked(true);
     setArchivedClicked(false);
     setPendingClicked(false);
+    setChangedClicked(false);
   };
   const handleMenu2 = () => {
-    setArchivedClicked(true);
+    setPendingClicked(true);
     setActiveClicked(false);
-    setPendingClicked(false);
+    setChangedClicked(false);
+    setArchivedClicked(false);
   };
   const handleMenu3 = () => {
-    setPendingClicked(true);
+    setChangedClicked(true);
+    setPendingClicked(false);
+    setActiveClicked(false);
     setArchivedClicked(false);
+  };
+  const handleMenu4 = () => {
+    setArchivedClicked(true);
+    setChangedClicked(false);
+    setPendingClicked(false);
     setActiveClicked(false);
   };
 
@@ -703,7 +716,7 @@ function Residents({ isCollapsed }) {
               Active
             </p>
             <p
-              onClick={handleMenu3}
+              onClick={handleMenu2}
               className={`status-text ${
                 isPendingClicked ? "status-line" : "text-[#808080]"
               }`}
@@ -714,7 +727,20 @@ function Residents({ isCollapsed }) {
               )}
             </p>
             <p
-              onClick={handleMenu2}
+              onClick={handleMenu3}
+              className={`status-text ${
+                isChangeClicked ? "status-line" : "text-[#808080]"
+              }`}
+            >
+              Change Requested
+              {residents.some(
+                (resident) => resident.status === "Change Requested"
+              ) && (
+                <span className="ml-1 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+              )}
+            </p>
+            <p
+              onClick={handleMenu4}
               className={`status-text ${
                 isArchivedClicked ? "status-line" : "text-[#808080]"
               }`}
@@ -1001,7 +1027,8 @@ function Residents({ isCollapsed }) {
                                   </label>
                                 </button>
                               </div>
-                            ) : res.status === "Pending" ? (
+                            ) : res.status === "Pending" ||
+                              res.status === "Change Requested" ? (
                               <>
                                 <div className="btn-container">
                                   <button

@@ -51,21 +51,21 @@ function RiverSnapshots({ isCollapsed }) {
   };
 
   //For Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState("All");
-  const totalRows = history.length;
-  const totalPages =
-    rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
-  const indexOfLastRow =
-    currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
-  const indexOfFirstRow =
-    indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
-  const currentRows =
-    rowsPerPage === "All"
-      ? history
-      : history.slice(indexOfFirstRow, indexOfLastRow);
-  const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
-  const endRow = Math.min(indexOfLastRow, totalRows);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [rowsPerPage, setRowsPerPage] = useState("All");
+  // const totalRows = history.length;
+  // const totalPages =
+  //   rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
+  // const indexOfLastRow =
+  //   currentPage * (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  // const indexOfFirstRow =
+  //   indexOfLastRow - (rowsPerPage === "All" ? totalRows : rowsPerPage);
+  // const currentRows =
+  //   rowsPerPage === "All"
+  //     ? history
+  //     : history.slice(indexOfFirstRow, indexOfLastRow);
+  // const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
+  // const endRow = Math.min(indexOfLastRow, totalRows);
 
   const defaultOptions = {
     loop: true,
@@ -75,10 +75,6 @@ function RiverSnapshots({ isCollapsed }) {
       preserveAspectRatio: "xMidYMid slice",
     },
   };
-
-  useEffect(() => {
-    console.log("Lottie animation loaded", defaultOptions);
-  }, []);
 
   return (
     <>
@@ -161,28 +157,34 @@ function RiverSnapshots({ isCollapsed }) {
                   </tr>
                 </thead>
                 <tbody className="bg-[#fff]">
-                  {currentRows.map((snap, index) => {
-                    const [datePart, timePart] = snap.datetime.split(" at ");
-                    return (
-                      <tr
-                        key={index}
-                        onClick={() => {
-                          setSelectedImage(snap.url);
-                          setModal(true);
-                        }}
-                        className="border-t transition-colors duration-300 ease-in-out"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "#f0f0f0";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "";
-                        }}
-                      >
-                        <td className="py-2 px-4">{datePart}</td>
-                        <td className="py-2 px-4">{timePart}</td>
-                      </tr>
-                    );
-                  })}
+                  {history.length === 0 ? (
+                    <tr>
+                      <td colSpan={6}>No results found</td>
+                    </tr>
+                  ) : (
+                    history.map((snap, index) => {
+                      const [datePart, timePart] = snap.datetime.split(" at ");
+                      return (
+                        <tr
+                          key={index}
+                          onClick={() => {
+                            setSelectedImage(snap.url);
+                            setModal(true);
+                          }}
+                          className="border-t transition-colors duration-300 ease-in-out"
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#f0f0f0";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "";
+                          }}
+                        >
+                          <td className="py-2 px-4">{datePart}</td>
+                          <td className="py-2 px-4">{timePart}</td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -205,7 +207,7 @@ function RiverSnapshots({ isCollapsed }) {
               </div>
             )}
 
-            <div className="table-pagination mt-4">
+            {/* <div className="table-pagination mt-4">
               <div className="table-pagination-size flex items-center space-x-2">
                 <span className="text-sm">Rows per page:</span>
                 <div className="relative w-20">
@@ -266,7 +268,7 @@ function RiverSnapshots({ isCollapsed }) {
                   </button>
                 </div>
               )}
-            </div>
+            </div> */}
           </>
         )}
 

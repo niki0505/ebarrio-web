@@ -30,7 +30,6 @@ function CreateReservation({ onClose }) {
     fetchReservations();
   }, []);
 
-  // Calculate total amount based on all times across all selected dates
   useEffect(() => {
     const hourlyRate = 100;
     let totalHours = 0;
@@ -83,12 +82,9 @@ function CreateReservation({ onClose }) {
     setReservationForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Date picker change
   const handleDateChange = (dates) => {
-    // Format dates to ISO YYYY-MM-DD strings
     const formattedDates = dates.map((d) => d.format("YYYY-MM-DD"));
 
-    // Remove times for deselected dates
     const newTimes = {};
     formattedDates.forEach((date) => {
       if (reservationForm.times[date]) {
@@ -103,7 +99,6 @@ function CreateReservation({ onClose }) {
     }));
   };
 
-  // Time change handlers per date
   const handleStartTimeChange = (date, time) => {
     if (!time) return;
 
@@ -118,7 +113,7 @@ function CreateReservation({ onClose }) {
           [date]: {
             ...currentTimes,
             starttime: newStartTime.toISOString(),
-            endtime: null, // reset endtime if starttime changes
+            endtime: null,
           },
         },
       };

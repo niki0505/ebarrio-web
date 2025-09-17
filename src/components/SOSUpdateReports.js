@@ -16,8 +16,8 @@ import autoTable from "jspdf-autotable";
 import api from "../api";
 
 const defaultCenter = {
-  lat: 14.46, // Aniban 2 latitude
-  lng: 120.966, // Aniban 2 longitude
+  lat: 14.46,
+  lng: 120.966,
 };
 
 function SOSUpdateReports({ isCollapsed }) {
@@ -416,12 +416,14 @@ function SOSUpdateReports({ isCollapsed }) {
                   <div className="relative" ref={exportRef}>
                     {/* Export Button */}
                     <div
-                      className="export-sort-btn"
+                      className="relative flex items-center bg-[#fff] border-btn-color-red h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                       onClick={toggleExportDropdown}
                     >
-                      <h1 className="export-sort-btn-text">Export</h1>
+                      <h1 className="text-sm font-medium mr-2 text-btn-color-red">
+                        Export
+                      </h1>
                       <div className="export-sort-btn-dropdown-icon">
-                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        <MdArrowDropDown size={18} color={"#F63131"} />
                       </div>
                     </div>
 
@@ -430,7 +432,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         <ul className="w-full">
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={exportCSV}
                             >
                               Export as CSV
@@ -438,7 +440,7 @@ function SOSUpdateReports({ isCollapsed }) {
                           </div>
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={exportPDF}
                             >
                               Export as PDF
@@ -451,12 +453,14 @@ function SOSUpdateReports({ isCollapsed }) {
                   <div className="relative" ref={filterRef}>
                     {/* Filter Button */}
                     <div
-                      className="export-sort-btn"
+                      className="relative flex items-center bg-[#fff] border-btn-color-red h-7 px-2 py-4 cursor-pointer appearance-none border rounded"
                       onClick={toggleFilterDropdown}
                     >
-                      <h1 className="export-sort-btn-text">{sortOption}</h1>
+                      <h1 className="text-sm font-medium mr-2 text-btn-color-red">
+                        {sortOption}
+                      </h1>
                       <div className="export-sort-btn-dropdown-icon">
-                        <MdArrowDropDown size={18} color={"#0E94D3"} />
+                        <MdArrowDropDown size={18} color={"#F63131"} />
                       </div>
                     </div>
 
@@ -465,7 +469,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         <ul className="w-full">
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={() => {
                                 setSortOption("Newest");
                                 setfilterDropdown(false);
@@ -476,7 +480,7 @@ function SOSUpdateReports({ isCollapsed }) {
                           </div>
                           <div className="navbar-dropdown-item">
                             <li
-                              className="export-sort-dropdown-option"
+                              className="export-sort-dropdown-option !text-[#BC0F0F]"
                               onClick={() => {
                                 setSortOption("Oldest");
                                 setfilterDropdown(false);
@@ -502,15 +506,13 @@ function SOSUpdateReports({ isCollapsed }) {
 
       {isActiveClicked ? (
         <>
-          <div
-            className={`mt-4 ${report ? "grid grid-cols-3 gap-4" : "w-full"}`}
-          >
+          <div className={`mt-4 grid grid-cols-3 gap-4`}>
             {/* Map */}
             {isLoaded && (
               <div
-                className={`${
-                  report ? "col-span-2" : "w-full"
-                } border-4 border-[#BC0F0F] rounded-lg overflow-hidden`}
+                className={
+                  "col-span-2 border-4 border-[#BC0F0F] rounded-lg overflow-hidden"
+                }
               >
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "440px" }}
@@ -529,69 +531,119 @@ function SOSUpdateReports({ isCollapsed }) {
             )}
 
             {/* Reporter Details */}
-            {report && (
-              <div>
-                {/* Reporter */}
-                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
-                  <div className="flex flex-col items-center">
-                    <h2 className="text-lg font-bold mb-2">Reporter Details</h2>
-                    <img
-                      src={report.resID?.picture}
-                      alt="Resident"
-                      className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
-                    />
-                    <p className="text-xl font-semibold">
-                      {report.resID?.firstname} {report.resID?.lastname}
-                    </p>
-                    <p className="text-sm italic mb-2">Resident</p>
-                  </div>
-                  <div className="flex flex-col items-start">
-                    <div className="flex flex-row gap-2">
-                      <span className="font-bold">Age:</span>
-                      <span className="opacity-80">
-                        {report.resID?.age || "N/A"}
-                      </span>
-                    </div>
 
-                    <span className="font-bold">Address:</span>
-                    <span className="opacity-80 break-words flex-1">
-                      {report.resID?.householdno
-                        ? report.resID.householdno.address
-                        : "N/A"}
-                    </span>
-
-                    <div className="flex flex-row gap-2">
-                      <span className="font-bold">Mobile:</span>
-                      <span className="opacity-80">
-                        {report.resID?.mobilenumber}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Status */}
-                <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md mt-3 flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Heading:</span>
-                    <span className="opacity-80">
-                      {
-                        report.responder?.filter((r) => r.status === "Heading")
-                          .length
-                      }
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">Arrived:</span>
-                    <span className="opacity-80">
-                      {
-                        report.responder?.filter((r) => r.status === "Arrived")
-                          .length
-                      }
-                    </span>
-                  </div>
-                </div>
+            <div>
+              {/* Report List */}
+              <div className="col-span-1">
+                <table className="w-full border-collapse text-left">
+                  <thead className="bg-[#BC0F0F] text-white">
+                    <tr>
+                      <th className="px-4 py-2">Name</th>
+                      <th className="px-4 py-2">Date Reported</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {isLoaded && filteredReports.length > 0 ? (
+                      filteredReports
+                        .sort(
+                          (a, b) =>
+                            new Date(b.createdAt) - new Date(a.createdAt)
+                        )
+                        .map((rep, i) => (
+                          <tr key={i} className="bg-white">
+                            <td
+                              className="px-4 py-3"
+                              onClick={() => {
+                                if (rep.location?.lat && rep.location?.lng) {
+                                  setPosition({
+                                    lat: Number(rep.location.lat),
+                                    lng: Number(rep.location.lng),
+                                  });
+                                }
+                                setSelectedID(rep._id);
+                              }}
+                            >
+                              {rep.resID?.firstname} {rep.resID?.lastname}
+                            </td>
+                            <td className="px-4 py-3">{rep.createdAt}</td>
+                          </tr>
+                        ))
+                    ) : (
+                      <tr className="bg-white cursor-default">
+                        <td colSpan="2">No reports found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+              {/* Reporter Details */}
+              {report && (
+                <>
+                  <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
+                    <div className="flex flex-col items-center">
+                      <h2 className="text-lg font-bold mb-2">
+                        Reporter Details
+                      </h2>
+                      <img
+                        src={report.resID?.picture}
+                        alt="Resident"
+                        className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
+                      />
+                      <p className="text-xl font-semibold">
+                        {report.resID?.firstname} {report.resID?.lastname}
+                      </p>
+                      <p className="text-sm italic mb-2">Resident</p>
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <div className="flex flex-row gap-2">
+                        <span className="font-bold">Age:</span>
+                        <span className="opacity-80">
+                          {report.resID?.age || "N/A"}
+                        </span>
+                      </div>
+
+                      <span className="font-bold">Address:</span>
+                      <span className="opacity-80 break-words flex-1">
+                        {report.resID?.householdno
+                          ? report.resID.householdno.address
+                          : "N/A"}
+                      </span>
+
+                      <div className="flex flex-row gap-2">
+                        <span className="font-bold">Mobile:</span>
+                        <span className="opacity-80">
+                          {report.resID?.mobilenumber}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md mt-3 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Heading:</span>
+                      <span className="opacity-80">
+                        {
+                          report.responder?.filter(
+                            (r) => r.status === "Heading"
+                          ).length
+                        }
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Arrived:</span>
+                      <span className="opacity-80">
+                        {
+                          report.responder?.filter(
+                            (r) => r.status === "Arrived"
+                          ).length
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Emergency Table */}
@@ -707,7 +759,7 @@ function SOSUpdateReports({ isCollapsed }) {
                       setRowsPerPage(value);
                       setCurrentPage(1);
                     }}
-                    className="table-pagination-select"
+                    className="table-pagination-select !border-[#F63131] !text-[#F63131]"
                   >
                     <option value="All">All</option>
                     {[5, 10, 15, 20].map((num) => (
@@ -717,7 +769,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     ))}
                   </select>
                   <div className="table-pagination-select-icon">
-                    <MdArrowDropDown size={18} color={"#0E94D3"} />
+                    <MdArrowDropDown size={18} color={"#F63131"} />
                   </div>
                 </div>
               </div>
@@ -736,7 +788,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     className="table-pagination-btn"
                   >
                     <MdKeyboardArrowLeft
-                      color={"#0E94D3"}
+                      color={"#F63131"}
                       className="text-xl"
                     />
                   </button>
@@ -748,7 +800,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     className="table-pagination-btn"
                   >
                     <MdKeyboardArrowRight
-                      color={"#0E94D3"}
+                      color={"#F63131"}
                       className="text-xl"
                     />
                   </button>
