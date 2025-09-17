@@ -187,7 +187,7 @@ function CertificateRequests({ isCollapsed }) {
     }
   };
 
-  const certBtn = async (e, certID) => {
+  const certBtn = async (e, certID, isPrint) => {
     e.stopPropagation();
     let response3 = await api.get(`/getcertificate/${certID}`);
     const response4 = await api.get(`/getcaptain/`);
@@ -219,12 +219,22 @@ function CertificateRequests({ isCollapsed }) {
       }
       setIssuedClicked(true);
       setPendingClicked(false);
-      IndigencyPrint({
-        certData: response3.data,
-        captainData: response4.data,
-        preparedByData: response5.data,
-        updatedAt: response3.data.updatedAt,
-      });
+      if (isPrint) {
+        IndigencyPrint({
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      } else {
+        IndigencyPrint({
+          isFirstIssue: true,
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      }
     }
 
     if (response3.data.typeofcertificate === "Barangay Clearance") {
@@ -772,7 +782,9 @@ function CertificateRequests({ isCollapsed }) {
                                     <button
                                       className="table-actions-container"
                                       type="submit"
-                                      onClick={(e) => certBtn(e, cert._id)}
+                                      onClick={(e) =>
+                                        certBtn(e, cert._id, true)
+                                      }
                                     >
                                       <IoIosPrint className="text-btn-color-blue table-actions-icons" />
                                       <label className="text-btn-color-blue table-actions-text">
