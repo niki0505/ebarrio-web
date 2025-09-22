@@ -122,6 +122,11 @@ export const InfoProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    if (user && isAuthenticated) {
+      socket.emit("register", user.userID, user.role);
+    }
+  }, [user, isAuthenticated]);
+  useEffect(() => {
     localStorage.setItem("residentForm", JSON.stringify(residentForm));
   }, [residentForm]);
 
@@ -410,6 +415,21 @@ export const InfoProvider = ({ children }) => {
         setReports(updatedData.data);
       } else if (updatedData.type === "activesos") {
         setActiveSOS(updatedData.data);
+      } else if (updatedData.type === "prompts") {
+        const prompts = updatedData.data;
+        const messages = prompts.flatMap((p) => [
+          {
+            from: "user",
+            message: p.prompt,
+            timestamp: new Date(p.createdAt),
+          },
+          {
+            from: "ai",
+            message: p.response,
+            timestamp: new Date(p.createdAt),
+          },
+        ]);
+        setAIMessages(messages);
       }
     });
 

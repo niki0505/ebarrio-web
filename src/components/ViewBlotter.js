@@ -325,7 +325,7 @@ function ViewBlotter({ onClose, blotterID }) {
     <>
       {showModal && (
         <div className="modal-container">
-          <div className="modal-content w-[45rem] h-[30rem]">
+          <div className="modal-content w-[70rem] h-[35rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -342,88 +342,101 @@ function ViewBlotter({ onClose, blotterID }) {
             <div className="modal-form-container">
               <div className="modal-form">
                 <div>
-                  <label className="section-title text-start">
-                    Complainant Information
-                  </label>
-                  <hr class="section-divider" />
-                  {/*Complainant Information*/}
-                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
-                    <div>
-                      <label className="form-label">Name</label>
-                      <label className="text-sm font-regular">
-                        {blotter.complainantID
-                          ? `${blotter.complainantID.firstname} ${
-                              blotter.complainantID.middlename || ""
-                            } ${blotter.complainantID.lastname}`.trim()
-                          : blotter.complainantname}
-                      </label>
-                    </div>
+                  <div className="w-full mx-auto space-y-6">
+                    {/* Complainant Information */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 mb-4">
+                      <div>
+                        <label className="section-title text-start">
+                          Complainant Information
+                        </label>
+                        <div className="grid gap-4 mt-4 mb-4">
+                          <div>
+                            <label className="form-label">Name</label>
+                            <label className="text-sm font-regular">
+                              {blotter.complainantID
+                                ? `${blotter.complainantID.firstname} ${
+                                    blotter.complainantID.middlename || ""
+                                  } ${blotter.complainantID.lastname}`.trim()
+                                : blotter.complainantname}
+                            </label>
+                          </div>
 
-                    <div>
-                      <label className="form-label">Address</label>
-                      <label className="text-sm font-regular">
-                        {blotter.complainantID
-                          ? blotter.complainantID.householdno?.address
-                          : blotter.complainantaddress}
-                      </label>
-                    </div>
+                          <div>
+                            <label className="form-label">Address</label>
+                            <label className="text-sm font-regular">
+                              {blotter.complainantID
+                                ? blotter.complainantID.householdno?.address
+                                : blotter.complainantaddress}
+                            </label>
+                          </div>
 
-                    <div>
-                      <label className="form-label">Contact No.</label>
-                      <label className="text-sm font-regular">
-                        {blotter.complainantID
-                          ? blotter.complainantID.mobilenumber
-                          : blotter.complainantcontactno}
-                      </label>
+                          <div>
+                            <label className="form-label">Contact No.</label>
+                            <label className="text-sm font-regular">
+                              {blotter.complainantID
+                                ? blotter.complainantID.mobilenumber
+                                : blotter.complainantcontactno}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Subject Information */}
+                      <div>
+                        <label className="section-title text-start">
+                          Subject Information
+                        </label>
+                        <div className="grid gap-4 mt-4 mb-4">
+                          <div>
+                            <label className="form-label">Name</label>
+                            <label className="text-sm font-regular">
+                              {blotter.subjectID
+                                ? `${blotter.subjectID.firstname} ${
+                                    blotter.subjectID.middlename || ""
+                                  } ${blotter.subjectID.lastname}`.trim()
+                                : blotter.subjectname}
+                            </label>
+                          </div>
+
+                          <div>
+                            <label className="form-label">Address</label>
+                            <label className="text-sm font-regular">
+                              {blotter.subjectID
+                                ? blotter.subjectID.householdno?.address
+                                : blotter.subjectaddress}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Blotter Information */}
+                      <div>
+                        <label className="section-title text-start">
+                          Blotter Information
+                        </label>
+                        <div className="grid grid-cols-1 gap-4 mt-4 mb-4">
+                          <div>
+                            <label className="form-label">
+                              Type of the Incident
+                            </label>
+                            <label className="text-sm font-regular">
+                              {blotter.typeofthecomplaint}
+                            </label>
+                          </div>
+
+                          <div>
+                            <label className="form-label">
+                              Details of the Incident
+                            </label>
+                            <label className="text-sm font-regular">
+                              {renderDetails(blotter)}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/*Subject of the Complaint Information*/}
-                  <label className="section-title text-start">
-                    Subject Information
-                  </label>
-                  <hr class="section-divider" />
-                  <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4 mb-4">
-                    <div>
-                      <label className="form-label">Name</label>
-                      <label className="text-sm font-regular">
-                        {blotter.subjectID
-                          ? `${blotter.subjectID.firstname} ${
-                              blotter.subjectID.middlename || ""
-                            } ${blotter.subjectID.lastname}`.trim()
-                          : blotter.subjectname}
-                      </label>
-                    </div>
-
-                    <div>
-                      <label className="form-label">Address</label>
-                      <label className="text-sm font-regular">
-                        {blotter.subjectID
-                          ? blotter.subjectID.householdno?.address
-                          : blotter.subjectaddress}
-                      </label>
-                    </div>
-                  </div>
-
-                  {/*Blotter Information*/}
-                  <label className="section-title text-start">
-                    Blotter Information
-                  </label>
-                  <hr class="section-divider" />
-                  <div className="grid grid-cols-1 gap-4 mt-4 mb-4">
-                    <div className="col-span-1">
-                      <label className="form-label">Type of the Incident</label>
-                      <label className="text-sm font-regular">
-                        {blotter.typeofthecomplaint}
-                      </label>
-                    </div>
-                    <div className="col-span-3">
-                      <label className="form-label">
-                        Details of the Incident
-                      </label>
-                      <label>{renderDetails(blotter)}</label>
-                    </div>
-                  </div>
                   {blotter.status === "Rejected" && (
                     <>
                       <label className="section-title text-start">
@@ -446,7 +459,6 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="section-title text-start">
                         Schedule Information
                       </label>
-                      <hr class="section-divider" />
                       <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
                         <div>
                           <label className="form-label">Date</label>
@@ -492,7 +504,7 @@ function ViewBlotter({ onClose, blotterID }) {
                       <label className="section-title text-start">
                         Settlement Information
                       </label>
-                      <hr class="section-divider" />
+                      <hr className="section-divider" />
                       <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3 mt-4">
                         <div>
                           <label className="form-label">Date</label>
@@ -501,7 +513,7 @@ function ViewBlotter({ onClose, blotterID }) {
                           </label>
                         </div>
                         <div>
-                          <label className="form-label">Start Time </label>
+                          <label className="form-label">Start Time</label>
                           <label className="text-sm font-regular">
                             {new Date(
                               scheduleForm.starttime
@@ -513,7 +525,7 @@ function ViewBlotter({ onClose, blotterID }) {
                           </label>
                         </div>
                         <div>
-                          <label className="form-label">End Time </label>
+                          <label className="form-label">End Time</label>
                           <label className="text-sm font-regular">
                             {new Date(scheduleForm.endtime).toLocaleTimeString(
                               [],
@@ -526,14 +538,15 @@ function ViewBlotter({ onClose, blotterID }) {
                           </label>
                         </div>
 
-                        <div className="col-span-3">
-                          <label className="form-label">Details </label>
+                        <div className="col-span-1">
+                          <label className="form-label">Details</label>
                           <label className="text-sm font-regular">
                             {blotter.agreementdetails}
                           </label>
                         </div>
+
                         <div className="col-span-1">
-                          <label className="form-label">Witness </label>
+                          <label className="form-label">Witness</label>
                           <label className="text-sm font-regular">
                             {blotter.witnessID
                               ? `${blotter.witnessID.firstname} ${

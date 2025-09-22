@@ -161,62 +161,83 @@ function ViewHousehold({ onClose, householdID }) {
                       )}
                     </>
                   )}
-                  <div className="col-span-1 flex-row">
-                    <label>
-                      <strong>Household No.:</strong>
-                      {selectedHousehold.householdno}
-                    </label>
-                  </div>
-
-                  <div className="col-span-1">
-                    <strong>Address: </strong>
-                    {selectedHousehold.address}
-                  </div>
-
-                  <div className="col-span-1">
-                    <label>
-                      <strong>Ethnicity: </strong> {selectedHousehold.ethnicity}
-                    </label>
-                  </div>
-
-                  {selectedHousehold.ethnicity === "IP Household" && (
-                    <div className="col-span-1">
-                      <label>
-                        <strong>Tribe: </strong>
-                        {selectedHousehold.tribe}
+                  <div className="w-full mx-auto p-6 bg-white rounded-lg shadow-md grid grid-cols-1 sm:grid-cols-2 gap-y-6">
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Household No.:</strong>
                       </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.householdno}
+                      </span>
                     </div>
-                  )}
 
-                  <div>
-                    <label>
-                      <strong>Socioeconomic Status: </strong>
-                      {selectedHousehold.sociostatus}
-                    </label>
-                  </div>
-
-                  {(selectedHousehold.sociostatus === "NHTS Non-4Ps" ||
-                    selectedHousehold.sociostatus === "NHTS 4Ps") && (
-                    <div>
-                      <label>
-                        <strong>NHTS No.: </strong>
-                        {selectedHousehold.nhtsno}
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Address:</strong>
                       </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.address}
+                      </span>
                     </div>
-                  )}
 
-                  <div>
-                    <label>
-                      <strong>Water Source: </strong>
-                      {selectedHousehold.watersource}
-                    </label>
-                  </div>
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Ethnicity:</strong>
+                      </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.ethnicity}
+                      </span>
+                    </div>
 
-                  <div>
-                    <label>
-                      <strong>Toilet Facility: </strong>
-                      {selectedHousehold.toiletfacility}
-                    </label>
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Socioeconomic Status:</strong>
+                      </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.sociostatus}
+                      </span>
+                    </div>
+
+                    {selectedHousehold.ethnicity === "IP Household" && (
+                      <div className="flex flex-col">
+                        <label className="font-semibold text-gray-700">
+                          <strong>Tribe:</strong>
+                        </label>
+                        <span className="text-gray-600">
+                          {selectedHousehold.tribe}
+                        </span>
+                      </div>
+                    )}
+
+                    {(selectedHousehold.sociostatus === "NHTS Non-4Ps" ||
+                      selectedHousehold.sociostatus === "NHTS 4Ps") && (
+                      <div className="flex flex-col">
+                        <label className="font-semibold text-gray-700">
+                          <strong>NHTS No.:</strong>
+                        </label>
+                        <span className="text-gray-600">
+                          {selectedHousehold.nhtsno}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Water Source:</strong>
+                      </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.watersource}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="font-semibold text-gray-700">
+                        <strong>Toilet Facility:</strong>
+                      </label>
+                      <span className="text-gray-600">
+                        {selectedHousehold.toiletfacility}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
