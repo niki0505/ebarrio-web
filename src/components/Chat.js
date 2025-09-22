@@ -327,14 +327,8 @@ const Chat = ({ isOpen, setIsOpen }) => {
               message: response.data,
               timestamp: new Date(),
             };
-          } else {
-            // fallback: append if placeholder not found
-            updated.push({
-              from: "ai",
-              message: response.data,
-              timestamp: new Date(),
-            });
           }
+
           return updated;
         });
       }, 1500);

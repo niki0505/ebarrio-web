@@ -103,6 +103,8 @@ function ActivityLogs({ isCollapsed }) {
     "Username",
     "Password",
     "Security Questions",
+    "Mobile Number",
+    "FAQs",
   ];
 
   const handleSubmit = () => {
