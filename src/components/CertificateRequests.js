@@ -221,6 +221,7 @@ function CertificateRequests({ isCollapsed }) {
       setPendingClicked(false);
       if (isPrint) {
         IndigencyPrint({
+          certID,
           certData: response3.data,
           captainData: response4.data,
           preparedByData: response5.data,
@@ -228,6 +229,7 @@ function CertificateRequests({ isCollapsed }) {
         });
       } else {
         IndigencyPrint({
+          certID,
           isFirstIssue: true,
           certData: response3.data,
           captainData: response4.data,
@@ -262,12 +264,25 @@ function CertificateRequests({ isCollapsed }) {
       }
       setIssuedClicked(true);
       setPendingClicked(false);
-      ClearancePrint({
-        certData: response3.data,
-        captainData: response4.data,
-        preparedByData: response5.data,
-        updatedAt: response3.data.updatedAt,
-      });
+
+      if (isPrint) {
+        ClearancePrint({
+          certID,
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      } else {
+        ClearancePrint({
+          certID,
+          isFirstIssue: true,
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      }
     }
 
     if (response3.data.typeofcertificate === "Barangay Business Clearance") {
@@ -295,12 +310,25 @@ function CertificateRequests({ isCollapsed }) {
       }
       setIssuedClicked(true);
       setPendingClicked(false);
-      BusinessClearancePrint({
-        certData: response3.data,
-        captainData: response4.data,
-        preparedByData: response5.data,
-        updatedAt: response3.data.updatedAt,
-      });
+
+      if (isPrint) {
+        BusinessClearancePrint({
+          certID,
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      } else {
+        BusinessClearancePrint({
+          certID,
+          isFirstIssue: true,
+          certData: response3.data,
+          captainData: response4.data,
+          preparedByData: response5.data,
+          updatedAt: response3.data.updatedAt,
+        });
+      }
     }
   };
 
@@ -907,7 +935,9 @@ function CertificateRequests({ isCollapsed }) {
                                     <button
                                       className="table-actions-container"
                                       type="submit"
-                                      onClick={(e) => certBtn(e, cert._id)}
+                                      onClick={(e) =>
+                                        certBtn(e, cert._id, true)
+                                      }
                                     >
                                       <IoIosPrint className="text-btn-color-blue table-actions-icons" />
                                       <label className="text-btn-color-blue table-actions-text">

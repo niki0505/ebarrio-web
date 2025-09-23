@@ -3,8 +3,10 @@ import html2pdf from "html2pdf.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import ReactDOM from "react-dom/client";
 import BrgyIndigency from "../../assets/brgyindigency.png";
+import api from "../../api";
 
 const IndigencyPrint = async ({
+  certID,
   isFirstIssue,
   certData,
   captainData,
@@ -332,6 +334,12 @@ const IndigencyPrint = async ({
     const url = await getDownloadURL(fileRef);
 
     console.log("Uploaded PDF URL:", url);
+
+    try {
+      await api.put(`/savepdf/${certID}`, { url });
+    } catch (error) {
+      console.log("Error saving PDF", error);
+    }
 
     root.unmount();
     document.body.removeChild(printDiv);
