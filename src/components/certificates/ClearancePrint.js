@@ -1,9 +1,13 @@
 // BarangayIndigencyPrint.jsx
-import React from "react";
+import html2pdf from "html2pdf.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import ReactDOM from "react-dom/client";
 import BrgyClearance from "../../assets/brgyclearance.png";
+import api from "../../api";
 
-const ClearancePrint = ({
+const ClearancePrint = async ({
+  certID,
+  isFirstIssue,
   certData,
   captainData,
   preparedByData,
@@ -11,7 +15,17 @@ const ClearancePrint = ({
 }) => {
   const printContent = (
     <div id="printContent">
-      <div className="id-page">
+      <div
+        className="id-page"
+        style={{
+          width: "210mm",
+          height: "297mm",
+          position: "relative",
+          backgroundImage: `url(${BrgyClearance})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <div className="id-page">
           <div
             style={{
@@ -183,6 +197,26 @@ const ClearancePrint = ({
           </div>
           <img className="id-img" src={BrgyClearance} />
         </div>
+        {isFirstIssue && (
+          <div
+            className="watermark"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) rotate(-30deg)",
+              fontSize: "60px",
+              fontWeight: "bold",
+              color: "rgba(128,128,128,0.25)",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+              userSelect: "none",
+              zIndex: 9999,
+            }}
+          >
+            FOR VIEWING ONLY
+          </div>
+        )}
       </div>
     </div>
   );
@@ -205,6 +239,10 @@ const ClearancePrint = ({
       }
     }
     @media print {
+    .watermark {
+    display: none !important;
+    visibility: hidden !important;
+  }
       html, body {
         margin: 0 !important;
         padding: 0 !important;
@@ -243,20 +281,71 @@ const ClearancePrint = ({
   `;
   document.head.appendChild(printStyle);
 
-  window.onbeforeprint = () => {
-    console.log("Barangay Indigency is generated.");
-  };
-  window.onafterprint = () => {
-    console.log("Barangay Indigency is issued.");
-    document.body.removeChild(printDiv);
-    document.head.removeChild(printStyle);
-  };
-
   setTimeout(() => {
     window.print();
   }, 3000);
 
-  return null;
+  if (isFirstIssue) {
+    const waitForReact = () =>
+      new Promise((res) =>
+        requestAnimationFrame(() => requestAnimationFrame(res))
+      );
+
+    await waitForReact();
+    const contentElement = printDiv.querySelector(".id-page");
+    if (!contentElement) throw new Error("printContent element not found");
+
+    const waitForImages = (container) => {
+      const imgs = container.querySelectorAll("img");
+      return Promise.all(
+        Array.from(imgs).map((img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise((res) => {
+                img.onload = img.onerror = res;
+              })
+        )
+      );
+    };
+    await waitForImages(printDiv);
+
+    const opt = {
+      margin: 0,
+      filename: `${certData.certID.controlNumber}.pdf`,
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, logging: true },
+      jsPDF: {
+        unit: "px",
+        format: [794, 1123],
+        orientation: "portrait",
+      },
+    };
+    const pdfBlob = await html2pdf()
+      .set(opt)
+      .from(contentElement)
+      .outputPdf("blob");
+
+    const storage = getStorage();
+    const fileRef = ref(
+      storage,
+      `certificates/${certData.certID.controlNumber}.pdf`
+    );
+    await uploadBytes(fileRef, pdfBlob);
+    const url = await getDownloadURL(fileRef);
+
+    console.log("Uploaded PDF URL:", url);
+
+    try {
+      await api.put(`/savepdf/${certID}`, { url });
+    } catch (error) {
+      console.log("Error saving PDF", error);
+    }
+
+    root.unmount();
+    document.body.removeChild(printDiv);
+    document.head.removeChild(printStyle);
+    return url;
+  }
 };
 
 export default ClearancePrint;
