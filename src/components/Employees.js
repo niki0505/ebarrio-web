@@ -86,12 +86,27 @@ function Employees({ isCollapsed }) {
     if (action === "cancel") {
       return;
     }
-    if (loading) return;
 
-    setLoading(true);
+    const employee = employees.filter((emp) => empID === emp._id);
 
-    try {
-      if (action === "generate") {
+    if (action === "generate") {
+      if (!employee[0].resID.picture && !employee[0].resID.signature) {
+        confirm(
+          "This employee doesn't have a 2x2 picture and a signature.",
+          "failed"
+        );
+        return;
+      } else if (!employee[0].resID.picture) {
+        confirm("This employee doesn't have a 2x2 picture.", "failed");
+        return;
+      } else if (!employee[0].resID.signature) {
+        confirm("This employee doesn't have a signature.", "failed");
+        return;
+      }
+      if (loading) return;
+
+      setLoading(true);
+      try {
         const res = await api.post(`/generateemployeeID/${empID}`);
         const qrCode = await uploadToFirebase(res.data.qrCode);
 
@@ -108,7 +123,16 @@ function Employees({ isCollapsed }) {
           empData: response.data,
           captainData: response2.data,
         });
-      } else if (action === "current") {
+      } catch (error) {
+        console.log("Error generating employee ID", error);
+      } finally {
+        setLoading(false);
+      }
+    } else if (action === "current") {
+      if (loading) return;
+
+      setLoading(true);
+      try {
         const response = await api.get(`/getemployee/${empID}`);
         const response2 = await api.get(`/getcaptain/`);
         if (
@@ -122,11 +146,11 @@ function Employees({ isCollapsed }) {
           empData: response.data,
           captainData: response2.data,
         });
+      } catch (error) {
+        console.log("Error generating employee ID", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log("Error handling employee ID:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -704,12 +728,15 @@ function Employees({ isCollapsed }) {
                               <div className="my-4 text-xs">
                                 <div className="add-info-table-container">
                                   <div className="add-info-img-container">
-                                    <img
-                                      src={emp.resID.picture}
-                                      alt="Profile"
-                                      className="profile-img"
-                                    />
+                                    {emp.resID.picture ? (
+                                      <img
+                                        src={emp.resID.picture}
+                                        alt="Profile"
+                                        className="profile-img"
+                                      />
+                                    ) : null}
                                   </div>
+
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">
