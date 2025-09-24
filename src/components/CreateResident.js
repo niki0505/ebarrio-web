@@ -447,8 +447,7 @@ function CreateResident({ isCollapsed }) {
 
     setIsIDProcessing(true);
     try {
-      const blob = await removeBackground(fileUploaded);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(fileUploaded);
       setResidentForm((prev) => ({ ...prev, id: url }));
     } catch (error) {
       console.error("Error removing background:", error);
@@ -495,13 +494,6 @@ function CreateResident({ isCollapsed }) {
   const handleSubmit = async () => {
     let hasErrors = false;
 
-    if (!residentForm.id) {
-      confirm("Please attach a picture.", "failed");
-      hasErrors = true;
-    } else if (!residentForm.signature) {
-      confirm("Please attach a signature.", "failed");
-      hasErrors = true;
-    }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
       setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
@@ -540,8 +532,15 @@ function CreateResident({ isCollapsed }) {
 
       setLoading(true);
       const fulladdress = `${householdForm.housenumber} ${householdForm.street} Aniban 2, Bacoor, Cavite`;
-      const idPicture = await uploadToFirebase(residentForm.id);
-      const signaturePicture = await uploadToFirebase(residentForm.signature);
+      let idPicture;
+      let signaturePicture;
+      if (residentForm.id) {
+        idPicture = await uploadToFirebase(residentForm.id);
+      }
+
+      if (residentForm.signature) {
+        signaturePicture = await uploadToFirebase(residentForm.signature);
+      }
 
       let formattedMobileNumber = residentForm.mobilenumber;
       formattedMobileNumber = "0" + residentForm.mobilenumber.slice(3);
@@ -582,24 +581,7 @@ function CreateResident({ isCollapsed }) {
         ...updatedResidentForm,
         householdForm: updatedHouseholdForm,
       });
-      // try {
-      //   const response2 = await api.post(
-      //     `/generatebrgyID/${response.data.resID}`
-      //   );
-      //   const qrCode = await uploadToFirebase(response2.data.qrCode);
-      //   try {
-      //     await api.put(`/savebrgyID/${response.data.resID}`, {
-      //       idNumber: response2.data.idNumber,
-      //       expirationDate: response2.data.expirationDate,
-      //       qrCode,
-      //       qrToken: response2.data.qrToken,
-      //     });
-      //   } catch (error) {
-      //     console.log("Error saving barangay ID", error);
-      //   }
-      // } catch (error) {
-      //   console.log("Error generating barangay ID", error);
-      // }
+
       confirm(
         "A new resident record has been successfully created.",
         "success"
@@ -629,8 +611,7 @@ function CreateResident({ isCollapsed }) {
 
     setIsSignProcessing(true);
     try {
-      const blob = await removeBackground(fileUploaded);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(fileUploaded);
       setResidentForm((prev) => ({ ...prev, signature: url }));
     } catch (error) {
       console.error("Error removing background:", error);
@@ -740,7 +721,6 @@ function CreateResident({ isCollapsed }) {
       }
 
       const matches = residents
-        .filter((r) => !r.householdno)
         .filter(
           (r) =>
             r.status !== "Archived" &&
@@ -942,9 +922,7 @@ function CreateResident({ isCollapsed }) {
         <hr class="section-divider" />
         <div className="upload-container">
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Picture<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">2x2 Picture</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeID}
@@ -985,9 +963,7 @@ function CreateResident({ isCollapsed }) {
           </div>
 
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Signature<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">Signature</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeSig}
@@ -1893,7 +1869,7 @@ function CreateResident({ isCollapsed }) {
                   </div>
                   <div className="form-group">
                     <label for="HOAname" className="form-label">
-                      Position
+                      Relationship
                     </label>
                     <select
                       id="householdposition"
@@ -1902,7 +1878,7 @@ function CreateResident({ isCollapsed }) {
                       onChange={handleDropdownChange}
                       className="form-input"
                     >
-                      <option value="">Select Position</option>
+                      <option value="">Select Relationship</option>
                       <option value="Spouse">Spouse</option>
                       <option value="Son">Son</option>
                       <option value="Daughter">Daughter</option>
@@ -1958,7 +1934,7 @@ function CreateResident({ isCollapsed }) {
                   </div>
                   <div className="form-group">
                     <label for="HOAname" className="form-label">
-                      HOA Name
+                      Homeowners Association (HOA) Name
                     </label>
                     <select
                       id="HOAname"
@@ -1991,7 +1967,7 @@ function CreateResident({ isCollapsed }) {
                           value="IP Household"
                           checked={householdForm.ethnicity === "IP Household"}
                         />
-                        <h1>IP Household</h1>
+                        <h1>Indigenous Peoples (IP) Household</h1>
                       </div>
                       <div className="radio-item">
                         <input
@@ -2003,7 +1979,7 @@ function CreateResident({ isCollapsed }) {
                             householdForm.ethnicity === "Non-IP Household"
                           }
                         />
-                        <h1>Non-IP Household</h1>
+                        <h1>Non-Indigenous Peoples (Non-IP) Household</h1>
                       </div>
                     </div>
                   </div>
@@ -2037,7 +2013,7 @@ function CreateResident({ isCollapsed }) {
                           value="NHTS 4Ps"
                           checked={householdForm.sociostatus === "NHTS 4Ps"}
                         />
-                        <h1>NHTS 4Ps</h1>
+                        <h1>National Household Targeting System (NHTS) 4Ps</h1>
                       </div>
                       <div className="radio-item">
                         <input
@@ -2047,7 +2023,9 @@ function CreateResident({ isCollapsed }) {
                           value="NHTS Non-4Ps"
                           checked={householdForm.sociostatus === "NHTS Non-4Ps"}
                         />
-                        <h1>NHTS Non-4Ps</h1>
+                        <h1>
+                          National Household Targeting System (NHTS) Non-4Ps
+                        </h1>
                       </div>
                       <div className="radio-item">
                         <input
@@ -2057,7 +2035,9 @@ function CreateResident({ isCollapsed }) {
                           value="Non-NHTS"
                           checked={householdForm.sociostatus === "Non-NHTS"}
                         />
-                        <h1>Non-NHTS</h1>
+                        <h1>
+                          Non-National Household Targeting System (Non-NHTS)
+                        </h1>
                       </div>
                     </div>
                   </div>
@@ -2065,7 +2045,9 @@ function CreateResident({ isCollapsed }) {
                   {(householdForm.sociostatus === "NHTS 4Ps" ||
                     householdForm.sociostatus === "NHTS Non-4Ps") && (
                     <div className="col-san-1">
-                      <label className="form-label">NHTS No.</label>
+                      <label className="form-label">
+                        National Household Targeting System (NHTS) No.
+                      </label>
                       <input
                         name="nhtsno"
                         value={householdForm.nhtsno}
@@ -2126,9 +2108,9 @@ function CreateResident({ isCollapsed }) {
                 <table className="household-tbl-container">
                   <thead>
                     <tr>
-                      <th className="household-tbl-th">Position</th>
+                      <th className="household-tbl-th">Relationship</th>
                       <th className="household-tbl-th">Name</th>
-                      <th className="household-tbl-th"></th>
+                      <th className="household-tbl-th">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2146,7 +2128,7 @@ function CreateResident({ isCollapsed }) {
                             }
                             className="form-input"
                           >
-                            <option value="">Select Position</option>
+                            <option value="">Select Relationship</option>
                             <option value="Spouse">Spouse</option>
                             <option value="Son">Son</option>
                             <option value="Daughter">Daughter</option>
