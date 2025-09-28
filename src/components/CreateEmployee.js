@@ -70,25 +70,6 @@ function CreateEmployee({ onClose }) {
       const response = await api.post("/createemployee", {
         formattedEmployeeForm,
       });
-      try {
-        const response2 = await api.post(
-          `/generateemployeeID/${response.data.empID}`
-        );
-        const qrCode = await uploadToFirebase(response2.data.qrCode);
-
-        try {
-          await api.put(`/saveemployeeID/${response.data.empID}`, {
-            idNumber: response2.data.idNumber,
-            expirationDate: response2.data.expirationDate,
-            qrCode,
-            qrToken: response2.data.qrToken,
-          });
-        } catch (error) {
-          console.log("Error saving employee ID", error);
-        }
-      } catch (error) {
-        console.log("Error generating employee ID", error);
-      }
       setEmployeeForm({
         resID: "",
         position: "",

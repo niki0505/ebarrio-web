@@ -601,14 +601,18 @@ function Accounts({ isCollapsed }) {
                   >
                     <td>
                       <div className="accounts-name-container">
-                        <img
-                          width={40}
-                          className="accounts-img-container"
-                          alt="User"
-                          src={
-                            user.empID?.resID?.picture || user.resID?.picture
-                          }
-                        />
+                        {(user.empID?.resID?.picture ||
+                          user.resID?.picture) && (
+                          <img
+                            width={40}
+                            className="accounts-img-container"
+                            alt="User"
+                            src={
+                              user.empID?.resID?.picture || user.resID?.picture
+                            }
+                          />
+                        )}
+
                         {user.empID
                           ? user.empID.resID.middlename
                             ? `${user.empID.resID.lastname}, ${user.empID.resID.middlename} ${user.empID.resID.firstname}`

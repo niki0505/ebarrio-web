@@ -113,10 +113,25 @@ function Residents({ isCollapsed }) {
     if (action === "cancel") {
       return;
     }
-    if (loading) return;
 
-    setLoading(true);
+    const resident = residents.filter((res) => resID === res._id);
     if (action === "generate") {
+      if (!resident.picture && !resident.signature) {
+        confirm(
+          "This resident doesn't have a 2x2 picture and a signature.",
+          "failed"
+        );
+        return;
+      } else if (!resident.picture) {
+        confirm("This resident doesn't have a 2x2 picture.", "failed");
+        return;
+      } else if (!resident.signature) {
+        confirm("This resident doesn't have a signature.", "failed");
+        return;
+      }
+      if (loading) return;
+
+      setLoading(true);
       try {
         const response = await api.post(`/generatebrgyID/${resID}`);
         const qrCode = await uploadToFirebase(response.data.qrCode);
@@ -142,6 +157,9 @@ function Residents({ isCollapsed }) {
         setLoading(false);
       }
     } else if (action === "current") {
+      if (loading) return;
+
+      setLoading(true);
       try {
         const response = await api.get(`/getresident/${resID}`);
         const response2 = await api.get(`/getcaptain/`);
@@ -198,9 +216,8 @@ function Residents({ isCollapsed }) {
 
       // Try removing background from picture
       try {
-        const removedBgPicture = await removeBackground(pictureBlob);
         pictureURL = await uploadToFirebaseImages(
-          new Blob([removedBgPicture], { type: "image/png" })
+          new Blob([pictureBlob], { type: "image/png" })
         );
       } catch (err) {
         console.warn(
@@ -884,12 +901,15 @@ function Residents({ isCollapsed }) {
                               <div className="my-4 text-xs">
                                 <div className="add-info-table-container">
                                   <div className="add-info-img-container">
-                                    <img
-                                      src={res.picture}
-                                      alt="Profile"
-                                      className="profile-img"
-                                    />
+                                    {res.picture ? (
+                                      <img
+                                        src={res.picture}
+                                        alt="Profile"
+                                        className="profile-img"
+                                      />
+                                    ) : null}
                                   </div>
+
                                   {/* Name */}
                                   <div className="add-info-title">Name</div>
                                   <div className="add-info-container">

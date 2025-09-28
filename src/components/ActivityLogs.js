@@ -526,16 +526,19 @@ function ActivityLogs({ isCollapsed }) {
                     <td>{log.logno}</td>
                     <td>
                       <div className="logs-user-cell">
-                        <img
-                          width={40}
-                          className="logs-user-img"
-                          alt="User"
-                          src={
-                            log.userID?.empID?.resID?.picture ||
-                            log.userID?.resID?.picture ||
-                            null
-                          }
-                        />
+                        {(log.userID?.empID?.resID?.picture ||
+                          log.userID?.resID?.picture) && (
+                          <img
+                            width={40}
+                            className="logs-user-img"
+                            alt="User"
+                            src={
+                              log.userID?.empID?.resID?.picture ||
+                              log.userID?.resID?.picture
+                            }
+                          />
+                        )}
+
                         <div className="flex flex-col">
                           <div>
                             {log.userID?.empID?.resID

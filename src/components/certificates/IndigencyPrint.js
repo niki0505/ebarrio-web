@@ -36,10 +36,13 @@ const IndigencyPrint = async ({
               height: "120px",
             }}
           >
-            <img
-              style={{ width: "100%", height: "100%" }}
-              src={certData.resID.picture}
-            />
+            {certData.resID.picture && (
+              <img
+                style={{ width: "100%", height: "100%" }}
+                src={certData.resID.picture}
+                alt="Resident"
+              />
+            )}
           </div>
           <div
             style={{

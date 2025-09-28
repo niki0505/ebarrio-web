@@ -37,6 +37,17 @@ function FAQs({ onClose }) {
     if (!newFAQ.question.trim()) {
       errors.question = "Please fill out this field!";
       isValid = false;
+    } else {
+      const exists = FAQslist.some(
+        (faq) =>
+          faq.question.toLowerCase().replace(/\s+/g, "") ===
+          newFAQ.question.toLowerCase().replace(/\s+/g, "")
+      );
+
+      if (exists) {
+        errors.question = "This question already exists!";
+        isValid = false;
+      }
     }
 
     if (!newFAQ.answer.trim()) {

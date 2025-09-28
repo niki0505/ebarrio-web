@@ -1224,20 +1224,6 @@ function AccountSettings({ isCollapsed }) {
     }));
   };
 
-  // const addMember = () => {
-  //   setHouseholdForm((prev) => ({
-  //     ...prev,
-  //     members: [...prev.members, { resident: "", position: "" }],
-  //   }));
-  // };
-
-  // const removeMember = (index) => {
-  //   setHouseholdForm((prev) => ({
-  //     ...prev,
-  //     members: prev.members.filter((_, i) => i !== index),
-  //   }));
-  // };
-
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [editedPosition, setEditedPosition] = useState("");
   const [newMembers, setNewMembers] = useState([]);
@@ -1353,6 +1339,7 @@ function AccountSettings({ isCollapsed }) {
     setNewMembers((prev) => prev.filter((m) => m.tempId !== tempId));
   };
 
+  console.log(residentInfo);
   const handleMemberInputChange = (index, value) => {
     setNewMembers((prev) => {
       const updated = [...prev];
@@ -1362,7 +1349,14 @@ function AccountSettings({ isCollapsed }) {
     });
     if (value.length > 0) {
       const filtered = residents
-        .filter((r) => !r.householdno)
+        .filter((r) => r._id !== user.resID)
+        .filter((r) => r.householdno?._id !== residentInfo.householdno._id)
+        .filter(
+          (r) =>
+            r.status !== "Archived" &&
+            r.status !== "Pending" &&
+            r.status !== "Rejected"
+        )
         .filter((r) => {
           const fullName = `${r.firstname} ${
             r.middlename ? r.middlename + " " : ""
@@ -2605,7 +2599,7 @@ function AccountSettings({ isCollapsed }) {
                               </div>
                               <div className="form-group">
                                 <label for="HOAname" className="form-label">
-                                  Position
+                                  Relationship
                                 </label>
                                 <select
                                   id="householdposition"
@@ -2614,7 +2608,7 @@ function AccountSettings({ isCollapsed }) {
                                   onChange={handleDropdownChange}
                                   className="form-input"
                                 >
-                                  <option value="">Select Position</option>
+                                  <option value="">Select Relationship</option>
                                   <option value="Spouse">Spouse</option>
                                   <option value="Son">Son</option>
                                   <option value="Daughter">Daughter</option>
@@ -2676,7 +2670,7 @@ function AccountSettings({ isCollapsed }) {
                                 </div>
                                 <div className="form-group">
                                   <label for="HOAname" className="form-label">
-                                    HOA Name
+                                    Homeowners Association (HOA) Name
                                   </label>
                                   <select
                                     id="HOAname"
@@ -2711,7 +2705,7 @@ function AccountSettings({ isCollapsed }) {
                                           "IP Household"
                                         }
                                       />
-                                      <h1>IP Household</h1>
+                                      <h1>Indigenous Peoples (IP) Household</h1>
                                     </div>
                                     <div className="radio-item">
                                       <input
@@ -2724,7 +2718,10 @@ function AccountSettings({ isCollapsed }) {
                                           "Non-IP Household"
                                         }
                                       />
-                                      <h1>Non-IP Household</h1>
+                                      <h1>
+                                        Non-Indigenous Peoples (Non-IP)
+                                        Household
+                                      </h1>
                                     </div>
                                   </div>
                                 </div>
@@ -2761,7 +2758,10 @@ function AccountSettings({ isCollapsed }) {
                                           "NHTS 4Ps"
                                         }
                                       />
-                                      <h1>NHTS 4Ps</h1>
+                                      <h1>
+                                        National Household Targeting System
+                                        (NHTS) 4Ps
+                                      </h1>
                                     </div>
                                     <div className="radio-item">
                                       <input
@@ -2774,7 +2774,10 @@ function AccountSettings({ isCollapsed }) {
                                           "NHTS Non-4Ps"
                                         }
                                       />
-                                      <h1>NHTS Non-4Ps</h1>
+                                      <h1>
+                                        National Household Targeting System
+                                        (NHTS) Non-4Ps
+                                      </h1>
                                     </div>
                                     <div className="radio-item">
                                       <input
@@ -2787,7 +2790,10 @@ function AccountSettings({ isCollapsed }) {
                                           "Non-NHTS"
                                         }
                                       />
-                                      <h1>Non-NHTS</h1>
+                                      <h1>
+                                        Non-National Household Targeting System
+                                        (Non-NHTS)
+                                      </h1>
                                     </div>
                                   </div>
                                 </div>
@@ -2797,7 +2803,8 @@ function AccountSettings({ isCollapsed }) {
                                     "NHTS Non-4Ps") && (
                                   <div className="form-group">
                                     <label className="form-label">
-                                      NHTS No.
+                                      National Household Targeting System (NHTS)
+                                      No.
                                     </label>
                                     <input
                                       name="nhtsno"
@@ -2866,7 +2873,7 @@ function AccountSettings({ isCollapsed }) {
                                 <thead>
                                   <tr>
                                     <th className="household-tbl-th">
-                                      Position
+                                      Relationship
                                     </th>
                                     <th className="household-tbl-th">Name</th>
                                     <th className="household-tbl-th">
@@ -2891,7 +2898,7 @@ function AccountSettings({ isCollapsed }) {
                                               className="form-input"
                                             >
                                               <option value="">
-                                                Select Position
+                                                Select Relationship
                                               </option>
                                               <option value="Spouse">
                                                 Spouse

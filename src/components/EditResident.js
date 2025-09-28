@@ -114,7 +114,6 @@ function EditResident({ isCollapsed }) {
     HOAname: "",
     address: "",
   });
-  console.log(householdForm);
 
   useEffect(() => {
     fetchResidents();
@@ -584,8 +583,7 @@ function EditResident({ isCollapsed }) {
     }
     setIsIDProcessing(true);
     try {
-      const blob = await removeBackground(fileUploaded);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(fileUploaded);
       setId(url);
     } catch (error) {
       console.error("Error removing background:", error);
@@ -622,13 +620,6 @@ function EditResident({ isCollapsed }) {
   const handleSubmit = async () => {
     let hasErrors = false;
 
-    if (!id) {
-      confirm("Please attach a picture.", "failed");
-      hasErrors = true;
-    } else if (!signature) {
-      confirm("Please attach a signature.", "failed");
-      hasErrors = true;
-    }
     if (residentForm.mobilenumber && residentForm.mobilenumber.length !== 13) {
       setMobileNumError("Invalid mobile number format!");
       hasErrors = true;
@@ -732,8 +723,7 @@ function EditResident({ isCollapsed }) {
     }
     setIsSignProcessing(true);
     try {
-      const blob = await removeBackground(fileUploaded);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(fileUploaded);
       setSignature(url);
     } catch (error) {
       console.error("Error removing background:", error);
@@ -1008,7 +998,8 @@ function EditResident({ isCollapsed }) {
     });
     if (value.length > 0) {
       const filtered = residents
-        .filter((r) => !r.householdno)
+        .filter((r) => r._id !== resID)
+        .filter((r) => r.householdno?._id !== residentInfo.householdno._id)
         .filter((r) => r.status === "Active" || r.status === "Change Requested")
         .filter((r) => {
           const fullName = `${r.firstname} ${
@@ -1188,9 +1179,7 @@ function EditResident({ isCollapsed }) {
         <hr class="section-divider" />
         <div className="upload-container">
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Picture<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">2x2 Picture</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeID}
@@ -1229,9 +1218,7 @@ function EditResident({ isCollapsed }) {
           </div>
 
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Signature<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">Signature</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeSig}
@@ -2071,61 +2058,6 @@ function EditResident({ isCollapsed }) {
             </div>
           </div>
 
-          {/* Address Information
-          <h3 className="section-title mt-8">Address Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-grid">
-            <div className="form-group">
-              <label className="form-label">House Number</label>
-              <input
-                name="housenumber"
-                value={residentForm.housenumber}
-                onChange={numbersAndNoSpaceOnly}
-                placeholder="Enter house number"
-                maxLength={3}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label for="street" className="form-label">
-                Street<label className="text-red-600">*</label>
-              </label>
-              <select
-                id="street"
-                name="street"
-                onChange={handleDropdownChange}
-                required
-                value={residentForm.street}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                {streetList.map((element) => (
-                  <option value={element}>{element}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label for="HOAname" className="form-label">
-                HOA Name
-              </label>
-              <select
-                id="HOAname"
-                name="HOAname"
-                value={residentForm.HOAname}
-                onChange={handleDropdownChange}
-                className="form-input"
-              >
-                <option value="" selected>
-                  Select
-                </option>
-                <option value="Bermuda Town Homes">Bermuda Town Homes</option>
-              </select>
-            </div>
-          </div> */}
-
           {/* Household Information */}
           <h3 className="section-title mt-8">Household Information</h3>
           <hr class="section-divider" />
@@ -2195,7 +2127,7 @@ function EditResident({ isCollapsed }) {
                   </div>
                   <div className="form-group">
                     <label for="HOAname" className="form-label">
-                      Position
+                      Relationship
                     </label>
                     <select
                       id="householdposition"
@@ -2204,7 +2136,7 @@ function EditResident({ isCollapsed }) {
                       onChange={handleDropdownChange}
                       className="form-input"
                     >
-                      <option value="">Select Position</option>
+                      <option value="">Select Relationship</option>
                       <option value="Spouse">Spouse</option>
                       <option value="Son">Son</option>
                       <option value="Daughter">Daughter</option>
@@ -2261,7 +2193,7 @@ function EditResident({ isCollapsed }) {
                     </div>
                     <div className="form-group">
                       <label for="HOAname" className="form-label">
-                        HOA Name
+                        Homeowners Association (HOA) Name
                       </label>
                       <select
                         id="HOAname"
@@ -2292,7 +2224,7 @@ function EditResident({ isCollapsed }) {
                             value="IP Household"
                             checked={householdForm.ethnicity === "IP Household"}
                           />
-                          <h1>IP Household</h1>
+                          <h1>Indigenous Peoples (IP) Household</h1>
                         </div>
                         <div className="radio-item">
                           <input
@@ -2304,7 +2236,7 @@ function EditResident({ isCollapsed }) {
                               householdForm.ethnicity === "Non-IP Household"
                             }
                           />
-                          <h1>Non-IP Household</h1>
+                          <h1>Non-Indigenous Peoples (IP) Household</h1>
                         </div>
                       </div>
                     </div>
@@ -2338,7 +2270,9 @@ function EditResident({ isCollapsed }) {
                             value="NHTS 4Ps"
                             checked={householdForm.sociostatus === "NHTS 4Ps"}
                           />
-                          <h1>NHTS 4Ps</h1>
+                          <h1>
+                            National Household Targeting System (NHTS) 4Ps
+                          </h1>
                         </div>
                         <div className="radio-item">
                           <input
@@ -2350,7 +2284,9 @@ function EditResident({ isCollapsed }) {
                               householdForm.sociostatus === "NHTS Non-4Ps"
                             }
                           />
-                          <h1>NHTS Non-4Ps</h1>
+                          <h1>
+                            National Household Targeting System (NHTS) Non-4Ps
+                          </h1>
                         </div>
                         <div className="radio-item">
                           <input
@@ -2360,7 +2296,9 @@ function EditResident({ isCollapsed }) {
                             value="Non-NHTS"
                             checked={householdForm.sociostatus === "Non-NHTS"}
                           />
-                          <h1>Non-NHTS</h1>
+                          <h1>
+                            Non-National Household Targeting System (Non-NHTS)
+                          </h1>
                         </div>
                       </div>
                     </div>
@@ -2368,7 +2306,9 @@ function EditResident({ isCollapsed }) {
                     {(householdForm.sociostatus === "NHTS 4Ps" ||
                       householdForm.sociostatus === "NHTS Non-4Ps") && (
                       <div className="form-group">
-                        <label className="form-label">NHTS No.</label>
+                        <label className="form-label">
+                          National Household Targeting System (NHTS) No.
+                        </label>
                         <input
                           name="nhtsno"
                           value={householdForm.nhtsno}
@@ -2429,7 +2369,7 @@ function EditResident({ isCollapsed }) {
                   <table className="household-tbl-container">
                     <thead>
                       <tr>
-                        <th className="household-tbl-th">Position</th>
+                        <th className="household-tbl-th">Relationship</th>
                         <th className="household-tbl-th">Name</th>
                         <th className="household-tbl-th">Actions</th>
                       </tr>
@@ -2447,7 +2387,7 @@ function EditResident({ isCollapsed }) {
                                 }
                                 className="form-input"
                               >
-                                <option value="">Select Position</option>
+                                <option value="">Select Relationship</option>
                                 <option value="Spouse">Spouse</option>
                                 <option value="Son">Son</option>
                                 <option value="Daughter">Daughter</option>
