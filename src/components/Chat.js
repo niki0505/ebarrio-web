@@ -383,10 +383,18 @@ const Chat = ({ isOpen, setIsOpen }) => {
             </button>
 
             {/* Header */}
-            <div className="chat-modal-header">
-              <h2 className="text-xl font-semibold">
-                {isAI ? "MariBot" : "Barangay Chat"}
-              </h2>
+            <div className="chat-modal-header flex items-center gap-2">
+              {isAI ? (
+                <>
+                  <RiRobot2Fill className="chat-icon" />
+                  <h2 className="text-xl font-semibold">MariBot</h2>
+                </>
+              ) : (
+                <>
+                  <IoChatbubbleEllipses className="chat-icon" />
+                  <h2 className="text-xl font-semibold">Barangay Chat</h2>
+                </>
+              )}
             </div>
 
             {/* Body */}
@@ -507,7 +515,7 @@ const Chat = ({ isOpen, setIsOpen }) => {
                             <img
                               src={picture}
                               alt="Profile"
-                              className="chat-item-img"
+                             className="chat-item-img border"
                             />
                             <div className="flex-1">
                               <p className="chat-item-name">
