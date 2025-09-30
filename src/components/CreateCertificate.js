@@ -24,6 +24,7 @@ function CreateCertificate({ resID, onClose }) {
     typeofcertificate: "",
     amount: "",
     purpose: "",
+    purpose2: "",
     businessname: "",
     lineofbusiness: "",
     addressnumber: "",
@@ -41,8 +42,18 @@ function CreateCertificate({ resID, onClose }) {
   ];
 
   const certificateFields = {
-    "Barangay Indigency": ["typeofcertificate", "purpose", "amount"],
-    "Barangay Clearance": ["typeofcertificate", "purpose", "amount"],
+    "Barangay Indigency": [
+      "typeofcertificate",
+      "purpose",
+      "purpose2",
+      "amount",
+    ],
+    "Barangay Clearance": [
+      "typeofcertificate",
+      "purpose",
+      "purpose2",
+      "amount",
+    ],
     "Barangay Business Clearance": [
       "typeofcertificate",
       "addressnumber",
@@ -73,7 +84,7 @@ function CreateCertificate({ resID, onClose }) {
     "Resident's Address",
   ];
 
-  const purpose = ["ALS Requirement", "Financial Assistance"];
+  const purpose = ["ALS Requirement", "Financial Assistance", "Others"];
 
   const handleDropdownChange = (e) => {
     const { name, value } = e.target;
@@ -155,6 +166,13 @@ function CreateCertificate({ resID, onClose }) {
       delete filteredData.addressnumber;
       delete filteredData.street;
     }
+
+    if (filteredData.purpose === "Others") {
+      filteredData.purpose = filteredData.purpose2;
+      delete filteredData.purpose2;
+    } else {
+      delete filteredData.purpose2;
+    }
     try {
       const response = await api.post("/generatecertificate", {
         filteredData,
@@ -230,6 +248,25 @@ function CreateCertificate({ resID, onClose }) {
   const handleClose = () => {
     setShowModal(false);
     onClose();
+  };
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  const lettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setCertificateForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
   };
   return (
     <>
@@ -369,11 +406,27 @@ function CreateCertificate({ resID, onClose }) {
                     </div>
                   </>
                 )}
+                {certificateForm.purpose === "Others" && (
+                  <div className="employee-form-group">
+                    <label className="form-label">
+                      Others (Please Specify)
+                      <label className="text-red-600">*</label>
+                    </label>
+
+                    <input
+                      type="text"
+                      id="purpose2"
+                      name="purpose2"
+                      onChange={lettersAndSpaceOnly}
+                      value={certificateForm.purpose2}
+                      required
+                      className="form-input h-[30px]"
+                    />
+                  </div>
+                )}
 
                 <div className="employee-form-group">
-                  <label className="form-label">
-                    Amount <label className="text-red-600"></label>
-                  </label>
+                  <label className="form-label">Amount</label>
 
                   <input
                     type="text"

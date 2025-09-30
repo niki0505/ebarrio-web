@@ -583,7 +583,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 <>
                   <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
                     <IoClose
-                      // onClick={handleClose}
+                      onClick={() => setSelectedID(null)}
                       className="text-2xl ml-auto text-white cursor-pointer hover:text-red-500"
                     />
                     <div className="flex flex-col items-center">
