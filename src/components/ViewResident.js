@@ -1122,46 +1122,7 @@ function ViewResident({ isCollapsed }) {
     setLoading(true);
 
     try {
-      const response = await api.get(`/getresidentimages/${resID}`);
-      const { picture, signature } = response.data;
-
-      const pictureBlob = await fetch(picture).then((res) => res.blob());
-      const signatureBlob = await fetch(signature).then((res) => res.blob());
-
-      let pictureURL, signatureURL;
-
-      console.log("Attempting to remove background...");
-
-      // Try removing background from picture
-      try {
-        const removedBgPicture = await removeBackground(pictureBlob);
-        pictureURL = await uploadToFirebaseImages(
-          new Blob([removedBgPicture], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from picture. Uploading original."
-        );
-        pictureURL = await uploadToFirebase(pictureBlob);
-      }
-
-      // Try removing background from signature
-      try {
-        const removedBgSignature = await removeBackground(signatureBlob);
-        signatureURL = await uploadToFirebaseImages(
-          new Blob([removedBgSignature], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from signature. Uploading original."
-        );
-        signatureURL = await uploadToFirebase(signatureBlob);
-      }
-
-      await api.post(`/approveresident/${resID}`, {
-        pictureURL,
-        signatureURL,
-      });
+      await api.post(`/approveresident/${resID}`);
 
       confirm("The resident has been successfully approved.", "success");
       navigation("/residents");
@@ -1316,9 +1277,7 @@ function ViewResident({ isCollapsed }) {
         <hr class="section-divider" />
         <div className="upload-container">
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Picture<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">2x2 Picture</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeID}
@@ -1353,9 +1312,7 @@ function ViewResident({ isCollapsed }) {
           </div>
 
           <div className="picture-upload-wrapper">
-            <h3 className="form-label">
-              Signature<label className="text-red-600">*</label>
-            </h3>
+            <h3 className="form-label">Signature</h3>
             <div className="upload-box">
               <input
                 onChange={handleChangeSig}

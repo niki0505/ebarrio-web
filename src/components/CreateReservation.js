@@ -19,6 +19,7 @@ function CreateReservation({ onClose }) {
   const [reservationForm, setReservationForm] = useState({
     resID: "",
     purpose: "",
+    purpose2: "",
     date: [],
     times: {},
     amount: "",
@@ -59,8 +60,16 @@ function CreateReservation({ onClose }) {
     if (loading) return;
 
     setLoading(true);
+
+    let updatedForm = { ...reservationForm };
+    if (updatedForm.purpose === "Others") {
+      updatedForm.purpose = updatedForm.purpose2;
+      delete updatedForm.purpose2;
+    } else {
+      delete updatedForm.purpose2;
+    }
     try {
-      await api.post("/createreservation", { reservationForm });
+      await api.post("/createreservation", { reservationForm: updatedForm });
       confirm("The court reservation has been successfully added.", "success");
       onClose();
     } catch (error) {
@@ -75,7 +84,7 @@ function CreateReservation({ onClose }) {
     onClose();
   };
 
-  const purposeList = ["Basketball", "Birthday"];
+  const purposeList = ["Basketball", "Birthday", "Zumba", "Others"];
 
   const handleDropdownChange = (e) => {
     const { name, value } = e.target;
@@ -190,6 +199,26 @@ function CreateReservation({ onClose }) {
     });
   };
 
+  const smartCapitalize = (word) => {
+    if (word === word.toUpperCase()) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  };
+
+  const lettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setReservationForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
+  };
+
   return (
     <>
       {showModal && (
@@ -232,13 +261,19 @@ function CreateReservation({ onClose }) {
                     <option value="" disabled>
                       Select
                     </option>
-                    {residents.map((element) => (
-                      <option key={element._id} value={element._id}>
-                        {element.middlename
-                          ? `${element.firstname} ${element.middlename} ${element.lastname}`
-                          : `${element.firstname} ${element.lastname}`}
-                      </option>
-                    ))}
+                    {residents
+                      .filter(
+                        (res) =>
+                          res.status === "Active" ||
+                          res.status === "Change Requested"
+                      )
+                      .map((element) => (
+                        <option key={element._id} value={element._id}>
+                          {element.middlename
+                            ? `${element.firstname} ${element.middlename} ${element.lastname}`
+                            : `${element.firstname} ${element.lastname}`}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -265,6 +300,24 @@ function CreateReservation({ onClose }) {
                     ))}
                   </select>
                 </div>
+
+                {reservationForm.purpose === "Others" && (
+                  <div className="employee-form-group">
+                    <label htmlFor="amount" className="form-label">
+                      Others (Please Specify)
+                      <label className="text-red-600">*</label>
+                    </label>
+                    <input
+                      value={reservationForm.purpose2}
+                      type="text"
+                      id="purpose2"
+                      name="purpose2"
+                      required
+                      className="form-input"
+                      onChange={lettersAndSpaceOnly}
+                    />
+                  </div>
+                )}
 
                 {/* Date picker */}
                 <div className="employee-form-group">
