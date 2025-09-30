@@ -21,6 +21,9 @@ import {
 
 //STYLES
 import "../Stylesheets/Dashboard.css";
+import totalresidents from "..//assets/dashboard/residents.png";
+import male from "../assets/dashboard/male.png";
+import female from "..//assets/dashboard/female.png";
 
 //ICONS
 import { IoIosPeople } from "react-icons/io";
@@ -654,16 +657,22 @@ function Dashboard({ isCollapsed }) {
                 className="form-group cursor-pointer"
                 onClick={() => navigation("/residents")}
               >
-                <div className="demog-card-container hover:bg-[#FFB200]/10">
-                  <div class="demog-card-left-border bg-[#FFB200]"></div>
+                <div className="demog-card-container hover:bg-[#009B3D]/10">
+                  <div class="demog-card-left-border bg-[#00C853]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total">{animatedTotal}</h2>
-                    <p class="text-[#FFB200] demog-text">Total Residents</p>
+                    <p class="text-[#00C853] demog-text">Total Residents</p>
                   </div>
 
                   <div class="demog-icon">
-                    <IoIosPeople />
+                    <img
+                      src={totalresidents}
+                      alt="Total Residents Icon"
+                      width="40"
+                      height="40"
+                      classname="icon-image"
+                    ></img>
                   </div>
                 </div>
               </div>
@@ -673,7 +682,7 @@ function Dashboard({ isCollapsed }) {
                 onClick={() => navigation("/households")}
               >
                 <div className="demog-card-container hover:bg-[#EB5B00]/10">
-                  <div class="demog-card-left-border bg-[#EB5B00]"></div>
+                  <div class="demog-card-left-border bg-[#E65C00]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total ">{animatedTotalHouseholds}</h2>
@@ -696,16 +705,21 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container hover:bg-[#0079FF]/10">
-                  <div class="demog-card-left-border bg-[#0079FF] "></div>
+                <div className="demog-card-container hover:bg-[#1565C0]/10">
+                  <div class="demog-card-left-border bg-[#1E88E5]"></div>
 
                   <div class="flex-grow pt-8">
-                    <h2 class="demog-total ">{animatedMale}</h2>
-                    <p class="text-[#0079FF] demog-text">Male</p>
+                    <h2 class="demog-total">{animatedMale}</h2>
+                    <p class="text-[#1E88E5] demog-text">Male</p>
                   </div>
 
                   <div class="demog-icon">
-                    <FaMale />
+                    <img
+                      src={male}
+                      alt="Male Icon"
+                      width="25"
+                      height="25"
+                    ></img>
                   </div>
                 </div>
               </div>
@@ -720,16 +734,22 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container hover:bg-[#FF90BB]/10">
-                  <div class="demog-card-left-border bg-[#FF90BB]"></div>
+                <div className="demog-card-container hover:bg-[#F50057]/10">
+                  <div class="demog-card-left-border bg-[#FF4081]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total ">{animatedFemale}</h2>
-                    <p class="text-[#FF90BB] demog-text">Female</p>
+                    <p class="text-[#FF4081] demog-text">Female</p>
                   </div>
 
                   <div class="demog-icon">
-                    <FaFemale />
+                    <img
+                      src={female}
+                      alt="Female Icon"
+                      width="25"
+                      height="25"
+                      classname="icon-image"
+                    ></img>
                   </div>
                 </div>
               </div>
@@ -744,12 +764,12 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container hover:bg-[#AF47D2]/10">
-                  <div class="demog-card-left-border bg-[#AF47D2]"></div>
+                <div className="demog-card-container hover:bg-[#AA00D4]/10">
+                  <div class="demog-card-left-border bg-[#D500F9]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total ">{animatedFourps}</h2>
-                    <p class="text-[#AF47D2] demog-text">4Ps</p>
+                    <p class="text-[#D500F9] demog-text">4Ps</p>
                   </div>
 
                   <div class="demog-icon">
@@ -796,12 +816,12 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container hover:bg-[#7C838B]/10">
-                  <div class="demog-card-left-border bg-[#7C838B]"></div>
+                <div className="demog-card-container hover:bg-[#D50032]/10">
+                  <div class="demog-card-left-border bg-[#FF000D]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total ">{animatedUnemployed}</h2>
-                    <p class="text-[#7C838B] demog-text">Unemployed</p>
+                    <p class="text-[#FF000D] demog-text">Unemployed</p>
                   </div>
 
                   <div class="demog-icon">
@@ -820,12 +840,12 @@ function Dashboard({ isCollapsed }) {
                   })
                 }
               >
-                <div className="demog-card-container hover:bg-[#06D001]/10">
-                  <div class="demog-card-left-border bg-[#06D001]"></div>
+                <div className="demog-card-container hover:bg-[#FFCC00]/10">
+                  <div class="demog-card-left-border bg-[#FFD600]"></div>
 
                   <div class="flex-grow pt-8">
                     <h2 class="demog-total ">{animatedVoters}</h2>
-                    <p class="text-[#06D001] demog-text">Voters</p>
+                    <p class="text-[#FFD600] demog-text">Voters</p>
                   </div>
 
                   <div class="demog-icon">
@@ -896,7 +916,8 @@ function Dashboard({ isCollapsed }) {
                           }}
                         />
                         <Legend
-                          iconType="circle"
+                          iconType="square"
+                          iconSize={14}
                           layout="horizontal"
                           align="center"
                           verticalAlign="top"
@@ -904,6 +925,7 @@ function Dashboard({ isCollapsed }) {
                             fontSize: "14px",
                             fontFamily: "Quicksand",
                             color: "#04384E",
+                            paddingBottom: "10px",
                           }}
                         />
                         <Bar
@@ -1057,7 +1079,8 @@ function Dashboard({ isCollapsed }) {
                           />
 
                           <Legend
-                            iconType="circle"
+                            iconType="square"
+                            iconSize={14}
                             layout="horizontal"
                             align="center"
                             verticalAlign="top"
@@ -1066,7 +1089,7 @@ function Dashboard({ isCollapsed }) {
                               fontWeight: 600,
                               color: "#04384E",
                               fontFamily: "Quicksand",
-                              marginBottom: 10,
+                              paddingBottom: "10px",
                             }}
                             onClick={(e) =>
                               handleLegendClick(
@@ -1243,7 +1266,8 @@ function Dashboard({ isCollapsed }) {
                           />
 
                           <Legend
-                            iconType="circle"
+                            iconType="square"
+                            iconSize={14}
                             layout="horizontal"
                             align="center"
                             verticalAlign="top"
@@ -1252,7 +1276,7 @@ function Dashboard({ isCollapsed }) {
                               fontWeight: 600,
                               color: "#04384E",
                               fontFamily: "Quicksand",
-                              marginBottom: 10,
+                              paddingBottom: "10px",
                             }}
                             onClick={(e) =>
                               handleLegendClick(
@@ -1446,7 +1470,8 @@ function Dashboard({ isCollapsed }) {
                           labelStyle={{ color: "#666" }}
                         />
                         <Legend
-                          iconType="circle"
+                          iconType="square"
+                          iconSize={14}
                           layout="horizontal"
                           align="center"
                           verticalAlign="top"
@@ -1455,7 +1480,7 @@ function Dashboard({ isCollapsed }) {
                             fontWeight: 600,
                             color: "#04384E",
                             fontFamily: "Quicksand",
-                            marginBottom: 10,
+                            paddingBottom: "10px",
                           }}
                           onClick={(e) =>
                             handleLegendClick(

@@ -122,7 +122,7 @@ function RiverSnapshots({ isCollapsed }) {
             {latest.url ? (
               <div>
                 <div className="mt-8 flex flex-col justify-center items-center bg-[#0E94D3] rounded-md py-4 w-full md:w-[900px]">
-                  <p className="subheader-text text-white mb-4">Zapote River</p>
+                  <p className="subheader-text !text-[28px] text-white mb-4">Zapote River</p>
                   <img
                     src={latest.url}
                     alt="Latest River Snapshot"
@@ -134,7 +134,7 @@ function RiverSnapshots({ isCollapsed }) {
                   </p>
                 </div>
 
-                <p className="text-md text-[#808080] font-medium text-center">
+                <p className="text-md text-[#808080] font-medium text-center mt-4">
                   The next update will be after 10 minutes.
                 </p>
               </div>
@@ -152,8 +152,8 @@ function RiverSnapshots({ isCollapsed }) {
               <table className="min-w-full">
                 <thead className="bg-[#BC0F0F]">
                   <tr className="cursor-default">
-                    <th className="py-2 px-4 text-left">Date</th>
-                    <th className="py-2 px-4 text-left">Time</th>
+                    <th className="py-2 px-4 text-center">Date</th>
+                    <th className="py-2 px-4 text-center">Time</th>
                   </tr>
                 </thead>
                 <tbody className="bg-[#fff]">

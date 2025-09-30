@@ -17,9 +17,11 @@ import "../Stylesheets/AccountSettings.css";
 //ICONS
 import { useConfirm } from "../context/ConfirmContext";
 import { BiSolidImageAlt } from "react-icons/bi";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaCheckCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FiCamera, FiUpload } from "react-icons/fi";
 import { LuCirclePlus } from "react-icons/lu";
+import { FaArchive, FaEdit } from "react-icons/fa";
+import { FaCircleXmark } from "react-icons/fa6";
 
 function AccountSettings({ isCollapsed }) {
   const { user, logout } = useContext(AuthContext);
@@ -2949,28 +2951,40 @@ function AccountSettings({ isCollapsed }) {
                                         <td className="household-tbl-th">
                                           {editingMemberId === member._id ? (
                                             <>
-                                              <button
-                                                type="button"
-                                                className="btn btn-success mr-2"
-                                                onClick={() =>
-                                                  handleSavePosition(member)
-                                                }
-                                              >
-                                                Save
-                                              </button>
-                                              <button
-                                                type="button"
-                                                className="btn btn-secondary"
-                                                onClick={handleCancelEdit}
-                                              >
-                                                Cancel
-                                              </button>
+                                              <div className="flex flex-row justify-center w-full gap-x-4">
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                  onClick={() =>
+                                                    handleSavePosition(member)
+                                                  }
+                                                >
+                                                  <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#06D001]"
+                                                  >
+                                                    Save
+                                                  </button>
+                                                </div>
+
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                  onClick={handleCancelEdit}
+                                                >
+                                                  <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#F63131]"
+                                                  >
+                                                    Cancel
+                                                  </button>
+                                                </div>
+                                              </div>
                                             </>
                                           ) : (
-                                            <>
-                                              <button
-                                                type="button"
-                                                className="btn btn-warning mr-2"
+                                            <div className="flex flex-row justify-center w-full gap-x-4">
+                                              <div
+                                                className="flex flex-col items-center"
                                                 onClick={() => {
                                                   setEditingMemberId(
                                                     member._id
@@ -2980,20 +2994,32 @@ function AccountSettings({ isCollapsed }) {
                                                   );
                                                 }}
                                               >
-                                                Edit
-                                              </button>
-                                              {member.position !== "Head" && (
+                                                <FaEdit className="text-base mb-1 text-[#06D001]" />
                                                 <button
                                                   type="button"
-                                                  className="btn btn-danger"
+                                                  className="text-[#06D001]"
+                                                >
+                                                  Edit
+                                                </button>
+                                              </div>
+
+                                              {member.position !== "Head" && (
+                                                <div
+                                                  className="flex flex-col items-center"
                                                   onClick={() =>
                                                     handleRemoveMember(member)
                                                   }
                                                 >
-                                                  Remove
-                                                </button>
+                                                  <FaArchive className="text-base mb-1 text-[#F63131]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#F63131]"
+                                                  >
+                                                    Remove
+                                                  </button>
+                                                </div>
                                               )}
-                                            </>
+                                            </div>
                                           )}
                                         </td>
                                       </tr>
@@ -3090,24 +3116,39 @@ function AccountSettings({ isCollapsed }) {
                                         </div>
                                       </td>
                                       <td className="household-tbl-th">
-                                        <button
-                                          type="button"
-                                          className="btn btn-success mr-2"
-                                          onClick={() =>
-                                            handleSaveNewMember(member)
-                                          }
-                                        >
-                                          Save
-                                        </button>
-                                        <button
-                                          type="button"
-                                          className="btn btn-secondary"
-                                          onClick={() =>
-                                            handleCancelNewMember(member.tempId)
-                                          }
-                                        >
-                                          Cancel
-                                        </button>
+                                        <div className="flex flex-row justify-center w-full gap-x-4">
+                                          <div
+                                            className="flex flex-col items-center"
+                                            onClick={() =>
+                                              handleSaveNewMember(member)
+                                            }
+                                          >
+                                            <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                            <button
+                                              type="button"
+                                              className="text-[#06D001]"
+                                            >
+                                              Save
+                                            </button>
+                                          </div>
+
+                                          <div
+                                            className="flex flex-col items-center"
+                                            onClick={() =>
+                                              handleCancelNewMember(
+                                                member.tempId
+                                              )
+                                            }
+                                          >
+                                            <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                            <button
+                                              type="button"
+                                              className="text-[#F63131]"
+                                            >
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </div>
                                       </td>
                                     </tr>
                                   ))}
@@ -3224,26 +3265,40 @@ function AccountSettings({ isCollapsed }) {
                                               />
                                             </td>
                                             <td className="household-tbl-th">
-                                              <div className="flex flex-wrap gap-2">
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-success"
-                                                  onClick={
+
+                                                <div className="flex flex-row justify-center w-full gap-x-4">
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                   onClick={
                                                     handleSaveEditedVehicle
                                                   }
                                                 >
-                                                  Save
-                                                </button>
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-secondary"
-                                                  onClick={() =>
+                                                  <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#06D001]"
+                                                  >
+                                                    Save
+                                                  </button>
+                                                </div>
+
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                 onClick={() =>
                                                     setEditingVehicleIndex(null)
                                                   }
                                                 >
-                                                  Cancel
-                                                </button>
+                                                  <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#F63131]"
+                                                  >
+                                                    Cancel
+                                                  </button>
+                                                </div>
                                               </div>
+
+                                            
                                             </td>
                                           </>
                                         ) : (
@@ -3261,10 +3316,9 @@ function AccountSettings({ isCollapsed }) {
                                               {vehicle.platenumber}
                                             </td>
                                             <td className="household-tbl-th">
-                                              <div className="flex flex-wrap gap-2">
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-warning"
+                                              <div className="flex flex-row justify-center w-full gap-x-4">
+                                                <div
+                                                  className="flex flex-col items-center"
                                                   onClick={() => {
                                                     setEditingVehicleIndex(
                                                       index
@@ -3274,17 +3328,29 @@ function AccountSettings({ isCollapsed }) {
                                                     });
                                                   }}
                                                 >
-                                                  Edit
-                                                </button>
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-danger"
+                                                  <FaEdit className="text-base mb-1 text-[#06D001]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#06D001]"
+                                                  >
+                                                    Edit
+                                                  </button>
+                                                </div>
+
+                                                <div
+                                                  className="flex flex-col items-center"
                                                   onClick={() =>
                                                     handleRemoveVehicle(index)
                                                   }
                                                 >
-                                                  Remove
-                                                </button>
+                                                  <FaArchive className="text-base mb-1 text-[#F63131]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#F63131]"
+                                                  >
+                                                    Remove
+                                                  </button>
+                                                </div>
                                               </div>
                                             </td>
                                           </>
@@ -3364,22 +3430,39 @@ function AccountSettings({ isCollapsed }) {
                                         />
                                       </td>
                                       <td className="household-tbl-th">
-                                        <button
-                                          type="button"
-                                          onClick={() =>
+                                          <div className="flex flex-row justify-center w-full gap-x-4">
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                  onClick={() =>
                                             handleSaveNewVehicle(vehicle, index)
                                           }
-                                        >
-                                          Save
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() =>
+                                                >
+                                                  <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#06D001]"
+                                                  >
+                                                    Save
+                                                  </button>
+                                                </div>
+
+                                                <div
+                                                  className="flex flex-col items-center"
+                                                 onClick={() =>
                                             handleRemoveVehicle(index, "new")
                                           }
-                                        >
-                                          Cancel
-                                        </button>
+                                                >
+                                                  <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                                  <button
+                                                    type="button"
+                                                    className="text-[#F63131]"
+                                                  >
+                                                    Cancel
+                                                  </button>
+                                                </div>
+                                              </div>
+
+                                       
                                       </td>
                                     </tr>
                                   ))}

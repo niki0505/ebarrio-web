@@ -195,6 +195,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
             className={`sidebar-logo-img ${
               isCollapsed ? "rotate-[360deg]" : ""
             }`}
+            style={{
+              filter: "drop-shadow(8px 8px 10px rgba(0, 0, 0, 0.3))",
+            }}
           />
           <span
             className={`flex flex-col text-center ${

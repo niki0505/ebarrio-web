@@ -1377,7 +1377,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
         </div>
 
         <div className="line-container">
-          <hr className="lines" />
+          <hr className="line" />
         </div>
 
         <div className="table-container">

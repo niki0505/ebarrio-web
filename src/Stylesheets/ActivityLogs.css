@@ -20,5 +20,6 @@
   @apply flex flex-row items-center justify-center gap-2 text-left;
 }
 .logs-user-img {
-  @apply rounded-full h-10 w-10 object-cover ml-2.5;
+  @apply rounded-full h-10 w-10 object-cover mr-3;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
 }

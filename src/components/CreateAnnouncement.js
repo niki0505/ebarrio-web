@@ -469,7 +469,7 @@ function CreateAnnouncement({ onClose }) {
 
                       {/*SHOW EVENT DETAILS */}
                       {showDateTimeInputs && (
-                        <div className="modal-container ">
+                        <div className="modal-container">
                           <div className="create-announcement-event-details">
                             <div className="dialog-title-bar">
                               <div className="flex flex-col w-full">

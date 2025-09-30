@@ -345,7 +345,7 @@ function ForgotPassword() {
                     {loading ? "Checking..." : "Continue"}
                   </button>
                   <a href="/login" className="login-forgot-btn">
-                    Remember your password?
+                    Remember password?
                   </a>
                 </div>
               </form>
@@ -505,9 +505,9 @@ function ForgotPassword() {
                       WebkitBackdropFilter: "none",
                     }}
                   >
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg px-5 py-10 w-[25rem] h-[25rem] ">
                       <IoArrowBack
-                        className="text-2xl"
+                        className="text-2xl text-[#0E94D3]"
                         onClick={() => setOTPClicked(false)}
                       />
                       <div className="p-4">
@@ -593,9 +593,9 @@ function ForgotPassword() {
                         WebkitBackdropFilter: "none",
                       }}
                     >
-                      <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem] ">
+                      <div className="flex flex-col bg-white rounded-xl p-6 shadow-lg px-5 py-10 w-[25rem] h-[27rem] ">
                         <IoArrowBack
-                          className="text-2xl"
+                          className="text-2xl text-[#0E94D3]"
                           onClick={() => setQuestionsClicked(false)}
                         />
                         <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">
@@ -656,7 +656,7 @@ function ForgotPassword() {
                           <button
                             type="submit"
                             disabled={loading}
-                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title w-full truncate overflow-hidden whitespace-nowrap bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
+                            className="px-8 py-3 rounded-[8px] items-center text-[#fff] font-bold shadow-box-shadow font-title bg-btn-color-blue w-full text-[20px] hover:bg-[#0A7A9D]"
                           >
                             {loading ? "Verifying..." : "Verify"}
                           </button>
@@ -683,9 +683,9 @@ function ForgotPassword() {
                       WebkitBackdropFilter: "none",
                     }}
                   >
-                    <div className="flex flex-col bg-white rounded-xl shadow-lg p-3 w-[25rem] h-[25rem]">
+                    <div className="flex flex-col bg-white rounded-xl shadow-lg px-5 py-10 w-[25rem] h-[25rem]">
                       <IoArrowBack
-                        className="text-2xl"
+                        className="text-2xl text-[#0E94D3]"
                         onClick={() => setIsExisting(false)}
                       />
                       <div className="p-4 flex flex-col gap-8 overflow-y-auto hide-scrollbar">

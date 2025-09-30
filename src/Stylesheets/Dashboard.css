@@ -14,6 +14,9 @@
 .demog-icon {
   @apply text-gray-300 text-[40px];
 }
+.icon-image {
+  filter: grayscale(100%) brightness(70%) opacity(0.3);
+}
 /*--------------------------------------------REPORTS--------------------------------------------*/
 .reports-container {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4;
