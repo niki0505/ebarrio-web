@@ -62,7 +62,9 @@ function ViewSOS({ onClose, reportID }) {
           <div className="bg-white rounded-2xl shadow-lg w-[70rem] h-[35rem] flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b">
-              <h1 className="text-lg font-semibold">View Report</h1>
+              <h1 className="text-lg font-semibold text-[#BC0F0F]">
+                View Report
+              </h1>
               <IoClose
                 onClick={handleClose}
                 className="text-2xl cursor-pointer hover:text-red-500"
@@ -77,7 +79,7 @@ function ViewSOS({ onClose, reportID }) {
                   {/* Left Column: Map */}
                   <div className="col-span-1 h-full">
                     {isLoaded && position && (
-                      <div className="h-full rounded-xl overflow-hidden shadow">
+                      <div className="h-full rounded-xl overflow-hidden shadow border-4 border-[#BC0F0F] ">
                         <GoogleMap
                           mapContainerStyle={{ width: "100%", height: "100%" }}
                           center={position}
@@ -98,11 +100,13 @@ function ViewSOS({ onClose, reportID }) {
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <p className="text-sm text-gray-500">Status</p>
-                        <p className="font-medium">{selectedReport.status}</p>
+                        <p className="font-medium text-[#BC0F0F]">
+                          {selectedReport.status}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Last Updated</p>
-                        <p className="font-medium">
+                        <p className="font-medium text-[#BC0F0F]">
                           {dayjs(
                             selectedReport.updatedAt,
                             "MMMM D, YYYY [at] h:mm A"
@@ -111,13 +115,13 @@ function ViewSOS({ onClose, reportID }) {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Type</p>
-                        <p className="font-medium">
+                        <p className="font-medium text-[#BC0F0F]">
                           {selectedReport.reporttype || "N/A"}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Details</p>
-                        <p className="font-medium">
+                        <p className="font-medium text-[#BC0F0F]">
                           {selectedReport.reportdetails || "N/A"}
                         </p>
                       </div>
@@ -128,16 +132,16 @@ function ViewSOS({ onClose, reportID }) {
                       <img
                         src={selectedReport.resID?.picture}
                         alt="Resident"
-                        className="w-16 h-16 rounded-full object-cover"
+                        className="w-16 h-16 rounded-full object-cover shadow-lg"
                       />
                       <div>
-                        <p className="font-semibold text-lg">
+                        <p className="font-semibold text-lg text-[#BC0F0F]">
                           {selectedReport.resID.firstname}{" "}
                           {selectedReport.resID.lastname}
                         </p>
                         <p className="text-sm text-gray-600">
                           Age: {selectedReport.resID.age}
-                        </p>  
+                        </p>
                         <p className="text-sm text-gray-500">
                           {selectedReport.resID.householdno?.address}
                         </p>
@@ -147,7 +151,7 @@ function ViewSOS({ onClose, reportID }) {
                     {/* Responders */}
                     {selectedReport.responder?.length > 0 && (
                       <div>
-                        <h2 className="font-semibold mb-2">Responders</h2>
+                        <h2 className="font-semibold mb-2 text-[#BC0F0F]">Responders</h2>
                         <div className="space-y-3">
                           {selectedReport.responder.map((r, idx) => (
                             <div
@@ -157,10 +161,10 @@ function ViewSOS({ onClose, reportID }) {
                               <img
                                 src={r.empID.resID?.picture}
                                 alt="Personnel"
-                                className="w-16 h-16 rounded-full object-cover"
+                                className="w-16 h-16 rounded-full object-cover shadow-lg"
                               />
                               <div>
-                                <p className="font-semibold text-lg">
+                                <p className="font-semibold text-lg text-[#BC0F0F]">
                                   {r.empID.resID.firstname}{" "}
                                   {r.empID.resID.lastname}
                                 </p>
@@ -182,7 +186,7 @@ function ViewSOS({ onClose, reportID }) {
                     {/* Post Report */}
                     {selectedReport.postreportdetails && (
                       <div>
-                        <h2 className="font-semibold mb-1">
+                        <h2 className="font-semibold mb-1 text-[#BC0F0F]">
                           Post Report Details
                         </h2>
                         <p className="text-gray-700">

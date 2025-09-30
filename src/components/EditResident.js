@@ -17,6 +17,8 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { BiSolidImageAlt } from "react-icons/bi";
 import { GrNext } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
+import { FaArchive, FaEdit, FaCheckCircle } from "react-icons/fa";
+import { FaCircleXmark } from "react-icons/fa6";
 
 function EditResident({ isCollapsed }) {
   const navigation = useNavigate();
@@ -2415,43 +2417,67 @@ function EditResident({ isCollapsed }) {
                           <td className="household-tbl-th">
                             {editingMemberId === member._id ? (
                               <>
-                                <button
-                                  type="button"
-                                  className="btn btn-success mr-2"
-                                  onClick={() => handleSavePosition(member)}
-                                >
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-secondary"
-                                  onClick={handleCancelEdit}
-                                >
-                                  Cancel
-                                </button>
+                                <div className="flex flex-row justify-center w-full gap-x-4">
+                                  <div
+                                    className="flex flex-col items-center"
+                                    onClick={() => handleSavePosition(member)}
+                                  >
+                                    <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#06D001]"
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+
+                                  <div
+                                    className="flex flex-col items-center"
+                                    onClick={handleCancelEdit}
+                                  >
+                                    <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#F63131]"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
                               </>
                             ) : (
-                              <>
-                                <button
-                                  type="button"
-                                  className="btn btn-warning mr-2"
+                              <div className="flex flex-row justify-center w-full gap-x-4">
+                                <div
+                                  className="flex flex-col items-center"
                                   onClick={() => {
                                     setEditingMemberId(member._id);
                                     setEditedPosition(member.position);
                                   }}
                                 >
-                                  Edit
-                                </button>
-                                {member.position !== "Head" && (
+                                  <FaEdit className="text-base mb-1 text-[#06D001]" />
                                   <button
                                     type="button"
-                                    className="btn btn-danger"
+                                    className="text-[#06D001]"
+                                  >
+                                    Edit
+                                  </button>
+                                </div>
+
+                                {member.position !== "Head" && (
+                                  <div
+                                    className="flex flex-col items-center"
                                     onClick={() => handleRemoveMember(member)}
                                   >
-                                    Remove
-                                  </button>
+                                    <FaArchive className="text-base mb-1 text-[#F63131]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#F63131]"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 )}
-                              </>
+                              </div>
                             )}
                           </td>
                         </tr>
@@ -2524,22 +2550,35 @@ function EditResident({ isCollapsed }) {
                             </div>
                           </td>
                           <td className="household-tbl-th">
-                            <button
-                              type="button"
-                              className="btn btn-success mr-2"
-                              onClick={() => handleSaveNewMember(member)}
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-secondary"
-                              onClick={() =>
-                                handleCancelNewMember(member.tempId)
-                              }
-                            >
-                              Cancel
-                            </button>
+                            <div className="flex flex-row justify-center w-full gap-x-4">
+                              <div
+                                className="flex flex-col items-center"
+                                onClick={() => handleSaveNewMember(member)}
+                              >
+                                <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                <button
+                                  type="button"
+                                  className="text-[#06D001]"
+                                >
+                                  Save
+                                </button>
+                              </div>
+
+                              <div
+                                className="flex flex-col items-center"
+                                onClick={() =>
+                                  handleCancelNewMember(member.tempId)
+                                }
+                              >
+                                <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                <button
+                                  type="button"
+                                  className="text-[#F63131]"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -2635,21 +2674,32 @@ function EditResident({ isCollapsed }) {
                                 />
                               </td>
                               <td className="household-tbl-th">
-                                <div className="flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    className="btn btn-success"
+                                <div className="flex flex-row justify-center w-full gap-x-4">
+                                  <div
+                                    className="flex flex-col items-center"
                                     onClick={handleSaveEditedVehicle}
                                   >
-                                    Save
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-secondary"
+                                    <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#06D001]"
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+
+                                  <div
+                                    className="flex flex-col items-center"
                                     onClick={() => setEditingVehicleIndex(null)}
                                   >
-                                    Cancel
-                                  </button>
+                                    <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#F63131]"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
                                 </div>
                               </td>
                             </>
@@ -2668,26 +2718,37 @@ function EditResident({ isCollapsed }) {
                                 {vehicle.platenumber}
                               </td>
                               <td className="household-tbl-th">
-                                <div className="flex flex-wrap gap-2">
-                                  <button
-                                    type="button"
-                                    className="btn btn-warning"
+                                <div className="flex flex-row justify-center w-full gap-x-4">
+                                  <div
+                                    className="flex flex-col items-center"
                                     onClick={() => {
                                       setEditingVehicleIndex(index);
                                       setEditedVehicle({ ...vehicle });
                                     }}
                                   >
-                                    Edit
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-danger"
+                                    <FaEdit className="text-base mb-1 text-[#06D001]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#06D001]"
+                                    >
+                                      Edit
+                                    </button>
+                                  </div>
+
+                                  <div
+                                    className="flex flex-col items-center"
                                     onClick={() =>
                                       handleRemoveVehicle(vehicle._id)
                                     }
                                   >
-                                    Remove
-                                  </button>
+                                    <FaArchive className="text-base mb-1 text-[#F63131]" />
+                                    <button
+                                      type="button"
+                                      className="text-[#F63131]"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
                                 </div>
                               </td>
                             </>
@@ -2760,20 +2821,37 @@ function EditResident({ isCollapsed }) {
                             />
                           </td>
                           <td className="household-tbl-th">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleSaveNewVehicle(vehicle, index)
-                              }
-                            >
-                              Save
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveVehicle(index, "new")}
-                            >
-                              Cancel
-                            </button>
+                            <div className="flex flex-row justify-center w-full gap-x-4">
+                              <div
+                                className="flex flex-col items-center"
+                                onClick={() =>
+                                  handleSaveNewVehicle(vehicle, index)
+                                }
+                              >
+                                <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                <button
+                                  type="button"
+                                  className="text-[#06D001]"
+                                >
+                                  Save
+                                </button>
+                              </div>
+
+                              <div
+                                className="flex flex-col items-center"
+                                onClick={() =>
+                                  handleRemoveVehicle(index, "new")
+                                }
+                              >
+                                <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                <button
+                                  type="button"
+                                  className="text-[#F63131]"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         </tr>
                       ))}

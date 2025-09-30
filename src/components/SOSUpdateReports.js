@@ -15,6 +15,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import api from "../api";
 
+//ICONS
+import { IoClose } from "react-icons/io5";
+
 const defaultCenter = {
   lat: 14.46,
   lng: 120.966,
@@ -223,8 +226,8 @@ function SOSUpdateReports({ isCollapsed }) {
           res.SOSno,
           fullname,
           responders,
-          res.reporttype ? res.reporttype : "N/A",
-          res.reportdetails ? res.reportdetails : "N/A",
+          res.reporttype ? res.reporttype : "-",
+          res.reportdetails ? res.reportdetails : "-",
           res.postreportdetails,
           res.status,
           res.updatedAt.replace(",", " "),
@@ -309,8 +312,8 @@ function SOSUpdateReports({ isCollapsed }) {
           res.SOSno,
           fullname,
           responders,
-          res.reporttype ? res.reporttype : "N/A",
-          res.reportdetails ? res.reportdetails : "N/A",
+          res.reporttype ? res.reporttype : "-",
+          res.reportdetails ? res.reportdetails : "-",
           res.postreportdetails,
           res.status,
           res.updatedAt.replace(",", " "),
@@ -515,7 +518,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 }
               >
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "440px" }}
+                  mapContainerStyle={{ width: "100%", height: "650px" }}
                   center={position}
                   zoom={18}
                 >
@@ -529,8 +532,6 @@ function SOSUpdateReports({ isCollapsed }) {
                 </GoogleMap>
               </div>
             )}
-
-            {/* Reporter Details */}
 
             <div>
               {/* Report List */}
@@ -550,19 +551,20 @@ function SOSUpdateReports({ isCollapsed }) {
                             new Date(b.createdAt) - new Date(a.createdAt)
                         )
                         .map((rep, i) => (
-                          <tr key={i} className="bg-white">
-                            <td
-                              className="px-4 py-3"
-                              onClick={() => {
-                                if (rep.location?.lat && rep.location?.lng) {
-                                  setPosition({
-                                    lat: Number(rep.location.lat),
-                                    lng: Number(rep.location.lng),
-                                  });
-                                }
-                                setSelectedID(rep._id);
-                              }}
-                            >
+                          <tr
+                            key={i}
+                            className="bg-white"
+                            onClick={() => {
+                              if (rep.location?.lat && rep.location?.lng) {
+                                setPosition({
+                                  lat: Number(rep.location.lat),
+                                  lng: Number(rep.location.lng),
+                                });
+                              }
+                              setSelectedID(rep._id);
+                            }}
+                          >
+                            <td className="px-4 py-3">
                               {rep.resID?.firstname} {rep.resID?.lastname}
                             </td>
                             <td className="px-4 py-3">{rep.createdAt}</td>
@@ -580,6 +582,10 @@ function SOSUpdateReports({ isCollapsed }) {
               {report && (
                 <>
                   <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
+                    <IoClose
+                      // onClick={handleClose}
+                      className="text-2xl ml-auto text-white cursor-pointer hover:text-red-500"
+                    />
                     <div className="flex flex-col items-center">
                       <h2 className="text-lg font-bold mb-2">
                         Reporter Details
@@ -587,18 +593,18 @@ function SOSUpdateReports({ isCollapsed }) {
                       <img
                         src={report.resID?.picture}
                         alt="Resident"
-                        className="w-24 h-24 bg-white rounded-full mb-3 object-cover"
+                        className="w-24 h-24 bg-white rounded-full mb-3 object-cover shadow-lg"
                       />
                       <p className="text-xl font-semibold">
                         {report.resID?.firstname} {report.resID?.lastname}
                       </p>
-                      <p className="text-sm italic mb-2">Resident</p>
+                      <p className="text-sm italic mb-2 opacity-70">Resident</p>
                     </div>
                     <div className="flex flex-col items-start">
                       <div className="flex flex-row gap-2">
                         <span className="font-bold">Age:</span>
                         <span className="opacity-80">
-                          {report.resID?.age || "N/A"}
+                          {report.resID?.age || "-"}
                         </span>
                       </div>
 
@@ -606,7 +612,7 @@ function SOSUpdateReports({ isCollapsed }) {
                       <span className="opacity-80 break-words flex-1">
                         {report.resID?.householdno
                           ? report.resID.householdno.address
-                          : "N/A"}
+                          : "-"}
                       </span>
 
                       <div className="flex flex-row gap-2">
@@ -661,7 +667,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 </thead>
                 <tbody>
                   <tr className="bg-white">
-                    <td className="px-4 py-3">{report.reporttype || "N/A"}</td>
+                    <td className="px-4 py-3">{report.reporttype || "-"}</td>
                     <td className="px-4 py-3">{report.readableAddress}</td>
                     <td className="px-4 py-3">
                       {report.createdAt?.split(" at ")[0]}
@@ -669,9 +675,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     <td className="px-4 py-3">
                       {report.createdAt?.split(" at ")[1]}
                     </td>
-                    <td className="px-4 py-3">
-                      {report.reportdetails || "N/A"}
-                    </td>
+                    <td className="px-4 py-3">{report.reportdetails || "-"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -727,9 +731,9 @@ function SOSUpdateReports({ isCollapsed }) {
                                   `${r.empID?.resID.firstname} ${r.empID?.resID.lastname}`
                               )
                               .join(", ")
-                          : "N/A"}
+                          : "-"}
                       </td>
-                      <td>{report.reporttype ? report.reporttype : "N/A"}</td>
+                      <td>{report.reporttype ? report.reporttype : "-"}</td>
                       <td>{report.status}</td>
                       <td>{report.updatedAt}</td>
                     </tr>
