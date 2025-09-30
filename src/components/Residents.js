@@ -204,31 +204,7 @@ function Residents({ isCollapsed }) {
 
     setLoading(true);
     try {
-      const response = await api.get(`/getresidentimages/${resID}`);
-      const { picture, signature } = response.data;
-
-      const pictureBlob = await fetch(picture).then((res) => res.blob());
-      const signatureBlob = await fetch(signature).then((res) => res.blob());
-
-      let pictureURL, signatureURL;
-
-      console.log("Attempting to remove background...");
-
-      // Try removing background from picture
-      try {
-        pictureURL = await uploadToFirebaseImages(
-          new Blob([pictureBlob], { type: "image/png" })
-        );
-      } catch (err) {
-        console.warn(
-          "Failed to remove background from picture. Uploading original."
-        );
-        pictureURL = await uploadToFirebase(pictureBlob);
-      }
-
-      await api.post(`/approveresident/${resID}`, {
-        pictureURL,
-      });
+      await api.post(`/approveresident/${resID}`);
 
       setActiveClicked(true);
       setPendingClicked(false);

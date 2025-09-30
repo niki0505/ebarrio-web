@@ -36,6 +36,7 @@ function CreateBlotter({ isCollapsed }) {
     subjectname: "",
     subjectaddress: "",
     typeofthecomplaint: "",
+    typeofthecomplaint2: "",
     details: "",
     date: "",
     starttime: "",
@@ -51,7 +52,15 @@ function CreateBlotter({ isCollapsed }) {
     fetchBlotterReports();
   }, []);
 
-  const typeList = ["Theft", "Sexual Harassment", "Physical Injury"];
+  const typeList = [
+    "Theft",
+    "Sexual Harassment",
+    "Physical Injury",
+    "Trespassing",
+    "Property Damage",
+    "Domestic Dispute",
+    "Others",
+  ];
 
   const validateDetails = (value) => {
     const errors = [];
@@ -271,6 +280,13 @@ function CreateBlotter({ isCollapsed }) {
       } else {
         delete updatedForm.subjectID;
       }
+
+      if (updatedForm.typeofthecomplaint === "Others") {
+        updatedForm.typeofthecomplaint = updatedForm.typeofthecomplaint2;
+        delete updatedForm.typeofthecomplaint2;
+      } else {
+        delete updatedForm.typeofthecomplaint2;
+      }
       try {
         await api.post("/createblotter", { updatedForm });
         confirm(
@@ -460,6 +476,21 @@ function CreateBlotter({ isCollapsed }) {
     } else {
       setMobileNumError("Invalid mobile number.");
     }
+  };
+
+  const lettersAndSpaceOnly = (e) => {
+    const { name, value } = e.target;
+    const filtered = value.replace(/[^a-zA-Z\s.'-]/g, "");
+
+    const capitalized = filtered
+      .split(" ")
+      .map((word) => smartCapitalize(word))
+      .join(" ");
+
+    setBlotterForm((prev) => ({
+      ...prev,
+      [name]: capitalized,
+    }));
   };
 
   return (
@@ -686,6 +717,22 @@ function CreateBlotter({ isCollapsed }) {
                 ))}
               </select>
             </div>
+            {blotterForm.typeofthecomplaint === "Others" && (
+              <div>
+                <label className="form-label">
+                  Others (Please Specify)
+                  <label className="text-red-600">*</label>
+                </label>
+                <input
+                  name="typeofthecomplaint2"
+                  onChange={lettersAndSpaceOnly}
+                  value={blotterForm.typeofthecomplaint2}
+                  placeholder="Enter type of the incident"
+                  className="form-input h-[30px]"
+                  required
+                />
+              </div>
+            )}
 
             <div className="col-span-4">
               <label for="details" className="form-label">

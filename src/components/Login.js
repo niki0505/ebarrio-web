@@ -165,7 +165,7 @@ const Login = () => {
                   placeholder="Username"
                   value={username}
                   onChange={(e) => handleUsernameChange(e)}
-                  className="form-input !h-[40px]"
+                  className="form-input w-full"
                   minLength={3}
                   maxLength={16}
                   required
