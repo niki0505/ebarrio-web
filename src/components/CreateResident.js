@@ -2321,7 +2321,7 @@ function CreateResident({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="employmentstatus" className="form-label">
-                Employment Status<label className="text-red-600">*</label>
+                Employment Status
               </label>
               <select
                 id="employmentstatus"
@@ -2329,7 +2329,6 @@ function CreateResident({ isCollapsed }) {
                 value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
-                required
               >
                 <option value="" selected>
                   Select
