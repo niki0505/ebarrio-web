@@ -175,7 +175,7 @@ function SOSUpdateReports({ isCollapsed }) {
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const totalRows = sortedFilteredReports.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
@@ -765,7 +765,6 @@ function SOSUpdateReports({ isCollapsed }) {
                     }}
                     className="table-pagination-select !border-[#F63131] !text-[#F63131]"
                   >
-                    <option value="All">All</option>
                     {[5, 10, 15, 20].map((num) => (
                       <option key={num} value={num}>
                         {num}
