@@ -906,16 +906,6 @@ function CreateResidentHousehold({ isCollapsed }) {
           <div className="spinner"></div>
         </div>
       )}
-      <div className="breadcrumbs-container">
-        <h1
-          onClick={() => navigation("/residents")}
-          className="breadcrumbs-inactive-text"
-        >
-          Residents
-        </h1>
-        <GrNext className="breadcrumbs-arrow" />
-        <h1 className="header-text">Create Resident</h1>
-      </div>
 
       {/* Personal Information */}
       <div className="white-bg-container">
