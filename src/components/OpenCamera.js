@@ -1,6 +1,5 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
-import { removeBackground } from "@imgly/background-removal";
 
 //STYLES
 import "../Stylesheets/OpenCamera.css";
@@ -44,8 +43,7 @@ function OpenCamera({ onDone, onClose }) {
 
     setLoading(true);
     try {
-      const blob = await removeBackground(screenshot);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(screenshot);
       setImageSrc(url);
     } catch (error) {
       console.error("Error removing background:", error);
@@ -67,7 +65,7 @@ function OpenCamera({ onDone, onClose }) {
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Picture</h1>
+                  <h1 className="modal-title">2x2 Picture</h1>
                   <IoClose
                     onClick={onClose}
                     class="dialog-title-bar-icon"
@@ -88,7 +86,12 @@ function OpenCamera({ onDone, onClose }) {
                         <Webcam
                           className="modal-image"
                           ref={webRef}
-                          screenshotFormat="image/png/jpg"
+                          screenshotFormat="image/jpg"
+                          videoConstraints={{
+                            width: 600,
+                            height: 600,
+                            facingMode: "user",
+                          }}
                         />
                       )
                     )

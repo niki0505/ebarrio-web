@@ -532,6 +532,8 @@ function SOSUpdateReports({ isCollapsed }) {
                       key={report._id}
                       position={report.location}
                       onClick={() => setSelectedID(report._id)}
+                      onMouseOver={() => setSelectedID(report._id)}
+                      onMouseOut={() => setSelectedID(null)}
                     >
                       <OverlayView
                         position={report.location}
