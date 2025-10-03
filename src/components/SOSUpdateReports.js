@@ -539,7 +539,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 }
               >
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "850px" }}
+                  mapContainerStyle={{ width: "100%", height: "890px" }}
                   center={position}
                   zoom={18}
                 >
@@ -655,83 +655,88 @@ function SOSUpdateReports({ isCollapsed }) {
                   </div>
                 )}
               </div>
+
               {/* Reporter Details */}
               {report && (
-                <div className="bg-[#BC0F0F] text-white rounded-lg p-6 shadow-lg max-w-md mx-auto">
-                  {/* Close button */}
-                  <div className="flex justify-end">
-                    <IoClose
-                      onClick={() => setSelectedID(null)}
-                      className="text-2xl cursor-pointer hover:text-red-400 transition-colors"
-                      title="Close"
-                    />
-                  </div>
-
-                  {/* Header with picture and name */}
-                  <div className="flex flex-col items-center mb-6">
-                    <img
-                      src={report.resID?.picture || "/default-profile.png"}
-                      alt="Resident"
-                      className="w-24 h-24 rounded-full bg-white object-cover shadow-md mb-3"
-                    />
-                    <h2 className="text-2xl font-bold">
-                      {report.resID?.firstname} {report.resID?.lastname}
-                    </h2>
-                    <p className="italic opacity-70 mt-1">Resident</p>
-                  </div>
-
-                  {/* Info grid */}
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-white">
-                    <div>
-                      <h3 className="font-semibold mb-1">Age</h3>
-                      <p className="opacity-90">{report.resID?.age || "-"}</p>
+                <div className="w-full bg-[#BC0F0F] text-white rounded-lg shadow-lg mx-auto overflow-hidden">
+                  <div className="h-[700px] overflow-y-auto p-6">
+                    {/* Close button */}
+                    <div className="flex justify-end">
+                      <IoClose
+                        onClick={() => setSelectedID(null)}
+                        className="text-2xl cursor-pointer hover:text-red-400 transition-colors"
+                        title="Close"
+                      />
                     </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-1">Mobile</h3>
-                      <p className="opacity-90">
-                        {report.resID?.mobilenumber || "-"}
-                      </p>
+                    {/* Header with picture and name */}
+                    <div className="flex flex-col items-center mb-6">
+                      <img
+                        src={report.resID?.picture || "/default-profile.png"}
+                        alt="Resident"
+                        className="w-24 h-24 rounded-full bg-white object-cover shadow-md mb-3"
+                      />
+                      <h2 className="text-2xl font-bold">
+                        {report.resID?.firstname} {report.resID?.lastname}
+                      </h2>
+                      <p className="italic opacity-70 mt-1">Resident</p>
                     </div>
 
-                    <div className="col-span-2">
-                      <h3 className="font-semibold mb-1">Address</h3>
-                      <p className="opacity-90 break-words">
-                        {report.resID?.householdno?.address || "-"}
-                      </p>
-                    </div>
+                    {/* Info grid */}
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-white">
+                      <div>
+                        <h3 className="font-semibold mb-1">Age</h3>
+                        <p className="opacity-90">{report.resID?.age || "-"}</p>
+                      </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-1">Emergency Type</h3>
-                      <p className="opacity-90">{report.reporttype || "-"}</p>
-                    </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Mobile</h3>
+                        <p className="opacity-90">
+                          {report.resID?.mobilenumber || "-"}
+                        </p>
+                      </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-1">Location</h3>
-                      <p className="opacity-90">
-                        {report.readableAddress || "-"}
-                      </p>
-                    </div>
+                      <div className="col-span-2">
+                        <h3 className="font-semibold mb-1">Address</h3>
+                        <p className="opacity-90 break-words">
+                          {report.resID?.householdno?.address || "-"}
+                        </p>
+                      </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-1">Date Reported</h3>
-                      <p className="opacity-90">
-                        {report.createdAt?.split(" at ")[0] || "-"}
-                      </p>
-                    </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Emergency Type</h3>
+                        <p className="opacity-90">{report.reporttype || "-"}</p>
+                      </div>
 
-                    <div>
-                      <h3 className="font-semibold mb-1">Time Reported</h3>
-                      <p className="opacity-90">
-                        {report.createdAt?.split(" at ")[1] || "-"}
-                      </p>
-                    </div>
+                      <div>
+                        <h3 className="font-semibold mb-1">Location</h3>
+                        <p className="opacity-90">
+                          {report.readableAddress || "-"}
+                        </p>
+                      </div>
 
-                    <div className="col-span-2">
-                      <h3 className="font-semibold mb-1">Additional Details</h3>
-                      <p className="opacity-90 whitespace-pre-line">
-                        {report.reportdetails || "-"}
-                      </p>
+                      <div>
+                        <h3 className="font-semibold mb-1">Date Reported</h3>
+                        <p className="opacity-90">
+                          {report.createdAt?.split(" at ")[0] || "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-1">Time Reported</h3>
+                        <p className="opacity-90">
+                          {report.createdAt?.split(" at ")[1] || "-"}
+                        </p>
+                      </div>
+
+                      <div className="col-span-2">
+                        <h3 className="font-semibold mb-1">
+                          Additional Details
+                        </h3>
+                        <p className="opacity-90 whitespace-pre-line">
+                          {report.reportdetails || "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

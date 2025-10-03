@@ -61,7 +61,7 @@ function OpenCamera({ onDone, onClose }) {
     <>
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
-          <div className="modal-content h-[35rem] w-[45rem] overflow-y-auto">
+          <div className="modal-content h-[35rem] w-[45rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -112,10 +112,10 @@ function OpenCamera({ onDone, onClose }) {
                 <div className="camera-container">
                   {imageSrc && !loading ? (
                     <button
-                      className="actions-btn bg-btn-color-blue"
+                      className="actions-btn bg-btn-color-blue flex justify-center items-center"
                       onClick={openCamera}
                     >
-                      Open Camera
+                      <Camera className="w-5 h-5 align-center" />
                     </button>
                   ) : loading ? (
                     <button
@@ -150,7 +150,7 @@ function OpenCamera({ onDone, onClose }) {
                       onClick={capture}
                       disabled={!hasCamera}
                     >
-                      <Camera className="w-7 h-7 align-center" />
+                      <Camera className="w-5 h-5 align-center" />
                     </button>
                   )}
 
@@ -163,7 +163,7 @@ function OpenCamera({ onDone, onClose }) {
                     onClick={handleDoneClick}
                     disabled={!imageSrc}
                   >
-                    <Check className="w-7 h-7 align-center" />
+                    <Check className="w-5 h-5 align-center" />
                   </button>
                 </div>
               </div>
