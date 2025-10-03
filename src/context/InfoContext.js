@@ -106,6 +106,21 @@ export const InfoProvider = ({ children }) => {
     endtime: "",
   };
 
+  const householdInitialForm = {
+    members: [{ resident: "", resID: "" }],
+    vehicles: [],
+    ethnicity: "",
+    tribe: "",
+    sociostatus: "",
+    nhtsno: "",
+    watersource: "",
+    toiletfacility: "",
+    housenumber: "",
+    street: "",
+    HOAname: "",
+    address: "",
+  };
+
   const [residentForm, setResidentForm] = useState(() => {
     const savedForm = localStorage.getItem("residentForm");
     return savedForm ? JSON.parse(savedForm) : residentInitialForm;
@@ -119,6 +134,11 @@ export const InfoProvider = ({ children }) => {
   const [announcementForm, setAnnouncementForm] = useState(() => {
     const savedForm = localStorage.getItem("announcementForm");
     return savedForm ? JSON.parse(savedForm) : announcementInitialForm;
+  });
+
+  const [householdForm, setHouseholdForm] = useState(() => {
+    const savedForm = localStorage.getItem("householdForm");
+    return savedForm ? JSON.parse(savedForm) : householdInitialForm;
   });
 
   useEffect(() => {
@@ -476,6 +496,8 @@ export const InfoProvider = ({ children }) => {
           AIMessages,
           setAIMessages,
           activitylogs,
+          householdForm,
+          setHouseholdForm,
           setBlotterForm,
           setResidentForm,
           fetchHouseholds,

@@ -1,10 +1,9 @@
 import Webcam from "react-webcam";
 import { useRef, useState, useEffect } from "react";
-import { removeBackground } from "@imgly/background-removal";
 
 //STYLES
 import "../Stylesheets/OpenCamera.css";
-
+import { Camera, Check } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 
 function OpenCamera({ onDone, onClose }) {
@@ -44,8 +43,7 @@ function OpenCamera({ onDone, onClose }) {
 
     setLoading(true);
     try {
-      const blob = await removeBackground(screenshot);
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(screenshot);
       setImageSrc(url);
     } catch (error) {
       console.error("Error removing background:", error);
@@ -63,11 +61,11 @@ function OpenCamera({ onDone, onClose }) {
     <>
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
-          <div className="modal-content h-[30rem] w-[45rem]">
+          <div className="modal-content h-[35rem] w-[45rem]">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
-                  <h1 className="modal-title">Picture</h1>
+                  <h1 className="modal-title">2x2 Picture</h1>
                   <IoClose
                     onClick={onClose}
                     class="dialog-title-bar-icon"
@@ -88,7 +86,12 @@ function OpenCamera({ onDone, onClose }) {
                         <Webcam
                           className="modal-image"
                           ref={webRef}
-                          screenshotFormat="image/png/jpg"
+                          screenshotFormat="image/jpg"
+                          videoConstraints={{
+                            width: 600,
+                            height: 600,
+                            facingMode: "user",
+                          }}
                         />
                       )
                     )
@@ -109,10 +112,10 @@ function OpenCamera({ onDone, onClose }) {
                 <div className="camera-container">
                   {imageSrc && !loading ? (
                     <button
-                      className="actions-btn bg-btn-color-blue"
+                      className="actions-btn bg-btn-color-blue flex justify-center items-center"
                       onClick={openCamera}
                     >
-                      Open Camera
+                      <Camera className="w-5 h-5 align-center" />
                     </button>
                   ) : loading ? (
                     <button
@@ -141,26 +144,26 @@ function OpenCamera({ onDone, onClose }) {
                     <button
                       className={
                         hasCamera
-                          ? "actions-btn bg-btn-color-blue"
-                          : "actions-btn bg-btn-color-blue cursor-not-allowed"
+                          ? "actions-btn bg-btn-color-blue flex justify-center items-center"
+                          : "actions-btn bg-btn-color-blue cursor-not-allowed flex justify-center items-center"
                       }
                       onClick={capture}
                       disabled={!hasCamera}
                     >
-                      Capture
+                      <Camera className="w-5 h-5 align-center" />
                     </button>
                   )}
 
                   <button
                     className={
                       imageSrc
-                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
-                        : "actions-btn bg-btn-color-gray cursor-not-allowed"
+                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400 flex justify-center items-center"
+                        : "actions-btn bg-btn-color-gray cursor-not-allowed flex justify-center items-center"
                     }
                     onClick={handleDoneClick}
                     disabled={!imageSrc}
                   >
-                    Done
+                    <Check className="w-5 h-5 align-center" />
                   </button>
                 </div>
               </div>

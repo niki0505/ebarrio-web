@@ -22,8 +22,11 @@ import { FiCamera, FiUpload } from "react-icons/fi";
 import { LuCirclePlus } from "react-icons/lu";
 import { FaArchive, FaEdit } from "react-icons/fa";
 import { FaCircleXmark } from "react-icons/fa6";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function AccountSettings({ isCollapsed }) {
+  const location = useLocation();
+  const navigation = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [userDetails, setUserDetails] = useState(null);
   const [isProfileClicked, setProfileClicked] = useState(
@@ -1306,23 +1309,25 @@ function AccountSettings({ isCollapsed }) {
   };
 
   const handleSaveNewMember = async (member) => {
+    if (!member.resID || !member.position) {
+      confirm("Please fill out both the resident and position.", "failed");
+      return;
+    }
     const isConfirmed = await confirm(
       "Are you sure you want to add this resident as household member?",
       "confirm"
     );
     if (!isConfirmed) return;
-    if (!member.resID || !member.position) {
-      confirm("Please fill out both the resident and position.", "failed");
-      return;
-    }
     try {
       const payload = {
         resID: member.resID._id,
         position: member.position,
       };
 
+      console.log("Payload", payload);
+
       const response = await api.post(
-        `/household/${residentInfo.householdno}/member`,
+        `/household/${residentInfo.householdno._id}/member`,
         payload
       );
 
@@ -1332,6 +1337,7 @@ function AccountSettings({ isCollapsed }) {
       }));
 
       setNewMembers((prev) => prev.filter((m) => m.tempId !== member.tempId));
+      confirm("The new member has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new member:", error);
     }
@@ -1341,7 +1347,6 @@ function AccountSettings({ isCollapsed }) {
     setNewMembers((prev) => prev.filter((m) => m.tempId !== tempId));
   };
 
-  console.log(residentInfo);
   const handleMemberInputChange = (index, value) => {
     setNewMembers((prev) => {
       const updated = [...prev];
@@ -3113,6 +3118,29 @@ function AccountSettings({ isCollapsed }) {
                                                 )}
                                               </ul>
                                             )}
+                                          {member.resident.trim() !== "" &&
+                                            !member.resID && (
+                                              <p className="text-gray-500 text-xs mt-1">
+                                                ⚠️ No matching resident found.{" "}
+                                                <span
+                                                  onClick={() =>
+                                                    navigation(
+                                                      "/household/create-resident",
+                                                      {
+                                                        state: {
+                                                          account: true,
+                                                        },
+                                                      }
+                                                    )
+                                                  }
+                                                  className="text-[#0E94D3] cursor-pointer hover:underline"
+                                                >
+                                                  Click here
+                                                </span>{" "}
+                                                if you want to create a resident
+                                                profile.
+                                              </p>
+                                            )}
                                         </div>
                                       </td>
                                       <td className="household-tbl-th">
@@ -3265,11 +3293,10 @@ function AccountSettings({ isCollapsed }) {
                                               />
                                             </td>
                                             <td className="household-tbl-th">
-
-                                                <div className="flex flex-row justify-center w-full gap-x-4">
+                                              <div className="flex flex-row justify-center w-full gap-x-4">
                                                 <div
                                                   className="flex flex-col items-center"
-                                                   onClick={
+                                                  onClick={
                                                     handleSaveEditedVehicle
                                                   }
                                                 >
@@ -3284,7 +3311,7 @@ function AccountSettings({ isCollapsed }) {
 
                                                 <div
                                                   className="flex flex-col items-center"
-                                                 onClick={() =>
+                                                  onClick={() =>
                                                     setEditingVehicleIndex(null)
                                                   }
                                                 >
@@ -3297,8 +3324,6 @@ function AccountSettings({ isCollapsed }) {
                                                   </button>
                                                 </div>
                                               </div>
-
-                                            
                                             </td>
                                           </>
                                         ) : (
@@ -3430,39 +3455,40 @@ function AccountSettings({ isCollapsed }) {
                                         />
                                       </td>
                                       <td className="household-tbl-th">
-                                          <div className="flex flex-row justify-center w-full gap-x-4">
-                                                <div
-                                                  className="flex flex-col items-center"
-                                                  onClick={() =>
-                                            handleSaveNewVehicle(vehicle, index)
-                                          }
-                                                >
-                                                  <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
-                                                  <button
-                                                    type="button"
-                                                    className="text-[#06D001]"
-                                                  >
-                                                    Save
-                                                  </button>
-                                                </div>
+                                        <div className="flex flex-row justify-center w-full gap-x-4">
+                                          <div
+                                            className="flex flex-col items-center"
+                                            onClick={() =>
+                                              handleSaveNewVehicle(
+                                                vehicle,
+                                                index
+                                              )
+                                            }
+                                          >
+                                            <FaCheckCircle className="text-lg mb-1 text-[#06D001]" />
+                                            <button
+                                              type="button"
+                                              className="text-[#06D001]"
+                                            >
+                                              Save
+                                            </button>
+                                          </div>
 
-                                                <div
-                                                  className="flex flex-col items-center"
-                                                 onClick={() =>
-                                            handleRemoveVehicle(index, "new")
-                                          }
-                                                >
-                                                  <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
-                                                  <button
-                                                    type="button"
-                                                    className="text-[#F63131]"
-                                                  >
-                                                    Cancel
-                                                  </button>
-                                                </div>
-                                              </div>
-
-                                       
+                                          <div
+                                            className="flex flex-col items-center"
+                                            onClick={() =>
+                                              handleRemoveVehicle(index, "new")
+                                            }
+                                          >
+                                            <FaCircleXmark className="text-lg mb-1 text-[#F63131]" />
+                                            <button
+                                              type="button"
+                                              className="text-[#F63131]"
+                                            >
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </div>
                                       </td>
                                     </tr>
                                   ))}
