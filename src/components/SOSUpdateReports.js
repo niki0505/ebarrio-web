@@ -404,16 +404,6 @@ function SOSUpdateReports({ isCollapsed }) {
     }
   };
 
-  const rightContentRef = useRef(null);
-  const [mapHeight, setMapHeight] = useState(400);
-
-  useEffect(() => {
-    if (rightContentRef.current) {
-      const newHeight = rightContentRef.current.offsetHeight;
-      setMapHeight(Math.max(newHeight, 400));
-    }
-  }, [report]);
-
   return (
     <main className={`main ${isCollapsed ? "ml-[5rem]" : "ml-[18rem]"}`}>
       <div className="text-[30px] font-bold font-title text-[#BC0F0F]">
@@ -540,15 +530,16 @@ function SOSUpdateReports({ isCollapsed }) {
 
       {isActiveClicked ? (
         <>
-          <div className="mt-4 flex gap-4 items-start">
-            {/* Map Section */}
-            <div
-              className="flex-1 border-4 border-[#BC0F0F] rounded-lg overflow-hidden mt-4"
-              style={{ height: `${mapHeight}px` }}
-            >
-              {isLoaded && (
-                <GoogleMap  
-                  mapContainerStyle={{ width: "100%", height: "100%" }}
+          <div className={`mt-4 grid grid-cols-3 gap-4`}>
+            {/* Map */}
+            {isLoaded && (
+              <div
+                className={
+                  "col-span-2 border-4 border-[#BC0F0F] rounded-lg overflow-hidden mt-4"
+                }
+              >
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: "880px" }}
                   center={position}
                   zoom={18}
                 >
@@ -579,16 +570,12 @@ function SOSUpdateReports({ isCollapsed }) {
                     </Marker>
                   ))}
                 </GoogleMap>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Right Column */}
-            <div
-              className="w-[33%] flex flex-col gap-4"
-              ref={rightContentRef} // ✅ Ref to measure height
-            >
-              {/* Table */}
-              <div>
+            <div>
+              {/* Report List */}
+              <div className="col-span-1">
                 <table className="w-full border-collapse text-left table-fixed">
                   <thead className="bg-[#BC0F0F] text-white">
                     <tr>
@@ -597,37 +584,44 @@ function SOSUpdateReports({ isCollapsed }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedReports.map((rep, i) => (
-                      <tr
-                        key={i}
-                        className="bg-white cursor-pointer hover:bg-gray-100"
-                        onClick={() => {
-                          if (rep.location?.lat && rep.location?.lng) {
-                            setPosition({
-                              lat: Number(rep.location.lat),
-                              lng: Number(rep.location.lng),
-                            });
-                          }
-                          setSelectedID(rep._id);
-                        }}
-                      >
-                        <td className="px-4 py-3">
-                          {rep.resID?.firstname} {rep.resID?.lastname}
+                    {isLoaded && paginatedReports.length > 0 ? (
+                      paginatedReports.map((rep, i) => (
+                        <tr
+                          key={i}
+                          className="bg-white cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            if (rep.location?.lat && rep.location?.lng) {
+                              setPosition({
+                                lat: Number(rep.location.lat),
+                                lng: Number(rep.location.lng),
+                              });
+                            }
+                            setSelectedID(rep._id);
+                          }}
+                        >
+                          <td className="px-4 py-3">
+                            {rep.resID?.firstname} {rep.resID?.lastname}
+                          </td>
+                          <td className="px-4 py-3">{rep.createdAt}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center py-3">
+                          No reports found.
                         </td>
-                        <td className="px-4 py-3">{rep.createdAt}</td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
 
-                {/* Pagination */}
                 {sosTotalPages > 1 && (
                   <div className="flex justify-end items-center mt-1 mb-3">
                     <div className="text-sm text-gray-700">
                       {showingStart}-{showingEnd} of {sosTotalRows}
                     </div>
 
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex gap-2">
                       <button
                         onClick={() =>
                           setCurrentPageSOS((prev) => Math.max(prev - 1, 1))
@@ -661,10 +655,9 @@ function SOSUpdateReports({ isCollapsed }) {
                   </div>
                 )}
               </div>
-
               {/* Reporter Details */}
               {report && (
-                <div className="w-full bg-[#BC0F0F] text-white rounded-lg p-6 shadow-lg">
+                <div className="w-full bg-[#BC0F0F] text-white rounded-lg p-6 shadow-lg mx-auto">
                   {/* Close button */}
                   <div className="flex justify-end">
                     <IoClose
@@ -674,7 +667,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     />
                   </div>
 
-                  {/* Header */}
+                  {/* Header with picture and name */}
                   <div className="flex flex-col items-center mb-6">
                     <img
                       src={report.resID?.picture || "/default-profile.png"}
@@ -687,7 +680,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     <p className="italic opacity-70 mt-1">Resident</p>
                   </div>
 
-                  {/* Info */}
+                  {/* Info grid */}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-white">
                     <div>
                       <h3 className="font-semibold mb-1">Age</h3>
