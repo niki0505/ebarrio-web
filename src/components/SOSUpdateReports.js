@@ -548,8 +548,6 @@ function SOSUpdateReports({ isCollapsed }) {
                       key={report._id}
                       position={report.location}
                       onClick={() => setSelectedID(report._id)}
-                      onMouseOver={() => setSelectedID(report._id)}
-                      onMouseOut={() => setSelectedID(null)}
                     >
                       <OverlayView
                         position={report.location}
@@ -606,7 +604,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         </tr>
                       ))
                     ) : (
-                      <tr>
+                      <tr className="bg-white">
                         <td colSpan="2" className="text-center py-3">
                           No reports found.
                         </td>
@@ -615,45 +613,43 @@ function SOSUpdateReports({ isCollapsed }) {
                   </tbody>
                 </table>
 
-                {sosTotalPages > 1 && (
-                  <div className="flex justify-end items-center mt-1 mb-3">
-                    <div className="text-sm text-gray-700">
-                      {showingStart}-{showingEnd} of {sosTotalRows}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          setCurrentPageSOS((prev) => Math.max(prev - 1, 1))
-                        }
-                        disabled={currentPageSOS === 1}
-                        className={`p-1 rounded-full ${
-                          currentPageSOS === 1
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-gray-200"
-                        }`}
-                      >
-                        <MdKeyboardArrowLeft className="text-2xl text-[#F63131]" />
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          setCurrentPageSOS((prev) =>
-                            Math.min(prev + 1, sosTotalPages)
-                          )
-                        }
-                        disabled={currentPageSOS === sosTotalPages}
-                        className={`p-1 rounded-full ${
-                          currentPageSOS === sosTotalPages
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-gray-200"
-                        }`}
-                      >
-                        <MdKeyboardArrowRight className="text-2xl text-[#F63131]" />
-                      </button>
-                    </div>
+                <div className="flex justify-end items-center mt-1 mb-3">
+                  <div className="text-sm text-gray-700">
+                    {showingStart}-{showingEnd} of {sosTotalRows}
                   </div>
-                )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        setCurrentPageSOS((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={currentPageSOS === 1}
+                      className={`p-1 rounded-full ${
+                        currentPageSOS === 1
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-gray-200"
+                      }`}
+                    >
+                      <MdKeyboardArrowLeft className="text-2xl text-[#F63131]" />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setCurrentPageSOS((prev) =>
+                          Math.min(prev + 1, sosTotalPages)
+                        )
+                      }
+                      disabled={currentPageSOS === sosTotalPages}
+                      className={`p-1 rounded-full ${
+                        currentPageSOS === sosTotalPages
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-gray-200"
+                      }`}
+                    >
+                      <MdKeyboardArrowRight className="text-2xl text-[#F63131]" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Reporter Details */}
