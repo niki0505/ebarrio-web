@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from "react";
 
 //STYLES
 import "../Stylesheets/OpenCamera.css";
-
+import { Camera, Check } from "lucide-react";
 import { IoClose } from "react-icons/io5";
 
 function OpenCamera({ onDone, onClose }) {
@@ -61,7 +61,7 @@ function OpenCamera({ onDone, onClose }) {
     <>
       {showModal && (
         <div className={`modal-container ${flash ? "flash-effect" : ""}`}>
-          <div className="modal-content h-[30rem] w-[45rem]">
+          <div className="modal-content h-[35rem] w-[45rem] overflow-y-auto">
             <div className="dialog-title-bar">
               <div className="flex flex-col w-full">
                 <div className="dialog-title-bar-items">
@@ -144,26 +144,26 @@ function OpenCamera({ onDone, onClose }) {
                     <button
                       className={
                         hasCamera
-                          ? "actions-btn bg-btn-color-blue"
-                          : "actions-btn bg-btn-color-blue cursor-not-allowed"
+                          ? "actions-btn bg-btn-color-blue flex justify-center items-center"
+                          : "actions-btn bg-btn-color-blue cursor-not-allowed flex justify-center items-center"
                       }
                       onClick={capture}
                       disabled={!hasCamera}
                     >
-                      Capture
+                      <Camera className="w-7 h-7 align-center" />
                     </button>
                   )}
 
                   <button
                     className={
                       imageSrc
-                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400"
-                        : "actions-btn bg-btn-color-gray cursor-not-allowed"
+                        ? "actions-btn bg-btn-color-gray hover:bg-gray-400 flex justify-center items-center"
+                        : "actions-btn bg-btn-color-gray cursor-not-allowed flex justify-center items-center"
                     }
                     onClick={handleDoneClick}
                     disabled={!imageSrc}
                   >
-                    Done
+                    <Check className="w-7 h-7 align-center" />
                   </button>
                 </div>
               </div>

@@ -195,6 +195,22 @@ function SOSUpdateReports({ isCollapsed }) {
   const startRow = totalRows === 0 ? 0 : indexOfFirstRow + 1;
   const endRow = Math.min(indexOfLastRow, totalRows);
 
+  //SOS UPDATE ACTIVE PAGINATION
+  const [currentPageSOS, setCurrentPageSOS] = useState(1);
+  const sosRowsPerPage = 2;
+  const sosTotalRows = filteredReports.length;
+  const sosTotalPages = Math.ceil(sosTotalRows / sosRowsPerPage);
+
+  const startIndex = (currentPageSOS - 1) * sosRowsPerPage;
+  const endIndex = startIndex + sosRowsPerPage;
+
+  const showingStart = sosTotalRows === 0 ? 0 : startIndex + 1;
+  const showingEnd = Math.min(endIndex, sosTotalRows);
+
+  const paginatedReports = filteredReports
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(startIndex, endIndex);
+
   const exportCSV = async () => {
     if (filteredReports.length === 0) {
       confirm("No records available for export.", "failed");
@@ -519,11 +535,11 @@ function SOSUpdateReports({ isCollapsed }) {
             {isLoaded && (
               <div
                 className={
-                  "col-span-2 border-4 border-[#BC0F0F] rounded-lg overflow-hidden"
+                  "col-span-2 border-4 border-[#BC0F0F] rounded-lg overflow-hidden mt-4"
                 }
               >
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "650px" }}
+                  mapContainerStyle={{ width: "100%", height: "750px" }}
                   center={position}
                   zoom={18}
                 >
@@ -560,124 +576,170 @@ function SOSUpdateReports({ isCollapsed }) {
             <div>
               {/* Report List */}
               <div className="col-span-1">
-                <table className="w-full border-collapse text-left">
+                <table className="w-full border-collapse text-left table-fixed">
                   <thead className="bg-[#BC0F0F] text-white">
                     <tr>
-                      <th className="px-4 py-2">Name</th>
-                      <th className="px-4 py-2">Date Reported</th>
+                      <th className="px-4 py-2 w-1/2">Name</th>
+                      <th className="px-4 py-2 w-1/2">Date Reported</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {isLoaded && filteredReports.length > 0 ? (
-                      filteredReports
-                        .sort(
-                          (a, b) =>
-                            new Date(b.createdAt) - new Date(a.createdAt)
-                        )
-                        .map((rep, i) => (
-                          <tr
-                            key={i}
-                            className="bg-white"
-                            onClick={() => {
-                              if (rep.location?.lat && rep.location?.lng) {
-                                setPosition({
-                                  lat: Number(rep.location.lat),
-                                  lng: Number(rep.location.lng),
-                                });
-                              }
-                              setSelectedID(rep._id);
-                            }}
-                          >
-                            <td className="px-4 py-3">
-                              {rep.resID?.firstname} {rep.resID?.lastname}
-                            </td>
-                            <td className="px-4 py-3">{rep.createdAt}</td>
-                          </tr>
-                        ))
+                    {isLoaded && paginatedReports.length > 0 ? (
+                      paginatedReports.map((rep, i) => (
+                        <tr
+                          key={i}
+                          className="bg-white cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            if (rep.location?.lat && rep.location?.lng) {
+                              setPosition({
+                                lat: Number(rep.location.lat),
+                                lng: Number(rep.location.lng),
+                              });
+                            }
+                            setSelectedID(rep._id);
+                          }}
+                        >
+                          <td className="px-4 py-3">
+                            {rep.resID?.firstname} {rep.resID?.lastname}
+                          </td>
+                          <td className="px-4 py-3">{rep.createdAt}</td>
+                        </tr>
+                      ))
                     ) : (
-                      <tr className="bg-white cursor-default">
-                        <td colSpan="2">No reports found.</td>
+                      <tr>
+                        <td colSpan="2" className="text-center py-3">
+                          No reports found.
+                        </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
+
+                {sosTotalPages > 1 && (
+                  <div className="flex justify-end items-center mt-1 mb-3">
+                    <div className="text-sm text-gray-700">
+                      {showingStart}-{showingEnd} of {sosTotalRows}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          setCurrentPageSOS((prev) => Math.max(prev - 1, 1))
+                        }
+                        disabled={currentPageSOS === 1}
+                        className={`p-1 rounded-full ${
+                          currentPageSOS === 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-200"
+                        }`}
+                      >
+                        <MdKeyboardArrowLeft className="text-2xl text-[#F63131]" />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          setCurrentPageSOS((prev) =>
+                            Math.min(prev + 1, sosTotalPages)
+                          )
+                        }
+                        disabled={currentPageSOS === sosTotalPages}
+                        className={`p-1 rounded-full ${
+                          currentPageSOS === sosTotalPages
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-gray-200"
+                        }`}
+                      >
+                        <MdKeyboardArrowRight className="text-2xl text-[#F63131]" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               {/* Reporter Details */}
               {report && (
-                <>
-                  <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md  ">
+                <div className="bg-[#BC0F0F] text-white rounded-lg p-6 shadow-lg max-w-md mx-auto">
+                  {/* Close button */}
+                  <div className="flex justify-end">
                     <IoClose
                       onClick={() => setSelectedID(null)}
-                      className="text-2xl ml-auto text-white cursor-pointer hover:text-red-500"
+                      className="text-2xl cursor-pointer hover:text-red-400 transition-colors"
+                      title="Close"
                     />
-                    <div className="flex flex-col items-center">
-                      <h2 className="text-lg font-bold mb-2">
-                        Reporter Details
-                      </h2>
-                      <img
-                        src={report.resID?.picture}
-                        alt="Resident"
-                        className="w-24 h-24 bg-white rounded-full mb-3 object-cover shadow-lg"
-                      />
-                      <p className="text-xl font-semibold">
-                        {report.resID?.firstname} {report.resID?.lastname}
-                      </p>
-                      <p className="text-sm italic mb-2 opacity-70">Resident</p>
-                    </div>
-                    <div className="flex flex-col items-start">
-                      <div className="flex flex-row gap-2">
-                        <span className="font-bold">Age:</span>
-                        <span className="opacity-80">
-                          {report.resID?.age || "-"}
-                        </span>
-                      </div>
-
-                      <span className="font-bold">Address:</span>
-                      <span className="opacity-80 break-words flex-1">
-                        {report.resID?.householdno
-                          ? report.resID.householdno.address
-                          : "-"}
-                      </span>
-
-                      <div className="flex flex-row gap-2">
-                        <span className="font-bold">Mobile:</span>
-                        <span className="opacity-80">
-                          {report.resID?.mobilenumber}
-                        </span>
-                      </div>
-                    </div>
                   </div>
 
-                  {/* Status
-                  <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md mt-3 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">Heading:</span>
-                      <span className="opacity-80">
-                        {
-                          report.responder?.filter(
-                            (r) => r.status === "Heading"
-                          ).length
-                        }
-                      </span>
+                  {/* Header with picture and name */}
+                  <div className="flex flex-col items-center mb-6">
+                    <img
+                      src={report.resID?.picture || "/default-profile.png"}
+                      alt="Resident"
+                      className="w-24 h-24 rounded-full bg-white object-cover shadow-md mb-3"
+                    />
+                    <h2 className="text-2xl font-bold">
+                      {report.resID?.firstname} {report.resID?.lastname}
+                    </h2>
+                    <p className="italic opacity-70 mt-1">Resident</p>
+                  </div>
+
+                  {/* Info grid */}
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-white">
+                    <div>
+                      <h3 className="font-semibold mb-1">Age</h3>
+                      <p className="opacity-90">{report.resID?.age || "-"}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">Arrived:</span>
-                      <span className="opacity-80">
-                        {
-                          report.responder?.filter(
-                            (r) => r.status === "Arrived"
-                          ).length
-                        }
-                      </span>
+
+                    <div>
+                      <h3 className="font-semibold mb-1">Mobile</h3>
+                      <p className="opacity-90">
+                        {report.resID?.mobilenumber || "-"}
+                      </p>
                     </div>
-                  </div> */}
-                </>
+
+                    <div className="col-span-2">
+                      <h3 className="font-semibold mb-1">Address</h3>
+                      <p className="opacity-90 break-words">
+                        {report.resID?.householdno?.address || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-1">Emergency Type</h3>
+                      <p className="opacity-90">{report.reporttype || "-"}</p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-1">Location</h3>
+                      <p className="opacity-90">
+                        {report.readableAddress || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-1">Date Reported</h3>
+                      <p className="opacity-90">
+                        {report.createdAt?.split(" at ")[0] || "-"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-1">Time Reported</h3>
+                      <p className="opacity-90">
+                        {report.createdAt?.split(" at ")[1] || "-"}
+                      </p>
+                    </div>
+
+                    <div className="col-span-2">
+                      <h3 className="font-semibold mb-1">Additional Details</h3>
+                      <p className="opacity-90 whitespace-pre-line">
+                        {report.reportdetails || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
-          {/* Emergency Table */}
-          {report && (
+          {/* {report && (
             <div className="mt-6 border rounded-lg shadow overflow-hidden">
               <table className="w-full border-collapse text-left">
                 <thead className="bg-[#BC0F0F] text-white">
@@ -704,7 +766,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 </tbody>
               </table>
             </div>
-          )}
+          )} */}
         </>
       ) : (
         <>
