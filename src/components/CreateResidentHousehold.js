@@ -4,7 +4,7 @@ import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 
 //SCREENS
@@ -18,7 +18,9 @@ import { GrNext } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
 
 function CreateResidentHousehold({ isCollapsed }) {
+  const location = useLocation();
   const navigation = useNavigate();
+  const { resID } = location.state;
   const confirm = useConfirm();
   const { fetchResidents, residents, fetchHouseholds, household } =
     useContext(InfoContext);
@@ -531,7 +533,6 @@ function CreateResidentHousehold({ isCollapsed }) {
       if (loading) return;
 
       setLoading(true);
-      const fulladdress = `${householdForm.housenumber} ${householdForm.street} Aniban 2, Bacoor, Cavite`;
       let idPicture;
       let signaturePicture;
       if (residentForm.id) {
@@ -564,22 +565,15 @@ function CreateResidentHousehold({ isCollapsed }) {
 
       const updatedResidentForm = {
         ...residentForm,
-        address: fulladdress,
         mobilenumber: formattedMobileNumber,
         emergencymobilenumber: formattedEmergencyMobileNumber,
         telephone: formattedTelephone,
       };
 
-      const updatedHouseholdForm = {
-        ...householdForm,
-        address: fulladdress,
-      };
-
-      const response = await api.post("/createresident", {
+      const response = await api.post("/household/createresident", {
         picture: idPicture,
         signature: signaturePicture,
         ...updatedResidentForm,
-        householdForm: updatedHouseholdForm,
       });
 
       confirm(
@@ -587,7 +581,14 @@ function CreateResidentHousehold({ isCollapsed }) {
         "success"
       );
       setResidentForm(initialForm);
-      navigation("/residents");
+
+      if (location.state?.create) {
+        navigation("/create-resident", { state: { fetchAgain: true } });
+      } else if (location.state?.edit) {
+        navigation(`/edit-resident/${resID}`, { state: { fetchAgain: true } });
+      } else if (location.state?.account) {
+        navigation("/account", { state: { fetchAgain: true } });
+      }
     } catch (error) {
       console.log("Error", error);
     } finally {

@@ -230,7 +230,7 @@ function Residents({ isCollapsed }) {
 
   const editBtn = async (resID) => {
     try {
-      navigation("/edit-resident", { state: { resID } });
+      navigation(`/edit-resident/${resID}`);
     } catch (error) {
       console.log("Error in viewing resident details", error);
     }

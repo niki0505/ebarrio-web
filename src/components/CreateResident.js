@@ -4,7 +4,7 @@ import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 
 //SCREENS
@@ -18,6 +18,7 @@ import { GrNext } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
 
 function CreateResident({ isCollapsed }) {
+  const location = useLocation();
   const navigation = useNavigate();
   const confirm = useConfirm();
   const { fetchResidents, residents, fetchHouseholds, household } =
@@ -95,7 +96,7 @@ function CreateResident({ isCollapsed }) {
   };
   const { residentForm, setResidentForm } = useContext(InfoContext);
 
-  const [householdForm, setHouseholdForm] = useState({
+  const initialHouseholdForm = {
     members: [],
     vehicles: [],
     ethnicity: "",
@@ -108,13 +109,45 @@ function CreateResident({ isCollapsed }) {
     street: "",
     HOAname: "",
     address: "",
-  });
+  };
+  const { householdForm, setHouseholdForm } = useContext(InfoContext);
   const [memberSuggestions, setMemberSuggestions] = useState([]);
 
   useEffect(() => {
     fetchResidents();
     fetchHouseholds();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.fetchAgain) {
+      fetchResidents();
+      navigation(location.pathname, { replace: true });
+    }
+  }, [location.state?.fetchAgain]);
+
+  useEffect(() => {
+    if (residents.length > 0 && householdForm.members.length > 0) {
+      const newSuggestions = householdForm.members.map((member) => {
+        if (!member.resident?.trim() || member.resID) return [];
+
+        return residents
+          .filter(
+            (r) =>
+              r.status !== "Archived" &&
+              r.status !== "Pending" &&
+              r.status !== "Rejected"
+          )
+          .filter((res) => {
+            const fullName = `${res.firstname} ${
+              res.middlename ? res.middlename + " " : ""
+            }${res.lastname}`.toLowerCase();
+            return fullName.includes(member.resident.toLowerCase());
+          });
+      });
+
+      setMemberSuggestions(newSuggestions);
+    }
+  }, [residents, householdForm.members]);
 
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV"];
@@ -477,6 +510,7 @@ function CreateResident({ isCollapsed }) {
       return;
     }
     setResidentForm(initialForm);
+    setHouseholdForm(initialHouseholdForm);
   };
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
@@ -2188,7 +2222,9 @@ function CreateResident({ isCollapsed }) {
                                 ⚠️ No matching resident found.{" "}
                                 <span
                                   onClick={() =>
-                                    navigation("/household/create-resident")
+                                    navigation("/household/create-resident", {
+                                      state: { create: true },
+                                    })
                                   }
                                   className="text-[#0E94D3] cursor-pointer hover:underline"
                                 >

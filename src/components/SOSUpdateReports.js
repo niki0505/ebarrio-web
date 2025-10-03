@@ -198,7 +198,7 @@ function SOSUpdateReports({ isCollapsed }) {
   //SOS UPDATE ACTIVE PAGINATION
   const [currentPageSOS, setCurrentPageSOS] = useState(1);
   const sosRowsPerPage = 2;
-  const sosTotalRows = filteredReports.length;
+  const sosTotalRows = sortedFilteredReports.length;
   const sosTotalPages = Math.ceil(sosTotalRows / sosRowsPerPage);
 
   const startIndex = (currentPageSOS - 1) * sosRowsPerPage;
@@ -207,7 +207,7 @@ function SOSUpdateReports({ isCollapsed }) {
   const showingStart = sosTotalRows === 0 ? 0 : startIndex + 1;
   const showingEnd = Math.min(endIndex, sosTotalRows);
 
-  const paginatedReports = filteredReports
+  const paginatedReports = sortedFilteredReports
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(startIndex, endIndex);
 

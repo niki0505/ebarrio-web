@@ -167,7 +167,7 @@ function App() {
                       }
                     />
                     <Route
-                      path="edit-resident"
+                      path="edit-resident/:resID"
                       element={
                         <PrivateRoute
                           element={<EditResident />}
