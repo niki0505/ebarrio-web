@@ -1,5 +1,10 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  Marker,
+  useJsApiLoader,
+  OverlayView,
+} from "@react-google-maps/api";
 import { InfoContext } from "../context/InfoContext";
 import {
   MdKeyboardArrowLeft,
@@ -527,7 +532,24 @@ function SOSUpdateReports({ isCollapsed }) {
                       key={report._id}
                       position={report.location}
                       onClick={() => setSelectedID(report._id)}
-                    />
+                    >
+                      <OverlayView
+                        position={report.location}
+                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                      >
+                        <div
+                          style={{
+                            fontSize: "15px",
+                            fontWeight: "bold",
+                            color: "red",
+                            whiteSpace: "nowrap",
+                            textShadow: "0 1px 2px rgba(255,255,255,0.8)",
+                          }}
+                        >
+                          {report.resID.firstname} {report.resID.lastname}
+                        </div>
+                      </OverlayView>
+                    </Marker>
                   ))}
                 </GoogleMap>
               </div>
@@ -624,7 +646,7 @@ function SOSUpdateReports({ isCollapsed }) {
                     </div>
                   </div>
 
-                  {/* Status */}
+                  {/* Status
                   <div className="bg-[#BC0F0F] text-white rounded-lg p-5 shadow-md mt-3 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">Heading:</span>
@@ -646,7 +668,7 @@ function SOSUpdateReports({ isCollapsed }) {
                         }
                       </span>
                     </div>
-                  </div>
+                  </div> */}
                 </>
               )}
             </div>
