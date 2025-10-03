@@ -539,7 +539,7 @@ function SOSUpdateReports({ isCollapsed }) {
                 }
               >
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "750px" }}
+                  mapContainerStyle={{ width: "100%", height: "850px" }}
                   center={position}
                   zoom={18}
                 >
