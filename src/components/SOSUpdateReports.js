@@ -178,6 +178,26 @@ function SOSUpdateReports({ isCollapsed }) {
     }
   });
 
+  const markerPositions = {};
+  const adjustedReports = filteredReports.map((report) => {
+    const key = `${report.location.lat}-${report.location.lng}`;
+    let offsetLat = report.location.lat;
+    let offsetLng = report.location.lng;
+
+    if (markerPositions[key]) {
+      offsetLat += 0.00002 * markerPositions[key];
+      offsetLng += 0.00002 * markerPositions[key];
+      markerPositions[key] += 1;
+    } else {
+      markerPositions[key] = 1;
+    }
+
+    return {
+      ...report,
+      adjustedLocation: { lat: offsetLat, lng: offsetLng },
+    };
+  });
+
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -543,14 +563,14 @@ function SOSUpdateReports({ isCollapsed }) {
                   center={position}
                   zoom={18}
                 >
-                  {filteredReports?.map((report) => (
+                  {adjustedReports?.map((report) => (
                     <Marker
                       key={report._id}
-                      position={report.location}
+                      position={report.adjustedLocation}
                       onClick={() => setSelectedID(report._id)}
                     >
                       <OverlayView
-                        position={report.location}
+                        position={report.adjustedLocation}
                         mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                       >
                         <div
