@@ -198,7 +198,7 @@ function Accounts({ isCollapsed }) {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const totalRows = filteredUsers.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
@@ -737,7 +737,6 @@ function Accounts({ isCollapsed }) {
                 }}
                 className="table-pagination-select"
               >
-                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}

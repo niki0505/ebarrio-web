@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { useConfirm } from "../context/ConfirmContext";
 import { InfoContext } from "../context/InfoContext";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 
@@ -17,9 +17,10 @@ import { BiSolidImageAlt } from "react-icons/bi";
 import { GrNext } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
 
-function CreateResident({ isCollapsed }) {
+function CreateResidentHousehold({ isCollapsed }) {
   const location = useLocation();
   const navigation = useNavigate();
+  const { resID } = location.state;
   const confirm = useConfirm();
   const { fetchResidents, residents, fetchHouseholds, household } =
     useContext(InfoContext);
@@ -94,9 +95,9 @@ function CreateResident({ isCollapsed }) {
     fpmethod: "",
     fpstatus: "",
   };
-  const { residentForm, setResidentForm } = useContext(InfoContext);
+  const [residentForm, setResidentForm] = useState(initialForm);
 
-  const initialHouseholdForm = {
+  const [householdForm, setHouseholdForm] = useState({
     members: [],
     vehicles: [],
     ethnicity: "",
@@ -109,45 +110,13 @@ function CreateResident({ isCollapsed }) {
     street: "",
     HOAname: "",
     address: "",
-  };
-  const { householdForm, setHouseholdForm } = useContext(InfoContext);
+  });
   const [memberSuggestions, setMemberSuggestions] = useState([]);
 
   useEffect(() => {
     fetchResidents();
     fetchHouseholds();
   }, []);
-
-  useEffect(() => {
-    if (location.state?.fetchAgain) {
-      fetchResidents();
-      navigation(location.pathname, { replace: true });
-    }
-  }, [location.state?.fetchAgain]);
-
-  useEffect(() => {
-    if (residents.length > 0 && householdForm.members.length > 0) {
-      const newSuggestions = householdForm.members.map((member) => {
-        if (!member.resident?.trim() || member.resID) return [];
-
-        return residents
-          .filter(
-            (r) =>
-              r.status !== "Archived" &&
-              r.status !== "Pending" &&
-              r.status !== "Rejected"
-          )
-          .filter((res) => {
-            const fullName = `${res.firstname} ${
-              res.middlename ? res.middlename + " " : ""
-            }${res.lastname}`.toLowerCase();
-            return fullName.includes(member.resident.toLowerCase());
-          });
-      });
-
-      setMemberSuggestions(newSuggestions);
-    }
-  }, [residents, householdForm.members]);
 
   // DROPDOWN VALUES
   const suffixList = ["Jr.", "Sr.", "I", "II", "III", "IV"];
@@ -510,7 +479,6 @@ function CreateResident({ isCollapsed }) {
       return;
     }
     setResidentForm(initialForm);
-    setHouseholdForm(initialHouseholdForm);
   };
   async function uploadToFirebase(url) {
     const randomString = Math.random().toString(36).substring(2, 15);
@@ -565,7 +533,6 @@ function CreateResident({ isCollapsed }) {
       if (loading) return;
 
       setLoading(true);
-      const fulladdress = `${householdForm.housenumber} ${householdForm.street} Aniban 2, Bacoor, Cavite`;
       let idPicture;
       let signaturePicture;
       if (residentForm.id) {
@@ -598,22 +565,15 @@ function CreateResident({ isCollapsed }) {
 
       const updatedResidentForm = {
         ...residentForm,
-        address: fulladdress,
         mobilenumber: formattedMobileNumber,
         emergencymobilenumber: formattedEmergencyMobileNumber,
         telephone: formattedTelephone,
       };
 
-      const updatedHouseholdForm = {
-        ...householdForm,
-        address: fulladdress,
-      };
-
-      const response = await api.post("/createresident", {
+      const response = await api.post("/household/createresident", {
         picture: idPicture,
         signature: signaturePicture,
         ...updatedResidentForm,
-        householdForm: updatedHouseholdForm,
       });
 
       confirm(
@@ -621,7 +581,14 @@ function CreateResident({ isCollapsed }) {
         "success"
       );
       setResidentForm(initialForm);
-      navigation("/residents");
+
+      if (location.state?.create) {
+        navigation("/create-resident", { state: { fetchAgain: true } });
+      } else if (location.state?.edit) {
+        navigation(`/edit-resident/${resID}`, { state: { fetchAgain: true } });
+      } else if (location.state?.account) {
+        navigation("/account", { state: { fetchAgain: true } });
+      }
     } catch (error) {
       console.log("Error", error);
     } finally {
@@ -939,16 +906,6 @@ function CreateResident({ isCollapsed }) {
           <div className="spinner"></div>
         </div>
       )}
-      <div className="breadcrumbs-container">
-        <h1
-          onClick={() => navigation("/residents")}
-          className="breadcrumbs-inactive-text"
-        >
-          Residents
-        </h1>
-        <GrNext className="breadcrumbs-arrow" />
-        <h1 className="header-text">Create Resident</h1>
-      </div>
 
       {/* Personal Information */}
       <div className="white-bg-container">
@@ -1837,534 +1794,6 @@ function CreateResident({ isCollapsed }) {
             </div>
           </div>
 
-          {/* Household Information */}
-          <h3 className="section-title mt-8">Household Information</h3>
-          <hr class="section-divider" />
-
-          <div className="form-group">
-            <label className="form-label">
-              Head of the Household<label className="text-red-600">*</label>
-            </label>
-            <div className="radio-container">
-              <div className="radio-item">
-                <input
-                  type="radio"
-                  name="head"
-                  onChange={handleHouseholdChange}
-                  value="Yes"
-                  checked={residentForm.head === "Yes"}
-                />
-                <h1>Yes</h1>
-              </div>
-              <div className="radio-item">
-                <input
-                  type="radio"
-                  name="head"
-                  onChange={handleHouseholdChange}
-                  value="No"
-                  checked={residentForm.head === "No"}
-                />
-                <h1>No</h1>
-              </div>
-            </div>
-            {residentForm.head === "No" && (
-              <>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label for="householdno" className="form-label">
-                      Household
-                    </label>
-                    <select
-                      id="householdno"
-                      name="householdno"
-                      value={residentForm.householdno}
-                      onChange={handleDropdownChange}
-                      className="form-input"
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {household
-                        .filter((h) => h.status !== "Rejected")
-                        .map((h) => {
-                          const head = h.members.find(
-                            (m) => m.position === "Head"
-                          );
-                          const headName = head.resID
-                            ? `${head.resID.lastname}'s Residence - ${h.address}`
-                            : "Unnamed";
-                          return (
-                            <option key={h._id} value={h._id}>
-                              {headName}
-                            </option>
-                          );
-                        })}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="HOAname" className="form-label">
-                      Relationship
-                    </label>
-                    <select
-                      id="householdposition"
-                      name="householdposition"
-                      value={residentForm.householdposition}
-                      onChange={handleDropdownChange}
-                      className="form-input"
-                    >
-                      <option value="">Select Relationship</option>
-                      <option value="Spouse">Spouse</option>
-                      <option value="Son">Son</option>
-                      <option value="Daughter">Daughter</option>
-                      <option value="Parent">Parent</option>
-                      <option value="Sibling">Sibling</option>
-                      <option value="Grandparent">Grandparent</option>
-                      <option value="Grandchild">Grandchild</option>
-                      <option value="In-law">In-law</option>
-                      <option value="Relative">Relative</option>
-                      <option value="Housemate">Housemate</option>
-                      <option value="Househelp">Househelp</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Head = Yes: show members table */}
-            {residentForm.head === "Yes" && (
-              <div className="mt-4">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">House Number</label>
-                    <input
-                      name="housenumber"
-                      value={householdForm.housenumber}
-                      onChange={householdNumbersAndNoSpaceOnly}
-                      placeholder="Enter house number"
-                      maxLength={3}
-                      className="form-input"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label for="street" className="form-label">
-                      Street<label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="street"
-                      name="street"
-                      onChange={handleHouseholdDropdownChange}
-                      required
-                      value={householdForm.street}
-                      className="form-input"
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {streetList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label for="HOAname" className="form-label">
-                      Homeowners Association (HOA) Name
-                    </label>
-                    <select
-                      id="HOAname"
-                      name="HOAname"
-                      value={householdForm.HOAname}
-                      onChange={handleHouseholdDropdownChange}
-                      className="form-input"
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      <option value="Bermuda Town Homes">
-                        Bermuda Town Homes
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-grid">
-                  <div className="col-span-2">
-                    <label className="form-label">
-                      Ethnicity<label className="text-red-600">*</label>
-                    </label>
-                    <div className="radio-container">
-                      <div className="radio-item">
-                        <input
-                          type="radio"
-                          name="ethnicity"
-                          onChange={handleHouseholdRadioChange}
-                          value="IP Household"
-                          checked={householdForm.ethnicity === "IP Household"}
-                        />
-                        <h1>Indigenous Peoples (IP) Household</h1>
-                      </div>
-                      <div className="radio-item">
-                        <input
-                          type="radio"
-                          name="ethnicity"
-                          onChange={handleHouseholdRadioChange}
-                          value="Non-IP Household"
-                          checked={
-                            householdForm.ethnicity === "Non-IP Household"
-                          }
-                        />
-                        <h1>Non-Indigenous Peoples (Non-IP) Household</h1>
-                      </div>
-                    </div>
-                  </div>
-
-                  {householdForm.ethnicity === "IP Household" && (
-                    <div className="col-span-1">
-                      <label className="form-label">Tribe</label>
-                      <input
-                        name="tribe"
-                        value={householdForm.tribe}
-                        onChange={householdLettersAndSpaceOnly}
-                        placeholder="Enter tribe"
-                        className="form-input"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-grid">
-                  <div className="col-span-2">
-                    <label className="form-label">
-                      Socioeconomic Status
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <div className="radio-container">
-                      <div className="radio-item">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="NHTS 4Ps"
-                          checked={householdForm.sociostatus === "NHTS 4Ps"}
-                        />
-                        <h1>National Household Targeting System (NHTS) 4Ps</h1>
-                      </div>
-                      <div className="radio-item">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="NHTS Non-4Ps"
-                          checked={householdForm.sociostatus === "NHTS Non-4Ps"}
-                        />
-                        <h1>
-                          National Household Targeting System (NHTS) Non-4Ps
-                        </h1>
-                      </div>
-                      <div className="radio-item">
-                        <input
-                          type="radio"
-                          name="sociostatus"
-                          onChange={handleHouseholdRadioChange}
-                          value="Non-NHTS"
-                          checked={householdForm.sociostatus === "Non-NHTS"}
-                        />
-                        <h1>
-                          Non-National Household Targeting System (Non-NHTS)
-                        </h1>
-                      </div>
-                    </div>
-                  </div>
-
-                  {(householdForm.sociostatus === "NHTS 4Ps" ||
-                    householdForm.sociostatus === "NHTS Non-4Ps") && (
-                    <div className="col-san-1">
-                      <label className="form-label">
-                        National Household Targeting System (NHTS) No.
-                      </label>
-                      <input
-                        name="nhtsno"
-                        value={householdForm.nhtsno}
-                        onChange={householdNumbersAndNoSpaceOnly}
-                        placeholder="Enter no."
-                        className="form-input"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label for="employmentstatus" className="form-label">
-                      Type of Water Source
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="watersource"
-                      name="watersource"
-                      value={householdForm.watersource}
-                      onChange={handleHouseholdDropdownChange}
-                      className="form-input"
-                      required
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {watersourceList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label for="employmentstatus" className="form-label">
-                      Type of Toilet Facility
-                      <label className="text-red-600">*</label>
-                    </label>
-                    <select
-                      id="toiletfacility"
-                      name="toiletfacility"
-                      value={householdForm.toiletfacility}
-                      onChange={handleHouseholdDropdownChange}
-                      className="form-input"
-                      required
-                    >
-                      <option value="" selected>
-                        Select
-                      </option>
-                      {toiletfacilityList.map((element) => (
-                        <option value={element}>{element}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <table className="household-tbl-container">
-                  <thead>
-                    <tr>
-                      <th className="household-tbl-th">Relationship</th>
-                      <th className="household-tbl-th">Name</th>
-                      <th className="household-tbl-th">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {householdForm.members.map((member, index) => (
-                      <tr key={index}>
-                        <td className="household-tbl-th">
-                          <select
-                            value={member.position}
-                            onChange={(e) =>
-                              handleMemberChange(
-                                index,
-                                "position",
-                                e.target.value
-                              )
-                            }
-                            className="form-input"
-                          >
-                            <option value="">Select Relationship</option>
-                            <option value="Spouse">Spouse</option>
-                            <option value="Son">Son</option>
-                            <option value="Daughter">Daughter</option>
-                            <option value="Parent">Parent</option>
-                            <option value="Sibling">Sibling</option>
-                            <option value="Grandparent">Grandparent</option>
-                            <option value="Grandchild">Grandchild</option>
-                            <option value="In-law">In-law</option>
-                            <option value="Relative">Relative</option>
-                            <option value="Housemate">Housemate</option>
-                            <option value="Househelp">Househelp</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </td>
-                        <td className="household-tbl-th">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="Enter name"
-                              value={member.resident}
-                              onChange={(e) =>
-                                handleMemberChange(
-                                  index,
-                                  "resident",
-                                  e.target.value
-                                )
-                              }
-                              className="form-input"
-                            />
-                            {memberSuggestions[index] &&
-                              memberSuggestions[index].length > 0 && (
-                                <ul className="absolute z-10 bg-white border w-full max-h-40 overflow-y-auto">
-                                  {memberSuggestions[index].map((res) => {
-                                    const fullName = `${res.firstname} ${
-                                      res.middlename ? res.middlename + " " : ""
-                                    }${res.lastname}`;
-                                    return (
-                                      <li
-                                        key={res._id}
-                                        className="p-2 hover:bg-gray-200 cursor-pointer"
-                                        onClick={() =>
-                                          handleMemberSuggestionClick(
-                                            index,
-                                            res
-                                          )
-                                        }
-                                      >
-                                        {fullName}
-                                      </li>
-                                    );
-                                  })}
-                                </ul>
-                              )}
-
-                            {member.resident.trim() !== "" && !member.resID && (
-                              <p className="text-gray-500 text-xs mt-1">
-                                ⚠️ No matching resident found.{" "}
-                                <span
-                                  onClick={() =>
-                                    navigation("/household/create-resident", {
-                                      state: { create: true },
-                                    })
-                                  }
-                                  className="text-[#0E94D3] cursor-pointer hover:underline"
-                                >
-                                  Click here
-                                </span>{" "}
-                                if you want to create a resident profile.
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="household-tbl-th">
-                          {/* Prevent removing the Head */}
-                          {member.position !== "Head" && (
-                            <button
-                              type="button"
-                              className="btn btn-danger"
-                              onClick={() => removeMember(index)}
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div class="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    className="household-tbl-add-btn"
-                    onClick={addMember}
-                  >
-                    <LuCirclePlus className="text-lg" />
-                    <label>Add Member</label>
-                  </button>
-                </div>
-
-                <table className="household-tbl-container">
-                  <thead>
-                    <tr>
-                      <th className="household-tbl-th">Model</th>
-                      <th className="household-tbl-th">Color</th>
-                      <th className="household-tbl-th">Kind</th>
-                      <th className="household-tbl-th">Plate Number</th>
-                      <th className="household-tbl-th">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {householdForm.vehicles.map((vehicle, index) => (
-                      <tr key={index}>
-                        <td className="household-tbl-th">
-                          <input
-                            type="text"
-                            className="form-input w-full"
-                            value={vehicle.model || ""}
-                            onChange={(e) =>
-                              handleVehicleChange(
-                                index,
-                                "model",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="household-tbl-th">
-                          <input
-                            type="text"
-                            className="form-input w-full"
-                            value={vehicle.color || ""}
-                            onChange={(e) =>
-                              handleVehicleChange(
-                                index,
-                                "color",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="household-tbl-th">
-                          <select
-                            className="form-input w-full"
-                            value={vehicle.kind || ""}
-                            onChange={(e) =>
-                              handleVehicleChange(index, "kind", e.target.value)
-                            }
-                          >
-                            <option value="">Select kind</option>
-                            <option value="Sedan">Sedan</option>
-                            <option value="SUV">SUV</option>
-                            <option value="Motorcycle">Motorcycle</option>
-                            <option value="Van">Van</option>
-                            <option value="Truck">Truck</option>
-                            <option value="Tricycle">Tricycle</option>
-                            <option value="Bicycle">Bicycle</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </td>
-                        <td className="household-tbl-th">
-                          <input
-                            type="text"
-                            className="form-input w-full"
-                            value={vehicle.platenumber || ""}
-                            onChange={(e) =>
-                              handleVehicleChange(
-                                index,
-                                "platenumber",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="household-tbl-th">
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => removeVehicle(index)}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <div class="flex justify-end mt-2">
-                  <button
-                    type="button"
-                    className="household-tbl-add-btn"
-                    onClick={addVehicle}
-                  >
-                    <LuCirclePlus className="text-lg" />
-                    <label> Add Vehicle</label>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Employment Information */}
           <h3 className="section-title mt-8">Employment Information</h3>
           <hr class="section-divider" />
@@ -2495,4 +1924,4 @@ function CreateResident({ isCollapsed }) {
   );
 }
 
-export default CreateResident;
+export default CreateResidentHousehold;

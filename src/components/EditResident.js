@@ -3,7 +3,7 @@ import { removeBackground } from "@imgly/background-removal";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 import { InfoContext } from "../context/InfoContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useConfirm } from "../context/ConfirmContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
@@ -26,7 +26,7 @@ function EditResident({ isCollapsed }) {
   const [isIDProcessing, setIsIDProcessing] = useState(false);
   const [isSignProcessing, setIsSignProcessing] = useState(false);
   const location = useLocation();
-  const { resID } = location.state;
+  const { resID } = useParams();
   const [residentInfo, setResidentInfo] = useState([]);
   const { fetchResidents, residents, fetchHouseholds, household } =
     useContext(InfoContext);
@@ -122,12 +122,36 @@ function EditResident({ isCollapsed }) {
     fetchHouseholds();
   }, []);
 
-  console.log(
-    "Household no",
-    residentForm.householdno,
-    "Is Head",
-    residentForm.head
-  );
+  useEffect(() => {
+    if (location.state?.fetchAgain) {
+      fetchResidents();
+      navigation(location.pathname, { replace: true });
+    }
+  }, [location.state?.fetchAgain]);
+
+  useEffect(() => {
+    if (residents.length > 0 && householdForm.members.length > 0) {
+      const newSuggestions = householdForm.members.map((member) => {
+        if (!member.resident?.trim() || member.resID) return [];
+
+        return residents
+          .filter(
+            (r) =>
+              r.status !== "Archived" &&
+              r.status !== "Pending" &&
+              r.status !== "Rejected"
+          )
+          .filter((res) => {
+            const fullName = `${res.firstname} ${
+              res.middlename ? res.middlename + " " : ""
+            }${res.lastname}`.toLowerCase();
+            return fullName.includes(member.resident.toLowerCase());
+          });
+      });
+
+      setMemberSuggestions(newSuggestions);
+    }
+  }, [residents, householdForm.members]);
 
   useEffect(() => {
     if (residentInfo) {
@@ -955,15 +979,15 @@ function EditResident({ isCollapsed }) {
   };
 
   const handleSaveNewMember = async (member) => {
+    if (!member.resID || !member.position) {
+      confirm("Please select both the resident and position.", "failed");
+      return;
+    }
     const isConfirmed = await confirm(
       "Are you sure you want to add this resident as household member?",
       "confirm"
     );
     if (!isConfirmed) return;
-    if (!member.resID || !member.position) {
-      confirm("Please select both the resident and position.", "failed");
-      return;
-    }
     try {
       const payload = {
         resID: member.resID._id,
@@ -2547,6 +2571,26 @@ function EditResident({ isCollapsed }) {
                                     })}
                                   </ul>
                                 )}
+                              {member.resident.trim() !== "" &&
+                                !member.resID && (
+                                  <p className="text-gray-500 text-xs mt-1">
+                                    ⚠️ No matching resident found.{" "}
+                                    <span
+                                      onClick={() =>
+                                        navigation(
+                                          "/household/create-resident",
+                                          {
+                                            state: { resID, edit: true },
+                                          }
+                                        )
+                                      }
+                                      className="text-[#0E94D3] cursor-pointer hover:underline"
+                                    >
+                                      Click here
+                                    </span>{" "}
+                                    if you want to create a resident profile.
+                                  </p>
+                                )}
                             </div>
                           </td>
                           <td className="household-tbl-th">
@@ -2878,7 +2922,7 @@ function EditResident({ isCollapsed }) {
           <div className="form-grid">
             <div className="form-group">
               <label for="employmentstatus" className="form-label">
-                Employment Status<label className="text-red-600">*</label>
+                Employment Status
               </label>
               <select
                 id="employmentstatus"
@@ -2886,7 +2930,6 @@ function EditResident({ isCollapsed }) {
                 value={residentForm.employmentstatus}
                 onChange={handleDropdownChange}
                 className="form-input"
-                required
               >
                 <option value="" selected>
                   Select

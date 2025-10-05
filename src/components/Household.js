@@ -1261,7 +1261,7 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const totalRows = filteredHousehold.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
@@ -1450,7 +1450,6 @@ A  - Adolescent (10-19 y.o)     PWD - Person with Disability`,
                 }}
                 className="table-pagination-select"
               >
-                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}

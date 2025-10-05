@@ -230,7 +230,7 @@ function Residents({ isCollapsed }) {
 
   const editBtn = async (resID) => {
     try {
-      navigation("/edit-resident", { state: { resID } });
+      navigation(`/edit-resident/${resID}`);
     } catch (error) {
       console.log("Error in viewing resident details", error);
     }
@@ -433,7 +433,7 @@ function Residents({ isCollapsed }) {
 
   //For Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState("All");
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const totalRows = filteredResidents.length;
   const totalPages =
     rowsPerPage === "All" ? 1 : Math.ceil(totalRows / rowsPerPage);
@@ -1108,7 +1108,6 @@ function Residents({ isCollapsed }) {
                 }}
                 className="table-pagination-select"
               >
-                <option value="All">All</option>
                 {[5, 10, 15, 20].map((num) => (
                   <option key={num} value={num}>
                     {num}

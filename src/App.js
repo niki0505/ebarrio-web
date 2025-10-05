@@ -41,6 +41,7 @@ import Household from "./components/Household";
 import ViewResident from "./components/ViewResident";
 import NotFound from "./components/NotFound";
 import Landing from "./components/Landing";
+import CreateResidentHousehold from "./components/CreateResidentHousehold";
 
 // Scrolls to the top of the page when switching pages
 const ResetScrollToTop = () => {
@@ -153,7 +154,20 @@ function App() {
                       }
                     />
                     <Route
-                      path="edit-resident"
+                      path="household/create-resident"
+                      element={
+                        <PrivateRoute
+                          element={<CreateResidentHousehold />}
+                          allowedRoles={[
+                            "Secretary",
+                            "Clerk",
+                            "Technical Admin",
+                          ]}
+                        />
+                      }
+                    />
+                    <Route
+                      path="edit-resident/:resID"
                       element={
                         <PrivateRoute
                           element={<EditResident />}
