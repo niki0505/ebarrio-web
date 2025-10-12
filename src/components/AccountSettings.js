@@ -1245,7 +1245,7 @@ function AccountSettings({ isCollapsed }) {
     if (!isConfirmed) return;
     try {
       await api.put(
-        `/household/${residentInfo.householdno}/member/${member._id}`,
+        `/household/${residentInfo.householdno._id}/member/${member._id}`,
         {
           position: editedPosition,
         }
@@ -1283,7 +1283,7 @@ function AccountSettings({ isCollapsed }) {
 
     try {
       await api.delete(
-        `/household/${residentInfo.householdno}/member/${member._id}`
+        `/household/${residentInfo.householdno._id}/member/${member._id}`
       );
       setHouseholdForm((prev) => ({
         ...prev,
@@ -1389,11 +1389,25 @@ function AccountSettings({ isCollapsed }) {
     ]);
   };
 
-  const handleRemoveVehicle = (index) => {
-    const updatedVehicles = householdForm.vehicles.filter(
-      (_, i) => i !== index
+  const handleRemoveVehicle = async (vehicleID) => {
+    const isConfirmed = await confirm(
+      "Are you sure you want to remove this vehicle?",
+      "confirmred"
     );
-    setHouseholdForm({ ...householdForm, vehicles: updatedVehicles });
+    if (!isConfirmed) return;
+
+    try {
+      await api.delete(
+        `/household/${residentInfo.householdno._id}/vehicle/${vehicleID}`
+      );
+      setHouseholdForm((prev) => ({
+        ...prev,
+        vehicles: prev.vehicles.filter((v) => v._id !== vehicleID),
+      }));
+      confirm("The vehicle has been successfully removed.", "success");
+    } catch (error) {
+      console.error("Error removing vehicle:", error);
+    }
   };
 
   const handleSaveNewVehicle = async (vehicle) => {
@@ -1410,7 +1424,7 @@ function AccountSettings({ isCollapsed }) {
         platenumber: vehicle.platenumber,
       };
       const response = await api.post(
-        `/household/${residentInfo.householdno}/vehicle`,
+        `/household/${residentInfo.householdno._id}/vehicle`,
         payload
       );
 
@@ -1418,6 +1432,7 @@ function AccountSettings({ isCollapsed }) {
         ...prev,
         vehicles: [...(prev.vehicles || []), response.data],
       }));
+      setNewVehicles((prev) => prev.filter((v) => v.tempId !== vehicle.tempId));
       confirm("The vehicle has been successfully added.", "success");
     } catch (error) {
       console.error("Error adding new vehicle:", error);
@@ -1438,7 +1453,7 @@ function AccountSettings({ isCollapsed }) {
       };
 
       await api.put(
-        `/household/${residentInfo.householdno}/vehicle/${editedVehicle._id}`,
+        `/household/${residentInfo.householdno._id}/vehicle/${editedVehicle._id}`,
         { payload }
       );
 
@@ -3365,7 +3380,9 @@ function AccountSettings({ isCollapsed }) {
                                                 <div
                                                   className="flex flex-col items-center"
                                                   onClick={() =>
-                                                    handleRemoveVehicle(index)
+                                                    handleRemoveVehicle(
+                                                      vehicle._id
+                                                    )
                                                   }
                                                 >
                                                   <FaArchive className="text-base mb-1 text-[#F63131]" />
