@@ -245,7 +245,12 @@ function Dashboard({ isCollapsed }) {
         const status = certificate.status;
 
         if (!monthlyCounts[month]) {
-          monthlyCounts[month] = { Pending: 0, Issued: 0, Rejected: 0 };
+          monthlyCounts[month] = {
+            Pending: 0,
+            "Not Yet Collected": 0,
+            Collected: 0,
+            Rejected: 0,
+          };
         }
 
         if (monthlyCounts[month][status] !== undefined) {
@@ -477,7 +482,12 @@ function Dashboard({ isCollapsed }) {
   );
 
   //To show single graph per status when click
-  const allDocumentStatuses = ["Pending", "Issued", "Rejected"];
+  const allDocumentStatuses = [
+    "Pending",
+    "Not Yet Collected",
+    "Collected",
+    "Rejected",
+  ];
   const allReservationStatuses = ["Pending", "Approved", "Rejected"];
   const allBlotterStatuses = ["Pending", "Scheduled", "Rejected", "Settled"];
 
@@ -501,7 +511,8 @@ function Dashboard({ isCollapsed }) {
   const maxDocumentFrequency = Math.max(
     ...documentChartData.flatMap((d) => [
       d.Pending || 0,
-      d.Issued || 0,
+      d["Not Yet Collected"] || 0,
+      d.Collected || 0,
       d.Rejected || 0,
     ])
   );
@@ -1114,15 +1125,28 @@ function Dashboard({ isCollapsed }) {
                               />
                             </Bar>
                           )}
-                          {activeDocumentKeys.includes("Issued") && (
+                          {activeDocumentKeys.includes("Not Yet Collected") && (
                             <Bar
-                              dataKey="Issued"
+                              dataKey="Not Yet Collected"
+                              fill="url(#blueGradient)"
+                              radius={[10, 10, 0, 0]}
+                              animationDuration={800}
+                            >
+                              <LabelList
+                                dataKey="Not Yet Collected"
+                                content={renderTopLabel()}
+                              />
+                            </Bar>
+                          )}
+                          {activeDocumentKeys.includes("Collected") && (
+                            <Bar
+                              dataKey="Collected"
                               fill="url(#greenGradient)"
                               radius={[10, 10, 0, 0]}
                               animationDuration={800}
                             >
                               <LabelList
-                                dataKey="Issued"
+                                dataKey="Collected"
                                 content={renderTopLabel()}
                               />
                             </Bar>
