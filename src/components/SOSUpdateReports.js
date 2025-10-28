@@ -47,7 +47,7 @@ function SOSUpdateReports({ isCollapsed }) {
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyC3T3SOxoBKrTVpuJwvxGZIBQKg2iuFHGE",
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS,
   });
   const toggleFilterDropdown = () => {
     setfilterDropdown(!filterDropdown);

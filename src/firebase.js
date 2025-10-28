@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDAZrGLivEUWzn_fdIiJQSxA4tDaAVylA0",
+  apiKey: process.env.REACT_APP_FIREBASE,
   authDomain: "ebarrio-21814.firebaseapp.com",
   projectId: "ebarrio-21814",
   storageBucket: "ebarrio-21814.firebasestorage.app",
